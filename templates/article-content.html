@@ -1,0 +1,65 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="{{categoryUrl}}">{{category}}</a></li>
+          <li class="active">{{title}}</li>
+        </ol>
+      </div>
+    </section>
+    <section>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-1 hidden-md-down">
+            <div class="widget widget-share" data-fixed="widget">
+              <div class="widget-block">
+                <span>Share</span>
+                <a class="btn btn-social btn-facebook btn-circle" href="#" data-toggle="tooltip" title="Share on Facebook" data-placement="right" role="button">
+                  <i class="fa fa-facebook"></i>
+                </a>
+                <a class="btn btn-social btn-twitter btn-circle" href="#" data-toggle="tooltip" title="Share on Twitter" data-placement="right" role="button">
+                  <i class="fa fa-twitter"></i>
+                </a>
+                <a class="btn btn-social btn-reddit btn-circle" href="#" data-toggle="tooltip" title="Share on Reddit" data-placement="right" role="button">
+                  <i class="fa fa-reddit"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-10">
+            <div class="post post-single">
+              <h2 class="post-title">{{title}}</h2>
+              <div class="post-meta">
+                <span><i class="fa fa-clock-o"></i> {{date}}</span>
+                <span><i class="fa fa-user"></i> {{author}}</span>
+              </div>
+              <div class="post-content lotro-article">
+                {{content}}
+              </div>
+            </div>
+            <div class="post-actions">
+              <div class="post-tags">
+                {{tags}}
+              </div>
+              <div class="social-share">
+                <a class="btn btn-social btn-facebook btn-circle" href="#" data-toggle="tooltip" title="Share on Facebook" data-placement="bottom" role="button">
+                  <i class="fa fa-facebook"></i>
+                </a>
+                <a class="btn btn-social btn-twitter btn-circle" href="#" data-toggle="tooltip" title="Share on Twitter" data-placement="bottom" role="button">
+                  <i class="fa fa-twitter"></i>
+                </a>
+                <a class="btn btn-social btn-reddit btn-circle" href="#" data-toggle="tooltip" title="Share on Reddit" data-placement="bottom" role="button">
+                  <i class="fa fa-reddit"></i>
+                </a>
+              </div>
+            </div>
+            <div class="post-related">
+              <h6 class="subtitle">Related Posts</h6>
+              <div class="row">
+                {{relatedPosts}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>

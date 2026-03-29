@@ -1,0 +1,398 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LOTRO Fansite — Custom Theme Overrides
+   Middle-earth inspired color palette and typography
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Color Variables (CSS Custom Properties) ────────────────────────────── */
+:root {
+  --lotro-gold: #C9A84C;
+  --lotro-gold-light: #E5D49A;
+  --lotro-dark: #1A1A2E;
+  --lotro-dark-mid: #16213E;
+  --lotro-dark-accent: #0F3460;
+  --lotro-green: #2D6A4F;
+  --lotro-green-light: #52B788;
+  --lotro-parchment: #F5F0E1;
+  --lotro-parchment-dark: #E8DCC8;
+  --lotro-text: #2C2C2C;
+  --lotro-text-light: #6B6B6B;
+  --lotro-red: #9B2226;
+}
+
+/* ── Header Overrides ───────────────────────────────────────────────────── */
+#header {
+  background: var(--lotro-dark);
+}
+
+#header .navbar-backdrop {
+  background: var(--lotro-dark);
+}
+
+.lotro-logo-text {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--lotro-gold) !important;
+  letter-spacing: 1px;
+  text-transform: none;
+}
+
+#header .nav > ul > li > a {
+  font-family: 'Cinzel', serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* ── Hero Section ───────────────────────────────────────────────────────── */
+.lotro-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.lotro-hero-bg {
+  position: relative;
+  min-height: 450px;
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lotro-hero-bg .carousel-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 26, 46, 0.7) 0%,
+    rgba(26, 26, 46, 0.5) 50%,
+    rgba(26, 26, 46, 0.85) 100%
+  );
+}
+
+.lotro-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 80px 20px;
+  max-width: 700px;
+}
+
+.lotro-hero-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 48px;
+  color: var(--lotro-gold);
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.lotro-hero-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: 20px;
+  color: var(--lotro-parchment);
+  line-height: 1.6;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+.heading h2,
+.post-title,
+.card-title a,
+h1, h2, h3 {
+  font-family: 'Cinzel', serif;
+}
+
+.lotro-article {
+  font-family: 'Crimson Text', Georgia, serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--lotro-text);
+}
+
+.lotro-article h2,
+.lotro-article h3,
+.lotro-article h4,
+.lotro-article h5 {
+  font-family: 'Cinzel', serif;
+  color: var(--lotro-dark);
+  margin-top: 35px;
+  margin-bottom: 15px;
+}
+
+.lotro-article h2 {
+  font-size: 28px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--lotro-gold-light);
+}
+
+.lotro-article h3 {
+  font-size: 22px;
+  color: var(--lotro-dark-accent);
+}
+
+.lotro-article p {
+  margin-bottom: 20px;
+}
+
+.lotro-article img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lotro-article blockquote {
+  border-left: 4px solid var(--lotro-gold);
+  background: var(--lotro-parchment);
+  padding: 20px 25px;
+  margin: 25px 0;
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+}
+
+.lotro-article blockquote p {
+  margin-bottom: 0;
+}
+
+/* Code blocks for game commands, item links, etc. */
+.lotro-article code {
+  background: var(--lotro-parchment);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: var(--lotro-red);
+}
+
+.lotro-article pre {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  padding: 20px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.lotro-article pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* Tables for stats, gear lists, etc. */
+.lotro-article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+}
+
+.lotro-article table th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.lotro-article table td {
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--lotro-parchment-dark);
+}
+
+.lotro-article table tr:nth-child(even) {
+  background: var(--lotro-parchment);
+}
+
+.lotro-article table tr:hover {
+  background: var(--lotro-parchment-dark);
+}
+
+/* Lists */
+.lotro-article ul,
+.lotro-article ol {
+  margin-bottom: 20px;
+  padding-left: 25px;
+}
+
+.lotro-article li {
+  margin-bottom: 8px;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.card {
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.card-title a {
+  color: var(--lotro-dark);
+}
+
+.card-title a:hover {
+  color: var(--lotro-gold);
+  text-decoration: none;
+}
+
+/* ── Featured Card ──────────────────────────────────────────────────────── */
+.lotro-featured-card .card-block {
+  padding: 25px;
+}
+
+.lotro-featured-card .card-title {
+  font-size: 24px;
+}
+
+/* ── Sidebar Widgets ────────────────────────────────────────────────────── */
+.widget-sidebar {
+  background: #fff;
+  border-radius: 4px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.widget-sidebar .widget-title {
+  font-family: 'Cinzel', serif;
+  color: var(--lotro-dark);
+  font-size: 16px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--lotro-gold-light);
+}
+
+.lotro-quick-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lotro-quick-nav li {
+  margin-bottom: 8px;
+}
+
+.lotro-quick-nav li a {
+  color: var(--lotro-text);
+  display: block;
+  padding: 6px 10px;
+  border-radius: 3px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.lotro-quick-nav li a:hover {
+  background: var(--lotro-parchment);
+  color: var(--lotro-gold);
+  text-decoration: none;
+}
+
+.lotro-quick-nav li a i {
+  width: 20px;
+  margin-right: 8px;
+  color: var(--lotro-gold);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background-color: var(--lotro-gold) !important;
+  border-color: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #B8933E !important;
+  border-color: #B8933E !important;
+}
+
+/* ── Breadcrumbs ────────────────────────────────────────────────────────── */
+.breadcrumbs {
+  background: var(--lotro-parchment);
+}
+
+.breadcrumb a {
+  color: var(--lotro-gold);
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+#footer {
+  background: var(--lotro-dark);
+}
+
+#footer .footer-title {
+  font-family: 'Cinzel', serif;
+  color: var(--lotro-gold);
+}
+
+.footer-bottom {
+  border-top-color: var(--lotro-dark-mid);
+}
+
+/* ── Badge Overrides ────────────────────────────────────────────────────── */
+.badge-success {
+  background-color: var(--lotro-green) !important;
+}
+
+/* ── Post Tags ──────────────────────────────────────────────────────────── */
+.post-tags a {
+  background: var(--lotro-parchment);
+  color: var(--lotro-text);
+  border-radius: 3px;
+  padding: 4px 10px;
+  margin-right: 5px;
+  font-size: 13px;
+  display: inline-block;
+  margin-bottom: 5px;
+  transition: background 0.2s;
+}
+
+.post-tags a:hover {
+  background: var(--lotro-gold-light);
+  color: var(--lotro-dark);
+  text-decoration: none;
+}
+
+/* ── Heading Section ────────────────────────────────────────────────────── */
+.heading i {
+  color: var(--lotro-gold);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .lotro-hero-title {
+    font-size: 32px;
+  }
+
+  .lotro-hero-subtitle {
+    font-size: 16px;
+  }
+
+  .lotro-hero-bg {
+    min-height: 300px;
+  }
+
+  .lotro-article {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lotro-hero-title {
+    font-size: 24px;
+  }
+
+  .lotro-hero-content {
+    padding: 40px 15px;
+  }
+}

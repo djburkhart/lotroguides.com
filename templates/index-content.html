@@ -1,0 +1,31 @@
+    <!-- hero -->
+    <section class="lotro-hero bg-inverse p-y-0">
+      <div class="lotro-hero-bg" style="background-image: url('./{{siteRoot}}img/lotro-hero.jpg');">
+        <div class="carousel-overlay"></div>
+        <div class="lotro-hero-content">
+          <h1 class="lotro-hero-title">LOTRO Guides</h1>
+          <p class="lotro-hero-subtitle">Your companion through Lord of the Rings Online — class builds, crafting guides, instance walkthroughs, and the latest news from Middle-earth.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- featured post -->
+    {{featuredPost}}
+
+    <!-- recent posts -->
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-book"></i>
+          <h2>Latest Guides &amp; News</h2>
+          <p>Stay up to date with the latest guides, builds, and news for Lord of the Rings Online.</p>
+        </div>
+        <div class="row">
+          {{recentPosts}}
+        </div>
+        <div class="text-center m-t-30">
+          <a class="btn btn-primary btn-shadow btn-rounded btn-effect btn-lg" href="guides.html">Browse All Guides</a>
+          <a class="btn btn-secondary btn-shadow btn-rounded btn-effect btn-lg m-l-10" href="news.html">Latest News</a>
+        </div>
+      </div>
+    </section>
