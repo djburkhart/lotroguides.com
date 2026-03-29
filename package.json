@@ -2,7 +2,11 @@
   "name": "lotro-fansite",
   "version": "1.0.0",
   "description": "Lord of the Rings Online fansite - Markdown-powered static site generator",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
+    "start": "node serve.js",
     "build": "node build.js",
     "watch": "node build.js --watch",
     "scrape": "node scrape-news.js",
