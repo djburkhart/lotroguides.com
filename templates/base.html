@@ -39,14 +39,15 @@
                     <a href="./{{siteRoot}}guides.html">Guides</a>
                     <ul>
                       <li><a href="./{{siteRoot}}guides.html">All Guides</a></li>
-                      <li><a href="./{{siteRoot}}guides.html#class-guides">Class Guides</a></li>
-                      <li><a href="./{{siteRoot}}guides.html#crafting">Crafting</a></li>
-                      <li><a href="./{{siteRoot}}guides.html#instances">Instances & Raids</a></li>
-                      <li><a href="./{{siteRoot}}guides.html#beginner">Beginner Tips</a></li>
+                      {{guideNavItems}}
                     </ul>
                   </li>
-                  <li class="{{currentNews}}">
+                  <li class="has-dropdown {{currentNews}}">
                     <a href="./{{siteRoot}}news.html">News</a>
+                    <ul>
+                      <li><a href="./{{siteRoot}}news.html">All News</a></li>
+                      {{newsNavItems}}
+                    </ul>
                   </li>
                   <li class="{{currentAbout}}">
                     <a href="./{{siteRoot}}about.html">About</a>

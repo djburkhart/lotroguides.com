@@ -103,7 +103,61 @@ Use Ancient Script to level each tracery slot. Higher levels = bigger bonuses. P
 
 ### Step 4: Upgrade to First Age
 
-The final upgrade tier provides the largest stat bonuses. This requires significant Ancient Script investment, so focus on one LI at a time.
+First Age is the highest quality tier for Legendary Items and unlocks the full potential of the tracery slotting system. Here's what changes when you upgrade:
+
+#### Tracery Slot Layout
+
+Each LI has a fixed set of tracery slots. First Age items unlock **all available slots** and raise the **maximum tracery item level** cap. The layout differs between your weapon and class item:
+
+**Main-hand Weapon (First Age):**
+
+| Slot | Type | Purpose |
+|------|------|---------|
+| 1 | Heraldric Tracery | Primary stat (e.g., Might, Agility, Will) |
+| 2 | Heraldric Tracery | Secondary stat (e.g., Physical Mastery, Critical Rating) |
+| 3 | Heraldric Tracery | Tertiary stat |
+| 4 | Word of Power | Enhances a class skill (damage, cooldown, etc.) |
+| 5 | Word of Power | Enhances a class skill |
+| 6 | Word of Power | Enhances a class skill |
+| 7 | Word of Craft | Secondary stat (Finesse, Crit Defence, etc.) |
+| 8 | Word of Craft | Secondary stat |
+| 9 | Word of Craft | Secondary stat |
+
+**Class Item (First Age):**
+
+| Slot | Type | Purpose |
+|------|------|---------|
+| 1 | Heraldric Tracery | Primary stat |
+| 2 | Heraldric Tracery | Secondary stat |
+| 3 | Heraldric Tracery | Tertiary stat |
+| 4 | Word of Power | Enhances a class skill |
+| 5 | Word of Power | Enhances a class skill |
+| 6 | Word of Power | Enhances a class skill |
+| 7 | Word of Craft | Secondary stat |
+| 8 | Word of Craft | Secondary stat |
+| 9 | Word of Craft | Secondary stat |
+
+> Lower quality LIs (Second Age, Third Age, Incomparable) have **fewer unlocked slots** and **lower item level caps** on each tracery. Upgrading to First Age is the only way to access all 9 slots per item at their maximum potential.
+
+#### How Tracery Slotting Works
+
+1. **Open your LI panel** and select the item you want to modify.
+2. **Click an empty tracery slot** — a list of compatible traceries from your inventory appears.
+3. **Slot the tracery** — it binds to that slot. You can replace it later, but the old tracery is destroyed.
+4. **Level the tracery** — spend Ancient Script to raise its item level, increasing the bonus it provides.
+5. **Repeat** — fill every slot, then focus on leveling each tracery to the cap.
+
+Traceries are **slot-type locked** — you can only place a Heraldric Tracery in a Heraldric slot, a Word of Power in a Word of Power slot, and so on. Within each type, you choose which specific tracery to slot based on your build.
+
+#### Upgrading to First Age
+
+To upgrade an existing LI to First Age quality:
+
+1. Acquire a **First Age upgrade** item — available from end-game raid barter vendors, high-tier instance rewards, or the Ancient Script vendor at a significant cost.
+2. Apply it to your LI through the LI panel — this raises the item's quality tier.
+3. New tracery slots unlock immediately, and existing traceries gain a higher level cap.
+
+> **Tip:** Upgrade your main-hand weapon to First Age first — the Word of Power traceries on your weapon typically have the largest impact on your damage or healing output.
 
 ## Tips
 

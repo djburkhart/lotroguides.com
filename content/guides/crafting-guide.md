@@ -1,6 +1,6 @@
 ---
 title: "Complete Crafting Guide — Vocations, Leveling & Profit"
-date: 2026-03-10
+date: 2026-03-29
 author: "Amdor"
 tags: [crafting, vocations, professions, economy, gathering]
 image: "../lotro/img/guides/crafting-guide.jpg"
@@ -14,6 +14,8 @@ Crafting in LOTRO is a deep and rewarding system that lets you create weapons, a
 ## How Crafting Works
 
 Every character can learn one **Vocation**, which bundles three **Professions** together. You can master all three professions in your vocation, but you can only have one vocation per character.
+
+**Note:** Since the Umbar expansion, you can purchase a **4th crafting profession slot** from the LOTRO Store. This extra profession can be any profession, regardless of your vocation — letting you fill gaps in self-sufficiency or add a profitable skill. Each vocation section below includes a recommended 4th profession pick.
 
 Each profession has **tiers** that you progress through:
 1. Apprentice
@@ -33,7 +35,7 @@ Each profession has **tiers** that you progress through:
 
 Each tier has two stages: **Proficiency** (craft enough to unlock the next tier) and **Mastery** (craft more to unlock critical success recipes at that tier).
 
-## Choosing Your Vocation
+## Choosing Your Vocation (Or Combination of Vocations)
 
 ### Explorer — Best All-Around Choice
 
@@ -44,6 +46,7 @@ This is widely considered the best starting vocation because:
 - **Forester** lets you gather wood and hides
 - **Tailor** makes light and medium armor
 
+> **4th Profession Option:** Scholar — gives you access to potions, scrolls, and dyes that complement any playstyle.
 > **Perfect for:** Hunter, Burglar, Warden, or any class wearing light/medium armor
 
 ### Armsman
@@ -52,6 +55,7 @@ This is widely considered the best starting vocation because:
 
 Craft weapons and shields. The Prospector profession makes you self-sufficient for gathering ore.
 
+> **4th Profession Option:** Metalsmith — lets you craft heavy armor and your own crafting tools.
 > **Perfect for:** Champion, Guardian, or anyone who wants to craft their own weapons
 
 ### Tinker
@@ -60,6 +64,7 @@ Craft weapons and shields. The Prospector profession makes you self-sufficient f
 
 Make jewelry and food buffs. Cook is one of the most profitable professions.
 
+> **4th Profession Option:** Scholar — adds potions and scrolls to your consumable repertoire alongside food.
 > **Perfect for:** Crafting jewelry for all characters + cooking buff food for sale
 
 ### Historian
@@ -68,6 +73,7 @@ Make jewelry and food buffs. Cook is one of the most profitable professions.
 
 Scholar is unique — it creates potions, scrolls, and dyes. Farmer grows pipe-weed and cooking ingredients.
 
+> **4th Profession Option:** Prospector — makes your Weaponsmith self-sufficient for ore gathering.
 > **Perfect for:** Support-minded players who want to provide consumables
 
 ### Armorer
@@ -76,6 +82,7 @@ Scholar is unique — it creates potions, scrolls, and dyes. Farmer grows pipe-w
 
 The premiere armor-crafting vocation. Metalsmith makes heavy armor and shields.
 
+> **4th Profession Option:** Cook — adds buff food crafting to your already strong armor production.
 > **Perfect for:** Guardian, Captain, or anyone wanting full armor crafting
 
 ### Woodsman
@@ -84,6 +91,7 @@ The premiere armor-crafting vocation. Metalsmith makes heavy armor and shields.
 
 Craft bows, staves, and musical instruments. Self-sufficient wood gathering.
 
+> **4th Profession Option:** Prospector — gives you ore gathering to complement your wood-based crafting.
 > **Perfect for:** Hunter, Lore-master, Minstrel
 
 ### Yeoman
@@ -92,7 +100,70 @@ Craft bows, staves, and musical instruments. Self-sufficient wood gathering.
 
 No gathering profession requires another player's help for materials. But Cook + Farmer is very self-sufficient for food production.
 
+> **4th Profession Option:** Prospector or Forester — adds a gathering profession to fuel other characters or sell materials.
 > **Perfect for:** Dedicated cooks or players who want to focus on consumables
+
+## Crafting Tools
+
+Every profession requires a specific **crafting tool** equipped in your tool slot to craft or gather. Without the right tool equipped, you cannot use that profession's recipes or harvest its nodes.
+
+### Tool Types by Profession
+
+| Profession | Tool Required | Used For |
+|------------|---------------|----------|
+| Cook | Cook's Tools | Preparing food and buff items |
+| Farmer | Farmer's Tools | Planting and harvesting crops |
+| Forester | Forester's Tools | Processing hides and wood |
+| Jeweller | Jeweller's Tools | Crafting jewelry and settings |
+| Metalsmith | Metalsmith's Tools | Crafting heavy armor, shields, and tools |
+| Prospector | Prospector's Tools | Mining ore and gem nodes |
+| Scholar | Scholar's Tools | Crafting potions, scrolls, and dyes |
+| Tailor | Tailor's Tools | Crafting light and medium armor |
+| Weaponsmith | Weaponsmith's Tools | Crafting melee weapons |
+| Woodworker | Woodworker's Tools | Crafting bows, staves, and instruments |
+
+### Tool Tiers & Quality
+
+Tools come in tiers that match the crafting tier progression (Apprentice through Umbar). Higher-tier tools are required to craft at their corresponding tier.
+
+Within each tier, tools can have different **quality levels**:
+
+- **Standard** — Basic tool, no bonus
+- **Superior** — Grants a small bonus to critical success chance
+- **Supreme** — Grants a larger bonus to critical success chance
+
+Using a higher-quality tool is one of the easiest ways to increase your crit rate, making them well worth the investment.
+
+### Guaranteed Crit Items (Optional Crafting Ingredients)
+
+As an alternative to relying on tool quality and luck, many recipes accept an **optional crafting ingredient** that guarantees a critical success. These are sometimes called "crafting journals" or "compendiums" depending on the profession and tier. When you open a recipe that supports one, you'll see an optional ingredient slot alongside the required materials.
+
+Each profession has its own line of guaranteed crit items — for example, Weaponsmiths use *Westernesse Steel-blades Recipes*, Jewellers use *Gem-cutter's Journals*, and Scholars use *Compendiums of Lore*. They are tier-specific, so you need the matching tier's crit item for the recipe you are crafting.
+
+These items are typically obtained by:
+
+- **Crafting guild reputation vendors** — Unlocked at higher guild standing
+- **Drops** from humanoid enemies and treasure caches
+- **The Auction House** — Often the quickest way to get them
+
+> **Tip:** For expensive single-output recipes (like legendary weapon components or end-game armor), always use a guaranteed crit item rather than gambling on your crit chance. Save your crit items for high-value crafts and rely on tool quality for bulk crafting.
+
+### Umbar Tools & the 4th Profession
+
+With the Umbar expansion introducing the **4th profession slot**, the Umbar-tier tool system was updated to fully support it. Umbar crafting tools are available for every profession, meaning your 4th profession gets the same top-tier tool access as your original three. You do not need a separate vocation to obtain Umbar-quality tools for your extra profession — any Metalsmith or Woodworker can craft them for you (or you can find them on the Auction House).
+
+This is a significant quality-of-life improvement: previously, adding a mismatched profession meant relying on lower-tier or hard-to-find tools. Now, Supreme Umbar tools for all ten professions are craftable and tradeable, so your 4th profession can perform at full capacity from day one.
+
+### Who Crafts Tools?
+
+Crafting tools are made by two professions:
+
+- **Metalsmith** — Crafts metal-based tools (Prospector's Tools, Metalsmith's Tools, Jeweller's Tools, Cook's Tools, and others)
+- **Woodworker** — Crafts wood-based tools (Forester's Tools, Woodworker's Tools, and others)
+
+This is one reason Metalsmith and Woodworker are valuable professions — they supply tools for every other crafter on the server. Since the Umbar expansion, both professions can craft tools for all ten professions up to Umbar tier — including tools for any 4th profession slot. If you're choosing a 4th profession, Metalsmith is a strong pick because it lets you craft your own tools (and sell them).
+
+> **Tip:** Always upgrade your tools when you enter a new crafting tier. The crit bonus from superior/supreme tools adds up significantly over hundreds of crafts.
 
 ## Leveling Your Professions Efficiently
 
@@ -162,3 +233,7 @@ Always try to crit when crafting gear for yourself or to sell — crit items are
 ---
 
 *Crafting in LOTRO rewards patience and planning. Build up your professions alongside your adventures, and you'll always have the best gear and a healthy gold balance.*
+
+---
+
+*For the full crafting tools listing, see the [Crafting Tools Index on lotro-wiki.com](https://lotro-wiki.com/wiki/Crafting_Tools_Index).*

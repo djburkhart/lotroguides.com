@@ -47,8 +47,6 @@ Your class determines your combat role and abilities. Here's a quick overview:
 - **Minstrel** — Primary healer using the power of song. Also capable of surprising burst DPS.
 - **Lore-master** — Crowd control specialist with pets, debuffs, and off-healing.
 - **Beorning** — Shape-shifter that can tank, DPS, or heal depending on build.
-
-### Ranged DPS
 - **Mariner** — Newest class using dual-weapon stance swaps, capable of both melee and ranged combat.
 
 ## Your First Steps
@@ -80,6 +78,15 @@ Around level 10, you can visit a Master of Apprentices to choose a crafting voca
 - **Historian** — Farmer, Scholar, Weaponsmith
 - **Yeoman** — Farmer, Cook, Tailor
 
+Since the Umbar expansion, you can also purchase a **4th profession slot** from the LOTRO Store. This lets you add any profession regardless of your vocation — handy for filling gaps in self-sufficiency or picking up a profitable skill like Cook or Scholar.
+
+**Crafting tips for beginners:**
+- **Upgrade your tools each tier** — Every profession requires a crafting tool equipped in your tool slot. Higher-quality tools (Superior, Supreme) give you a better chance at critical successes, which produce stronger items.
+- **Use guaranteed crit items on important crafts** — Many recipes accept an optional ingredient (journals, compendiums, etc.) that guarantees a critical result. Save these for expensive or high-value recipes rather than wasting them on bulk crafting.
+- **Metalsmiths and Woodworkers craft tools** — If you need better tools, find a Metalsmith or Woodworker (or check the Auction House). Umbar-tier tools are available for all ten professions.
+
+> See the full [Crafting Guide](crafting-guide.html) for vocation recommendations, tool tiers, and leveling strategies.
+
 ## Tips for New Players
 
 1. **Enable XP acceleration** — VIP and some items grant bonus XP. Use them while questing.
@@ -89,6 +96,50 @@ Around level 10, you can visit a Master of Apprentices to choose a crafting voca
 5. **Don't sell everything** — Some drops are crafting materials. Check before vendoring!
 6. **Try Skirmishes at level 20** — These scalable instances are great for solo or group play.
 
+## Getting Into Instances & Raids
+
+Once you've leveled up and geared through questing, group content is where LOTRO really shines. Here's what to know before you jump in.
+
+### Instance Types
+
+- **Solo/Duo Instances** — Story-driven instances you can tackle alone or with a friend. Great for learning mechanics without pressure.
+- **3-Person Instances** — Small group content. A good stepping stone between solo play and full fellowships.
+- **6-Person Fellowships** — The standard group size. Most instances and dungeons are designed for a full fellowship of six.
+- **12-Person Raids** — The biggest PvE challenge. Raids require coordination, proper roles, and knowledge of boss mechanics.
+
+### Building Your First Group
+
+A balanced fellowship typically includes:
+- **1 Tank** (Guardian, Warden, or Captain)
+- **1 Healer** (Minstrel, Beorning, or Rune-keeper)
+- **4 DPS/Support** (mix of Champions, Hunters, Burglars, Lore-masters, etc.)
+
+For raids, you'll generally want 2 tanks, 2–3 healers, and the rest DPS/support.
+
+### How to Find Groups
+
+1. **Instance Finder** — Use the in-game Instance Finder tool (default key: Ctrl+J) to queue for instances at your level.
+2. **World Chat / LFF** — The Looking for Fellowship channel is the traditional way to find groups. Don't be shy — mention your class, level, and role.
+3. **Your Kinship** — The best and most reliable way to run group content regularly. If you haven't joined a Kinship yet, now is the time.
+
+### Tips for Your First Runs
+
+1. **Start with on-level content** — Don't jump straight into end-game. Run instances at your level to learn your role.
+2. **Know your role** — If you're a tank, know how to hold threat. If you're healing, prioritize the tank. DPS should focus targets and avoid pulling extra enemies.
+3. **Let the tank pull** — Charging ahead as DPS is a quick way to wipe the group. Wait for the tank to engage first.
+4. **Bring consumables** — Food buffs, potions, and hope tokens make a noticeable difference. Check the Auction House or craft your own.
+5. **Ask questions** — LOTRO's community is one of the friendliest in MMOs. If you don't know a fight, say so. Most groups are happy to explain.
+6. **Watch for distributed defeat** — In many boss fights, the damage is shared across the fellowship. Spreading out or stacking up at the right time matters.
+
+### Gearing Up for Group Content
+
+- **Landscape gear** gets you started, but instance drops and crafted gear are a step up.
+- **Skirmish camps** sell solid gear for Skirmish Marks — a reliable catch-up option at any level.
+- **Mission instances** (available from level 20) are quick, repeatable, and reward useful gear and currency.
+- At end-game, **raid gear** and **crafted guild recipes** offer the best-in-slot equipment.
+
+> **Don't be intimidated.** Every experienced raider was once a beginner running their first Great Barrow. Start small, learn as you go, and enjoy the journey.
+
 ## What's Free vs. Paid?
 
 LOTRO operates on a hybrid free-to-play model:
@@ -96,8 +147,6 @@ LOTRO operates on a hybrid free-to-play model:
 - **Free:** Epic Quest line, most landscape quests through Gondor, all classes (with unlocks), the Shire/Bree-land/Ered Luin/Lone-lands
 - **Subscription (VIP):** Access to all quest packs, trait slots, gold cap removal, and monthly LOTRO Points
 - **LOTRO Store:** You can buy quest packs, cosmetics, and convenience items individually
-
-> The Epic Quest line alone will carry you to max level. You can enjoy hundreds of hours of content without spending a penny.
 
 ## Next Steps
 

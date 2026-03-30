@@ -8,6 +8,7 @@
   "scripts": {
     "start": "node serve.js",
     "build": "node build.js",
+    "heroku-postbuild": "node scrape-news.js || true && node build.js",
     "watch": "node build.js --watch",
     "scrape": "node scrape-news.js",
     "scrape:build": "node scrape-news.js && node build.js"
