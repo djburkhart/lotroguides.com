@@ -125,6 +125,22 @@ There is no hard timer on this fight. When Lurkers are active, you may **keep 2 
 | Kill Lurkers near the tree | Faster transition back to boss burn phase |
 | Tanks kite Lurkers if healing is strained | Tanking both Lurkers and the Huorn simultaneously can overwhelm healers |
 
+## Recommended Consumables
+
+Ost Dunhoth Disease Wing features heavy disease pressure and distributed damage. Come prepared:
+
+| Consumable | Purpose |
+|---|---|
+| Luxurious Roasted Oryx Shank (or your class stat food) | Primary stat boost |
+| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
+| Scroll of Mûrai Battle Lore | Offensive mastery |
+| Scroll of Mûrai Warding Lore | Defensive mitigation (critical for tanks and Lurker swaps) |
+| Mûrai Edhelharn Token | Hope — counters the dread in Ost Dunhoth |
+| Greater Mûrai Athelas Essence | Emergency morale recovery |
+| Greater Mûrai Celebrant Essence | Power sustain during extended Lurker phases |
+
+> **Tip:** Disease cleanse pots are essential in this wing. The Grodbog Queens and Deep-worm Scavengers apply diseases constantly — have extra pots on your quickbar.
+
 ---
 
 > *Guide based on notes by Tinnuviel and strategy by Robrelloth of WwE. Adapted for lotroguides.com.*

@@ -1,0 +1,13 @@
+name: lotroguides
+static_sites:
+  - name: lotroguides-web
+    github:
+      repo: djburkhart/lotroguides.com
+      branch: main
+    build_command: npm run build
+    output_dir: /
+    environment_slug: node-js
+    envs:
+      - key: GOOGLE_ADSENSE_ACCOUNT
+        value: ca-pub-2480071878965715
+        scope: BUILD_TIME

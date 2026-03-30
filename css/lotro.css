@@ -396,3 +396,326 @@ h1, h2, h3 {
     padding: 40px 15px;
   }
 }
+
+/* ─── LotRO Item Auto-Links ─────────────────────────────────────────────── */
+.lotro-item {
+  text-decoration: none;
+  border-bottom: 1px dotted;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.lotro-item:hover {
+  text-decoration: none;
+}
+
+/* LOTRO rarity colors */
+.lotro-item.lotro-common { color: #f0f0f0; border-color: #999; }
+.lotro-item.lotro-uncommon { color: #f5e642; border-color: #c8b400; }
+.lotro-item.lotro-uncommon:hover { color: #fff176; }
+.lotro-item.lotro-rare { color: #3ea8e6; border-color: #2980b9; }
+.lotro-item.lotro-rare:hover { color: #64b5f6; }
+.lotro-item.lotro-incomparable { color: #e040fb; border-color: #ab47bc; }
+.lotro-item.lotro-incomparable:hover { color: #ea80fc; }
+.lotro-item.lotro-legendary { color: #ff9800; border-color: #e65100; }
+.lotro-item.lotro-legendary:hover { color: #ffb74d; }
+
+/* Consumable links (no quality) use gold accent */
+.lotro-item:not([class*="lotro-common"]):not([class*="lotro-uncommon"]):not([class*="lotro-rare"]):not([class*="lotro-incomparable"]):not([class*="lotro-legendary"]) {
+  color: #FFD700;
+  border-color: #b8960c;
+}
+.lotro-item:not([class*="lotro-common"]):not([class*="lotro-uncommon"]):not([class*="lotro-rare"]):not([class*="lotro-incomparable"]):not([class*="lotro-legendary"]):hover {
+  color: #ffe566;
+}
+
+/* Tooltip on hover */
+.lotro-item[data-item-stats]:hover::after {
+  content: attr(data-item-stats);
+  position: absolute;
+  left: 0;
+  bottom: 125%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+/* Small database icon */
+.lotro-item::before {
+  content: '\f1c0';
+  font-family: 'FontAwesome';
+  font-size: 10px;
+  margin-right: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.lotro-item:hover::before {
+  opacity: 0.6;
+}
+
+/* ─── Item Database Page ────────────────────────────────────────────────── */
+.item-filter-label {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lotro-gold);
+  display: block;
+  margin-bottom: 4px;
+}
+.item-filter-select {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+.item-filter-select:focus {
+  border-color: var(--lotro-gold);
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+
+#items-table {
+  font-size: 14px;
+}
+#items-table thead th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 2px solid var(--lotro-gold);
+}
+#items-table tbody td {
+  vertical-align: middle;
+}
+
+.lotro-item-link {
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.lotro-item-link:hover {
+  text-decoration: underline;
+}
+.lotro-item-link.lotro-legendary { color: #ff9800; }
+.lotro-item-link.lotro-legendary:hover { color: #ffb74d; }
+.lotro-item-link.lotro-incomparable { color: #e040fb; }
+.lotro-item-link.lotro-incomparable:hover { color: #ea80fc; }
+.lotro-item-link.lotro-rare { color: #3ea8e6; }
+.lotro-item-link.lotro-rare:hover { color: #64b5f6; }
+
+.item-quality-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.item-subtype-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--lotro-parchment);
+  background: #333;
+  border: 1px solid #555;
+}
+.item-stat {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Item detail modal */
+.item-modal-content {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+.item-modal-header {
+  border-bottom: 1px solid var(--lotro-gold);
+}
+.item-modal-header .modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+}
+.item-modal-header .close {
+  color: var(--lotro-parchment);
+  opacity: 0.7;
+}
+.item-modal-meta p {
+  margin-bottom: 4px;
+}
+.item-stat-table {
+  background: transparent;
+}
+.item-stat-table td {
+  border-color: #333;
+  padding: 4px 8px;
+}
+
+/* DataTables overrides for dark theme */
+#items-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#items-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#items-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+#items-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#items-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#items-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}
+
+/* ─── LotRO Mob Auto-Links ──────────────────────────────────────────────── */
+.lotro-mob {
+  text-decoration: none;
+  border-bottom: 1px dotted #9B2226;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  color: #e74c3c;
+  transition: color 0.15s ease;
+}
+.lotro-mob:hover {
+  text-decoration: none;
+  color: #ff6b6b;
+}
+/* Tooltip on hover showing genus/species */
+.lotro-mob[data-mob-genus]:hover::after {
+  content: attr(data-mob-genus) ' — ' attr(data-mob-species);
+  position: absolute;
+  left: 0;
+  bottom: 125%;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+/* Small crosshair icon */
+.lotro-mob::before {
+  content: '\f05b';
+  font-family: 'FontAwesome';
+  font-size: 10px;
+  margin-right: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.lotro-mob:hover::before {
+  opacity: 0.6;
+}
+
+/* ─── Mob Database Page ─────────────────────────────────────────────────── */
+.lotro-mob-link {
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  color: #e74c3c;
+  transition: color 0.15s ease;
+}
+.lotro-mob-link:hover {
+  text-decoration: underline;
+  color: #ff6b6b;
+}
+.lotro-mob-name {
+  font-family: 'Cinzel', serif;
+  color: #e74c3c;
+}
+.mob-genus-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mob-species-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--lotro-parchment);
+  background: #333;
+  border: 1px solid #555;
+}
+
+#mobs-table {
+  font-size: 14px;
+}
+#mobs-table thead th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 2px solid var(--lotro-gold);
+}
+#mobs-table tbody td {
+  vertical-align: middle;
+}
+#mobs-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#mobs-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#mobs-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+#mobs-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#mobs-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#mobs-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}

@@ -1,0 +1,90 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Item Database</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-database"></i>
+          <h2>Item Database</h2>
+          <p>Browse {{itemCount}} items from the LotRO Companion database. Click any item to view full details.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="row m-b-30">
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Type</label>
+            <select id="filter-type" class="form-control item-filter-select">
+              <option value="">All Types</option>
+              <option value="consumable">Consumables</option>
+              <option value="item">Equipment &amp; Items</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Subtype</label>
+            <select id="filter-subtype" class="form-control item-filter-select">
+              <option value="">All Subtypes</option>
+              <option value="food">Food</option>
+              <option value="trail-food">Trail Food</option>
+              <option value="feast">Feast</option>
+              <option value="battle-scroll">Battle Scroll</option>
+              <option value="warding-scroll">Warding Scroll</option>
+              <option value="token">Token</option>
+              <option value="tactical">Tactical (Shield-spikes, etc.)</option>
+              <option value="other">Other Consumable</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Quality</label>
+            <select id="filter-quality" class="form-control item-filter-select">
+              <option value="">All Qualities</option>
+              <option value="legendary">Legendary</option>
+              <option value="incomparable">Incomparable</option>
+              <option value="rare">Rare</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">&nbsp;</label>
+            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div class="table-responsive">
+          <table id="items-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Quality / Subtype</th>
+                <th>Stats</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Item Detail Modal -->
+    <div class="modal fade" id="item-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content item-modal-content">
+          <div class="modal-header item-modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title" id="item-modal-title"></h4>
+          </div>
+          <div class="modal-body" id="item-modal-body"></div>
+          <div class="modal-footer">
+            <a id="item-modal-companion-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-default">
+              <i class="fa fa-external-link"></i> View on LotRO Companion
+            </a>
+            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>

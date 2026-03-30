@@ -11,6 +11,116 @@ const OUTPUT_DIR = __dirname; // Output into lotro/ root
 const ASSETS_PREFIX = '';   // Relative path to parent theme assets
 const SITE_BASE_URL = 'https://lotroguides.com';
 const GOOGLE_ADSENSE_ACCOUNT = process.env.GOOGLE_ADSENSE_ACCOUNT || '';
+const LORE_DIR = path.join(__dirname, 'data', 'lore');
+
+// ─── Lore / Item Index ─────────────────────────────────────────────────────
+let itemIndex = {};
+const LOTRO_COMPANION_BASE = 'https://lotro-companion.github.io/LotroCompanionItems/';
+
+function loadItemIndex() {
+  const indexPath = path.join(LORE_DIR, 'item-index.json');
+  if (!fs.existsSync(indexPath)) {
+    console.log('   ℹ No lore data found — run: node scripts/extract-lore.js');
+    return;
+  }
+  itemIndex = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+  console.log(`   📇 Loaded item index (${Object.keys(itemIndex).length} entries)`);
+}
+
+/**
+ * Auto-link known item/consumable/mob names within HTML content.
+ * - Only matches names 8+ chars to avoid false positives
+ * - Matches longest names first (greedy)
+ * - Only links the first occurrence of each name per article
+ * - Wraps in <a class="lotro-item" data-item-id="..." data-item-type="...">
+ * - Skips content inside HTML tags (href, alt, etc.)
+ */
+function autoLinkItems(html) {
+  if (!Object.keys(itemIndex).length) return html;
+
+  // Build list of names to match: 8+ chars, no mobs, sorted longest-first
+  const names = Object.keys(itemIndex)
+    .filter(n => n.length >= 8 && itemIndex[n].type !== 'mob')
+    .sort((a, b) => b.length - a.length);
+
+  if (!names.length) return html;
+
+  const linked = new Set();
+
+  // Process each name — only match in text content, not inside tags
+  for (const name of names) {
+    if (linked.has(name)) continue;
+
+    // Escape regex special chars in the item name
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Match whole-word only, case-insensitive, not inside HTML tags
+    const regex = new RegExp(`(?<![<\\w/])\\b(${escaped})\\b(?![^<]*>)`, 'i');
+    const match = html.match(regex);
+
+    if (match) {
+      const entry = itemIndex[name];
+      // Link to our own items database page (articles live in subdir)
+      const itemUrl = `../items.html?id=${entry.id}`;
+      const qualityClass = entry.quality ? ` lotro-${entry.quality}` : '';
+      const typeLabel = entry.type === 'consumable' ? entry.subtype || 'consumable' : entry.type;
+
+      // Build tooltip data attribute with stats
+      let tooltipData = '';
+      if (entry.stats && entry.stats.length) {
+        const statStr = entry.stats
+          .filter(s => s.value !== 0)
+          .slice(0, 6)
+          .map(s => `${s.stat}: ${s.value.toLocaleString()}`)
+          .join(' | ');
+        tooltipData = ` data-item-stats="${statStr.replace(/"/g, '&quot;')}"`;
+      }
+
+      const replacement = `<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${match[0]}</a>`;
+
+      html = html.replace(match[0], replacement);
+      linked.add(name);
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Auto-link known mob names within HTML content.
+ * Same approach as autoLinkItems but for mobs only.
+ */
+function autoLinkMobs(html) {
+  if (!Object.keys(itemIndex).length) return html;
+
+  const names = Object.keys(itemIndex)
+    .filter(n => n.length >= 8 && itemIndex[n].type === 'mob')
+    .sort((a, b) => b.length - a.length);
+
+  if (!names.length) return html;
+
+  const linked = new Set();
+
+  for (const name of names) {
+    if (linked.has(name)) continue;
+
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<![<\\w/])\\b(${escaped})\\b(?![^<]*>)`, 'i');
+    const match = html.match(regex);
+
+    if (match) {
+      const entry = itemIndex[name];
+      const mobUrl = `../mobs.html?id=${entry.id}`;
+      const genusInfo = entry.genus ? ` data-mob-genus="${entry.genus}"` : '';
+      const speciesInfo = entry.species ? ` data-mob-species="${entry.species}"` : '';
+      const replacement = `<a href="${mobUrl}" class="lotro-mob" data-mob-id="${entry.id}"${genusInfo}${speciesInfo}>${match[0]}</a>`;
+
+      html = html.replace(match[0], replacement);
+      linked.add(name);
+    }
+  }
+
+  return html;
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function ensureDir(dir) {
@@ -159,6 +269,8 @@ function buildPage(bodyContent, pageData) {
     currentNews: pageData.currentPage === 'news' ? 'active' : '',
     currentHome: pageData.currentPage === 'home' ? 'active' : '',
     currentAbout: pageData.currentPage === 'about' ? 'active' : '',
+    currentItems: pageData.currentPage === 'items' ? 'active' : '',
+    currentMobs: pageData.currentPage === 'mobs' ? 'active' : '',
     siteRoot,
     guideNavItems: pageData.guideNavItems || '',
     newsNavItems: pageData.newsNavItems || '',
@@ -377,7 +489,7 @@ function buildArticle(post, relatedPosts, navData) {
     date: post.formattedDate,
     author: post.author || 'Amdor',
     image: postImg,
-    content: post.content,
+    content: autoLinkMobs(autoLinkItems(post.content)),
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
@@ -399,6 +511,124 @@ function buildArticle(post, relatedPosts, navData) {
   });
 }
 
+// ─── Items Database Page ────────────────────────────────────────────────────
+
+function buildItemsPage(navData) {
+  if (!Object.keys(itemIndex).length) return;
+
+  // Build compact client-side JSON: array of {id, n, t, st, q, lv, sl, stats:[{s,v}]}
+  const clientItems = Object.entries(itemIndex)
+    .filter(([, v]) => v.type !== 'mob')          // exclude mobs from item DB
+    .map(([name, v]) => {
+      const row = { id: v.id, n: name, t: v.type };
+      if (v.subtype) row.st = v.subtype;
+      if (v.quality) row.q = v.quality;
+      if (v.level) row.lv = v.level;
+      if (v.slot) row.sl = v.slot;
+      if (v.stats && v.stats.length) {
+        row.stats = v.stats.filter(s => s.value !== 0).map(s => ({ s: s.stat, v: s.value }));
+      }
+      return row;
+    });
+
+  const itemCount = clientItems.length;
+
+  // Write the JSON data file
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'items-db.json'),
+    JSON.stringify(clientItems)
+  );
+
+  // Build the page from template
+  const template = readTemplate('items-content.html');
+  const body = render(template, { itemCount: itemCount.toLocaleString() });
+
+  // Wrap in base.html with extra scripts for DataTables + items JS
+  let html = buildPage(body, {
+    title: 'Item Database - LOTRO Guides',
+    metaDescription: `Browse ${itemCount.toLocaleString()} items from the LotRO Companion database. Search, filter, and view stats for weapons, armor, consumables, and more.`,
+    currentPage: 'items',
+    ...navData,
+  });
+
+  // Inject DataTables CSS in <head> and scripts before </body>
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  // Load items data, then init',
+    '  $.getJSON("./data/items-db.json", function(data) {',
+    '    window.LOTRO_ITEMS_DB = data;',
+    '    $.getScript("./js/items-db.js", function() {',
+    '      if (window.LOTRO_ITEMS_INIT) window.LOTRO_ITEMS_INIT();',
+    '    });',
+    '  });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'items.html'), html);
+}
+
+// ─── Mobs Database Page ─────────────────────────────────────────────────────
+
+function buildMobsPage(navData) {
+  if (!Object.keys(itemIndex).length) return;
+
+  // Build compact client-side JSON: array of {id, n, g, sp}
+  const clientMobs = Object.entries(itemIndex)
+    .filter(([, v]) => v.type === 'mob')
+    .map(([name, v]) => {
+      const row = { id: v.id, n: name };
+      if (v.genus) row.g = v.genus;
+      if (v.species) row.sp = v.species;
+      return row;
+    });
+
+  const mobCount = clientMobs.length;
+
+  // Write the JSON data file
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'mobs-db.json'),
+    JSON.stringify(clientMobs)
+  );
+
+  // Build the page from template
+  const template = readTemplate('mobs-content.html');
+  const body = render(template, { mobCount: mobCount.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Mob Database - LOTRO Guides',
+    metaDescription: `Browse ${mobCount.toLocaleString()} enemies from the LotRO Companion database. Search and filter mobs by genus and species.`,
+    currentPage: 'mobs',
+    ...navData,
+  });
+
+  // Inject DataTables CSS in <head> and scripts before </body>
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  // Load mobs data, then init',
+    '  $.getJSON("./data/mobs-db.json", function(data) {',
+    '    window.LOTRO_MOBS_DB = data;',
+    '    $.getScript("./js/mobs-db.js", function() {',
+    '      if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();',
+    '    });',
+    '  });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'mobs.html'), html);
+}
+
 // ─── Main Build ─────────────────────────────────────────────────────────────
 
 async function build() {
@@ -408,6 +638,9 @@ async function build() {
   // Convert images to WebP and collect dimensions metadata
   console.log('   📸 Converting images to WebP...');
   await convertImagesToWebp();
+
+  // Load lore item index for auto-linking
+  loadItemIndex();
 
   // Load all markdown content
   const guides = loadContent('guides');
@@ -455,6 +688,14 @@ async function build() {
   })));
   console.log('   ✓ about.html');
 
+  // Build items database page
+  buildItemsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ items.html');
+
+  // Build mobs database page
+  buildMobsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ mobs.html');
+
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {
     const related = allGuides.filter(p => p.slug !== post.slug);
@@ -471,7 +712,8 @@ async function build() {
   });
 
   const elapsed = Date.now() - startTime;
-  console.log(`\n✅ Build complete in ${elapsed}ms — ${allPosts.length} articles generated`);
+  const itemCount = Object.keys(itemIndex).length;
+  console.log(`\n✅ Build complete in ${elapsed}ms — ${allPosts.length} articles, ${itemCount.toLocaleString()} items`);
 }
 
 // ─── Watch Mode ─────────────────────────────────────────────────────────────

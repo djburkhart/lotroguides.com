@@ -72,10 +72,10 @@ Around level 10, you can visit a Master of Apprentices to choose a crafting voca
 
 - **Explorer** — Forester, Tailor, Prospector (great for light/medium armor classes)
 - **Armsman** — Prospector, Weaponsmith, Woodworker
-- **Tinker** — Prospector, Jeweller, Cook
+- **Tinker** — Prospector, Jeweller, Cook (crafts hope tokens like Mûrai Edhelharn Token and stat food like Luxurious Roasted Oryx Shank)
 - **Woodsman** — Forester, Woodworker, Farmer
 - **Armorer** — Prospector, Metalsmith, Tailor
-- **Historian** — Farmer, Scholar, Weaponsmith
+- **Historian** — Farmer, Scholar, Weaponsmith (Scholar crafts Scroll of Mûrai Battle Lore, Scroll of Mûrai Warding Lore, and healing essences)
 - **Yeoman** — Farmer, Cook, Tailor
 
 Since the Umbar expansion, you can also purchase a **4th profession slot** from the LOTRO Store. This lets you add any profession regardless of your vocation — handy for filling gaps in self-sufficiency or picking up a profitable skill like Cook or Scholar.
@@ -127,7 +127,7 @@ For raids, you'll generally want 2 tanks, 2–3 healers, and the rest DPS/suppor
 1. **Start with on-level content** — Don't jump straight into end-game. Run instances at your level to learn your role.
 2. **Know your role** — If you're a tank, know how to hold threat. If you're healing, prioritize the tank. DPS should focus targets and avoid pulling extra enemies.
 3. **Let the tank pull** — Charging ahead as DPS is a quick way to wipe the group. Wait for the tank to engage first.
-4. **Bring consumables** — Food buffs, potions, and hope tokens make a noticeable difference. Check the Auction House or craft your own.
+4. **Bring consumables** — Food buffs, potions, and hope tokens make a noticeable difference. At end-game, raiders run Luxurious Roasted Oryx Shank or similar stat food, a Scroll of Mûrai Battle Lore for offense, a Scroll of Mûrai Warding Lore for defense, and a Mûrai Edhelharn Token for hope. Check the Auction House or craft your own.
 5. **Ask questions** — LOTRO's community is one of the friendliest in MMOs. If you don't know a fight, say so. Most groups are happy to explain.
 6. **Watch for distributed defeat** — In many boss fights, the damage is shared across the fellowship. Spreading out or stacking up at the right time matters.
 

@@ -157,6 +157,16 @@ To upgrade an existing LI:
 
 > **Tip:** Upgrade your main-hand weapon — the Word of Power traceries on your weapon typically have the largest impact on your damage or healing output.
 
+## Boosting Your LI with Consumables
+
+Beyond traceries and upgrades, temporary consumables can push your LI’s effective power even higher:
+
+- **Enhancement Rune +4, Lvl 151** — The current top-tier enhancement rune. Raises your LI’s item level by 4, boosting all tracery values. Lower tiers like Enhancement Rune +3, Lvl 151 and Enhancement Rune +2, Lvl 151 are cheaper alternatives.
+- **Scrolls of Empowerment** — Permanently increase a specific tracery’s level by 1. Use these on your most expensive traceries first.
+- **Scrolls of Delving** — Raise the maximum item level cap of your LI, allowing further upgrades.
+
+> **Tip:** Enhancement runes stack with all other consumables (food, scrolls, hope tokens). On progression nights, running an Enhancement Rune +4, Lvl 151 alongside your regular buffs gives you the best possible stats.
+
 ## Tips
 
 - **Don't waste script early** — Save Ancient Script for max-level traceries

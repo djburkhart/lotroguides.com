@@ -379,6 +379,24 @@ King Vaskmun Greytooth spawns. The tank grabs him (minimal damage). Continue the
 6. As soon as Fingar is vulnerable again, **burn him to 3%** as fast as possible (coin cyclones stop at 3%)
 7. Finish Fingar
 
+## Recommended Consumables
+
+The Abyss of Mordath is a long raid with high sustained damage. Full consumable uptime is non-negotiable for T2.
+
+| Consumable | Purpose |
+|---|---|
+| Luxurious Roasted Oryx Shank / Luxurious Stuffed Eggplant / Luxurious Eggplant Dip | Primary stat food (match to your class) |
+| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
+| Scroll of Mûrai Battle Lore | Offensive mastery |
+| Scroll of Mûrai Warding Lore | Defensive mitigation — critical for tanks and off-tanks managing ESGs |
+| Mûrai Edhelharn Token | Hope buff — counters Abyssal Darkness dread from Deathless Watchers |
+| Greater Mûrai Athelas Essence | Emergency morale after Bursting Boils or Blood Sickness |
+| Greater Mûrai Celebrant Essence | Power sustain — essential during long corruption removal phases |
+| Enhancement Rune +4, Lvl 151 | Extra LI item levels for DPS and healing output |
+| Mûrai Westernesse Shield-spike Kit | Shield-spike for tanks (match damage type to content) |
+
+> **Tip:** Bring at least 3 stacks of each consumable — the Abyss is long and wipes mean rebuffing. The 25-minute enrage on Fingar means every stat point counts. Coordinate a Splendid Mûrai Feast or Durable Umbari Feast before each boss pull.
+
 ---
 
 > *Guide based on raid notes by Robrelloth of WwE, originally adapted from [dadislotroguides.com](https://dadislotroguides.com/raid-guide-the-abyss-of-mordath/#trash). Formatted for lotroguides.com.*

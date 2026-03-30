@@ -62,7 +62,7 @@ Craft weapons and shields. The Prospector profession makes you self-sufficient f
 
 **Professions:** Prospector, Jeweller, Cook
 
-Make jewelry and food buffs. Cook is one of the most profitable professions.
+Make jewelry and food buffs. Cook is one of the most profitable professions — top-tier food like Luxurious Roasted Oryx Shank and Luxurious Stuffed Eggplant is always in demand. Jewellers also craft Mûrai Edhelharn Token for hope buffs.
 
 > **4th Profession Option:** Scholar — adds potions and scrolls to your consumable repertoire alongside food.
 > **Perfect for:** Crafting jewelry for all characters + cooking buff food for sale
@@ -71,7 +71,7 @@ Make jewelry and food buffs. Cook is one of the most profitable professions.
 
 **Professions:** Farmer, Scholar, Weaponsmith
 
-Scholar is unique — it creates potions, scrolls, and dyes. Farmer grows pipe-weed and cooking ingredients.
+Scholar is unique — it creates potions, battle and warding scrolls, and dyes. At end-game, Scholars craft Scroll of Mûrai Battle Lore and Scroll of Mûrai Warding Lore, plus healing essences like Greater Mûrai Athelas Essence and Greater Mûrai Celebrant Essence. Farmer grows pipe-weed and cooking ingredients.
 
 > **4th Profession Option:** Prospector — makes your Weaponsmith self-sufficient for ore gathering.
 > **Perfect for:** Support-minded players who want to provide consumables
@@ -205,9 +205,9 @@ To advance in a guild, complete daily crafting quests using guild-specific recip
 
 The most profitable crafting activities:
 
-1. **Cooking** — Buff food is always in demand. Trail food and feasts sell well.
-2. **Scholar** — Battle and Warding scrolls are consumables that raiders always need.
-3. **Jeweller** — Everyone needs jewelry. Craft and sell settings + finished pieces.
+1. **Cooking** — Buff food is always in demand. Luxurious Roasted Oryx Shank, Luxurious Eggplant Dip, and Pot of Mûrai Honey and Oats sell consistently. Feasts like Splendid Mûrai Feast and Durable Umbari Feast are premium items that fetch top prices.
+2. **Scholar** — Scroll of Mûrai Battle Lore and Scroll of Mûrai Warding Lore are consumables that raiders always need. Greater Mûrai Athelas Essence and Greater Mûrai Celebrant Essence are also steady sellers.
+3. **Jeweller** — Everyone needs jewelry, and Mûrai Edhelharn Token is a staple raid consumable. Craft and sell settings + finished pieces.
 4. **Processing Materials** — Buy raw ore/wood, process into ingots/planks, sell for profit.
 5. **Dyes (Scholar)** — Cosmetic players buy dyes regularly.
 
@@ -229,6 +229,19 @@ When you've mastered a tier, you unlock **critical success** on recipes. Crits p
 - **Woodworker:** Resin
 
 Always try to crit when crafting gear for yourself or to sell — crit items are significantly more valuable.
+
+## End-Game Crafting at a Glance
+
+At cap, every raider needs a steady supply of crafted consumables. Here's what each profession contributes:
+
+| Profession | Key End-Game Output |
+|---|---|
+| Cook | Luxurious Roasted Oryx Shank, Luxurious Stuffed Eggplant, Luxurious Eggplant Dip, Pot of Mûrai Honey and Oats, Splendid Mûrai Feast |
+| Scholar | Scroll of Mûrai Battle Lore, Scroll of Mûrai Warding Lore, Greater Mûrai Athelas Essence, Greater Mûrai Celebrant Essence |
+| Jeweller | Mûrai Edhelharn Token (hope buff) |
+| Metalsmith | Mûrai Westernesse Shield-spike Kit, Mûrai Beleriand Shield-spike Kit, Mûrai Ancient Dwarf Shield-spike Kit |
+
+All of these are consumed on use — meaning there is always demand. If you want to make gold, focus your crafting here.
 
 ---
 

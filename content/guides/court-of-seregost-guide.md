@@ -181,6 +181,22 @@ Lhaereth calls in Khílnat after **6 Plagued Great Bats have been defeated**.
 
 > **Key to success:** The tank's survival is everything in this fight. Kiting is the only viable option — standing still with this many mobs is not sustainable. DPS must burn Khílnat fast to shorten the danger window.
 
+## Recommended Consumables
+
+Seregost features heavy poison/disease pressure from Plagued Bats and Dulgabêrth’s Bursting Boils. Tactical mitigation and cleanse ability are paramount.
+
+| Consumable | Purpose |
+|---|---|
+| Luxurious Roasted Oryx Shank (or your class stat food) | Primary stat boost |
+| Pot of Mûrai Honey and Oats | Trail food — bonus mitigation |
+| Scroll of Mûrai Battle Lore | Offensive mastery |
+| Scroll of Mûrai Warding Lore | Defensive mitigation — essential for surviving Bursting Boils at T2 |
+| Mûrai Edhelharn Token | Hope buff |
+| Greater Mûrai Athelas Essence | Emergency morale after Bursting Boils |
+| Greater Mûrai Celebrant Essence | Power sustain during the extended T2 Khílnat fight |
+
+> **Tip:** For the T2 Challenge against Khílnat, the kiting tank should use Mûrai Westernesse Shield-spike Kit or the appropriate damage-type shield-spike kit and keep Scroll of Mûrai Warding Lore active at all times. The fight duration makes power management critical — bring extra Greater Mûrai Celebrant Essence.
+
 ---
 
 > *Guide by Robrelloth, based on information from [lotro-wiki.com](https://lotro-wiki.com/wiki/The_Court_of_Seregost). Formatted for lotroguides.com.*

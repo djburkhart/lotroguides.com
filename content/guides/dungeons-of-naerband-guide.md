@@ -121,6 +121,21 @@ This means you need to deliberately get jailed — repeatedly — to access and 
 
 This is a patience-heavy challenge that requires coordination and deliberate pacing rather than raw DPS.
 
+## Recommended Consumables
+
+Naerband is not a long instance, but Thraknûl’s Chains of Malice mechanic punishes under-preparedness. Bring:
+
+| Consumable | Purpose |
+|---|---|
+| Luxurious Roasted Oryx Shank (or your class stat food) | Primary stat boost |
+| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
+| Scroll of Mûrai Battle Lore | Offensive mastery for boss burns |
+| Scroll of Mûrai Warding Lore | Defensive mitigation |
+| Mûrai Edhelharn Token | Hope buff |
+| Greater Mûrai Athelas Essence | Emergency morale — especially when healing is cut off by Chains of Malice |
+
+> **Note:** If you are jailed during the Thraknûl fight, you’ll face a mob solo inside the cell. Having food and potions active means you can survive the solo encounter without healer support.
+
 ---
 
 > *Guide by Robrelloth, based on information from [lotro-wiki.com](https://lotro-wiki.com/wiki/The_Dungeons_of_Naerband). Formatted for lotroguides.com.*

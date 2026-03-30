@@ -1,0 +1,502 @@
+[
+  {
+    "stat": "Might",
+    "rank": 1,
+    "value": 300
+  },
+  {
+    "stat": "Might",
+    "rank": 2,
+    "value": 600
+  },
+  {
+    "stat": "Might",
+    "rank": 3,
+    "value": 1000
+  },
+  {
+    "stat": "Might",
+    "rank": 4,
+    "value": 1400
+  },
+  {
+    "stat": "Might",
+    "rank": 5,
+    "value": 1700
+  },
+  {
+    "stat": "Might",
+    "rank": 6,
+    "value": 2100
+  },
+  {
+    "stat": "Might",
+    "rank": 7,
+    "value": 2700
+  },
+  {
+    "stat": "Might",
+    "rank": 8,
+    "value": 3100
+  },
+  {
+    "stat": "Might",
+    "rank": 9,
+    "value": 3800
+  },
+  {
+    "stat": "Might",
+    "rank": 10,
+    "value": 4500
+  },
+  {
+    "stat": "Might",
+    "rank": 11,
+    "value": 5300
+  },
+  {
+    "stat": "Might",
+    "rank": 12,
+    "value": 6100
+  },
+  {
+    "stat": "Might",
+    "rank": 13,
+    "value": 8000
+  },
+  {
+    "stat": "Might",
+    "rank": 14,
+    "value": 9800
+  },
+  {
+    "stat": "Might",
+    "rank": 15,
+    "value": 11600
+  },
+  {
+    "stat": "Might",
+    "rank": 16,
+    "value": 14300
+  },
+  {
+    "stat": "Might",
+    "rank": 17,
+    "value": 17100
+  },
+  {
+    "stat": "Might",
+    "rank": 18,
+    "value": 20300
+  },
+  {
+    "stat": "Might",
+    "rank": 19,
+    "value": 22400
+  },
+  {
+    "stat": "Might",
+    "rank": 20,
+    "value": 26700
+  },
+  {
+    "stat": "Agility",
+    "rank": 1,
+    "value": 300
+  },
+  {
+    "stat": "Agility",
+    "rank": 2,
+    "value": 600
+  },
+  {
+    "stat": "Agility",
+    "rank": 3,
+    "value": 1000
+  },
+  {
+    "stat": "Agility",
+    "rank": 4,
+    "value": 1400
+  },
+  {
+    "stat": "Agility",
+    "rank": 5,
+    "value": 1700
+  },
+  {
+    "stat": "Agility",
+    "rank": 6,
+    "value": 2100
+  },
+  {
+    "stat": "Agility",
+    "rank": 7,
+    "value": 2700
+  },
+  {
+    "stat": "Agility",
+    "rank": 8,
+    "value": 3100
+  },
+  {
+    "stat": "Agility",
+    "rank": 9,
+    "value": 3800
+  },
+  {
+    "stat": "Agility",
+    "rank": 10,
+    "value": 4500
+  },
+  {
+    "stat": "Agility",
+    "rank": 11,
+    "value": 5300
+  },
+  {
+    "stat": "Agility",
+    "rank": 12,
+    "value": 6100
+  },
+  {
+    "stat": "Agility",
+    "rank": 13,
+    "value": 8000
+  },
+  {
+    "stat": "Agility",
+    "rank": 14,
+    "value": 9800
+  },
+  {
+    "stat": "Agility",
+    "rank": 15,
+    "value": 11600
+  },
+  {
+    "stat": "Agility",
+    "rank": 16,
+    "value": 14300
+  },
+  {
+    "stat": "Agility",
+    "rank": 17,
+    "value": 17100
+  },
+  {
+    "stat": "Agility",
+    "rank": 18,
+    "value": 20300
+  },
+  {
+    "stat": "Agility",
+    "rank": 19,
+    "value": 22400
+  },
+  {
+    "stat": "Agility",
+    "rank": 20,
+    "value": 26700
+  },
+  {
+    "stat": "Vitality",
+    "rank": 1,
+    "value": 200
+  },
+  {
+    "stat": "Vitality",
+    "rank": 2,
+    "value": 500
+  },
+  {
+    "stat": "Vitality",
+    "rank": 3,
+    "value": 800
+  },
+  {
+    "stat": "Vitality",
+    "rank": 4,
+    "value": 1200
+  },
+  {
+    "stat": "Vitality",
+    "rank": 5,
+    "value": 1600
+  },
+  {
+    "stat": "Vitality",
+    "rank": 6,
+    "value": 2000
+  },
+  {
+    "stat": "Vitality",
+    "rank": 7,
+    "value": 2600
+  },
+  {
+    "stat": "Vitality",
+    "rank": 8,
+    "value": 3200
+  },
+  {
+    "stat": "Vitality",
+    "rank": 9,
+    "value": 4100
+  },
+  {
+    "stat": "Vitality",
+    "rank": 10,
+    "value": 5100
+  },
+  {
+    "stat": "Vitality",
+    "rank": 11,
+    "value": 6100
+  },
+  {
+    "stat": "Vitality",
+    "rank": 12,
+    "value": 7300
+  },
+  {
+    "stat": "Vitality",
+    "rank": 13,
+    "value": 10200
+  },
+  {
+    "stat": "Vitality",
+    "rank": 14,
+    "value": 11800
+  },
+  {
+    "stat": "Vitality",
+    "rank": 15,
+    "value": 13500
+  },
+  {
+    "stat": "Vitality",
+    "rank": 16,
+    "value": 17500
+  },
+  {
+    "stat": "Vitality",
+    "rank": 17,
+    "value": 21600
+  },
+  {
+    "stat": "Vitality",
+    "rank": 18,
+    "value": 25600
+  },
+  {
+    "stat": "Vitality",
+    "rank": 19,
+    "value": 28300
+  },
+  {
+    "stat": "Vitality",
+    "rank": 20,
+    "value": 33700
+  },
+  {
+    "stat": "Will",
+    "rank": 1,
+    "value": 300
+  },
+  {
+    "stat": "Will",
+    "rank": 2,
+    "value": 600
+  },
+  {
+    "stat": "Will",
+    "rank": 3,
+    "value": 1000
+  },
+  {
+    "stat": "Will",
+    "rank": 4,
+    "value": 1400
+  },
+  {
+    "stat": "Will",
+    "rank": 5,
+    "value": 1700
+  },
+  {
+    "stat": "Will",
+    "rank": 6,
+    "value": 2100
+  },
+  {
+    "stat": "Will",
+    "rank": 7,
+    "value": 2700
+  },
+  {
+    "stat": "Will",
+    "rank": 8,
+    "value": 3100
+  },
+  {
+    "stat": "Will",
+    "rank": 9,
+    "value": 3800
+  },
+  {
+    "stat": "Will",
+    "rank": 10,
+    "value": 4500
+  },
+  {
+    "stat": "Will",
+    "rank": 11,
+    "value": 5300
+  },
+  {
+    "stat": "Will",
+    "rank": 12,
+    "value": 6100
+  },
+  {
+    "stat": "Will",
+    "rank": 13,
+    "value": 8000
+  },
+  {
+    "stat": "Will",
+    "rank": 14,
+    "value": 9800
+  },
+  {
+    "stat": "Will",
+    "rank": 15,
+    "value": 11600
+  },
+  {
+    "stat": "Will",
+    "rank": 16,
+    "value": 14300
+  },
+  {
+    "stat": "Will",
+    "rank": 17,
+    "value": 17100
+  },
+  {
+    "stat": "Will",
+    "rank": 18,
+    "value": 20300
+  },
+  {
+    "stat": "Will",
+    "rank": 19,
+    "value": 22400
+  },
+  {
+    "stat": "Will",
+    "rank": 20,
+    "value": 26700
+  },
+  {
+    "stat": "Fate",
+    "rank": 1,
+    "value": 1000
+  },
+  {
+    "stat": "Fate",
+    "rank": 2,
+    "value": 1200
+  },
+  {
+    "stat": "Fate",
+    "rank": 3,
+    "value": 1500
+  },
+  {
+    "stat": "Fate",
+    "rank": 4,
+    "value": 1700
+  },
+  {
+    "stat": "Fate",
+    "rank": 5,
+    "value": 1900
+  },
+  {
+    "stat": "Fate",
+    "rank": 6,
+    "value": 2200
+  },
+  {
+    "stat": "Fate",
+    "rank": 7,
+    "value": 2700
+  },
+  {
+    "stat": "Fate",
+    "rank": 8,
+    "value": 3000
+  },
+  {
+    "stat": "Fate",
+    "rank": 9,
+    "value": 3600
+  },
+  {
+    "stat": "Fate",
+    "rank": 10,
+    "value": 4300
+  },
+  {
+    "stat": "Fate",
+    "rank": 11,
+    "value": 5000
+  },
+  {
+    "stat": "Fate",
+    "rank": 12,
+    "value": 5700
+  },
+  {
+    "stat": "Fate",
+    "rank": 13,
+    "value": 7500
+  },
+  {
+    "stat": "Fate",
+    "rank": 14,
+    "value": 8700
+  },
+  {
+    "stat": "Fate",
+    "rank": 15,
+    "value": 9900
+  },
+  {
+    "stat": "Fate",
+    "rank": 16,
+    "value": 11700
+  },
+  {
+    "stat": "Fate",
+    "rank": 17,
+    "value": 13900
+  },
+  {
+    "stat": "Fate",
+    "rank": 18,
+    "value": 16600
+  },
+  {
+    "stat": "Fate",
+    "rank": 19,
+    "value": 18400
+  },
+  {
+    "stat": "Fate",
+    "rank": 20,
+    "value": 22000
+  }
+]

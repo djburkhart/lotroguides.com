@@ -43,3 +43,19 @@ Each ring has different trash pulls and mechanics for the final boss in each rin
 >**Phase 2:** If you have succeeded in killing *Crisiant* without any rage present on his green bar, then your next order of business is to kill Frost Grims until *Usgarren* bar is back to 0 rage. Once this is done then you can focus on *Usgarren* killing a Frost Grim as needed if his rage bar ticks up at all while trying to kill him.
 
 >**General Note:** On a last note, be careful not to use too many bleeds on both *Crisiant* and *Usgarren* as it is easily possible to accidentally kill one or the other right after the rage bar ticks up as they are nearing defeat.
+
+## Recommended Consumables
+
+Fire and Ice is a pure DPS race — every point of mastery matters. Stack everything:
+
+| Consumable | Purpose |
+|---|---|
+| Luxurious Roasted Oryx Shank (Might) / Luxurious Stuffed Eggplant (Agility) / Luxurious Eggplant Dip (Will) | Primary stat food for your class |
+| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
+| Scroll of Mûrai Battle Lore | Offensive mastery — critical for meeting the 30-second DPS windows |
+| Scroll of Mûrai Warding Lore | Defensive mitigation for tanks holding Grims |
+| Mûrai Edhelharn Token | Hope buff |
+| Enhancement Rune +4, Lvl 151 | Extra LI item levels for maximum DPS |
+| Greater Mûrai Athelas Essence | Emergency morale between phases |
+
+> **Tip:** Coordinate Splendid Mûrai Feast or Durable Umbari Feast before the pull so the entire raid starts with food buffs active.

@@ -27,11 +27,13 @@ Food provides a sustained stat buff that lasts through combat. You can have **on
 - Provides a primary stat boost (Might, Agility, Will, Vitality, or Fate)
 - Higher-tier recipes give larger bonuses and longer durations
 - Always use **critical success** versions for the best stats — these give a significant bump over normal output
-- Example: At level 140 cap, you want the latest Umbar-tier food for your class's primary stat
+- At current cap, use the Mûrai tier: Luxurious Roasted Oryx Shank for Might classes, Luxurious Stuffed Eggplant for Agility, or Luxurious Eggplant Dip for Will
+- For a group feast, Splendid Mûrai Feast buffs Vitality, Might, Agility, Will, and regen for everyone
 
 **Trail Food** (Cook profession):
-- Provides a secondary buff such as Morale regeneration, Power regeneration, or a secondary stat
+- Provides a secondary buff such as fire/shadow mitigation and armour
 - Stacks with cooked food — always run both
+- At cap, Pot of Mûrai Honey and Oats is the top trail food — it adds fire mitigation, shadow mitigation, and physical mitigation
 - Critical success trail food is a noticeable boost over normal versions
 
 > **Tip:** If you are not a Cook, ask your kinship or check the Auction House. Crit food sells fast at raid tiers, so stock up ahead of time.
@@ -53,27 +55,29 @@ Food provides a sustained stat buff that lasts through combat. You can have **on
 
 **Battle Scrolls** (Scholar profession):
 - Boost your offensive stats (Physical Mastery, Tactical Mastery)
-- On-level battle scrolls are a meaningful DPS increase
+- At cap, Scroll of Mûrai Battle Lore gives +7,830 Physical Mastery and +7,830 Tactical Mastery
+- Previous tier: Scroll of Umbari Battle Lore gives +4,060 to both masteries
 - Crit versions give a larger and longer-lasting buff
 
 **Warding Scrolls** (Scholar profession):
-- Boost your defensive stats (Physical Mitigation, Tactical Mitigation, Resistance)
+- Boost your defensive stats (Physical Mitigation, Tactical Mitigation)
+- At cap, Scroll of Mûrai Warding Lore gives +7,490 Physical Mitigation and +7,490 Tactical Mitigation
+- Previous tier: Scroll of Umbari Warding Lore gives +4,130 to both mitigations
 - Tanks should always have warding scrolls running
 - Healers and ranged DPS benefit too — T2C mechanics hit hard regardless of role
 
-### Tokens of Wilderness / Courage
+### Edhelharn Tokens (Hope)
 
-- Craftable or loot-drop items providing group-wide buffs
-- **Tokens of Wilderness** boost offensive stats for the fellowship
-- **Tokens of Courage** boost defensive stats for the fellowship
-- These are used from your inventory and affect your entire group — coordinate with your raid so you don't stack the same token inefficiently
-
-### Hope Tokens
-
-- Crafted by Jewellers, these provide a **Hope buff** that directly increases your stats
+- Crafted by Jewellers, these provide a **Hope buff** that directly increases your stats and resistance
+- At cap, Mûrai Edhelharn Token gives +6 Hope and +637 Resistance
+- Previous tier: Umbari Edhelharn Token gives +6 Hope and +593 Resistance
 - Hope is critical in raids because many bosses apply **Dread** — a debuff that reduces your stats and can cause you to cower if it stacks too high
-- On-level hope tokens help counteract boss-applied dread and keep your performance steady
 - Always carry enough for the full raid — you may need to re-apply if you wipe
+
+### Shield-spike Kits & Caltrops
+
+- Tanks and Wardens should always equip on-level shield-spike kits — Mûrai Westernesse Shield-spike Kit, Mûrai Beleriand Shield-spike Kit, or Mûrai Ancient Dwarf Shield-spike Kit depending on content damage type
+- Mûrai Caltrops can be dropped before pulls for AoE slow — useful on trash and some boss adds
 
 ---
 
@@ -99,7 +103,8 @@ Crafted consumables get you most of the way there, but for T2 Challenge content 
 
 ### Enhancement Runes
 
-- Temporarily boost a specific stat with a percentage increase
+- Enhancement Rune +4, Lvl 151 is the current top tier — raises your LI item level by 4
+- Lower tiers like Enhancement Rune +3, Lvl 151 and Enhancement Rune +2, Lvl 151 are also available
 - Stack with all other consumables for the highest possible stat ceiling
 - Useful for progression nights where you are pushing a boss for the first time
 
@@ -130,16 +135,16 @@ Here's a checklist of what to have in your bags before every T2C raid:
 
 ### The Essentials (Crafted)
 
-| Consumable | Source | Slot |
+| Consumable | Example | Slot |
 |---|---|---|
-| On-level Cooked Food (crit) | Cook | Food buff |
-| On-level Trail Food (crit) | Cook | Trail food buff |
-| Morale Potions | Scholar | Emergency heal |
-| Power Potions | Scholar | Sustain |
-| Battle Scroll (crit) | Scholar | Offensive buff |
-| Warding Scroll (crit) | Scholar | Defensive buff |
-| Hope Tokens | Jeweller | Dread counter |
-| Stat Tome (crafted) | Scholar | Stat boost |
+| Cooked Food (crit) | Luxurious Roasted Oryx Shank | Food buff |
+| Trail Food | Pot of Mûrai Honey and Oats | Trail food buff |
+| Morale Potions | On-level Scholar pots | Emergency heal |
+| Power Potions | On-level Scholar pots | Sustain |
+| Battle Scroll | Scroll of Mûrai Battle Lore | Offensive buff |
+| Warding Scroll | Scroll of Mûrai Warding Lore | Defensive buff |
+| Hope Token | Mûrai Edhelharn Token | Dread counter |
+| Shield-spikes | Mûrai Westernesse Shield-spike Kit | Tank buff |
 
 ### The Store Edge (T2C Push)
 
@@ -148,7 +153,7 @@ Here's a checklist of what to have in your bags before every T2C raid:
 | Permanent Stat Tomes | +10 per stat, permanent |
 | Scrolls of Empowerment | Max out LI traceries |
 | Scrolls of Delving | Raise LI item level cap |
-| Enhancement Runes | Temporary % stat boost |
+| Enhancement Runes | Raise LI item level (Enhancement Rune +4, Lvl 151) |
 | Revival Tomes | Revive in place on defeat |
 | Morale/Power Bubbles | Emergency absorb shield |
 | Store Hope Tokens | Stronger dread resistance |
