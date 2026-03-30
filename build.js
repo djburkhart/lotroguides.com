@@ -8,6 +8,7 @@ const CONTENT_DIR = path.join(__dirname, 'content');
 const TEMPLATE_DIR = path.join(__dirname, 'templates');
 const OUTPUT_DIR = __dirname; // Output into lotro/ root
 const ASSETS_PREFIX = '';   // Relative path to parent theme assets
+const SITE_BASE_URL = 'https://lotroguides.com';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function ensureDir(dir) {
@@ -65,6 +66,8 @@ function buildPage(bodyContent, pageData) {
     siteRoot,
     guideNavItems: pageData.guideNavItems || '',
     newsNavItems: pageData.newsNavItems || '',
+    ogUrl: pageData.ogUrl || SITE_BASE_URL,
+    ogImage: pageData.ogImage || `${SITE_BASE_URL}/img/default.jpg`,
   });
 }
 
@@ -267,6 +270,11 @@ function buildArticle(post, relatedPosts, navData) {
   const postImg = post.image
     ? (post.image.startsWith('http') ? post.image : `../${post.image}`)
     : '../img/default.jpg';
+  const articleUrl = `${SITE_BASE_URL}/${post.url}`;
+  const encodedTitle = encodeURIComponent(post.title);
+  const ogImage = post.image && post.image.startsWith('http')
+    ? post.image
+    : `${SITE_BASE_URL}/${post.image || 'img/default.jpg'}`;
   const body = render(template, {
     title: post.title,
     date: post.formattedDate,
@@ -278,6 +286,8 @@ function buildArticle(post, relatedPosts, navData) {
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
     relatedPosts: relatedHtml,
     assets: articleAssets,
+    articleUrl,
+    encodedTitle,
   });
 
   return buildPage(body, {
@@ -286,6 +296,8 @@ function buildArticle(post, relatedPosts, navData) {
     currentPage: post.category,
     assets: articleAssets,
     siteRoot: '../',
+    ogUrl: articleUrl,
+    ogImage,
     ...navData,
   });
 }

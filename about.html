@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>About - LOTRO Guides</title>
     <meta name="description" content="Lord of the Rings Online guides, news, and community content.">
+    <!-- Open Graph meta tags for Facebook sharing -->
+    <meta property="og:url" content="https://lotroguides.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="About - LOTRO Guides" />
+    <meta property="og:description" content="Lord of the Rings Online guides, news, and community content." />
+    <meta property="og:image" content="https://lotroguides.com/img/default.jpg" />
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -39,10 +45,11 @@
                     <a href="./guides.html">Guides</a>
                     <ul>
                       <li><a href="./guides.html">All Guides</a></li>
+                      <li><a href="./guides/abyss-of-mordath-raid-guide.html">The Abyss of Mordath — Full Raid Guide (T1 & T2)</a></li>
+                      <li><a href="./guides/court-of-seregost-guide.html">The Court of Seregost — Full Instance Guide</a></li>
                       <li><a href="./guides/crafting-guide.html">Complete Crafting Guide — Vocations, Leveling & Profit</a></li>
-                      <li><a href="./guides/legendary-items-guide.html">Legendary Items Reforged — The Complete LI Guide</a></li>
-                      <li><a href="./guides/beginners-guide.html">Beginner's Guide to Lord of the Rings Online</a></li>
-                      <li><a href="./guides/tower-of-orthanc-fire-ice-guide.html">Tower of Orthanc Fire and Ice T2c - Raid Guide</a></li>
+                      <li><a href="./guides/dungeons-of-naerband-guide.html">The Dungeons of Naerband — Instance Guide</a></li>
+                      <li><a href="./guides/ost-dunhoth-disease-wing-guide.html">Ost Dunhoth Disease Wing T2c - Raid Guide</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown ">
@@ -128,6 +135,38 @@
       </div>
     </section>
 
+    <!-- Site Admin Widget -->
+    <section class="p-y-80" style="background-color: #1a1a2e;">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 offset-lg-3">
+            <div class="heading" style="color: #F4E4BC;">
+              <i class="fa fa-shield"></i>
+              <h2 style="color: #F4E4BC;">Site Admin</h2>
+            </div>
+            <div style="background: linear-gradient(135deg, #2c2f33 0%, #23272a 100%); border-radius: 12px; padding: 30px; border: 1px solid #5865F2; box-shadow: 0 4px 20px rgba(88, 101, 242, 0.2);">
+              <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #5865F2, #EB459E); display: flex; align-items: center; justify-content: center; font-size: 32px; color: #fff; font-weight: bold; flex-shrink: 0;">A</div>
+                <div style="flex: 1; min-width: 200px;">
+                  <h3 style="margin: 0 0 4px 0; color: #F4E4BC; font-size: 24px;">Amdor (Daniel J. Burkhart)</h3>
+                  <p style="margin: 0 0 8px 0; color: #b9bbbe; font-size: 14px;">Site Owner &amp; Lead Guide Author</p>
+                  <p style="margin: 0; color: #8e9297; font-size: 13px;">Longtime LOTRO player from Treebeard and Meriadoc. Creating guides and community content for Middle-earth adventurers.</p>
+                </div>
+              </div>
+              <hr style="border-color: #40444b; margin: 20px 0;">
+              <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <i class="fa fa-comments" style="font-size: 22px; color: #5865F2; flex-shrink: 0;"></i>
+                <a href="https://discord.com/users/257950393722470400" target="_blank" rel="noopener noreferrer" style="color: #5865F2; text-decoration: none; font-weight: 600; font-size: 15px;" data-discord-id="257950393722470400">
+                  Connect on Discord
+                </a>
+                <span style="color: #72767d; font-size: 12px; margin-left: auto;" title="Discord User ID">ID: 257950393722470400</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- footer -->
     <footer id="footer">
       <div class="container">
@@ -180,6 +219,15 @@
         </div>
       </div>
     </footer>
+    <!-- Facebook SDK for JavaScript -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v22.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
     <!-- scripts -->
     <script src="./plugins/jquery/jquery-3.1.0.min.js"></script>
     <script src="./plugins/bootstrap/js/bootstrap.min.js"></script>

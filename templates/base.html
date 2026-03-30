@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{title}}</title>
     <meta name="description" content="{{metaDescription}}">
+    <!-- Open Graph meta tags for Facebook sharing -->
+    <meta property="og:url" content="{{ogUrl}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:description" content="{{metaDescription}}" />
+    <meta property="og:image" content="{{ogImage}}" />
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -130,6 +136,15 @@
         </div>
       </div>
     </footer>
+    <!-- Facebook SDK for JavaScript -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v22.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
     <!-- scripts -->
     <script src="./{{siteRoot}}plugins/jquery/jquery-3.1.0.min.js"></script>
     <script src="./{{siteRoot}}plugins/bootstrap/js/bootstrap.min.js"></script>

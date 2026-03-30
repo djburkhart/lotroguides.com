@@ -148,7 +148,7 @@ These items are typically obtained by:
 
 > **Tip:** For expensive single-output recipes (like legendary weapon components or end-game armor), always use a guaranteed crit item rather than gambling on your crit chance. Save your crit items for high-value crafts and rely on tool quality for bulk crafting.
 
-### Umbar Tools & the 4th Profession
+### The 4th Profession
 
 With the Umbar expansion introducing the **4th profession slot**, the Umbar-tier tool system was updated to fully support it. Umbar crafting tools are available for every profession, meaning your 4th profession gets the same top-tier tool access as your original three. You do not need a separate vocation to obtain Umbar-quality tools for your extra profession — any Metalsmith or Woodworker can craft them for you (or you can find them on the Auction House).
 
