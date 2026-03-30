@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const matter = require('gray-matter');
 const { marked } = require('marked');
+const sharp = require('sharp');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 const CONTENT_DIR = path.join(__dirname, 'content');
@@ -9,6 +10,7 @@ const TEMPLATE_DIR = path.join(__dirname, 'templates');
 const OUTPUT_DIR = __dirname; // Output into lotro/ root
 const ASSETS_PREFIX = '';   // Relative path to parent theme assets
 const SITE_BASE_URL = 'https://lotroguides.com';
+const GOOGLE_ADSENSE_ACCOUNT = process.env.GOOGLE_ADSENSE_ACCOUNT || '';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function ensureDir(dir) {
@@ -40,6 +42,100 @@ function truncate(text, maxLen) {
   return plain.substring(0, maxLen).replace(/\s+\S*$/, '') + '...';
 }
 
+// ─── Image Optimization ────────────────────────────────────────────────────
+
+// Cache of image dimensions: { 'img/guides/foo.jpg': { width: 800, height: 450 } }
+const imageMeta = {};
+
+async function convertImagesToWebp() {
+  const imgDir = path.join(OUTPUT_DIR, 'img');
+  if (!fs.existsSync(imgDir)) return;
+
+  const extensions = ['.jpg', '.jpeg', '.png'];
+
+  async function processDir(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const tasks = [];
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        tasks.push(processDir(fullPath));
+      } else if (extensions.includes(path.extname(entry.name).toLowerCase())) {
+        const webpPath = fullPath.replace(/\.(jpe?g|png)$/i, '.webp');
+        const relPath = path.relative(OUTPUT_DIR, fullPath).replace(/\\/g, '/');
+
+        // Read dimensions and cache them
+        tasks.push(
+          sharp(fullPath).metadata().then(meta => {
+            imageMeta[relPath] = { width: meta.width, height: meta.height };
+            const webpRel = relPath.replace(/\.(jpe?g|png)$/i, '.webp');
+            imageMeta[webpRel] = { width: meta.width, height: meta.height };
+          }).catch(() => {})
+        );
+
+        // Skip conversion if WebP already exists and is newer than source
+        if (fs.existsSync(webpPath) && fs.statSync(webpPath).mtimeMs >= fs.statSync(fullPath).mtimeMs) {
+          continue;
+        }
+
+        tasks.push(
+          sharp(fullPath)
+            .webp({ quality: 80 })
+            .toFile(webpPath)
+            .then(() => console.log(`   ✓ webp: ${path.relative(OUTPUT_DIR, webpPath)}`))
+            .catch(err => console.warn(`   ⚠ webp failed: ${path.relative(OUTPUT_DIR, fullPath)} — ${err.message}`))
+        );
+      }
+    }
+    await Promise.all(tasks);
+  }
+
+  await processDir(imgDir);
+}
+
+/**
+ * Post-process HTML to upgrade <img> tags with SEO best practices:
+ * - Wraps in <picture> with WebP <source> + original fallback
+ * - Adds loading="lazy", decoding="async"
+ * - Adds width/height attributes from cached metadata to prevent CLS
+ * - Preserves existing alt text
+ */
+function optimizeImages(html) {
+  return html.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+    const srcMatch = attrs.match(/src=["']([^"']+)["']/);
+    if (!srcMatch) return match;
+
+    const src = srcMatch[1];
+    const ext = path.extname(src).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png'].includes(ext)) return match;
+
+    // Derive WebP path
+    const webpSrc = src.replace(/\.(jpe?g|png)$/i, '.webp');
+
+    // Extract existing alt text
+    const altMatch = attrs.match(/alt=["']([^"']*)["']/);
+    const alt = altMatch ? altMatch[1] : '';
+
+    // Extract existing class
+    const classMatch = attrs.match(/class=["']([^"']*)["']/);
+    const cls = classMatch ? ` class="${classMatch[1]}"` : '';
+
+    // Extract existing style
+    const styleMatch = attrs.match(/style=["']([^"']*)["']/);
+    const style = styleMatch ? ` style="${styleMatch[1]}"` : '';
+
+    // Look up dimensions — try with the src as-is and with ../ stripped
+    const lookupKey = src.replace(/^\.\.\//g, '');
+    const meta = imageMeta[lookupKey] || imageMeta[src] || null;
+    const dims = meta ? ` width="${meta.width}" height="${meta.height}"` : '';
+
+    return `<picture>` +
+      `<source srcset="${webpSrc}" type="image/webp">` +
+      `<img src="${src}" alt="${alt}"${cls}${style}${dims} loading="lazy" decoding="async">` +
+      `</picture>`;
+  });
+}
+
 // ─── Template Engine ────────────────────────────────────────────────────────
 // Simple placeholder replacement: {{variable}}
 function render(template, data) {
@@ -68,6 +164,7 @@ function buildPage(bodyContent, pageData) {
     newsNavItems: pageData.newsNavItems || '',
     ogUrl: pageData.ogUrl || SITE_BASE_URL,
     ogImage: pageData.ogImage || `${SITE_BASE_URL}/img/default.jpg`,
+    googleAdsenseAccount: GOOGLE_ADSENSE_ACCOUNT,
   });
 }
 
@@ -304,9 +401,13 @@ function buildArticle(post, relatedPosts, navData) {
 
 // ─── Main Build ─────────────────────────────────────────────────────────────
 
-function build() {
-  console.log('🏗  Building LOTRO fansite...');
+async function build() {
+  console.log('🏗  Building LOTRO guides...');
   const startTime = Date.now();
+
+  // Convert images to WebP and collect dimensions metadata
+  console.log('   📸 Converting images to WebP...');
+  await convertImagesToWebp();
 
   // Load all markdown content
   const guides = loadContent('guides');
@@ -334,38 +435,38 @@ function build() {
   ensureDir(path.join(OUTPUT_DIR, 'news'));
 
   // Build index page
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), buildIndex(allPosts, { guideNavItems: guideNav, newsNavItems: newsNav }));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), optimizeImages(buildIndex(allPosts, { guideNavItems: guideNav, newsNavItems: newsNav })));
   console.log('   ✓ index.html');
 
   // Build listing pages
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'guides.html'), buildListing(allGuides, 'guides', { guideNavItems: guideNav, newsNavItems: newsNav }));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'guides.html'), optimizeImages(buildListing(allGuides, 'guides', { guideNavItems: guideNav, newsNavItems: newsNav })));
   console.log('   ✓ guides.html');
 
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'news.html'), buildListing(allNews, 'news', { guideNavItems: guideNav, newsNavItems: newsNav }));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'news.html'), optimizeImages(buildListing(allNews, 'news', { guideNavItems: guideNav, newsNavItems: newsNav })));
   console.log('   ✓ news.html');
 
   // Build about page
   const aboutBody = readTemplate('about-content.html');
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'about.html'), buildPage(aboutBody, {
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'about.html'), optimizeImages(buildPage(aboutBody, {
     title: 'About - LOTRO Guides',
     currentPage: 'about',
     guideNavItems: guideNav,
     newsNavItems: newsNav,
-  }));
+  })));
   console.log('   ✓ about.html');
 
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {
     const related = allGuides.filter(p => p.slug !== post.slug);
     const outPath = path.join(OUTPUT_DIR, 'guides', `${post.slug}.html`);
-    fs.writeFileSync(outPath, buildArticle(post, related, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle }));
+    fs.writeFileSync(outPath, optimizeImages(buildArticle(post, related, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle })));
     console.log(`   ✓ guides/${post.slug}.html`);
   });
 
   news.forEach(post => {
     const related = allNews.filter(p => p.slug !== post.slug);
     const outPath = path.join(OUTPUT_DIR, 'news', `${post.slug}.html`);
-    fs.writeFileSync(outPath, buildArticle(post, related, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle }));
+    fs.writeFileSync(outPath, optimizeImages(buildArticle(post, related, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle })));
     console.log(`   ✓ news/${post.slug}.html`);
   });
 
@@ -377,13 +478,14 @@ function build() {
 
 if (process.argv.includes('--watch')) {
   const chokidar = require('chokidar');
-  build();
-  console.log('\n👁  Watching for changes in content/ and templates/...\n');
-  chokidar.watch([CONTENT_DIR, TEMPLATE_DIR], { ignoreInitial: true })
-    .on('all', (event, filePath) => {
-      console.log(`\n📝 ${event}: ${path.relative(__dirname, filePath)}`);
-      build();
-    });
+  build().then(() => {
+    console.log('\n👁  Watching for changes in content/ and templates/...\n');
+    chokidar.watch([CONTENT_DIR, TEMPLATE_DIR], { ignoreInitial: true })
+      .on('all', (event, filePath) => {
+        console.log(`\n📝 ${event}: ${path.relative(__dirname, filePath)}`);
+        build();
+      });
+  });
 } else {
   build();
 }
