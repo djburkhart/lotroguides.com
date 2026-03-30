@@ -1,0 +1,47 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Virtue Database</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-shield"></i>
+          <h2>Virtue Database</h2>
+          <p>Browse all {{virtueCount}} virtues from the LotRO Companion database. Click any virtue to view full details.</p>
+        </div>
+
+        <!-- Virtues Table -->
+        <div class="table-responsive">
+          <table id="virtues-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Virtue</th>
+                <th>Stats</th>
+                <th>Max Rank</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Virtue Detail Modal -->
+    <div class="modal fade" id="virtue-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content item-modal-content">
+          <div class="modal-header item-modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title" id="virtue-modal-title"></h4>
+          </div>
+          <div class="modal-body" id="virtue-modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>

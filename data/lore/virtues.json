@@ -1,0 +1,213 @@
+[
+  {
+    "id": "1879072873",
+    "name": "Charity",
+    "stats": [
+      "Resistance",
+      "Physical Mitigation",
+      "Vitality"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072874",
+    "name": "Compassion",
+    "stats": [
+      "Physical Mitigation",
+      "Tactical Mitigation",
+      "Combat Agent Armor Value Float"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072875",
+    "name": "Confidence",
+    "stats": [
+      "Critical Rating",
+      "Finesse",
+      "EVADE"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072876",
+    "name": "Determination",
+    "stats": [
+      "Agility",
+      "Physical Mastery",
+      "Critical Rating"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072877",
+    "name": "Discipline",
+    "stats": [
+      "Resistance",
+      "INCOMING HEALING",
+      "Physical Mitigation"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072878",
+    "name": "Empathy",
+    "stats": [
+      "Combat Agent Armor Value Float",
+      "CRITICAL DEFENCE",
+      "Resistance"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072879",
+    "name": "Fidelity",
+    "stats": [
+      "Tactical Mitigation",
+      "Vitality",
+      "Physical Mitigation"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072880",
+    "name": "Fortitude",
+    "stats": [
+      "Morale",
+      "CRITICAL DEFENCE",
+      "Resistance"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072881",
+    "name": "Honesty",
+    "stats": [
+      "Tactical Mastery",
+      "Will",
+      "Critical Rating"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072882",
+    "name": "Honour",
+    "stats": [
+      "Morale",
+      "Tactical Mitigation",
+      "CRITICAL DEFENCE"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072883",
+    "name": "Idealism",
+    "stats": [
+      "Fate",
+      "INCOMING HEALING",
+      "Morale"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072888",
+    "name": "Innocence",
+    "stats": [
+      "Physical Mitigation",
+      "Resistance",
+      "Tactical Mitigation"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072884",
+    "name": "Justice",
+    "stats": [
+      "In-Combat Morale Regen",
+      "Morale",
+      "Tactical Mitigation"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072885",
+    "name": "Loyalty",
+    "stats": [
+      "Vitality",
+      "Combat Agent Armor Value Float",
+      "INCOMING HEALING"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072886",
+    "name": "Mercy",
+    "stats": [
+      "EVADE",
+      "Fate",
+      "Vitality"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072887",
+    "name": "Patience",
+    "stats": [
+      "Power",
+      "EVADE",
+      "Critical Rating"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072889",
+    "name": "Tolerance",
+    "stats": [
+      "Tactical Mitigation",
+      "Resistance",
+      "Physical Mitigation"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072890",
+    "name": "Valour",
+    "stats": [
+      "Physical Mastery",
+      "Finesse",
+      "Critical Rating"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072891",
+    "name": "Wisdom",
+    "stats": [
+      "Will",
+      "Tactical Mastery",
+      "Finesse"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879388819",
+    "name": "Wit",
+    "stats": [
+      "Finesse",
+      "Critical Rating",
+      "Physical Mastery",
+      "Tactical Mastery"
+    ],
+    "maxTier": 130
+  },
+  {
+    "id": "1879072892",
+    "name": "Zeal",
+    "stats": [
+      "Might",
+      "Physical Mastery",
+      "Critical Rating"
+    ],
+    "maxTier": 130
+  }
+]

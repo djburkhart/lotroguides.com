@@ -57,11 +57,15 @@
                       {{newsNavItems}}
                     </ul>
                   </li>
-                  <li class="{{currentItems}}">
-                    <a href="./{{siteRoot}}items.html">Items</a>
-                  </li>
-                  <li class="{{currentMobs}}">
-                    <a href="./{{siteRoot}}mobs.html">Mobs</a>
+                  <li class="has-dropdown {{currentItems}} {{currentMobs}} {{currentVirtues}} {{currentSets}} {{currentDeeds}}">
+                    <a href="./{{siteRoot}}items.html">Database</a>
+                    <ul>
+                      <li><a href="./{{siteRoot}}items.html">Items</a></li>
+                      <li><a href="./{{siteRoot}}mobs.html">Mobs</a></li>
+                      <li><a href="./{{siteRoot}}sets.html">Sets</a></li>
+                      <li><a href="./{{siteRoot}}virtues.html">Virtues</a></li>
+                      <li><a href="./{{siteRoot}}deeds.html">Deeds</a></li>
+                    </ul>
                   </li>
                   <li class="{{currentAbout}}">
                     <a href="./{{siteRoot}}about.html">About</a>
@@ -108,8 +112,11 @@
                 <ul>
                   <li><a href="./{{siteRoot}}guides.html">Guides</a></li>
                   <li><a href="./{{siteRoot}}news.html">News</a></li>
-                  <li><a href="./{{siteRoot}}items.html">Item Database</a></li>
+                  <li><a href="./{{siteRoot}}items.html">Content Database</a></li>
                   <li><a href="./{{siteRoot}}mobs.html">Mob Database</a></li>
+                  <li><a href="./{{siteRoot}}sets.html">Set Database</a></li>
+                  <li><a href="./{{siteRoot}}virtues.html">Virtue Database</a></li>
+                  <li><a href="./{{siteRoot}}deeds.html">Deed Database</a></li>
                   <li><a href="./{{siteRoot}}about.html">About</a></li>
                 </ul>
               </div>

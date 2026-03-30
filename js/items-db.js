@@ -1,11 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Item Database — Client-side DataTable + Filters + Modal
+   Content Database — Client-side DataTable + Filters + Modal
    Expects: data/lore/items-db.json loaded at build time
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var COMPANION_BASE = 'https://lotro-companion.github.io/LotroCompanionItems/item.html?id=';
   var table;
   var allData = [];
 
@@ -58,11 +57,23 @@
       '</table>';
   }
 
+  // ── Type icons for cross-linked entries ─────────────────────────────────
+  var typeIcons = {
+    set: '<i class="fa fa-cubes" style="color:#bb86fc"></i> ',
+    deed: '<i class="fa fa-bookmark" style="color:#66bb6a"></i> ',
+    virtue: '<i class="fa fa-shield" style="color:#ffd54f"></i> '
+  };
+
   // ── Render name cell ────────────────────────────────────────────────────
   function renderName(data, type, row) {
     if (type !== 'display') return data;
     var cls = row.q ? ' lotro-' + row.q : '';
-    return '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + data + '</a>';
+    var icon = typeIcons[row.t] || '';
+    var link = '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
+    if (row.sid) {
+      link += ' <a href="sets.html?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
+    }
+    return link;
   }
 
   // ── Render quality / subtype cell ───────────────────────────────────────
@@ -76,16 +87,42 @@
 
   // ── Load data from embedded JSON ────────────────────────────────────────
   var initialized = false;
+  var totalItemCount = 0;
 
   function loadData() {
     if (initialized) return;
     if (typeof window.LOTRO_ITEMS_DB === 'undefined') return;
     initialized = true;
     allData = window.LOTRO_ITEMS_DB;
+    totalItemCount = allData.length;
     buildLookup();
     initTable();
     bindFilters();
     checkUrlParams();
+    updateLoadingStatus(1, 1); // hide progress if single-chunk
+  }
+
+  // ── Add a chunk of data after initial load ─────────────────────────────
+  function addChunk(chunk, loadedCount, totalChunks) {
+    for (var i = 0; i < chunk.length; i++) {
+      allData.push(chunk[i]);
+      itemById[chunk[i].id] = chunk[i];
+    }
+    totalItemCount = allData.length;
+    table.rows.add(chunk).draw(false);
+    updateLoadingStatus(loadedCount, totalChunks);
+  }
+
+  function updateLoadingStatus(loaded, total) {
+    var $bar = $('#items-load-progress');
+    if (!$bar.length) return;
+    if (loaded >= total) {
+      $bar.closest('.items-loading-bar').fadeOut(400);
+    } else {
+      var pct = Math.round((loaded / total) * 100);
+      $bar.css('width', pct + '%').attr('aria-valuenow', pct);
+      $bar.find('.sr-only').text(pct + '% loaded');
+    }
   }
 
   // ── Build a lookup map for fast id-based access ────────────────────────
@@ -159,12 +196,25 @@
     if (item.q) html += '<p><strong>Quality:</strong> ' + qualityBadge(item.q) + '</p>';
     if (item.lv) html += '<p><strong>Item Level:</strong> ' + item.lv + '</p>';
     if (item.sl) html += '<p><strong>Slot:</strong> ' + item.sl + '</p>';
+
+    // Cross-links to other database pages
+    if (item.sid) {
+      html += '<p><strong>Set:</strong> <a href="sets.html?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a></p>';
+    }
+    if (item.t === 'deed') {
+      html += '<p><a href="deeds.html?id=' + item.id + '" class="item-crosslink item-crosslink-deed"><i class="fa fa-bookmark"></i> View in Deed Database</a></p>';
+    }
+    if (item.t === 'set') {
+      html += '<p><a href="sets.html?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a></p>';
+    }
+    if (item.t === 'virtue') {
+      html += '<p><a href="virtues.html?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a></p>';
+    }
     html += '</div>';
     html += '<h5>Stats</h5>';
     html += formatStatsFull(item.stats);
 
     $('#item-modal-body').html(html);
-    $('#item-modal-companion-link').attr('href', COMPANION_BASE + id);
 
     // Update URL with item id for sharing
     if (window.history && window.history.replaceState) {
@@ -210,5 +260,6 @@
   // ── Bootstrap ───────────────────────────────────────────────────────────
   // Expose init for late-load scenario (document.ready may have already fired)
   window.LOTRO_ITEMS_INIT = loadData;
+  window.LOTRO_ITEMS_ADD_CHUNK = addChunk;
   $(document).ready(loadData);
 })();

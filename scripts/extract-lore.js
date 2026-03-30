@@ -275,8 +275,173 @@ function extractMobs() {
   return mobs;
 }
 
+// ─── Virtues ────────────────────────────────────────────────────────────────
+function extractVirtues() {
+  console.log('  📦 Extracting virtues...');
+  const xml = readXml('virtues.xml');
+  if (!xml) return [];
+
+  const re = /<virtue identifier="(\d+)" key="([^"]*)" name="([^"]*)"[^>]*>([\s\S]*?)<\/virtue>/g;
+  const virtues = [];
+  let m;
+
+  while ((m = re.exec(xml)) !== null) {
+    const id = m[1];
+    const name = m[3];
+    const body = m[4];
+
+    // Extract active stats
+    const stats = [];
+    const sr = /<stat name="([^"]*)"/g;
+    let s;
+    while ((s = sr.exec(body.match(/<activeStats>([\s\S]*?)<\/activeStats>/)?.[1] || '')) !== null) {
+      const label = STAT_LABELS[s[1]] || s[1].replace(/_/g, ' ');
+      stats.push(label);
+    }
+
+    // Extract max tier from xp entries
+    let maxTier = 0;
+    const xpRe = /tier="(\d+)"/g;
+    let xm;
+    while ((xm = xpRe.exec(body)) !== null) {
+      const tier = parseInt(xm[1]);
+      if (tier > maxTier) maxTier = tier;
+    }
+
+    virtues.push({ id, name, stats, maxTier });
+  }
+
+  console.log(`    Found ${virtues.length} virtues`);
+  return virtues;
+}
+
+// ─── Sets ───────────────────────────────────────────────────────────────────
+function extractSets() {
+  console.log('  📦 Extracting sets...');
+  const xml = readXml('sets.xml');
+  if (!xml) return [];
+
+  const re = /<set id="(\d+)" name="([^"]*)"([^>]*)>([\s\S]*?)<\/set>/g;
+  const sets = [];
+  let m;
+
+  while ((m = re.exec(xml)) !== null) {
+    const id = m[1];
+    // Name may contain &#10; (newline) followed by max-level note — clean it
+    const rawName = m[2];
+    const name = rawName.split('&#10;')[0].trim();
+    const attrs = m[3];
+    const body = m[4];
+
+    const levelMatch = attrs.match(/level="(\d+)"/);
+    const maxLevelMatch = attrs.match(/maxLevel="(\d+)"/);
+    const level = levelMatch ? parseInt(levelMatch[1]) : 0;
+    const maxLevel = maxLevelMatch ? parseInt(maxLevelMatch[1]) : 0;
+
+    // Extract set pieces
+    const pieces = [];
+    const pr = /<item id="(\d+)" name="([^"]*)"/g;
+    let p;
+    while ((p = pr.exec(body)) !== null) {
+      pieces.push({ id: p[1], name: p[2] });
+    }
+
+    // Extract set bonuses
+    const bonuses = [];
+    const br = /<bonus nbItems="(\d+)">([\s\S]*?)<\/bonus>/g;
+    let b;
+    while ((b = br.exec(body)) !== null) {
+      const count = parseInt(b[1]);
+      const bonusBody = b[2];
+      const bonusStats = [];
+      const bsr = /<stat name="([^"]*)"(?:[^/]*?(?:constant|scaling)="([^"]*)")?/g;
+      let bs;
+      while ((bs = bsr.exec(bonusBody)) !== null) {
+        const label = STAT_LABELS[bs[1]] || bs[1].replace(/_/g, ' ');
+        const val = bs[2] && !bs[2].startsWith('1879') ? parseFloat(bs[2]) : null;
+        bonusStats.push({ stat: label, value: val });
+      }
+      if (bonusStats.length) {
+        bonuses.push({ count, stats: bonusStats });
+      }
+    }
+
+    sets.push({ id, name, level, maxLevel, pieces, bonuses });
+  }
+
+  console.log(`    Found ${sets.length} sets`);
+  return sets;
+}
+
+// ─── Deeds ──────────────────────────────────────────────────────────────────
+function extractDeeds() {
+  console.log('  📦 Extracting deeds...');
+  const xml = readXml('deeds.xml');
+  if (!xml) return [];
+
+  const re = /<deed id="(\d+)"([^>]*)>([\s\S]*?)<\/deed>/g;
+  const deeds = [];
+  let m;
+
+  while ((m = re.exec(xml)) !== null) {
+    const id = m[1];
+    const attrs = m[2];
+    const body = m[3];
+
+    const nameMatch = attrs.match(/name="([^"]*)"/);
+    const typeMatch = attrs.match(/type="([^"]*)"/);
+    const minLevelMatch = attrs.match(/minLevel="(\d+)"/);
+    const levelMatch = attrs.match(/level="(\d+)"/);
+    const classMatch = attrs.match(/requiredClass="([^"]*)"/);
+
+    const name = nameMatch ? nameMatch[1] : '';
+    const type = typeMatch ? typeMatch[1] : '';
+    if (!name) continue;
+
+    // Categorize deed type into friendly labels
+    let category;
+    switch (type) {
+      case 'EXPLORER': category = 'Exploration'; break;
+      case 'SLAYER': category = 'Slayer'; break;
+      case 'LORE': category = 'Lore'; break;
+      case 'REPUTATION': category = 'Reputation'; break;
+      case 'CLASS': category = 'Class'; break;
+      case 'RACE': category = 'Race'; break;
+      case 'EVENT': case 'WORLD_EVENT_CONDITION': category = 'Event'; break;
+      default: category = 'Other'; break;
+    }
+
+    // Extract rewards
+    const rewards = [];
+    const lpMatch = body.match(/<lotroPoints quantity="(\d+)"/);
+    if (lpMatch) rewards.push({ type: 'LP', value: parseInt(lpMatch[1]) });
+    const titleMatch = body.match(/<title id="\d+" name="([^"]*)"/);
+    if (titleMatch) rewards.push({ type: 'Title', value: titleMatch[1] });
+    const virtueMatch = body.match(/<virtue id="(\d+)"[^>]*name="([^"]*)"/);
+    if (virtueMatch) rewards.push({ type: 'Virtue', value: virtueMatch[2] });
+    const repMatches = [...body.matchAll(/<reputationItem[^>]*faction="([^"]*)"[^>]*amount="([^"]*)"/g)];
+    for (const rm of repMatches) {
+      rewards.push({ type: 'Reputation', value: `${rm[1]} +${rm[2]}` });
+    }
+
+    const deed = {
+      id,
+      name,
+      type: category,
+      level: levelMatch ? parseInt(levelMatch[1]) : (minLevelMatch ? parseInt(minLevelMatch[1]) : 0),
+      rewards,
+    };
+    if (classMatch) deed.requiredClass = classMatch[1];
+
+    deeds.push(deed);
+  }
+
+  console.log(`    Found ${deeds.length} deeds`);
+  return deeds;
+}
+
 // ─── Build Unified Item Index (for auto-linking) ────────────────────────────
-function buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs) {
+function buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs, virtues, sets, deeds) {
   console.log('  📇 Building item index for auto-linking...');
   const index = {};
 
@@ -308,6 +473,27 @@ function buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs) {
     }
   }
 
+  // Add virtues
+  for (const v of virtues) {
+    if (!index[v.name]) {
+      index[v.name] = { id: v.id, type: 'virtue', stats: v.stats.map(s => ({ stat: s, value: 0 })) };
+    }
+  }
+
+  // Add sets (8+ char names only)
+  for (const s of sets) {
+    if (s.name.length >= 8 && !index[s.name]) {
+      index[s.name] = { id: s.id, type: 'set', level: s.level };
+    }
+  }
+
+  // Add deeds (8+ char names only)
+  for (const d of deeds) {
+    if (d.name.length >= 8 && !index[d.name]) {
+      index[d.name] = { id: d.id, type: 'deed', deedType: d.type };
+    }
+  }
+
   console.log(`    Index contains ${Object.keys(index).length} entries`);
   return index;
 }
@@ -323,13 +509,19 @@ function main() {
   const enhancementRunes = extractEnhancementRunes();
   const items = extractItems();
   const mobs = extractMobs();
-  const itemIndex = buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs);
+  const virtues = extractVirtues();
+  const sets = extractSets();
+  const deeds = extractDeeds();
+  const itemIndex = buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs, virtues, sets, deeds);
 
   // Write individual data files
   fs.writeFileSync(path.join(OUT_DIR, 'consumables.json'), JSON.stringify(consumables, null, 2));
   fs.writeFileSync(path.join(OUT_DIR, 'stat-tomes.json'), JSON.stringify(statTomes, null, 2));
   fs.writeFileSync(path.join(OUT_DIR, 'enhancement-runes.json'), JSON.stringify(enhancementRunes, null, 2));
   fs.writeFileSync(path.join(OUT_DIR, 'items.json'), JSON.stringify(items, null, 2));
+  fs.writeFileSync(path.join(OUT_DIR, 'virtues.json'), JSON.stringify(virtues, null, 2));
+  fs.writeFileSync(path.join(OUT_DIR, 'sets.json'), JSON.stringify(sets, null, 2));
+  fs.writeFileSync(path.join(OUT_DIR, 'deeds.json'), JSON.stringify(deeds, null, 2));
 
   // Write the unified item index (used by build.js for auto-linking)
   fs.writeFileSync(path.join(OUT_DIR, 'item-index.json'), JSON.stringify(itemIndex));

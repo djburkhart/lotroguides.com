@@ -15,7 +15,6 @@ const LORE_DIR = path.join(__dirname, 'data', 'lore');
 
 // ─── Lore / Item Index ─────────────────────────────────────────────────────
 let itemIndex = {};
-const LOTRO_COMPANION_BASE = 'https://lotro-companion.github.io/LotroCompanionItems/';
 
 function loadItemIndex() {
   const indexPath = path.join(LORE_DIR, 'item-index.json');
@@ -113,6 +112,74 @@ function autoLinkMobs(html) {
       const genusInfo = entry.genus ? ` data-mob-genus="${entry.genus}"` : '';
       const speciesInfo = entry.species ? ` data-mob-species="${entry.species}"` : '';
       const replacement = `<a href="${mobUrl}" class="lotro-mob" data-mob-id="${entry.id}"${genusInfo}${speciesInfo}>${match[0]}</a>`;
+
+      html = html.replace(match[0], replacement);
+      linked.add(name);
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Auto-link known set names within HTML content.
+ */
+function autoLinkSets(html) {
+  if (!Object.keys(itemIndex).length) return html;
+
+  const names = Object.keys(itemIndex)
+    .filter(n => n.length >= 10 && itemIndex[n].type === 'set')
+    .sort((a, b) => b.length - a.length);
+
+  if (!names.length) return html;
+
+  const linked = new Set();
+
+  for (const name of names) {
+    if (linked.has(name)) continue;
+
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<![<\\w/])\\b(${escaped})\\b(?![^<]*>)`, 'i');
+    const match = html.match(regex);
+
+    if (match) {
+      const entry = itemIndex[name];
+      const setUrl = `../sets.html?id=${entry.id}`;
+      const replacement = `<a href="${setUrl}" class="lotro-set" data-set-id="${entry.id}">${match[0]}</a>`;
+
+      html = html.replace(match[0], replacement);
+      linked.add(name);
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Auto-link known deed names within HTML content.
+ */
+function autoLinkDeeds(html) {
+  if (!Object.keys(itemIndex).length) return html;
+
+  const names = Object.keys(itemIndex)
+    .filter(n => n.length >= 10 && itemIndex[n].type === 'deed')
+    .sort((a, b) => b.length - a.length);
+
+  if (!names.length) return html;
+
+  const linked = new Set();
+
+  for (const name of names) {
+    if (linked.has(name)) continue;
+
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<![<\\w/])\\b(${escaped})\\b(?![^<]*>)`, 'i');
+    const match = html.match(regex);
+
+    if (match) {
+      const entry = itemIndex[name];
+      const deedUrl = `../deeds.html?id=${entry.id}`;
+      const replacement = `<a href="${deedUrl}" class="lotro-deed" data-deed-type="${entry.deedType || ''}">${match[0]}</a>`;
 
       html = html.replace(match[0], replacement);
       linked.add(name);
@@ -271,6 +338,9 @@ function buildPage(bodyContent, pageData) {
     currentAbout: pageData.currentPage === 'about' ? 'active' : '',
     currentItems: pageData.currentPage === 'items' ? 'active' : '',
     currentMobs: pageData.currentPage === 'mobs' ? 'active' : '',
+    currentVirtues: pageData.currentPage === 'virtues' ? 'active' : '',
+    currentSets: pageData.currentPage === 'sets' ? 'active' : '',
+    currentDeeds: pageData.currentPage === 'deeds' ? 'active' : '',
     siteRoot,
     guideNavItems: pageData.guideNavItems || '',
     newsNavItems: pageData.newsNavItems || '',
@@ -489,7 +559,7 @@ function buildArticle(post, relatedPosts, navData) {
     date: post.formattedDate,
     author: post.author || 'Amdor',
     image: postImg,
-    content: autoLinkMobs(autoLinkItems(post.content)),
+    content: autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content)))),
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
@@ -516,7 +586,19 @@ function buildArticle(post, relatedPosts, navData) {
 function buildItemsPage(navData) {
   if (!Object.keys(itemIndex).length) return;
 
-  // Build compact client-side JSON: array of {id, n, t, st, q, lv, sl, stats:[{s,v}]}
+  // Build piece-id → {setId, setName} lookup from sets data
+  const pieceToSet = {};
+  const setsPath = path.join(LORE_DIR, 'sets.json');
+  if (fs.existsSync(setsPath)) {
+    const sets = JSON.parse(fs.readFileSync(setsPath, 'utf8'));
+    for (const s of sets) {
+      for (const p of (s.pieces || [])) {
+        pieceToSet[p.id] = { sid: s.id, sn: s.name };
+      }
+    }
+  }
+
+  // Build compact client-side JSON: array of {id, n, t, st, q, lv, sl, stats:[{s,v}], sid?, sn?, dt?}
   const clientItems = Object.entries(itemIndex)
     .filter(([, v]) => v.type !== 'mob')          // exclude mobs from item DB
     .map(([name, v]) => {
@@ -528,13 +610,33 @@ function buildItemsPage(navData) {
       if (v.stats && v.stats.length) {
         row.stats = v.stats.filter(s => s.value !== 0).map(s => ({ s: s.stat, v: s.value }));
       }
+      // Cross-link: set membership for equipment items
+      const setInfo = pieceToSet[v.id];
+      if (setInfo) { row.sid = setInfo.sid; row.sn = setInfo.sn; }
+      // Cross-link: deed type for deed entries
+      if (v.deedType) row.dt = v.deedType;
       return row;
     });
 
   const itemCount = clientItems.length;
 
-  // Write the JSON data file
+  // Write chunked JSON data files for progressive loading
+  const CHUNK_SIZE = 5000;
   ensureDir(path.join(OUTPUT_DIR, 'data'));
+  const totalChunks = Math.ceil(clientItems.length / CHUNK_SIZE);
+  for (let i = 0; i < totalChunks; i++) {
+    const chunk = clientItems.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+    fs.writeFileSync(
+      path.join(OUTPUT_DIR, 'data', `items-db-${i}.json`),
+      JSON.stringify(chunk)
+    );
+  }
+  // Also write a small manifest so the client knows how many chunks exist
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'items-db-manifest.json'),
+    JSON.stringify({ totalChunks, totalItems: itemCount, chunkSize: CHUNK_SIZE })
+  );
+  // Keep the full file for backward compatibility (direct links, etc.)
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'items-db.json'),
     JSON.stringify(clientItems)
@@ -546,7 +648,7 @@ function buildItemsPage(navData) {
 
   // Wrap in base.html with extra scripts for DataTables + items JS
   let html = buildPage(body, {
-    title: 'Item Database - LOTRO Guides',
+    title: 'Content Database - LOTRO Guides',
     metaDescription: `Browse ${itemCount.toLocaleString()} items from the LotRO Companion database. Search, filter, and view stats for weapons, armor, consumables, and more.`,
     currentPage: 'items',
     ...navData,
@@ -558,12 +660,25 @@ function buildItemsPage(navData) {
 
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./js/items-db.js"></script>',
     '<script>',
-    '  // Load items data, then init',
-    '  $.getJSON("./data/items-db.json", function(data) {',
-    '    window.LOTRO_ITEMS_DB = data;',
-    '    $.getScript("./js/items-db.js", function() {',
+    '  // Progressive chunked loading',
+    '  $.getJSON("./data/items-db-manifest.json", function(manifest) {',
+    '    $.getJSON("./data/items-db-0.json", function(firstChunk) {',
+    '      window.LOTRO_ITEMS_DB = firstChunk;',
     '      if (window.LOTRO_ITEMS_INIT) window.LOTRO_ITEMS_INIT();',
+    '      // Load remaining chunks in background',
+    '      if (manifest.totalChunks > 1 && window.LOTRO_ITEMS_ADD_CHUNK) {',
+    '        var loaded = 1;',
+    '        (function loadNext(i) {',
+    '          if (i >= manifest.totalChunks) return;',
+    '          $.getJSON("./data/items-db-" + i + ".json", function(chunk) {',
+    '            loaded++;',
+    '            window.LOTRO_ITEMS_ADD_CHUNK(chunk, loaded, manifest.totalChunks);',
+    '            loadNext(i + 1);',
+    '          });',
+    '        })(1);',
+    '      }',
     '    });',
     '  });',
     '</script>',
@@ -627,6 +742,177 @@ function buildMobsPage(navData) {
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
 
   fs.writeFileSync(path.join(OUTPUT_DIR, 'mobs.html'), html);
+}
+
+// ─── Virtues Database Page ───────────────────────────────────────────────────
+
+function buildVirtuesPage(navData) {
+  const virtuesPath = path.join(LORE_DIR, 'virtues.json');
+  if (!fs.existsSync(virtuesPath)) return;
+
+  const virtues = JSON.parse(fs.readFileSync(virtuesPath, 'utf8'));
+
+  // Compact format: {id, n, st:[], mr}
+  const clientVirtues = virtues.map(v => ({
+    id: v.id,
+    n: v.name,
+    st: v.stats || [],
+    mr: v.maxTier || 0,
+  }));
+
+  const count = clientVirtues.length;
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'virtues-db.json'),
+    JSON.stringify(clientVirtues)
+  );
+
+  const template = readTemplate('virtues-content.html');
+  const body = render(template, { virtueCount: count.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Virtue Database - LOTRO Guides',
+    metaDescription: `Browse all ${count} virtues from the LotRO Companion database. View stats and ranks for every virtue in Lord of the Rings Online.`,
+    currentPage: 'virtues',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  $.getJSON("./data/virtues-db.json", function(data) {',
+    '    window.LOTRO_VIRTUES_DB = data;',
+    '    $.getScript("./js/virtues-db.js", function() {',
+    '      if (window.LOTRO_VIRTUES_INIT) window.LOTRO_VIRTUES_INIT();',
+    '    });',
+    '  });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'virtues.html'), html);
+}
+
+// ─── Sets Database Page ─────────────────────────────────────────────────────
+
+function buildSetsPage(navData) {
+  const setsPath = path.join(LORE_DIR, 'sets.json');
+  if (!fs.existsSync(setsPath)) return;
+
+  const sets = JSON.parse(fs.readFileSync(setsPath, 'utf8'));
+
+  // Compact format: {id, n, lv, ml, pc:[{id,n}], bn:[{c, st:[{s,v}]}]}
+  const clientSets = sets.map(s => {
+    const row = { id: s.id, n: s.name };
+    if (s.level) row.lv = s.level;
+    if (s.maxLevel) row.ml = s.maxLevel;
+    if (s.pieces && s.pieces.length) {
+      row.pc = s.pieces.map(p => ({ id: p.id, n: p.name }));
+    }
+    if (s.bonuses && s.bonuses.length) {
+      row.bn = s.bonuses.map(b => ({
+        c: b.count,
+        st: (b.stats || []).map(st => ({ s: st.stat, v: st.value })),
+      }));
+    }
+    return row;
+  });
+
+  const count = clientSets.length;
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'sets-db.json'),
+    JSON.stringify(clientSets)
+  );
+
+  const template = readTemplate('sets-content.html');
+  const body = render(template, { setCount: count.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Set Database - LOTRO Guides',
+    metaDescription: `Browse ${count.toLocaleString()} equipment sets from the LotRO Companion database. View set bonuses, pieces, and level requirements.`,
+    currentPage: 'sets',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  $.getJSON("./data/sets-db.json", function(data) {',
+    '    window.LOTRO_SETS_DB = data;',
+    '    $.getScript("./js/sets-db.js", function() {',
+    '      if (window.LOTRO_SETS_INIT) window.LOTRO_SETS_INIT();',
+    '    });',
+    '  });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'sets.html'), html);
+}
+
+// ─── Deeds Database Page ────────────────────────────────────────────────────
+
+function buildDeedsPage(navData) {
+  const deedsPath = path.join(LORE_DIR, 'deeds.json');
+  if (!fs.existsSync(deedsPath)) return;
+
+  const deeds = JSON.parse(fs.readFileSync(deedsPath, 'utf8'));
+
+  // Compact format: {id, n, tp, lv, rw:[{t,v}], cl?}
+  const clientDeeds = deeds.map(d => {
+    const row = { id: d.id, n: d.name, tp: d.type || 'Other' };
+    if (d.level) row.lv = d.level;
+    if (d.rewards && d.rewards.length) {
+      row.rw = d.rewards.map(r => ({ t: r.type, v: r.value }));
+    }
+    if (d.requiredClass) row.cl = d.requiredClass;
+    return row;
+  });
+
+  const count = clientDeeds.length;
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'deeds-db.json'),
+    JSON.stringify(clientDeeds)
+  );
+
+  const template = readTemplate('deeds-content.html');
+  const body = render(template, { deedCount: count.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Deed Database - LOTRO Guides',
+    metaDescription: `Browse ${count.toLocaleString()} deeds from the LotRO Companion database. Search by type, rewards, and class requirements.`,
+    currentPage: 'deeds',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  $.getJSON("./data/deeds-db.json", function(data) {',
+    '    window.LOTRO_DEEDS_DB = data;',
+    '    $.getScript("./js/deeds-db.js", function() {',
+    '      if (window.LOTRO_DEEDS_INIT) window.LOTRO_DEEDS_INIT();',
+    '    });',
+    '  });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'deeds.html'), html);
 }
 
 // ─── Main Build ─────────────────────────────────────────────────────────────
@@ -695,6 +981,18 @@ async function build() {
   // Build mobs database page
   buildMobsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ mobs.html');
+
+  // Build virtues database page
+  buildVirtuesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ virtues.html');
+
+  // Build sets database page
+  buildSetsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ sets.html');
+
+  // Build deeds database page
+  buildDeedsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ deeds.html');
 
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {

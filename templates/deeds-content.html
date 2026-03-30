@@ -1,0 +1,96 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Deed Database</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-bookmark"></i>
+          <h2>Deed Database</h2>
+          <p>Browse {{deedCount}} deeds from the LotRO Companion database. Search and filter by type, level, and rewards.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="row m-b-30">
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Type</label>
+            <select id="filter-type" class="form-control item-filter-select">
+              <option value="">All Types</option>
+              <option value="Slayer">Slayer</option>
+              <option value="Exploration">Exploration</option>
+              <option value="Lore">Lore</option>
+              <option value="Reputation">Reputation</option>
+              <option value="Class">Class</option>
+              <option value="Event">Event</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Reward</label>
+            <select id="filter-reward" class="form-control item-filter-select">
+              <option value="">All Rewards</option>
+              <option value="LP">LOTRO Points</option>
+              <option value="Title">Title</option>
+              <option value="Virtue">Virtue</option>
+              <option value="Reputation">Reputation</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Class</label>
+            <select id="filter-class" class="form-control item-filter-select">
+              <option value="">All Classes</option>
+              <option value="Beorning">Beorning</option>
+              <option value="Brawler">Brawler</option>
+              <option value="Burglar">Burglar</option>
+              <option value="Captain">Captain</option>
+              <option value="Champion">Champion</option>
+              <option value="Guardian">Guardian</option>
+              <option value="Hunter">Hunter</option>
+              <option value="Lore-master">Lore-master</option>
+              <option value="Mariner">Mariner</option>
+              <option value="Minstrel">Minstrel</option>
+              <option value="Rune-keeper">Rune-keeper</option>
+              <option value="Warden">Warden</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">&nbsp;</label>
+            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Deeds Table -->
+        <div class="table-responsive">
+          <table id="deeds-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Level</th>
+                <th>Rewards</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deed Detail Modal -->
+    <div class="modal fade" id="deed-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content item-modal-content">
+          <div class="modal-header item-modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title" id="deed-modal-title"></h4>
+          </div>
+          <div class="modal-body" id="deed-modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>

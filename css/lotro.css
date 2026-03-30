@@ -19,6 +19,13 @@
   --lotro-red: #9B2226;
 }
 
+/* ── Dark Select / Dropdown Option Readability ──────────────────────────── */
+.dataTables_length select option,
+.item-filter-select option {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+}
+
 /* ── Header Overrides ───────────────────────────────────────────────────── */
 #header {
   background: var(--lotro-dark);
@@ -472,13 +479,20 @@ h1, h2, h3 {
   margin-bottom: 4px;
 }
 .item-filter-select {
-  background: var(--lotro-dark);
+  background: var(--lotro-dark-mid);
   color: var(--lotro-parchment);
-  border: 1px solid #444;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 6px 10px;
 }
 .item-filter-select:focus {
   border-color: var(--lotro-gold);
   box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+.item-filter-select option {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  padding: 4px 8px;
 }
 
 #items-table {
@@ -559,6 +573,60 @@ h1, h2, h3 {
 .item-modal-meta p {
   margin-bottom: 4px;
 }
+
+/* Cross-link badges in item table and modal */
+.item-set-badge {
+  display: inline-block;
+  color: #bb86fc;
+  font-size: 12px;
+  margin-left: 4px;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+.item-set-badge:hover {
+  opacity: 1;
+  color: #d4a5ff;
+  text-decoration: none;
+}
+.item-crosslink {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.item-crosslink:hover {
+  text-decoration: none;
+}
+.item-crosslink-set {
+  color: #bb86fc;
+  background: rgba(156, 39, 176, 0.12);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+.item-crosslink-set:hover {
+  background: rgba(156, 39, 176, 0.25);
+  color: #d4a5ff;
+}
+.item-crosslink-deed {
+  color: #66bb6a;
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+.item-crosslink-deed:hover {
+  background: rgba(76, 175, 80, 0.25);
+  color: #a5d6a7;
+}
+.item-crosslink-virtue {
+  color: #ffd54f;
+  background: rgba(255, 213, 79, 0.12);
+  border: 1px solid rgba(255, 213, 79, 0.3);
+}
+.item-crosslink-virtue:hover {
+  background: rgba(255, 213, 79, 0.25);
+  color: #fff176;
+}
 .item-stat-table {
   background: transparent;
 }
@@ -580,9 +648,9 @@ h1, h2, h3 {
   outline: none;
 }
 #items-table_wrapper .dataTables_length select {
-  background: var(--lotro-dark);
+  background: var(--lotro-dark-mid);
   color: var(--lotro-parchment);
-  border: 1px solid #444;
+  border: 1px solid #555;
 }
 #items-table_wrapper .dataTables_info {
   color: var(--lotro-text-light);
@@ -704,9 +772,9 @@ h1, h2, h3 {
   outline: none;
 }
 #mobs-table_wrapper .dataTables_length select {
-  background: var(--lotro-dark);
+  background: var(--lotro-dark-mid);
   color: var(--lotro-parchment);
-  border: 1px solid #444;
+  border: 1px solid #555;
 }
 #mobs-table_wrapper .dataTables_info {
   color: var(--lotro-text-light);
@@ -718,4 +786,295 @@ h1, h2, h3 {
   background: var(--lotro-gold) !important;
   color: var(--lotro-dark) !important;
   border-color: var(--lotro-gold) !important;
+}
+
+/* ─── Set Auto-Links ────────────────────────────────────────────────────── */
+.lotro-set {
+  text-decoration: none;
+  border-bottom: 1px dotted #8e44ad;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  color: #bb86fc;
+  transition: color 0.15s ease;
+}
+.lotro-set:hover {
+  text-decoration: none;
+  color: #d4a5ff;
+}
+.lotro-set::before {
+  content: '\f1b3';
+  font-family: 'FontAwesome';
+  font-size: 10px;
+  margin-right: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.lotro-set:hover::before {
+  opacity: 0.6;
+}
+
+/* ─── Deed Auto-Links ───────────────────────────────────────────────────── */
+.lotro-deed {
+  text-decoration: none;
+  border-bottom: 1px dotted #2e7d32;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  color: #66bb6a;
+  transition: color 0.15s ease;
+}
+.lotro-deed:hover {
+  text-decoration: none;
+  color: #a5d6a7;
+}
+.lotro-deed::before {
+  content: '\f02e';
+  font-family: 'FontAwesome';
+  font-size: 10px;
+  margin-right: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.lotro-deed:hover::before {
+  opacity: 0.6;
+}
+
+/* ─── Virtue Database Page ──────────────────────────────────────────────── */
+#virtues-table {
+  font-size: 14px;
+}
+#virtues-table thead th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 2px solid var(--lotro-gold);
+}
+#virtues-table tbody td {
+  vertical-align: middle;
+}
+.virtue-stat-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #a5d6a7;
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  margin: 1px 2px;
+}
+.virtue-rank-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lotro-gold);
+  background: rgba(201, 168, 76, 0.15);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+}
+#virtues-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#virtues-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#virtues-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  border: 1px solid #555;
+}
+#virtues-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#virtues-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#virtues-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}
+
+/* ─── Set Database Page ─────────────────────────────────────────────────── */
+#sets-table {
+  font-size: 14px;
+}
+#sets-table thead th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 2px solid var(--lotro-gold);
+}
+#sets-table tbody td {
+  vertical-align: middle;
+}
+.set-bonus-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #ce93d8;
+  background: rgba(156, 39, 176, 0.15);
+  border: 1px solid rgba(156, 39, 176, 0.3);
+  margin: 1px 2px;
+}
+.set-piece-list li {
+  padding: 4px 0;
+  border-bottom: 1px solid #333;
+}
+.set-piece-list li:last-child {
+  border-bottom: none;
+}
+.set-bonus-table td {
+  border-color: #333;
+  padding: 4px 8px;
+}
+#sets-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#sets-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#sets-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  border: 1px solid #555;
+}
+#sets-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#sets-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#sets-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}
+
+/* ─── Deed Database Page ────────────────────────────────────────────────── */
+#deeds-table {
+  font-size: 14px;
+}
+#deeds-table thead th {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 2px solid var(--lotro-gold);
+}
+#deeds-table tbody td {
+  vertical-align: middle;
+}
+.deed-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.deed-type-slayer    { background: #c62828; }
+.deed-type-exploration { background: #2e7d32; }
+.deed-type-lore      { background: #6a1b9a; }
+.deed-type-reputation { background: #1565c0; }
+.deed-type-class     { background: #e65100; }
+.deed-type-event     { background: #00838f; }
+.deed-type-race      { background: #4e342e; }
+.deed-type-other     { background: #616161; }
+.deed-reward-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  margin: 1px 2px;
+}
+.deed-reward-lp       { color: #ffd54f; background: rgba(255, 213, 79, 0.15); border: 1px solid rgba(255, 213, 79, 0.3); }
+.deed-reward-title    { color: #90caf9; background: rgba(144, 202, 249, 0.15); border: 1px solid rgba(144, 202, 249, 0.3); }
+.deed-reward-virtue   { color: #a5d6a7; background: rgba(165, 214, 167, 0.15); border: 1px solid rgba(165, 214, 167, 0.3); }
+.deed-reward-reputation { color: #ce93d8; background: rgba(206, 147, 216, 0.15); border: 1px solid rgba(206, 147, 216, 0.3); }
+#deeds-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#deeds-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#deeds-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  border: 1px solid #555;
+}
+#deeds-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#deeds-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#deeds-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}
+
+/* Shared filter styles for database pages */
+.db-filter-label {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lotro-gold);
+  display: block;
+  margin-bottom: 4px;
+}
+.db-filter-select {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+.db-filter-select:focus {
+  border-color: var(--lotro-gold);
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+
+/* Shared modal styles for database pages */
+.db-modal-content {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+}
+.db-modal-header {
+  border-bottom: 1px solid var(--lotro-gold);
+}
+.db-modal-header .modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+}
+.db-modal-header .close {
+  color: var(--lotro-parchment);
+  opacity: 0.7;
 }
