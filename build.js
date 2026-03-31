@@ -15,6 +15,8 @@ const LORE_DIR = path.join(__dirname, 'data', 'lore');
 
 // ─── Lore / Item Index ─────────────────────────────────────────────────────
 let itemIndex = {};
+let questIndex = {};
+let mapMarkerIndexCache = null;
 
 function loadItemIndex() {
   const indexPath = path.join(LORE_DIR, 'item-index.json');
@@ -24,6 +26,74 @@ function loadItemIndex() {
   }
   itemIndex = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
   console.log(`   📇 Loaded item index (${Object.keys(itemIndex).length} entries)`);
+}
+
+function loadQuestIndex() {
+  const questsPath = path.join(LORE_DIR, 'quests.json');
+  if (!fs.existsSync(questsPath)) {
+    questIndex = {};
+    return;
+  }
+
+  const quests = JSON.parse(fs.readFileSync(questsPath, 'utf8'));
+  const idx = {};
+  for (const q of quests) {
+    const name = (q.n || q.name || '').trim();
+    if (!name) continue;
+    idx[name] = { id: q.id, lv: q.lv, cat: q.cat };
+  }
+  questIndex = idx;
+  console.log(`   🧭 Loaded quest index (${Object.keys(questIndex).length} entries)`);
+}
+
+function normalizeLookupName(value) {
+  if (!value) return '';
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function loadMapMarkerIndex() {
+  if (mapMarkerIndexCache) return mapMarkerIndexCache;
+
+  const dir = path.join(LORE_DIR, 'map-markers');
+  const byDid = {};
+  const byLabel = {};
+
+  if (!fs.existsSync(dir)) {
+    mapMarkerIndexCache = { byDid, byLabel };
+    return mapMarkerIndexCache;
+  }
+
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'));
+  for (const file of files) {
+    const mapId = path.basename(file, '.json');
+    const markers = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+    for (const mk of markers) {
+      const row = {
+        map: mapId,
+        lng: mk.lng,
+        lat: mk.lat,
+        l: mk.l || '',
+      };
+      if (mk.d && !byDid[mk.d]) byDid[mk.d] = row;
+      const key = normalizeLookupName(mk.l);
+      if (key && !byLabel[key]) byLabel[key] = row;
+    }
+  }
+
+  mapMarkerIndexCache = { byDid, byLabel };
+  return mapMarkerIndexCache;
+}
+
+function findMarkerLocation(markerIndex, did, label) {
+  if (did && markerIndex.byDid[did]) return markerIndex.byDid[did];
+  const key = normalizeLookupName(label);
+  if (key && markerIndex.byLabel[key]) return markerIndex.byLabel[key];
+  return null;
 }
 
 /**
@@ -37,9 +107,11 @@ function loadItemIndex() {
 function autoLinkItems(html) {
   if (!Object.keys(itemIndex).length) return html;
 
-  // Build list of names to match: 8+ chars, no mobs, sorted longest-first
+  // Build list of names to match: 8+ chars, sorted longest-first.
+  // Keep deed/set linking in their dedicated linkers to avoid overlap.
+  const allowedTypes = new Set(['item', 'consumable', 'quest-reward', 'virtue']);
   const names = Object.keys(itemIndex)
-    .filter(n => n.length >= 8 && itemIndex[n].type !== 'mob')
+    .filter(n => n.length >= 8 && allowedTypes.has(itemIndex[n].type))
     .sort((a, b) => b.length - a.length);
 
   if (!names.length) return html;
@@ -180,6 +252,53 @@ function autoLinkDeeds(html) {
       const entry = itemIndex[name];
       const deedUrl = `../deeds.html?id=${entry.id}`;
       const replacement = `<a href="${deedUrl}" class="lotro-deed" data-deed-type="${entry.deedType || ''}">${match[0]}</a>`;
+
+      html = html.replace(match[0], replacement);
+      linked.add(name);
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Auto-link known quest names within HTML content.
+ */
+function autoLinkQuests(html) {
+  if (!Object.keys(questIndex).length) return html;
+
+  const deedNames = new Set(
+    Object.keys(itemIndex).filter(n => itemIndex[n].type === 'deed')
+  );
+
+  const names = Object.keys(questIndex)
+    .filter(n => n.length >= 12)
+    .filter(n => n.trim().split(/\s+/).length >= 3)
+    .filter(n => !deedNames.has(n))
+    .sort((a, b) => b.length - a.length);
+
+  if (!names.length) return html;
+
+  const linked = new Set();
+
+  for (const name of names) {
+    if (linked.has(name)) continue;
+
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const first = escaped.charAt(0);
+    const hasAsciiLetter = /^[A-Za-z]$/.test(first);
+    const leading = hasAsciiLetter
+      ? `[${first.toLowerCase()}${first.toUpperCase()}]${escaped.slice(1)}`
+      : escaped;
+    const regex = new RegExp(`(?<![<\\w/])\\b(${leading})\\b(?![^<]*>)`);
+    const match = html.match(regex);
+
+    if (match) {
+      const entry = questIndex[name];
+      const questUrl = `../quests.html?id=${entry.id}`;
+      const levelInfo = entry.lv ? ` data-quest-level="${entry.lv}"` : '';
+      const catInfo = entry.cat ? ` data-quest-category="${String(entry.cat).replace(/"/g, '&quot;')}"` : '';
+      const replacement = `<a href="${questUrl}" class="lotro-quest"${levelInfo}${catInfo}>${match[0]}</a>`;
 
       html = html.replace(match[0], replacement);
       linked.add(name);
@@ -341,6 +460,8 @@ function buildPage(bodyContent, pageData) {
     currentVirtues: pageData.currentPage === 'virtues' ? 'active' : '',
     currentSets: pageData.currentPage === 'sets' ? 'active' : '',
     currentDeeds: pageData.currentPage === 'deeds' ? 'active' : '',
+    currentQuests: pageData.currentPage === 'quests' ? 'active' : '',
+    currentMap: pageData.currentPage === 'map' ? 'active' : '',
     siteRoot,
     guideNavItems: pageData.guideNavItems || '',
     newsNavItems: pageData.newsNavItems || '',
@@ -446,6 +567,36 @@ function buildNavItems(posts, siteRoot, limit) {
   ).join('\n                      ');
 }
 
+function classifyGuide(post) {
+  const tags = (post.tags || []).map(t => String(t).toLowerCase());
+  const title = String(post.title || '').toLowerCase();
+
+  const hasAny = (words) => words.some(w => tags.includes(w) || title.includes(w));
+
+  if (hasAny(['raid', 't2', 't2c', 'instance', 'dungeon'])) return 'raid';
+  if (hasAny(['class', 'build', 'hunter', 'champion', 'captain', 'burglar', 'minstrel', 'warden', 'runekeeper', 'rune-keeper', 'beorning', 'mariner', 'lore-master', 'guardian'])) return 'class';
+  if (hasAny(['leveling', 'levelling', 'beginner', 'new-player', 'getting-started', 'starter-zones'])) return 'leveling';
+  if (hasAny(['crafting', 'legendary-items', 'li', 'systems'])) return 'systems';
+  return 'general';
+}
+
+function buildGuideQuickNavLinks(siteRoot) {
+  const root = `./${siteRoot}guides.html`;
+  const links = [
+    { key: 'all', label: 'All Guides' },
+    { key: 'raid', label: 'Raid Guides' },
+    { key: 'class', label: 'Class Guides' },
+    { key: 'leveling', label: 'Leveling Guides' },
+    { key: 'systems', label: 'Systems Guides' },
+    { key: 'general', label: 'General Guides' },
+  ];
+
+  return links.map(l => {
+    const href = l.key === 'all' ? root : `${root}?filter=${l.key}`;
+    return `<li><a href="${href}">${l.label}</a></li>`;
+  }).join('\n                      ');
+}
+
 // ─── Page Generators ────────────────────────────────────────────────────────
 
 function buildIndex(allPosts, navData) {
@@ -498,7 +649,14 @@ function buildListing(posts, category, navData) {
   const categoryName = category === 'guides' ? 'Guides & Walkthroughs' : 'Latest News';
   const categoryIcon = category === 'guides' ? 'fa-book' : 'fa-newspaper-o';
 
-  const postsHtml = posts.map(post => render(cardTemplate, {
+  const postsHtml = posts.map(post => {
+    const guideType = category === 'guides' ? classifyGuide(post) : '';
+    const tagsAttr = (post.tags || []).map(t => String(t).toLowerCase()).join(',');
+    const cardAttrs = category === 'guides'
+      ? ` data-guide-type="${guideType}" data-guide-tags="${tagsAttr}"`
+      : '';
+
+    return render(cardTemplate, {
     url: post.url,
     image: post.image || 'img/default.jpg',
     title: post.title,
@@ -507,22 +665,70 @@ function buildListing(posts, category, navData) {
     excerpt: post.excerpt,
     category: post.category === 'guides' ? 'Guide' : 'News',
     categoryClass: post.category === 'guides' ? 'badge-success' : 'badge-primary',
+    cardAttrs,
     assets: ASSETS_PREFIX,
-  })).join('\n');
+    });
+  }).join('\n');
+
+  let quickNav = '';
+  if (category === 'guides') {
+    quickNav = `
+        <div class="m-b-20" id="guides-quick-nav">
+          <a class="btn btn-sm btn-default" href="guides.html">All Guides</a>
+          <a class="btn btn-sm btn-default" href="guides.html?filter=raid">Raid Guides</a>
+          <a class="btn btn-sm btn-default" href="guides.html?filter=class">Class Guides</a>
+          <a class="btn btn-sm btn-default" href="guides.html?filter=leveling">Leveling Guides</a>
+          <a class="btn btn-sm btn-default" href="guides.html?filter=systems">Systems Guides</a>
+          <a class="btn btn-sm btn-default" href="guides.html?filter=general">General Guides</a>
+        </div>`;
+  }
 
   const body = render(template, {
     categoryName,
     categoryIcon,
+    quickNav,
     posts: postsHtml,
     assets: ASSETS_PREFIX,
   });
 
   const pageTitle = category === 'guides' ? 'Guides & Walkthroughs' : 'Latest News';
-  return buildPage(body, {
+  let html = buildPage(body, {
     title: `${pageTitle} - LOTRO Guides`,
     currentPage: category,
     ...navData,
   });
+
+  if (category === 'guides') {
+    const filterScript = [
+      '<script>',
+      '(function(){',
+      '  var params = new URLSearchParams(window.location.search);',
+      '  var filter = (params.get("filter") || "all").toLowerCase();',
+      '  if (!filter || filter === "all") return;',
+      '  var cards = document.querySelectorAll("[data-guide-type]");',
+      '  var shown = 0;',
+      '  for (var i = 0; i < cards.length; i++) {',
+      '    var card = cards[i];',
+      '    var type = (card.getAttribute("data-guide-type") || "").toLowerCase();',
+      '    var keep = type === filter;',
+      '    card.style.display = keep ? "" : "none";',
+      '    if (keep) shown++;',
+      '  }',
+      '  var quickNav = document.getElementById("guides-quick-nav");',
+      '  if (quickNav) {',
+      '    var links = quickNav.querySelectorAll("a");',
+      '    for (var j = 0; j < links.length; j++) {',
+      '      var href = (links[j].getAttribute("href") || "").toLowerCase();',
+      '      if (href.indexOf("filter=" + filter) !== -1) links[j].classList.add("btn-primary");',
+      '    }',
+      '  }',
+      '})();',
+      '</script>',
+    ].join('\n    ');
+    html = html.replace('</body>', `    ${filterScript}\n  </body>`);
+  }
+
+  return html;
 }
 
 function buildArticle(post, relatedPosts, navData) {
@@ -559,7 +765,7 @@ function buildArticle(post, relatedPosts, navData) {
     date: post.formattedDate,
     author: post.author || 'Amdor',
     image: postImg,
-    content: autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content)))),
+    content: autoLinkQuests(autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content))))),
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
@@ -617,6 +823,31 @@ function buildItemsPage(navData) {
       if (v.deedType) row.dt = v.deedType;
       return row;
     });
+
+  // Inject quest reward items that aren't already in the item index
+  const questsPath = path.join(LORE_DIR, 'quests.json');
+  if (fs.existsSync(questsPath)) {
+    const quests = JSON.parse(fs.readFileSync(questsPath, 'utf8'));
+    const existingIds = new Set(clientItems.map(r => r.id));
+    const existingNames = new Set(clientItems.map(r => r.n));
+    const rewardMap = new Map(); // id → {id, name, count}
+    for (const q of quests) {
+      if (q.rw && q.rw.it) {
+        for (const it of q.rw.it) {
+          if (existingIds.has(it.id) || existingNames.has(it.n)) continue;
+          const entry = rewardMap.get(it.id) || { id: it.id, n: it.n, count: 0 };
+          entry.count++;
+          rewardMap.set(it.id, entry);
+        }
+      }
+    }
+    let added = 0;
+    for (const [, v] of rewardMap) {
+      clientItems.push({ id: v.id, n: v.n, t: 'quest-reward' });
+      added++;
+    }
+    if (added) console.log(`   + ${added} quest reward items added to item DB`);
+  }
 
   const itemCount = clientItems.length;
 
@@ -705,11 +936,24 @@ function buildMobsPage(navData) {
 
   const mobCount = clientMobs.length;
 
+  // Build map overlays for mobs from map marker DID/label matches.
+  const markerIndex = loadMapMarkerIndex();
+  const mobOverlay = {};
+  for (const mob of clientMobs) {
+    const loc = findMarkerLocation(markerIndex, mob.id, mob.n);
+    if (!loc) continue;
+    mobOverlay[mob.id] = { n: mob.n, map: loc.map, lng: loc.lng, lat: loc.lat, l: loc.l || mob.n };
+  }
+
   // Write the JSON data file
   ensureDir(path.join(OUTPUT_DIR, 'data'));
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'mobs-db.json'),
     JSON.stringify(clientMobs)
+  );
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'mob-overlay.json'),
+    JSON.stringify(mobOverlay)
   );
 
   // Build the page from template
@@ -730,13 +974,15 @@ function buildMobsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  // Load mobs data, then init',
-    '  $.getJSON("./data/mobs-db.json", function(data) {',
-    '    window.LOTRO_MOBS_DB = data;',
-    '    $.getScript("./js/mobs-db.js", function() {',
-    '      if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();',
+    '  // Load mobs data + map overlay, then init',
+    '  $.when($.getJSON("./data/mobs-db.json"), $.getJSON("./data/mob-overlay.json"))',
+    '    .done(function(mobsRes, overlayRes) {',
+    '      window.LOTRO_MOBS_DB = mobsRes[0];',
+    '      window.LOTRO_MOB_OVERLAY = overlayRes[0] || {};',
+    '      $.getScript("./js/mobs-db.js", function() {',
+    '        if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();',
+    '      });',
     '    });',
-    '  });',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -867,7 +1113,18 @@ function buildDeedsPage(navData) {
 
   const deeds = JSON.parse(fs.readFileSync(deedsPath, 'utf8'));
 
-  // Compact format: {id, n, tp, lv, rw:[{t,v}], cl?}
+  // Build lookup maps for resolving achievableId references
+  const deedNameById = {};
+  for (const d of deeds) deedNameById[d.id] = d.name;
+
+  const questsPath = path.join(LORE_DIR, 'quests.json');
+  const questNameById = {};
+  if (fs.existsSync(questsPath)) {
+    const quests = JSON.parse(fs.readFileSync(questsPath, 'utf8'));
+    for (const q of quests) questNameById[q.id] = q.n || q.name;
+  }
+
+  // Compact format: {id, n, tp, lv, rw:[{t,v}], cl?, obj?:[{...}]}
   const clientDeeds = deeds.map(d => {
     const row = { id: d.id, n: d.name, tp: d.type || 'Other' };
     if (d.level) row.lv = d.level;
@@ -875,8 +1132,107 @@ function buildDeedsPage(navData) {
       row.rw = d.rewards.map(r => ({ t: r.type, v: r.value }));
     }
     if (d.requiredClass) row.cl = d.requiredClass;
+
+    // Compact objectives
+    if (d.objectives && d.objectives.length) {
+      row.obj = d.objectives.map(o => {
+        if (o.type === 'kill') {
+          const r = { t: 'kill' };
+          if (o.mobId) { r.mid = o.mobId; r.mn = o.mobName; }
+          if (o.count) r.c = o.count;
+          if (o.zone) r.z = o.zone;
+          return r;
+        }
+        if (o.type === 'complete') {
+          const r = { t: 'complete', aid: o.achievableId };
+          // Resolve name: check deeds first, then quests
+          if (deedNameById[o.achievableId]) {
+            r.an = deedNameById[o.achievableId];
+            r.ad = true; // is a deed
+          } else if (questNameById[o.achievableId]) {
+            r.an = questNameById[o.achievableId];
+            r.aq = true; // is a quest
+          }
+          return r;
+        }
+        if (o.type === 'questCount') return { t: 'qc', c: o.count };
+        if (o.type === 'landmark') return { t: 'lm', n: o.name };
+        if (o.type === 'item') return { t: 'item', n: o.name };
+        if (o.type === 'useItem') return { t: 'use', n: o.name };
+        if (o.type === 'npc') return { t: 'npc', n: o.name };
+        if (o.type === 'skill') return { t: 'skill', c: o.count };
+        if (o.type === 'emote') return { t: 'emote', n: o.name, c: o.count };
+        if (o.type === 'explore') return { t: 'explore', c: o.count };
+        if (o.type === 'faction') return { t: 'fac', n: o.name, tier: o.tier };
+        return o;
+      });
+    }
+
     return row;
   });
+
+  // Build map overlays for deeds from objective links to maps/quests/mobs/landmarks.
+  const markerIndex = loadMapMarkerIndex();
+  const questOverlayPath = path.join(LORE_DIR, 'quest-overlay.json');
+  const questOverlay = fs.existsSync(questOverlayPath)
+    ? JSON.parse(fs.readFileSync(questOverlayPath, 'utf8'))
+    : {};
+  const deedOverlay = {};
+
+  for (const deed of clientDeeds) {
+    if (!deed.obj || !deed.obj.length) continue;
+
+    const pts = [];
+    const maps = new Set();
+    const seen = new Set();
+
+    for (let i = 0; i < deed.obj.length; i++) {
+      const o = deed.obj[i];
+      let loc = null;
+
+      if (o.t === 'complete' && o.aq && o.aid && questOverlay[o.aid]) {
+        const q = questOverlay[o.aid];
+        if (q.maps && q.maps.length && q.steps && q.steps.length && q.steps[0].pts && q.steps[0].pts.length) {
+          const pt = q.steps[0].pts[0];
+          loc = {
+            map: q.maps[0],
+            lng: pt[0],
+            lat: pt[1],
+            l: o.an || q.n || deed.n,
+          };
+        }
+      } else if (o.t === 'kill') {
+        loc = findMarkerLocation(markerIndex, o.mid, o.mn);
+      } else if (o.t === 'lm' || o.t === 'npc' || o.t === 'item' || o.t === 'use') {
+        loc = findMarkerLocation(markerIndex, '', o.n);
+      }
+
+      if (!loc) continue;
+
+      const key = `${loc.map}|${loc.lng}|${loc.lat}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      maps.add(loc.map);
+      pts.push({
+        i: i + 1,
+        map: loc.map,
+        lng: loc.lng,
+        lat: loc.lat,
+        t: o.an || o.mn || o.n || deed.n,
+      });
+      if (pts.length >= 12) break;
+    }
+
+    if (pts.length) {
+      deedOverlay[deed.id] = {
+        n: deed.n,
+        lv: deed.lv || 0,
+        tp: deed.tp || 'Other',
+        maps: Array.from(maps),
+        pts,
+      };
+    }
+  }
 
   const count = clientDeeds.length;
 
@@ -884,6 +1240,10 @@ function buildDeedsPage(navData) {
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'deeds-db.json'),
     JSON.stringify(clientDeeds)
+  );
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'deed-overlay.json'),
+    JSON.stringify(deedOverlay)
   );
 
   const template = readTemplate('deeds-content.html');
@@ -902,17 +1262,115 @@ function buildDeedsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.getJSON("./data/deeds-db.json", function(data) {',
-    '    window.LOTRO_DEEDS_DB = data;',
-    '    $.getScript("./js/deeds-db.js", function() {',
-    '      if (window.LOTRO_DEEDS_INIT) window.LOTRO_DEEDS_INIT();',
+    '  $.when($.getJSON("./data/deeds-db.json"), $.getJSON("./data/deed-overlay.json"))',
+    '    .done(function(deedsRes, overlayRes) {',
+    '      window.LOTRO_DEEDS_DB = deedsRes[0];',
+    '      window.LOTRO_DEED_OVERLAY = overlayRes[0] || {};',
+    '      $.getScript("./js/deeds-db.js", function() {',
+    '        if (window.LOTRO_DEEDS_INIT) window.LOTRO_DEEDS_INIT();',
+    '      });',
+    '    });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'deeds.html'), html);
+}
+
+// ─── Quest Database Page ────────────────────────────────────────────────────
+
+function buildQuestsPage(navData) {
+  const questsPath = path.join(LORE_DIR, 'quests.json');
+  if (!fs.existsSync(questsPath)) return;
+
+  const quests = JSON.parse(fs.readFileSync(questsPath, 'utf8'));
+  const count = quests.length;
+
+  // Write quest data for client-side loading
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'quests-db.json'),
+    JSON.stringify(quests)
+  );
+
+  // Copy POI cross-reference files for map enrichment
+  const poiFiles = ['quest-poi.json', 'map-quests.json', 'quest-overlay.json', 'npcs.json'];
+  for (const f of poiFiles) {
+    const src = path.join(LORE_DIR, f);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, path.join(OUTPUT_DIR, 'data', f));
+    }
+  }
+
+  const template = readTemplate('quests-content.html');
+  const body = render(template, { questCount: count.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Quest Database - LOTRO Guides',
+    metaDescription: `Browse ${count.toLocaleString()} quests from the LotRO Companion database. Search by name, category, level, and quest giver.`,
+    currentPage: 'quests',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  $.getJSON("./data/quests-db.json", function(data) {',
+    '    window.LOTRO_QUESTS_DB = data;',
+    '    $.getScript("./js/quests-db.js", function() {',
+    '      if (window.LOTRO_QUESTS_INIT) window.LOTRO_QUESTS_INIT();',
     '    });',
     '  });',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
 
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'deeds.html'), html);
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'quests.html'), html);
+}
+
+// ─── Interactive Map Page ───────────────────────────────────────────────────
+
+function buildMapPage(navData) {
+  const manifestPath = path.join(LORE_DIR, 'maps-manifest.json');
+  if (!fs.existsSync(manifestPath)) {
+    console.log('   ℹ No map data found — run: node scripts/extract-maps.js');
+    return;
+  }
+
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const template = readTemplate('map-content.html');
+  const body = render(template, {});
+
+  let html = buildPage(body, {
+    title: 'Interactive Map - LOTRO Guides',
+    metaDescription: `Explore Middle-earth with an interactive map featuring ${manifest.totalMarkers.toLocaleString()} points of interest across ${manifest.totalMaps.toLocaleString()} maps. Find stable-masters, vendors, landmarks, and more.`,
+    currentPage: 'map',
+    ...navData,
+  });
+
+  // Inject Leaflet CSS + MarkerCluster CSS in <head>
+  const mapCss = [
+    '<link href="./plugins/leaflet/leaflet.css" rel="stylesheet">',
+    '<link href="./plugins/leaflet/MarkerCluster.css" rel="stylesheet">',
+    '<link href="./plugins/leaflet/MarkerCluster.Default.css" rel="stylesheet">',
+  ].join('\n    ');
+  html = html.replace('</head>', `    ${mapCss}\n  </head>`);
+
+  // Inject Leaflet JS + MarkerCluster + map JS before </body>
+  const mapScripts = [
+    '<script src="./plugins/leaflet/leaflet.js"></script>',
+    '<script src="./plugins/leaflet/leaflet.markercluster.js"></script>',
+    '<script src="./js/lotro-map.js"></script>',
+    '<script>',
+    '  if (window.LOTRO_MAP_INIT) window.LOTRO_MAP_INIT();',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${mapScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'map.html'), html);
 }
 
 // ─── Main Build ─────────────────────────────────────────────────────────────
@@ -927,6 +1385,7 @@ async function build() {
 
   // Load lore item index for auto-linking
   loadItemIndex();
+  loadQuestIndex();
 
   // Load all markdown content
   const guides = loadContent('guides');
@@ -944,9 +1403,9 @@ async function build() {
   console.log(`   Found ${allGuides.length} guides (${legacyGuides.length} legacy), ${allNews.length} news (${legacyNews.length} legacy)`);
 
   // Build nav items from content (latest 5 each)
-  const guideNav = buildNavItems(allGuides, '', 5);
+  const guideNav = [buildGuideQuickNavLinks(''), buildNavItems(allGuides, '', 5)].filter(Boolean).join('\n                      ');
   const newsNav = buildNavItems(allNews, '', 5);
-  const guideNavArticle = buildNavItems(allGuides, '../', 5);
+  const guideNavArticle = [buildGuideQuickNavLinks('../'), buildNavItems(allGuides, '../', 5)].filter(Boolean).join('\n                      ');
   const newsNavArticle = buildNavItems(allNews, '../', 5);
 
   // Ensure output directories
@@ -993,6 +1452,14 @@ async function build() {
   // Build deeds database page
   buildDeedsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ deeds.html');
+
+  // Build quests database page
+  buildQuestsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ quests.html');
+
+  // Build interactive map page
+  buildMapPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ map.html');
 
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {

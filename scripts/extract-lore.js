@@ -57,6 +57,17 @@ function readXml(filename) {
   return fs.readFileSync(fp, 'utf8');
 }
 
+/** Clean game-specific markup from extracted text */
+function cleanGameText(str) {
+  if (!str) return str;
+  return str
+    .replace(/&#10;/g, '\n')          // XML newline entities → real newlines
+    .replace(/\\q/g, '')              // \q quote markers
+    .replace(/<rgb=[^>]*>/g, '')      // <rgb=#FF0000> colour tags
+    .replace(/<\/rgb>/g, '')          // </rgb> closing tags
+    .replace(/&amp;/g, '&');          // double-encoded ampersands
+}
+
 function formatStat(name, value) {
   const label = STAT_LABELS[name] || name.replace(/_/g, ' ');
   const num = Math.round(parseFloat(value));
@@ -75,7 +86,7 @@ function extractConsumables() {
 
   while ((m = re.exec(xml)) !== null) {
     const id = m[1];
-    const name = m[2];
+    const name = cleanGameText(m[2]);
     const body = m[3];
     const stats = [];
     const sr = /<stat name="([^"]*)"[^/]*?constant="([^"]*)"/g;
@@ -150,7 +161,7 @@ function extractEnhancementRunes() {
     const incMatch = attrs.match(/levelIncrement="(\d+)"/);
     runes.push({
       id: m[1],
-      name: m[2],
+      name: cleanGameText(m[2]),
       minItemLevel: minMatch ? parseInt(minMatch[1]) : 0,
       maxItemLevel: maxMatch ? parseInt(maxMatch[1]) : 0,
       levelIncrement: incMatch ? parseInt(incMatch[1]) : 1,
@@ -196,7 +207,7 @@ function extractItems() {
 
     items.push({
       id: m[1],
-      name: m[2],
+      name: cleanGameText(m[2]),
       level,
       quality: quality.toLowerCase(),
       slot: slotMatch ? slotMatch[1].replace(/_/g, ' ').toLowerCase() : '',
@@ -262,7 +273,7 @@ function extractMobs() {
 
     const mob = {
       id: m[1],
-      name: m[2],
+      name: cleanGameText(m[2]),
       alignment: alignMatch ? (alignMatch[1] === '3' ? 'enemy' : 'friendly') : 'unknown',
     };
     if (genusMatch && genusLabels[genusMatch[1]]) mob.genus = genusLabels[genusMatch[1]];
@@ -287,7 +298,7 @@ function extractVirtues() {
 
   while ((m = re.exec(xml)) !== null) {
     const id = m[1];
-    const name = m[3];
+    const name = cleanGameText(m[3]);
     const body = m[4];
 
     // Extract active stats
@@ -327,9 +338,7 @@ function extractSets() {
 
   while ((m = re.exec(xml)) !== null) {
     const id = m[1];
-    // Name may contain &#10; (newline) followed by max-level note — clean it
-    const rawName = m[2];
-    const name = rawName.split('&#10;')[0].trim();
+    const name = cleanGameText(m[2]).split('\n')[0].trim();
     const attrs = m[3];
     const body = m[4];
 
@@ -343,7 +352,7 @@ function extractSets() {
     const pr = /<item id="(\d+)" name="([^"]*)"/g;
     let p;
     while ((p = pr.exec(body)) !== null) {
-      pieces.push({ id: p[1], name: p[2] });
+      pieces.push({ id: p[1], name: cleanGameText(p[2]) });
     }
 
     // Extract set bonuses
@@ -394,7 +403,7 @@ function extractDeeds() {
     const levelMatch = attrs.match(/level="(\d+)"/);
     const classMatch = attrs.match(/requiredClass="([^"]*)"/);
 
-    const name = nameMatch ? nameMatch[1] : '';
+    const name = nameMatch ? cleanGameText(nameMatch[1]) : '';
     const type = typeMatch ? typeMatch[1] : '';
     if (!name) continue;
 
@@ -416,12 +425,98 @@ function extractDeeds() {
     const lpMatch = body.match(/<lotroPoints quantity="(\d+)"/);
     if (lpMatch) rewards.push({ type: 'LP', value: parseInt(lpMatch[1]) });
     const titleMatch = body.match(/<title id="\d+" name="([^"]*)"/);
-    if (titleMatch) rewards.push({ type: 'Title', value: titleMatch[1] });
+    if (titleMatch) rewards.push({ type: 'Title', value: cleanGameText(titleMatch[1]) });
     const virtueMatch = body.match(/<virtue id="(\d+)"[^>]*name="([^"]*)"/);
-    if (virtueMatch) rewards.push({ type: 'Virtue', value: virtueMatch[2] });
+    if (virtueMatch) rewards.push({ type: 'Virtue', value: cleanGameText(virtueMatch[2]) });
     const repMatches = [...body.matchAll(/<reputationItem[^>]*faction="([^"]*)"[^>]*amount="([^"]*)"/g)];
     for (const rm of repMatches) {
       rewards.push({ type: 'Reputation', value: `${rm[1]} +${rm[2]}` });
+    }
+    const vxpMatch = body.match(/<virtueXP quantity="(\d+)"/);
+    if (vxpMatch) rewards.push({ type: 'VirtueXP', value: parseInt(vxpMatch[1]) });
+    const xpMatch = body.match(/<XP quantity="(\d+)"/);
+    if (xpMatch) rewards.push({ type: 'XP', value: parseInt(xpMatch[1]) });
+    const objMatches = [...body.matchAll(/<object id="[^"]*" name="([^"]*)" quantity="(\d+)"/g)];
+    for (const om of objMatches) {
+      rewards.push({ type: 'Item', value: `${cleanGameText(om[1])} x${om[2]}` });
+    }
+
+    // Extract objectives
+    const objectives = [];
+
+    // Monster kills — named mobs (mobId + mobName on <monsterDied>)
+    const namedMobs = [...body.matchAll(/<monsterDied[^>]*mobId="(\d+)"[^>]*mobName="([^"]*)"/g)];
+    for (const mk of namedMobs) {
+      objectives.push({ type: 'kill', mobId: mk[1], mobName: cleanGameText(mk[2]) });
+    }
+
+    // Monster kills — generic (count + monsterSelection with landName)
+    const genericMobs = [...body.matchAll(/<monsterDied[^>]*count="(\d+)"[^>]*>([\s\S]*?)<\/monsterDied>/g)];
+    for (const gm of genericMobs) {
+      const obj = { type: 'kill', count: parseInt(gm[1]) };
+      const zoneMatch = gm[2].match(/landName="([^"]*)"/);
+      if (zoneMatch) obj.zone = zoneMatch[1];
+      objectives.push(obj);
+    }
+
+    // Quest/deed completions (achievableId = specific quest or deed)
+    const questCompletes = [...body.matchAll(/<questComplete[^>]*achievableId="(\d+)"[^>]*/g)];
+    for (const qc of questCompletes) {
+      objectives.push({ type: 'complete', achievableId: qc[1] });
+    }
+
+    // Quest category completions (complete N quests of a type)
+    const catCompletes = [...body.matchAll(/<questComplete[^>]*questCategory="(\d+)"[^>]*count="(\d+)"[^>]*/g)];
+    for (const cc of catCompletes) {
+      objectives.push({ type: 'questCount', count: parseInt(cc[2]) });
+    }
+
+    // Landmark discovery
+    const landmarks = [...body.matchAll(/<landmarkDetection[^>]*landmarkName="([^"]*)"/g)];
+    for (const lm of landmarks) {
+      objectives.push({ type: 'landmark', name: cleanGameText(lm[1]) });
+    }
+
+    // Item collection
+    const items = [...body.matchAll(/<inventoryItem[^>]*itemName="([^"]*)"/g)];
+    for (const it of items) {
+      objectives.push({ type: 'item', name: cleanGameText(it[1]) });
+    }
+
+    // Item usage at locations
+    const itemsUsed = [...body.matchAll(/<itemUsed[^>]*itemName="([^"]*)"/g)];
+    for (const iu of itemsUsed) {
+      objectives.push({ type: 'useItem', name: cleanGameText(iu[1]) });
+    }
+
+    // NPC interactions
+    const npcs = [...body.matchAll(/<npcTalk[^>]*npcName="([^"]*)"/g)];
+    for (const np of npcs) {
+      objectives.push({ type: 'npc', name: cleanGameText(np[1]) });
+    }
+
+    // Skill usage
+    const skills = [...body.matchAll(/<skillUsed[^>]*count="(\d+)"[^>]*/g)];
+    for (const sk of skills) {
+      objectives.push({ type: 'skill', count: parseInt(sk[1]) });
+    }
+
+    // Emote usage
+    const emotes = [...body.matchAll(/<emote[^>]*command="([^"]*)"[^>]*count="(\d+)"[^>]*/g)];
+    for (const em of emotes) {
+      objectives.push({ type: 'emote', name: em[1], count: parseInt(em[2]) });
+    }
+
+    // Enter detection (explore areas)
+    const enters = [...body.matchAll(/<enterDetection[^>]*/g)];
+    if (enters.length) {
+      objectives.push({ type: 'explore', count: enters.length });
+    }
+
+    // Reputation / faction level
+    const factions = [...body.matchAll(/<factionLevel[^>]*faction="([^"]*)"[^>]*tier="(\d+)"[^>]*/g)];
+    for (const fl of factions) {
+      objectives.push({ type: 'faction', name: fl[1], tier: parseInt(fl[2]) });
     }
 
     const deed = {
@@ -432,6 +527,7 @@ function extractDeeds() {
       rewards,
     };
     if (classMatch) deed.requiredClass = classMatch[1];
+    if (objectives.length) deed.objectives = objectives;
 
     deeds.push(deed);
   }

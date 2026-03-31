@@ -10,6 +10,24 @@
   var initialized = false;
 
   function renderName(data, type, row) {
+    if (type === 'filter') {
+      var parts = [data];
+      if (row.bn && row.bn.length) {
+        for (var i = 0; i < row.bn.length; i++) {
+          if (row.bn[i].st) {
+            for (var j = 0; j < row.bn[i].st.length; j++) {
+              parts.push(row.bn[i].st[j].s);
+            }
+          }
+        }
+      }
+      if (row.pc && row.pc.length) {
+        for (var i = 0; i < row.pc.length; i++) {
+          if (row.pc[i].n) parts.push(row.pc[i].n);
+        }
+      }
+      return parts.join(' ');
+    }
     if (type !== 'display') return data;
     return '<a href="sets.html?id=' + row.id + '" class="lotro-set-link" data-set-id="' + row.id + '">' + data + '</a>';
   }

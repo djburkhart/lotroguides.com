@@ -55,6 +55,14 @@
     return speciesBadge(data);
   }
 
+  function renderSpawnMap(data, type, row) {
+    if (type !== 'display') return '';
+    var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[row.id];
+    if (!overlay || !overlay.map) return '<span class="text-muted">-</span>';
+    return '<a href="map.html?mob=' + row.id + '" class="btn btn-xs btn-info" target="_blank">' +
+      '<i class="fa fa-map-marker"></i> Spawn</a>';
+  }
+
   // ── Load data ───────────────────────────────────────────────────────────
   function loadData() {
     if (initialized) return;
@@ -84,7 +92,8 @@
       columns: [
         { data: 'n', render: renderName },
         { data: 'g', render: renderGenus, width: '160px' },
-        { data: 'sp', render: renderSpecies, width: '140px' }
+        { data: 'sp', render: renderSpecies, width: '140px' },
+        { data: null, render: renderSpawnMap, width: '110px', orderable: false, searchable: false }
       ],
       language: {
         search: '<i class="fa fa-search"></i>',
@@ -128,6 +137,13 @@
     var html = '<div class="item-modal-meta">';
     if (mob.g) html += '<p><strong>Genus:</strong> ' + genusBadge(mob.g) + '</p>';
     if (mob.sp) html += '<p><strong>Species:</strong> ' + speciesBadge(mob.sp) + '</p>';
+
+    var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[id];
+    if (overlay && overlay.map) {
+      html += '<p><a href="map.html?mob=' + id + '" class="btn btn-sm btn-info" target="_blank">';
+      html += '<i class="fa fa-map-o"></i> View Spawn on Map</a></p>';
+    }
+
     html += '</div>';
 
     $('#mob-modal-body').html(html);

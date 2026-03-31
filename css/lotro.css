@@ -106,6 +106,78 @@
   text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* ── Homepage Flow Boxes ────────────────────────────────────────────────── */
+.lotro-home-flow {
+  background: linear-gradient(180deg, #f8f2e5 0%, #efe5d1 100%);
+  border-top: 1px solid #e2d2b4;
+  border-bottom: 1px solid #e2d2b4;
+}
+
+.lotro-home-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.lotro-home-flow-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #eadcbf;
+  border-radius: 8px;
+  padding: 18px 16px;
+  color: var(--lotro-text);
+  box-shadow: 0 3px 12px rgba(26, 26, 46, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.lotro-home-flow-card:hover,
+.lotro-home-flow-card:focus {
+  color: var(--lotro-text);
+  border-color: var(--lotro-gold);
+  box-shadow: 0 8px 18px rgba(15, 52, 96, 0.14);
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+.lotro-home-flow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--lotro-dark);
+  color: var(--lotro-gold);
+  margin-bottom: 10px;
+  font-size: 17px;
+}
+
+.lotro-home-flow-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: var(--lotro-dark);
+}
+
+.lotro-home-flow-card p {
+  margin: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--lotro-text-light);
+}
+
+/* ── General Link Colors ─────────────────────────────────────────────────── */
+a {
+  color: var(--lotro-dark-accent);
+  transition: color 0.15s ease;
+}
+a:hover, a:active, a:focus {
+  color: var(--lotro-gold);
+  text-decoration: none;
+}
+
 /* ── Typography ─────────────────────────────────────────────────────────── */
 .heading h2,
 .post-title,
@@ -232,6 +304,18 @@ h1, h2, h3 {
   margin-bottom: 8px;
 }
 
+/* Article body links (non-item, non-mob) */
+.lotro-article a:not(.lotro-item):not(.lotro-mob) {
+  color: var(--lotro-dark-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--lotro-gold-light);
+  text-underline-offset: 2px;
+}
+.lotro-article a:not(.lotro-item):not(.lotro-mob):hover {
+  color: var(--lotro-gold);
+  text-decoration-color: var(--lotro-gold);
+}
+
 /* ── Cards ──────────────────────────────────────────────────────────────── */
 .card {
   border: none;
@@ -342,6 +426,25 @@ h1, h2, h3 {
   color: var(--lotro-gold);
 }
 
+#footer a {
+  color: rgba(255, 255, 255, 0.7);
+}
+#footer a:hover {
+  color: var(--lotro-gold-light);
+}
+#footer ul > li > a {
+  color: rgba(255, 255, 255, 0.7);
+}
+#footer ul > li > a:hover {
+  color: var(--lotro-gold-light);
+}
+#footer .footer-social a {
+  color: rgba(255, 255, 255, 0.8);
+}
+#footer .footer-social a:hover {
+  color: var(--lotro-gold);
+}
+
 .footer-bottom {
   border-top-color: var(--lotro-dark-mid);
 }
@@ -392,6 +495,10 @@ h1, h2, h3 {
   .lotro-article {
     font-size: 16px;
   }
+
+  .lotro-home-flow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 480px) {
@@ -401,6 +508,10 @@ h1, h2, h3 {
 
   .lotro-hero-content {
     padding: 40px 15px;
+  }
+
+  .lotro-home-flow-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -428,13 +539,13 @@ h1, h2, h3 {
 .lotro-item.lotro-legendary { color: #ff9800; border-color: #e65100; }
 .lotro-item.lotro-legendary:hover { color: #ffb74d; }
 
-/* Consumable links (no quality) use gold accent */
+/* Consumable links (no quality) use dark gold accent */
 .lotro-item:not([class*="lotro-common"]):not([class*="lotro-uncommon"]):not([class*="lotro-rare"]):not([class*="lotro-incomparable"]):not([class*="lotro-legendary"]) {
-  color: #FFD700;
-  border-color: #b8960c;
+  color: #B8860B;
+  border-color: #8B6508;
 }
 .lotro-item:not([class*="lotro-common"]):not([class*="lotro-uncommon"]):not([class*="lotro-rare"]):not([class*="lotro-incomparable"]):not([class*="lotro-legendary"]):hover {
-  color: #ffe566;
+  color: #D4A017;
 }
 
 /* Tooltip on hover */
@@ -577,15 +688,19 @@ h1, h2, h3 {
 /* Cross-link badges in item table and modal */
 .item-set-badge {
   display: inline-block;
-  color: #bb86fc;
+  color: #fff;
+  background: #9c27b0;
+  border: 1px solid #7b1fa2;
   font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
   margin-left: 4px;
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
+  transition: background-color 0.15s ease;
 }
 .item-set-badge:hover {
-  opacity: 1;
-  color: #d4a5ff;
+  background: #ad39c1;
+  color: #fff;
   text-decoration: none;
 }
 .item-crosslink {
@@ -840,6 +955,32 @@ h1, h2, h3 {
   opacity: 0.6;
 }
 
+/* ─── Quest Auto-Links ──────────────────────────────────────────────────── */
+.lotro-quest {
+  text-decoration: none;
+  border-bottom: 1px dotted #1e88e5;
+  font-weight: 500;
+  position: relative;
+  cursor: pointer;
+  color: #64b5f6;
+  transition: color 0.15s ease;
+}
+.lotro-quest:hover {
+  text-decoration: none;
+  color: #90caf9;
+}
+.lotro-quest::before {
+  content: '\f02d';
+  font-family: 'FontAwesome';
+  font-size: 10px;
+  margin-right: 2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.lotro-quest:hover::before {
+  opacity: 0.6;
+}
+
 /* ─── Virtue Database Page ──────────────────────────────────────────────── */
 #virtues-table {
   font-size: 14px;
@@ -924,9 +1065,10 @@ h1, h2, h3 {
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 11px;
-  font-weight: 500;
-  color: #ce93d8;
-  background: rgba(156, 39, 176, 0.15);
+  font-weight: 600;
+  color: #fff;
+  background: #9c27b0;
+  border: 1px solid #7b1fa2;
   border: 1px solid rgba(156, 39, 176, 0.3);
   margin: 1px 2px;
 }
@@ -1007,13 +1149,42 @@ h1, h2, h3 {
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   margin: 1px 2px;
 }
-.deed-reward-lp       { color: #ffd54f; background: rgba(255, 213, 79, 0.15); border: 1px solid rgba(255, 213, 79, 0.3); }
-.deed-reward-title    { color: #90caf9; background: rgba(144, 202, 249, 0.15); border: 1px solid rgba(144, 202, 249, 0.3); }
-.deed-reward-virtue   { color: #a5d6a7; background: rgba(165, 214, 167, 0.15); border: 1px solid rgba(165, 214, 167, 0.3); }
-.deed-reward-reputation { color: #ce93d8; background: rgba(206, 147, 216, 0.15); border: 1px solid rgba(206, 147, 216, 0.3); }
+.deed-reward-lp       { color: #1a1a2e; background: #ffd54f; border: 1px solid #f9c22e; }
+.deed-reward-title    { color: #fff; background: #1565c0; border: 1px solid #0d47a1; }
+.deed-reward-virtue   { color: #fff; background: #2e7d32; border: 1px solid #1b5e20; }
+.deed-reward-reputation { color: #fff; background: #7b1fa2; border: 1px solid #6a1b9a; }
+.deed-reward-xp       { color: #1a1a2e; background: #fff176; border: 1px solid #fdd835; }
+.deed-reward-item     { color: #fff; background: #00796b; border: 1px solid #00695c; }
+.deed-reward-rep      { color: #fff; background: #7b1fa2; border: 1px solid #6a1b9a; }
+.deed-objective-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 15px;
+}
+.deed-objective-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px;
+}
+.deed-objective-list li:last-child {
+  border-bottom: none;
+}
+.deed-objective-list li i {
+  width: 18px;
+  text-align: center;
+  margin-right: 6px;
+}
+.deed-objective-list a {
+  color: var(--lotro-gold);
+  text-decoration: none;
+}
+.deed-objective-list a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
 #deeds-table_wrapper .dataTables_filter input {
   background: var(--lotro-dark);
   color: var(--lotro-parchment);
@@ -1078,3 +1249,673 @@ h1, h2, h3 {
   color: var(--lotro-parchment);
   opacity: 0.7;
 }
+
+/* ─── Interactive Map ──────────────────────────────────────────────────────── */
+.lotro-map-section {
+  padding: 0;
+}
+.lotro-map-container {
+  position: relative;
+  padding: 0 10px;
+}
+.lotro-map {
+  width: 100%;
+  height: calc(100vh - 160px);
+  min-height: 500px;
+  background: #0a0a14;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+/* Large screens — maximise map area */
+@media (min-width: 1200px) {
+  .lotro-map-container {
+    padding: 0 6px;
+  }
+  .lotro-map {
+    height: calc(100vh - 140px);
+    min-height: 650px;
+  }
+}
+@media (min-width: 1600px) {
+  .lotro-map-container {
+    padding: 0 4px;
+  }
+  .lotro-map {
+    height: calc(100vh - 130px);
+    min-height: 750px;
+  }
+}
+@media (min-width: 2000px) {
+  .lotro-map {
+    height: calc(100vh - 120px);
+    min-height: 900px;
+  }
+}
+
+/* Toolbar */
+.lotro-map-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+@media (min-width: 1200px) {
+  .lotro-map-toolbar {
+    padding: 5px 0;
+  }
+}
+.lotro-map-toolbar-left,
+.lotro-map-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lotro-map-toolbar-left > i {
+  color: var(--lotro-gold);
+  font-size: 18px;
+}
+.lotro-map-select {
+  width: 300px;
+  display: inline-block;
+  background: var(--lotro-dark-mid);
+  color: #fff;
+  border: 1px solid var(--lotro-gold);
+  border-radius: 4px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  height: 36px;
+  box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.2);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6'%3E%3Cpath d='M0 0l6 6 6-6z' fill='%23C9A84C'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.lotro-map-select:focus {
+  border-color: var(--lotro-gold-light);
+  box-shadow: 0 0 6px rgba(201, 168, 76, 0.4);
+  outline: none;
+}
+.lotro-map-select option {
+  background: var(--lotro-dark-mid);
+  color: #fff;
+  padding: 4px 8px;
+  font-weight: 400;
+}
+.lotro-map-select optgroup {
+  background: var(--lotro-dark);
+  color: var(--lotro-gold-light);
+  font-style: normal;
+  font-weight: 600;
+}
+.lotro-map-btn {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  border-color: #444;
+}
+.lotro-map-btn:hover,
+.lotro-map-btn:focus {
+  background: var(--lotro-gold);
+  color: var(--lotro-dark);
+  border-color: var(--lotro-gold);
+}
+.lotro-map-btn:disabled {
+  opacity: 0.4;
+}
+.lotro-map-marker-count {
+  color: #999;
+  font-size: 13px;
+}
+
+/* Category Filter Panel */
+.lotro-map-category-panel {
+  background: var(--lotro-dark);
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.lotro-map-category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.lotro-map-cat-group {
+  min-width: 180px;
+  flex: 1;
+}
+.lotro-map-cat-group-title {
+  font-family: 'Cinzel', serif;
+  color: var(--lotro-gold);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
+}
+.lotro-map-cat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--lotro-parchment);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.lotro-map-cat-item:hover {
+  color: var(--lotro-gold);
+  background: rgba(201, 168, 76, 0.1);
+}
+.lotro-map-cat-item input[type="checkbox"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+.lotro-map-cat-item img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  image-rendering: auto;
+}
+.lotro-map-category-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+}
+.lotro-map-category-actions .btn {
+  margin-right: 6px;
+}
+
+/* Loading Overlay */
+.lotro-map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+.lotro-map-loading-inner {
+  text-align: center;
+  color: var(--lotro-gold);
+}
+.lotro-map-loading-inner p {
+  margin-top: 10px;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+}
+
+/* Map Popups */
+.lotro-map-popup {
+  min-width: 180px;
+  max-width: 260px;
+}
+.lotro-map-popup-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.lotro-map-popup-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  image-rendering: auto;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px;
+}
+.lotro-map-popup-header-text {
+  flex: 1;
+  min-width: 0;
+}
+.lotro-map-popup-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.2;
+}
+.lotro-map-popup-cat {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.3;
+}
+.lotro-map-popup-npc-title {
+  font-size: 11px;
+  color: #999;
+  font-style: italic;
+  line-height: 1.3;
+}
+.lotro-map-popup-details {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 0;
+  border-top: 1px solid #e0e0e0;
+}
+.lotro-map-popup-details li {
+  padding: 3px 0;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lotro-map-popup-details li:last-child {
+  border-bottom: none;
+}
+.lotro-map-popup-details li i {
+  width: 14px;
+  text-align: center;
+  margin-right: 4px;
+  font-size: 11px;
+}
+.lotro-map-popup-details li a {
+  color: var(--lotro-dark-accent);
+  text-decoration: none;
+}
+.lotro-map-popup-details li a:hover {
+  color: var(--lotro-gold);
+  text-decoration: underline;
+}
+.lotro-popup-quest-bestower {
+  color: #DAA520;
+}
+.lotro-popup-more {
+  color: #aaa;
+  font-style: italic;
+  font-size: 11px;
+}
+.lotro-map-popup-coords {
+  font-size: 10px;
+  color: #999;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid #f0f0f0;
+}
+.lotro-map-share-btn {
+  display: inline-block;
+  color: var(--lotro-gold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.lotro-map-share-btn:hover {
+  color: var(--lotro-gold-light);
+  text-decoration: underline;
+}
+.lotro-map-share-btn.lotro-map-share-copied {
+  color: #5cb85c;
+}
+.lotro-map-popup-link .lotro-map-nav-btn {
+  margin-top: 6px;
+  width: 100%;
+}
+
+/* Navigation Link Icons on Map */
+.lotro-map-link-icon {
+  color: var(--lotro-gold);
+  font-size: 22px;
+  text-shadow: 0 0 6px rgba(0,0,0,0.8);
+  background: none;
+  border: none;
+}
+.lotro-map-link-icon:hover {
+  color: #fff;
+}
+
+/* Leaflet cluster overrides */
+.lotro-cluster {
+  background: rgba(201, 168, 76, 0.3);
+}
+.lotro-cluster div {
+  background: rgba(201, 168, 76, 0.7);
+  color: #fff;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 3px;
+}
+
+/* Leaflet tile/background override for dark theme */
+.lotro-map .leaflet-container {
+  background: #0a0a14;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .lotro-map {
+    height: calc(100vh - 200px);
+    min-height: 400px;
+  }
+  .lotro-map-select {
+    width: 100%;
+    max-width: 260px;
+  }
+  .lotro-map-category-grid {
+    flex-direction: column;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Quest Database Page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.quest-category-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #1976d2;
+  border: 1px solid #1565c0;
+}
+.quest-group-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: #ff9800;
+  border: 1px solid #f57c00;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.quest-repeat-badge {
+  color: #fff;
+  background: #4caf50;
+  border: 1px solid #388e3c;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+.quest-instance-badge {
+  color: #fff;
+  background: #9c27b0;
+  border: 1px solid #7b1fa2;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+.quest-level-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: #ffd54f;
+  border: 1px solid #f9c22e;
+  margin-left: 8px;
+}
+.lotro-quest-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  color: var(--lotro-gold);
+}
+.quest-modal-meta p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+.quest-modal-desc {
+  margin: 15px 0;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-left: 3px solid var(--lotro-gold);
+  border-radius: 0 4px 4px 0;
+  font-style: italic;
+  color: #ccc;
+}
+.quest-modal-chain {
+  margin: 15px 0;
+}
+.quest-modal-chain h5,
+.quest-modal-rewards h5 {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lotro-gold-light);
+  margin-bottom: 8px;
+}
+.quest-modal-chain a {
+  color: #90caf9;
+}
+.quest-modal-chain a:hover {
+  color: #bbdefb;
+  text-decoration: underline;
+}
+.quest-modal-rewards {
+  margin: 15px 0;
+}
+.quest-reward-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.quest-reward-list li {
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.quest-reward-list li:last-child {
+  border-bottom: none;
+}
+.quest-reward-list a {
+  color: var(--lotro-gold);
+  text-decoration: none;
+}
+.quest-reward-list a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+.quest-reward-list strong {
+  color: var(--lotro-gold-light);
+}
+
+/* Deed modal reward list */
+.deed-reward-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 15px;
+}
+.deed-reward-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 13px;
+}
+.deed-reward-list li:last-child {
+  border-bottom: none;
+}
+.deed-reward-list strong {
+  color: var(--lotro-gold-light);
+}
+.quest-reward-list strong {
+  color: var(--lotro-gold-light);
+}
+
+/* Quest table styling */
+#quests-table_wrapper .dataTables_filter input {
+  background: var(--lotro-dark);
+  color: var(--lotro-parchment);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+#quests-table_wrapper .dataTables_filter input:focus {
+  border-color: var(--lotro-gold);
+  outline: none;
+}
+#quests-table_wrapper .dataTables_length select {
+  background: var(--lotro-dark-mid);
+  color: var(--lotro-parchment);
+  border: 1px solid #555;
+}
+#quests-table_wrapper .dataTables_info {
+  color: var(--lotro-text-light);
+}
+#quests-table_wrapper .dataTables_paginate .paginate_button {
+  color: var(--lotro-parchment) !important;
+}
+#quests-table_wrapper .dataTables_paginate .paginate_button.current {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+  border-color: var(--lotro-gold) !important;
+}
+
+/* ── Quest Overlay on Map ───────────────────────────────────────────────── */
+
+.lotro-map-quest-panel {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  z-index: 1001;
+  background: rgba(26, 26, 46, 0.95);
+  border: 1px solid var(--lotro-gold);
+  border-radius: 6px;
+  padding: 12px;
+  max-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 13px;
+  color: var(--lotro-parchment);
+}
+.lotro-map-quest-panel h5 {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--lotro-gold);
+  margin: 0 0 8px;
+}
+.lotro-map-quest-panel .quest-step {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lotro-map-quest-panel .quest-step:last-child {
+  border-bottom: none;
+}
+.lotro-map-quest-panel .quest-step-num {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--lotro-gold);
+  color: var(--lotro-dark);
+  font-weight: 700;
+  font-size: 11px;
+  margin-right: 6px;
+}
+.lotro-map-quest-panel .close-panel {
+  float: right;
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+}
+.lotro-map-quest-panel .close-panel:hover {
+  color: #fff;
+}
+
+/* Quest objective markers on map */
+.quest-objective-icon {
+  background: var(--lotro-gold);
+  color: var(--lotro-dark);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Deed overlay panel and markers */
+.lotro-map-deed-panel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(26, 26, 46, 0.95);
+  border: 1px solid var(--lotro-gold);
+  border-radius: 6px;
+  z-index: 1000;
+  padding: 12px;
+  max-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 13px;
+  color: var(--lotro-parchment);
+}
+.lotro-map-deed-panel h5 {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--lotro-gold);
+  margin: 0 0 8px;
+}
+.lotro-map-deed-panel .deed-objective-step {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.lotro-map-deed-panel .deed-objective-step:last-child {
+  border-bottom: none;
+}
+.lotro-map-deed-panel .deed-step-num {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  border-radius: 50%;
+  background: #9c27b0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 11px;
+  margin-right: 6px;
+}
+.lotro-map-deed-panel .close-panel {
+  float: right;
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+}
+.lotro-map-deed-panel .close-panel:hover {
+  color: #fff;
+}
+
+/* Deed objective markers on map */
+.deed-objective-icon {
+  background: #9c27b0;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* (Quest popup styles are now integrated into .lotro-map-popup-details above) */

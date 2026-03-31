@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Map - LOTRO Guides</title>
+    <meta name="description" content="Explore Middle-earth with an interactive map featuring 52,940 points of interest across 1,522 maps. Find stable-masters, vendors, landmarks, and more.">
+    <!-- Open Graph meta tags for Facebook sharing -->
+    <meta property="og:url" content="https://lotroguides.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Interactive Map - LOTRO Guides" />
+    <meta property="og:description" content="Explore Middle-earth with an interactive map featuring 52,940 points of interest across 1,522 maps. Find stable-masters, vendors, landmarks, and more." />
+    <meta property="og:image" content="https://lotroguides.com/img/default.jpg" />
+    <!-- Google Ad Sense -->
+    <meta name="google-adsense-account" content="">
+    <!-- stylesheet -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="./plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="./plugins/animate/animate.min.css" rel="stylesheet">
+    <!-- theme stylesheet -->
+    <link href="./css/theme.min.css" rel="stylesheet">
+    <link href="./css/custom.css" rel="stylesheet">
+    <link href="./css/lotro.css" rel="stylesheet">
+      <link href="./plugins/leaflet/leaflet.css" rel="stylesheet">
+    <link href="./plugins/leaflet/MarkerCluster.css" rel="stylesheet">
+    <link href="./plugins/leaflet/MarkerCluster.Default.css" rel="stylesheet">
+  </head>
+  <body class="fixed-header">
+    <!-- header -->
+    <header id="header">
+      <div class="container">
+        <div class="navbar-backdrop">
+          <div class="navbar">
+            <div class="navbar-left">
+              <a class="navbar-toggle">
+                <i class="fa fa-bars"></i>
+              </a>
+              <a href="./index.html" class="logo">
+                <span class="lotro-logo-text">LOTRO Guides</span>
+              </a>
+              <nav class="nav">
+                <ul>
+                  <li class="">
+                    <a href="./index.html">Home</a>
+                  </li>
+                  <li class="has-dropdown ">
+                    <a href="./guides.html">Guides</a>
+                    <ul>
+                      <li><a href="./guides.html">All Guides</a></li>
+                      <li><a href="./guides/raid-preparation-guide.html">Raid Preparation Guide — Consumables & Store Buffs for T2C</a></li>
+                      <li><a href="./guides/red-line-hunter-endgame-guide.html">Red Line Hunter End-Game Guide (Post-Rework)</a></li>
+                      <li><a href="./guides/starter-zones-leveling-guide-0-20.html">Starter Zones Leveling Guide (0-20)</a></li>
+                      <li><a href="./guides/abyss-of-mordath-raid-guide.html">The Abyss of Mordath — Full Raid Guide (T1 & T2)</a></li>
+                      <li><a href="./guides/court-of-seregost-guide.html">The Court of Seregost — Full Instance Guide</a></li>
+                    </ul>
+                  </li>
+                  <li class="has-dropdown ">
+                    <a href="./news.html">News</a>
+                    <ul>
+                      <li><a href="./news.html">All News</a></li>
+                      <li><a href="./news/spring-festival-2026.html">Spring Festival 2026 — Event Guide & New Rewards</a></li>
+                      <li><a href="./news/lotro-bonus-032626-en.html">LOTRO Bonus Days!</a></li>
+                      <li><a href="./news/lotro-housing-livestream-4-1-en.html">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
+                      <li><a href="./news/lotro-sales-032626-en.html">Sales: March 26th - April 2nd</a></li>
+                      <li><a href="./news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
+                    </ul>
+                  </li>
+                  <li class="has-dropdown      ">
+                    <a href="./items.html">Database</a>
+                    <ul>
+                      <li><a href="./items.html">Items</a></li>
+                      <li><a href="./mobs.html">Mobs</a></li>
+                      <li><a href="./sets.html">Sets</a></li>
+                      <li><a href="./virtues.html">Virtues</a></li>
+                      <li><a href="./deeds.html">Deeds</a></li>
+                      <li><a href="./quests.html">Quests</a></li>
+                    </ul>
+                  </li>
+                  <li class="active">
+                    <a href="./map.html">Interactive Map</a>
+                  </li>
+                  <li class="">
+                    <a href="./about.html">About</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <div class="nav navbar-right">
+              <ul>
+                <li>
+                  <a data-toggle="search">
+                    <i class="fa fa-search"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-search">
+          <div class="container">
+            <form method="get" action="./items.html" id="navbar-search-form">
+              <input type="text" name="q" class="form-control" placeholder="Search items..." autocomplete="off">
+              <i class="fa fa-times close"></i>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- main -->
+        <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb" id="map-breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Interactive Map</li>
+        </ol>
+      </div>
+    </section>
+    <section class="lotro-map-section">
+      <div class="container-fluid lotro-map-container">
+
+        <!-- Map Toolbar -->
+        <div class="lotro-map-toolbar">
+          <div class="lotro-map-toolbar-left">
+            <i class="fa fa-map-o"></i>
+            <select id="map-selector" class="form-control lotro-map-select">
+              <option value="">Loading maps...</option>
+            </select>
+            <button id="map-back" class="btn btn-sm btn-default lotro-map-btn" title="Back to parent map" disabled>
+              <i class="fa fa-arrow-left"></i>
+            </button>
+          </div>
+          <div class="lotro-map-toolbar-right">
+            <button id="map-toggle-categories" class="btn btn-sm btn-default lotro-map-btn" title="Toggle category filters">
+              <i class="fa fa-filter"></i> Filters
+            </button>
+            <span id="map-marker-count" class="lotro-map-marker-count"></span>
+          </div>
+        </div>
+
+        <!-- Category Filter Panel (collapsible) -->
+        <div id="map-category-panel" class="lotro-map-category-panel" style="display:none;">
+          <div class="lotro-map-category-grid" id="map-category-grid">
+            <!-- Populated by JS -->
+          </div>
+          <div class="lotro-map-category-actions">
+            <button id="cat-select-all" class="btn btn-xs btn-default">Select All</button>
+            <button id="cat-select-none" class="btn btn-xs btn-default">Select None</button>
+          </div>
+        </div>
+
+        <!-- The Map -->
+        <div id="lotro-map" class="lotro-map"></div>
+
+        <!-- Loading Overlay -->
+        <div id="map-loading" class="lotro-map-loading">
+          <div class="lotro-map-loading-inner">
+            <i class="fa fa-compass fa-spin fa-2x"></i>
+            <p>Loading Middle-earth...</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- footer -->
+    <footer id="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-12 col-md-5">
+            <h4 class="footer-title">About LOTRO Guides</h4>
+            <p>A fan-created resource for Lord of the Rings Online players. We cover class builds, crafting guides, instance walkthroughs, and the latest LOTRO news. Made by the community, for the community.</p>
+            <p>This is a fan site and is not affiliated with or endorsed by Standing Stone Games or Middle-earth Enterprises.</p>
+          </div>
+          <div class="col-sm-12 col-md-3">
+            <h4 class="footer-title">Quick Links</h4>
+            <div class="row">
+              <div class="col">
+                <ul>
+                  <li><a href="./guides.html">Guides</a></li>
+                  <li><a href="./news.html">News</a></li>
+                  <li><a href="./items.html">Content Database</a></li>
+                  <li><a href="./mobs.html">Mob Database</a></li>
+                  <li><a href="./sets.html">Set Database</a></li>
+                  <li><a href="./virtues.html">Virtue Database</a></li>
+                  <li><a href="./deeds.html">Deed Database</a></li>
+                  <li><a href="./map.html">Interactive Map</a></li>
+                  <li><a href="./about.html">About</a></li>
+                </ul>
+              </div>
+              <div class="col">
+                <ul>
+                  <li><a href="./guides.html#class-guides">Class Builds</a></li>
+                  <li><a href="./guides.html#crafting">Crafting</a></li>
+                  <li><a href="./guides.html#instances">Instances</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-4">
+            <h4 class="footer-title">Community</h4>
+            <p>Join fellow LOTRO adventurers across Middle-earth. Share your knowledge, ask questions, and help new players find their way.</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-social">
+            <a href="#" data-toggle="tooltip" title="Discord">
+              <i class="fa fa-comments"></i>
+            </a>
+            <a href="#" data-toggle="tooltip" title="Reddit">
+              <i class="fa fa-reddit"></i>
+            </a>
+            <a href="#" data-toggle="tooltip" title="YouTube">
+              <i class="fa fa-youtube"></i>
+            </a>
+            <a href="#" data-toggle="tooltip" title="Twitter">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </div>
+          <p>Copyright &copy; 2026 LOTRO Guides. A LOTRO fan site. Not affiliated with Standing Stone Games.</p>
+        </div>
+      </div>
+    </footer>
+    <!-- Facebook SDK for JavaScript -->
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v22.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+    <!-- scripts -->
+    <script src="./plugins/jquery/jquery-3.1.0.min.js"></script>
+    <script src="./plugins/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./js/theme.min.js"></script>
+      <script src="./plugins/leaflet/leaflet.js"></script>
+    <script src="./plugins/leaflet/leaflet.markercluster.js"></script>
+    <script src="./js/lotro-map.js"></script>
+    <script>
+      if (window.LOTRO_MAP_INIT) window.LOTRO_MAP_INIT();
+    </script>
+  </body>
+</html>

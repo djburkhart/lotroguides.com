@@ -49,10 +49,10 @@
                     <ul>
                       <li><a href="./guides.html">All Guides</a></li>
                       <li><a href="./guides/raid-preparation-guide.html">Raid Preparation Guide — Consumables & Store Buffs for T2C</a></li>
+                      <li><a href="./guides/red-line-hunter-endgame-guide.html">Red Line Hunter End-Game Guide (Post-Rework)</a></li>
+                      <li><a href="./guides/starter-zones-leveling-guide-0-20.html">Starter Zones Leveling Guide (0-20)</a></li>
                       <li><a href="./guides/abyss-of-mordath-raid-guide.html">The Abyss of Mordath — Full Raid Guide (T1 & T2)</a></li>
                       <li><a href="./guides/court-of-seregost-guide.html">The Court of Seregost — Full Instance Guide</a></li>
-                      <li><a href="./guides/crafting-guide.html">Complete Crafting Guide — Vocations, Leveling & Profit</a></li>
-                      <li><a href="./guides/dungeons-of-naerband-guide.html">The Dungeons of Naerband — Instance Guide</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown ">
@@ -66,7 +66,7 @@
                       <li><a href="./news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
                     </ul>
                   </li>
-                  <li class="has-dropdown  active   ">
+                  <li class="has-dropdown  active    ">
                     <a href="./items.html">Database</a>
                     <ul>
                       <li><a href="./items.html">Items</a></li>
@@ -74,7 +74,11 @@
                       <li><a href="./sets.html">Sets</a></li>
                       <li><a href="./virtues.html">Virtues</a></li>
                       <li><a href="./deeds.html">Deeds</a></li>
+                      <li><a href="./quests.html">Quests</a></li>
                     </ul>
+                  </li>
+                  <li class="">
+                    <a href="./map.html">Interactive Map</a>
                   </li>
                   <li class="">
                     <a href="./about.html">About</a>
@@ -178,6 +182,7 @@
                 <th>Name</th>
                 <th>Genus</th>
                 <th>Species</th>
+                <th>Spawn Map</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -223,6 +228,7 @@
                   <li><a href="./sets.html">Set Database</a></li>
                   <li><a href="./virtues.html">Virtue Database</a></li>
                   <li><a href="./deeds.html">Deed Database</a></li>
+                  <li><a href="./map.html">Interactive Map</a></li>
                   <li><a href="./about.html">About</a></li>
                 </ul>
               </div>
@@ -274,13 +280,15 @@
     <script src="./js/theme.min.js"></script>
       <script src="./plugins/datatables/datatables.min.js"></script>
     <script>
-      // Load mobs data, then init
-      $.getJSON("./data/mobs-db.json", function(data) {
-        window.LOTRO_MOBS_DB = data;
-        $.getScript("./js/mobs-db.js", function() {
-          if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();
+      // Load mobs data + map overlay, then init
+      $.when($.getJSON("./data/mobs-db.json"), $.getJSON("./data/mob-overlay.json"))
+        .done(function(mobsRes, overlayRes) {
+          window.LOTRO_MOBS_DB = mobsRes[0];
+          window.LOTRO_MOB_OVERLAY = overlayRes[0] || {};
+          $.getScript("./js/mobs-db.js", function() {
+            if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();
+          });
         });
-      });
     </script>
   </body>
 </html>

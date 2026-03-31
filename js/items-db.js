@@ -61,19 +61,65 @@
   var typeIcons = {
     set: '<i class="fa fa-cubes" style="color:#bb86fc"></i> ',
     deed: '<i class="fa fa-bookmark" style="color:#66bb6a"></i> ',
-    virtue: '<i class="fa fa-shield" style="color:#ffd54f"></i> '
+    virtue: '<i class="fa fa-shield" style="color:#ffd54f"></i> ',
+    'quest-reward': '<i class="fa fa-gift" style="color:#4fc3f7"></i> '
   };
 
   // ── Render name cell ────────────────────────────────────────────────────
   function renderName(data, type, row) {
-    if (type !== 'display') return data;
-    var cls = row.q ? ' lotro-' + row.q : '';
-    var icon = typeIcons[row.t] || '';
-    var link = '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
-    if (row.sid) {
-      link += ' <a href="sets.html?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
+    if (type === 'display') {
+      var cls = row.q ? ' lotro-' + row.q : '';
+      var icon = typeIcons[row.t] || '';
+      var link = '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
+      if (row.sid) {
+        link += ' <a href="sets.html?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
+      }
+      return link;
     }
-    return link;
+    if (type === 'filter') {
+      var parts = [data];
+      if (row.sn) parts.push(row.sn);
+      if (row.st) parts.push(subtypeLabels[row.st] || row.st);
+      if (row.sl) parts.push(row.sl);
+      parts = parts.concat(buildSearchHints(row));
+      if (row.stats && row.stats.length) {
+        for (var i = 0; i < row.stats.length; i++) {
+          parts.push(row.stats[i].s);
+        }
+      }
+      return parts.join(' ');
+    }
+    return data;
+  }
+
+  function buildSearchHints(row) {
+    var hints = [];
+    var slot = (row.sl || '').toLowerCase();
+    var subtype = (row.st || '').toLowerCase();
+
+    if (row.t === 'item') {
+      hints.push('gear', 'equipment', 'items');
+    }
+
+    // Weapon intent terms used by guide links (weapon/weapons, melee/ranged)
+    if (/main|off|one|two|2-hand|hand|ranged|bow|crossbow|javelin|spear|sword|axe|club|dagger|mace|staff|halberd|weapon/.test(slot)) {
+      hints.push('weapon', 'weapons', 'melee', 'ranged', 'dps');
+    }
+
+    // Armor intent terms used by guide links (armor/armour, defensive gear)
+    if (/head|shoulder|chest|cloak|back|hands|legs|feet|wrist|ear|neck|finger|pocket|armor|armour|shield/.test(slot)) {
+      hints.push('armor', 'armour', 'defense', 'defensive');
+    }
+
+    if (row.t === 'consumable' || subtype) {
+      hints.push('consumable', 'consumables');
+      if (/food|trail-food|feast/.test(subtype)) hints.push('food', 'buff food');
+      if (/battle-scroll|warding-scroll/.test(subtype)) hints.push('scroll', 'scrolls');
+      if (/token/.test(subtype)) hints.push('token', 'tokens', 'hope');
+      if (/potion/.test(subtype)) hints.push('potion', 'potions');
+    }
+
+    return hints;
   }
 
   // ── Render quality / subtype cell ───────────────────────────────────────
@@ -210,6 +256,9 @@
     if (item.t === 'virtue') {
       html += '<p><a href="virtues.html?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a></p>';
     }
+    if (item.t === 'quest-reward') {
+      html += '<p><a href="quests.html?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests for this Reward</a></p>';
+    }
     html += '</div>';
     html += '<h5>Stats</h5>';
     html += formatStatsFull(item.stats);
@@ -234,6 +283,22 @@
       table.search(q).draw();
       // Also update the DataTables search input
       $('div.dataTables_filter input').val(q);
+    }
+
+    // Apply filter dropdowns from URL to support context-aware guide links
+    var typeVal = params.get('type');
+    var subtypeVal = params.get('subtype');
+    var qualityVal = params.get('quality');
+
+    if (typeVal) $('#filter-type').val(typeVal);
+    if (subtypeVal) $('#filter-subtype').val(subtypeVal);
+    if (qualityVal) $('#filter-quality').val(qualityVal);
+
+    if (typeVal || subtypeVal || qualityVal) {
+      applyFilters();
+      if (q && table) {
+        table.search(q).draw();
+      }
     }
 
     // Open item modal from ?id=

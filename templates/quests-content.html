@@ -1,0 +1,83 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Quest Database</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-book"></i>
+          <h2>Quest Database</h2>
+          <p>Browse {{questCount}} quests from the LotRO Companion database. Search by name, category, level, and quest giver.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="row m-b-30">
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Category</label>
+            <select id="filter-category" class="form-control item-filter-select">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2 m-b-15">
+            <label class="item-filter-label">Min Level</label>
+            <input id="filter-min-level" type="number" class="form-control item-filter-select" placeholder="1" min="1" max="160">
+          </div>
+          <div class="col-sm-6 col-md-2 m-b-15">
+            <label class="item-filter-label">Max Level</label>
+            <input id="filter-max-level" type="number" class="form-control item-filter-select" placeholder="160" min="1" max="160">
+          </div>
+          <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Group Size</label>
+            <select id="filter-group" class="form-control item-filter-select">
+              <option value="">All Sizes</option>
+              <option value="solo">Solo</option>
+              <option value="Small Fellowship">Small Fellowship</option>
+              <option value="Fellowship">Fellowship</option>
+              <option value="Raid">Raid</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2 m-b-15">
+            <label class="item-filter-label">&nbsp;</label>
+            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Quests Table -->
+        <div class="table-responsive">
+          <table id="quests-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Category</th>
+                <th>Quest Giver</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quest Detail Modal -->
+    <div class="modal fade" id="quest-modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content item-modal-content">
+          <div class="modal-header item-modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            <h4 class="modal-title" id="quest-modal-title"></h4>
+          </div>
+          <div class="modal-body" id="quest-modal-body"></div>
+          <div class="modal-footer">
+            <a id="quest-map-link" href="#" class="btn btn-sm btn-info" style="display:none" target="_blank">
+              <i class="fa fa-map-o"></i> Show on Map
+            </a>
+            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>

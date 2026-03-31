@@ -83,7 +83,7 @@
 
     var video = '';
     if ($(this).data("youtube")) {
-      video = 'https://www.youtube.com/embed/' + $(this).attr('data-youtube') + '?rel=0&amp;amp;autoplay=1&amp;amp;showinfo=0';
+      video = 'https://www.youtube.com/embed/' + $(this).attr('data-youtube') + '?rel=0&autoplay=1&showinfo=0';
     }
 
     if ($(this).data("twitch")) {
