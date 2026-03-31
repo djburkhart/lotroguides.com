@@ -15,6 +15,8 @@ A walkthrough of The Dungeons of Naerband, a world instance in Mordor featuring 
 
 Unlike most world instances, the discovery for the Dungeons of Naerband is at the **exit** of the instance, not the entrance. Look for a sewer pipe located at **[62.0S, 19.7E]**, just northeast of the "d" in "Naerband" on the map.
 
+{{map:map=268452166,lng=18.651,lat=-63.798,height=350}}
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}
@@ -139,6 +141,12 @@ Naerband is not a long instance, but Thraknûl’s Chains of Malice mechanic pun
 | Greater Mûrai Athelas Essence | Emergency morale — especially when healing is cut off by Chains of Malice |
 
 > **Note:** If you are jailed during the Thraknûl fight, you’ll face a mob solo inside the cell. Having food and potions active means you can survive the solo encounter without healer support.
+
+---
+
+## Desired Stat Percentages
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=160}}
 
 ---
 

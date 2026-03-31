@@ -11,6 +11,8 @@ excerpt: "A detailed walkthrough of the Ost Dunhoth Disease Wing, covering trash
 
 This guide covers the Disease Wing of Ost Dunhoth, from the trash leading up to the Corrupted Huorns boss fight through the T2 Challenge strategy.
 
+{{map:map=268447045,lng=-3.709,lat=-86.131,height=350}}
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}

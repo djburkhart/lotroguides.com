@@ -3,6 +3,8 @@ const path = require('path');
 const matter = require('gray-matter');
 const { marked } = require('marked');
 const sharp = require('sharp');
+const esbuild = require('esbuild');
+require('dotenv').config();
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 const CONTENT_DIR = path.join(__dirname, 'content');
@@ -13,6 +15,11 @@ const SITE_BASE_URL = 'https://lotroguides.com';
 const GOOGLE_ADSENSE_ACCOUNT = process.env.GOOGLE_ADSENSE_ACCOUNT || '';
 const GOOGLE_ANALYTICS_ID = process.env.GOOGLE_ANALYTICS_ID || '';
 const GOOGLE_TAG_MANAGER_ID = process.env.GOOGLE_TAG_MANAGER_ID || '';
+const GOOGLE_OAUTH_CLIENT_ID = process.env.GOOGLE_OAUTH_CLIENT_ID || '';
+const GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET || '';
+const EDITOR_ALLOWED_EMAILS = process.env.EDITOR_ALLOWED_EMAILS || '';
+const GITHUB_REPO = process.env.GITHUB_REPO || '';
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
 const LORE_DIR = path.join(__dirname, 'data', 'lore');
 const MEDIA_VIDEOS_PATH = path.join(CONTENT_DIR, 'media', 'videos.json');
 const NAVIGATION_PATH = path.join(CONTENT_DIR, 'navigation.json');
@@ -49,28 +56,26 @@ function loadDpsReferenceConfig() {
   if (dpsReferenceCache) return dpsReferenceCache;
 
   const fallback = {
+    levelCap: 150,
     title: 'Desired Stat Percentages (Raid Targets)',
-    intro: 'Quick offensive targets adapted from Giseldah\'s LOTRO stat calculator for DPS-oriented builds.',
-    sourceLabel: 'Open Giseldah Stat Calculator',
-    sourceUrl: 'https://giseldah.github.io/',
-    sourceNote: 'for class-specific tuning and current breakpoints.',
-    sectionHeading: 'Desired Stat Percentages (Raid Targets)',
-    appliesTo: ['class', 'raid'],
+    intro: 'Quick offensive targets for DPS-oriented builds.',
     tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
+    curves: {
+      mastery: { hardCap: 200, targetCap: 6.0, ratingByLevel: { '150': 450000, '160': 900000 } },
+      criticalHit: { hardCap: 25, targetCap: 0.75, ratingByLevel: { '150': 450000, '160': 900000 } },
+      devastateHit: { hardCap: 10, targetCap: 0.3, ratingByLevel: { '150': 600000, '160': 1200000 } },
+      finesse: { hardCap: 50, targetCap: 1.5, ratingByLevel: { '150': 300000, '160': 600000 } },
+      lightMitigation: { hardCap: 40, targetCap: 1.2, ratingByLevel: { '150': 200000, '160': 400000 } },
+      mediumMitigation: { hardCap: 50, targetCap: 1.5, ratingByLevel: { '150': 250000, '160': 500000 } },
+      heavyMitigation: { hardCap: 60, targetCap: 1.8, ratingByLevel: { '150': 300000, '160': 600000 } },
+    },
     tableRows: [
-      { stat: 'Physical Mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
-      { stat: 'Critical Rating', t1: '**28%+**', t2: '**30%+**', t3: '**33%+**' },
-      { stat: 'Devastating Hits', t1: '**8%+**', t2: '**9%+**', t3: '**10%+**' },
-      { stat: 'Finesse', t1: '**35%-40%**', t2: '**40%-45%**', t3: '**45%-50%**' },
-      { stat: 'Tactical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
-      { stat: 'Physical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
-    ],
-    stats: [
-      { label: 'Critical Hit', target: '25.0%', rating: '450,000' },
-      { label: 'Devastate Chance', target: '10.0%', rating: '600,000' },
-      { label: 'Devastate Magnitude', target: '75.0%', rating: '900,000' },
-      { label: 'Finesse', target: '50.0%', rating: '300,000' },
-      { label: 'Primary Mastery (Physical or Tactical)', target: 'up to 200.0%', rating: '450,000' },
+      { stat: 'Physical Mastery', curve: 'mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
+      { stat: 'Critical Rating', curve: 'criticalHit', t1: '**28%+**', t2: '**30%+**', t3: '**33%+**' },
+      { stat: 'Devastating Hits', curve: 'devastateHit', t1: '**8%+**', t2: '**9%+**', t3: '**10%+**' },
+      { stat: 'Finesse', curve: 'finesse', t1: '**35%-40%**', t2: '**40%-45%**', t3: '**45%-50%**' },
+      { stat: 'Tactical Mitigation', curve: 'lightMitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
+      { stat: 'Physical Mitigation', curve: 'mediumMitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**', note: 'Physical Mitigation cap varies by armor type: Light 40%, Medium 50%, Heavy 60%.' },
     ],
   };
 
@@ -87,16 +92,13 @@ function loadDpsReferenceConfig() {
     }
 
     dpsReferenceCache = {
+      levelCap: parsed.levelCap || fallback.levelCap,
       title: parsed.title || fallback.title,
       intro: parsed.intro || fallback.intro,
-      sourceLabel: parsed.sourceLabel || fallback.sourceLabel,
-      sourceUrl: parsed.sourceUrl || fallback.sourceUrl,
-      sourceNote: parsed.sourceNote || fallback.sourceNote,
-      sectionHeading: parsed.sectionHeading || fallback.sectionHeading,
-      appliesTo: Array.isArray(parsed.appliesTo) ? parsed.appliesTo : fallback.appliesTo,
+
       tableColumns: Array.isArray(parsed.tableColumns) ? parsed.tableColumns : fallback.tableColumns,
+      curves: (parsed.curves && typeof parsed.curves === 'object') ? parsed.curves : fallback.curves,
       tableRows: Array.isArray(parsed.tableRows) ? parsed.tableRows : fallback.tableRows,
-      stats: Array.isArray(parsed.stats) ? parsed.stats : fallback.stats,
     };
     return dpsReferenceCache;
   } catch (err) {
@@ -108,24 +110,60 @@ function loadDpsReferenceConfig() {
 
 function buildDpsReferenceMarkdownTable() {
   const dpsRef = loadDpsReferenceConfig();
-  const cols = Array.isArray(dpsRef.tableColumns) ? dpsRef.tableColumns : [];
-  const rows = Array.isArray(dpsRef.tableRows) ? dpsRef.tableRows : [];
-  if (cols.length < 2 || !rows.length) return '';
+  return buildDpsTableHtml(dpsRef);
+}
 
-  const align = cols.map(() => '---').join(' | ');
-  const header = `| ${cols.join(' | ')} |`;
-  const separator = `|${align}|`;
-  const body = rows.map(r => {
-    const vals = [
-      String(r.stat || ''),
-      String(r.t1 || ''),
-      String(r.t2 || ''),
-      String(r.t3 || ''),
-    ];
-    return `| ${vals.join(' | ')} |`;
+/**
+ * Build an HTML table from DPS reference config, with optional overrides.
+ */
+function buildDpsTableHtml(dpsRef, overrides) {
+  const cfg = Object.assign({}, dpsRef, overrides || {});
+  const rows = Array.isArray(cfg.tableRows) ? cfg.tableRows : [];
+  const curves = cfg.curves || {};
+  const levelCap = cfg.levelCap || 150;
+  const hasCurves = Object.keys(curves).length > 0 && rows.some(r => r.curve);
+  if (!rows.length) return '';
+
+  // Convert inline markdown bold/italic to HTML
+  const mdInline = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+  const fmtNum = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // Build columns: add Cap and Rating when curve data is available
+  const cols = hasCurves
+    ? ['Stat', '% Cap', `Rating (L${levelCap})`, 'T1 Target', 'T2 Target', 'T3+ Target']
+    : (Array.isArray(cfg.tableColumns) ? cfg.tableColumns : []);
+  if (cols.length < 2) return '';
+
+  const levelNote = levelCap ? `<p><em>Level Cap: ${levelCap}</em></p>\n` : '';
+  const headerCells = cols.map(c => `<th>${c}</th>`).join('');
+  const notes = [];
+
+  const bodyRows = rows.map(r => {
+    if (r.note) notes.push(r.note);
+
+    if (hasCurves) {
+      const curve = r.curve && curves[r.curve] ? curves[r.curve] : null;
+      const capVal = curve ? curve.hardCap + '%' : '';
+      const ratingVal = (() => {
+        if (!curve) return '';
+        const rbl = curve.ratingByLevel || {};
+        const rLevel = rbl[String(levelCap)];
+        return rLevel ? fmtNum(rLevel) : '\u2014';
+      })();
+      const vals = [String(r.stat || ''), capVal, ratingVal, String(r.t1 || ''), String(r.t2 || ''), String(r.t3 || '')];
+      return `<tr>${vals.map(v => `<td>${mdInline(v)}</td>`).join('')}</tr>`;
+    } else {
+      const fallbackCols = Array.isArray(cfg.tableColumns) ? cfg.tableColumns : [];
+      const vals = [String(r.stat || ''), String(r.t1 || ''), String(r.t2 || ''), String(r.t3 || '')].slice(0, fallbackCols.length);
+      return `<tr>${vals.map(v => `<td>${mdInline(v)}</td>`).join('')}</tr>`;
+    }
   }).join('\n');
 
-  return [header, separator, body].join('\n');
+  const notesHtml = notes.length ? `\n<p class="text-muted small m-t-5"><em>${notes.join('<br>')}</em></p>` : '';
+
+  return levelNote
+    + `<table class="table table-striped table-condensed m-b-10">\n<thead><tr>${headerCells}</tr></thead>\n<tbody>\n${bodyRows}\n</tbody>\n</table>`
+    + notesHtml;
 }
 
 function buildInstanceLootReferenceMarkdown(slug) {
@@ -133,9 +171,7 @@ function buildInstanceLootReferenceMarkdown(slug) {
   const entry = refs[slug];
   if (!entry) return '';
 
-  const lines = [
-    `> **Loot Reference:** [${entry.label}](${entry.url})`,
-  ];
+  const lines = [];
 
   if (entry.levelRange || entry.groupSize) {
     const meta = [];
@@ -325,6 +361,65 @@ function normalizeGuideInstanceLootReferenceContent(markdown, fileName, slug) {
 
   console.log(`   ℹ Appended instance loot token in guides/${fileName}`);
   return `${markdown.trimEnd()}\n\n${sectionBlock}`;
+}
+
+/**
+ * Replace {{map:type=id,...opts}} tokens in HTML with responsive map iframes.
+ * Supports type: map, deed, quest, mob. Options: lng, lat, height.
+ * Strips any wrapping <p> tag that marked may have added.
+ */
+function resolveMapEmbeds(html, siteRoot) {
+  siteRoot = siteRoot || '';
+  return html.replace(/<p>\s*(\{\{map:[^}]+\}\})\s*<\/p>/gi, '$1')
+    .replace(/\{\{map:([^}]+)\}\}/g, function (_, inner) {
+    const opts = {};
+    inner.split(',').forEach(function (pair) {
+      const eq = pair.indexOf('=');
+      if (eq === -1) return;
+      opts[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+    });
+    // First key=value is the type (map, deed, quest, mob)
+    const firstPair = inner.split(',')[0];
+    const eqIdx = firstPair.indexOf('=');
+    const type = firstPair.slice(0, eqIdx).trim();
+    const id = firstPair.slice(eqIdx + 1).trim();
+    const height = opts.height || '450';
+    const param = encodeURIComponent(id);
+    let src = `${siteRoot}map.html?${type}=${param}&embed=1`;
+    if (opts.lng) src += `&lng=${encodeURIComponent(opts.lng)}`;
+    if (opts.lat) src += `&lat=${encodeURIComponent(opts.lat)}`;
+    return `<div class="lotro-map-embed" style="height:${height}px">`
+      + `<iframe src="${src}" style="width:100%;height:100%;border:0" loading="lazy" allowfullscreen title="LOTRO Interactive Map"></iframe>`
+      + `</div>`;
+  });
+}
+
+/**
+ * Replace {{dpsStatTable}} or {{dpsStatTable:opt=val,...}} tokens in HTML.
+ * Supported options: levelCap, heading (used as section heading above the table).
+ * Strips any wrapping <p> tag that marked may have added.
+ */
+function resolveDpsTokens(html) {
+  // Strip <p> wrapper around DPS tokens
+  html = html.replace(/<p>\s*(\{\{dpsStatTable(?::[^}]*)?\}\})\s*<\/p>/gi, '$1');
+
+  return html.replace(/\{\{dpsStatTable(?::([^}]*))?\}\}/g, function (_, optStr) {
+    const dpsRef = loadDpsReferenceConfig();
+    const overrides = {};
+
+    if (optStr) {
+      optStr.split(',').forEach(function (pair) {
+        const eq = pair.indexOf('=');
+        if (eq === -1) return;
+        const key = pair.slice(0, eq).trim();
+        const val = pair.slice(eq + 1).trim();
+        if (key === 'levelCap') overrides.levelCap = parseInt(val, 10) || dpsRef.levelCap;
+        else if (key === 'heading') overrides.sectionHeading = val;
+      });
+    }
+
+    return buildDpsTableHtml(dpsRef, overrides);
+  });
 }
 
 function loadItemIndex() {
@@ -921,15 +1016,13 @@ function loadContent(subdir) {
       const slug = path.basename(file, '.md');
       resolvedContent = normalizeGuideDpsTableContent(resolvedContent, file);
       resolvedContent = normalizeGuideInstanceLootReferenceContent(resolvedContent, file, slug);
-      if (resolvedContent.includes('{{dpsStatTable}}')) {
-        resolvedContent = resolvedContent.replace(/\{\{dpsStatTable\}\}/g, buildDpsReferenceMarkdownTable());
-      }
       if (resolvedContent.includes('{{instanceLootReference}}')) {
         resolvedContent = resolvedContent.replace(/\{\{instanceLootReference\}\}/g, buildInstanceLootReferenceMarkdown(slug));
       }
     }
 
-    const htmlContent = marked(resolvedContent);
+    const siteRoot = (subdir === 'guides' || subdir === 'news') ? '../' : '';
+    const htmlContent = resolveDpsTokens(resolveMapEmbeds(marked(resolvedContent), siteRoot));
     const slug = path.basename(file, '.md');
 
     // Normalize image path to be relative to lotro/ root
@@ -1027,58 +1120,6 @@ function classifyGuide(post) {
   if (hasAny(['leveling', 'levelling', 'beginner', 'new-player', 'getting-started', 'starter-zones'])) return 'leveling';
   if (hasAny(['crafting', 'legendary-items', 'li', 'systems'])) return 'systems';
   return 'general';
-}
-
-function buildDpsStatPanel(post) {
-  if (!post || post.category !== 'guides') return '';
-
-  const guideType = classifyGuide(post);
-  const dpsRef = loadDpsReferenceConfig();
-  const appliesTo = (dpsRef.appliesTo || []).map(v => String(v).toLowerCase());
-  if (!appliesTo.includes(guideType)) return '';
-
-  // Prefer a guide-authored stat table under the configured section heading.
-  const sectionHeading = String(dpsRef.sectionHeading || dpsRef.title || '').trim();
-  let extractedTableHtml = '';
-  if (sectionHeading && typeof post.content === 'string') {
-    const headingRegex = new RegExp(`<h[1-6][^>]*>\\s*${sectionHeading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*<\\/h[1-6]>`, 'i');
-    const headingMatch = headingRegex.exec(post.content);
-    if (headingMatch) {
-      const afterHeading = post.content.slice(headingMatch.index + headingMatch[0].length);
-      const tableMatch = afterHeading.match(/<table>[\s\S]*?<\/table>/i);
-      if (tableMatch) {
-        extractedTableHtml = tableMatch[0].replace('<table>', '<table class="table table-striped table-condensed m-b-10">');
-      }
-    }
-  }
-
-  // If the guide already has the desired stat table in its content section
-  // (typically via {{dpsStatTable}}), do not inject a duplicate panel copy.
-  if (extractedTableHtml) return '';
-
-  const statRows = (dpsRef.stats || []).map(stat => {
-    const label = String(stat.label || '').trim();
-    const target = String(stat.target || '').trim();
-    const rating = String(stat.rating || '').trim();
-    const note = String(stat.note || '').trim();
-    if (!label || !target || !rating) return '';
-
-    const suffix = note ? ` ${note}` : '';
-    return `      <li>${label}: ${target} (about ${rating} rating)${suffix}</li>`;
-  }).filter(Boolean).join('\n');
-
-  if (!statRows) return '';
-
-  return [
-    '<div class="panel panel-default m-t-30">',
-    `  <div class="panel-heading"><strong>${dpsRef.title}</strong></div>`,
-    '  <div class="panel-body">',
-    `    <p class="m-b-10">${dpsRef.intro}</p>`,
-    ['    <ul class="m-b-10">', statRows, '    </ul>'].join('\n'),
-    `    <p class="m-b-0"><a href="${dpsRef.sourceUrl}" target="_blank" rel="noopener noreferrer">${dpsRef.sourceLabel}</a> ${dpsRef.sourceNote}</p>`,
-    '  </div>',
-    '</div>',
-  ].join('\n');
 }
 
 function buildGuideQuickNavLinks(siteRoot) {
@@ -1253,7 +1294,6 @@ function buildArticle(post, relatedPosts, navData) {
   const postImg = post.image
     ? (post.image.startsWith('http') ? post.image : `../${post.image}`)
     : '../img/default.jpg';
-  const dpsStatPanel = buildDpsStatPanel(post);
   const articleUrl = `${SITE_BASE_URL}/${post.url}`;
   const encodedTitle = encodeURIComponent(post.title);
   const ogImage = post.image && post.image.startsWith('http')
@@ -1265,7 +1305,6 @@ function buildArticle(post, relatedPosts, navData) {
     author: post.author || 'Amdor',
     image: postImg,
     content: expandLootAccordionPlaceholders(autoLinkQuests(autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content)))))),
-    dpsStatPanel,
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
@@ -1947,6 +1986,116 @@ function buildMediaPage(navData) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'media.html'), html);
 }
 
+// ─── Editor Page ────────────────────────────────────────────────────────────
+
+function buildEditorBundle() {
+  const srcFile = path.join(__dirname, 'src', 'editor.js');
+  if (!fs.existsSync(srcFile)) return;
+  esbuild.buildSync({
+    entryPoints: [srcFile],
+    bundle: true,
+    outdir: path.join(OUTPUT_DIR, 'js'),
+    entryNames: 'editor.bundle',
+    format: 'iife',
+    target: ['es2020'],
+    minify: true,
+    sourcemap: false,
+    logLevel: 'warning',
+    loader: {
+      '.ttf': 'file',
+      '.woff': 'file',
+      '.woff2': 'file',
+      '.eot': 'file',
+      '.svg': 'file',
+    },
+  });
+}
+
+function buildEditorPage(allPosts, navData) {
+  // Bundle Milkdown Crepe editor JS + CSS
+  buildEditorBundle();
+
+  // Generate article manifest for the editor
+  const manifest = allPosts.map(p => ({
+    slug: p.slug,
+    title: p.title || p.slug,
+    category: p.category || 'guides',
+    date: p.formattedDate || '',
+    author: p.author || '',
+  }));
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'editor-manifest.json'),
+    JSON.stringify(manifest)
+  );
+
+  // Copy raw .md files so the editor can fetch them
+  for (const subdir of ['guides', 'news']) {
+    const srcDir = path.join(CONTENT_DIR, subdir);
+    const destDir = path.join(OUTPUT_DIR, 'data', 'content', subdir);
+    ensureDir(destDir);
+    if (fs.existsSync(srcDir)) {
+      for (const f of fs.readdirSync(srcDir).filter(f => f.endsWith('.md'))) {
+        fs.copyFileSync(path.join(srcDir, f), path.join(destDir, f));
+      }
+    }
+  }
+
+  // Copy JSON config files so the editor can fetch/edit them
+  const configFiles = [
+    { src: path.join(CONTENT_DIR, 'navigation.json'), key: 'navigation', label: 'Navigation' },
+    { src: path.join(CONTENT_DIR, 'media', 'videos.json'), key: 'media-videos', label: 'Media Videos' },
+    { src: path.join(CONTENT_DIR, 'stats', 'dps-reference.json'), key: 'dps-reference', label: 'DPS Reference' },
+    { src: path.join(CONTENT_DIR, 'instances', 'loot-reference.json'), key: 'loot-reference', label: 'Loot Reference' },
+  ];
+  const configManifest = [];
+  const configDestDir = path.join(OUTPUT_DIR, 'data', 'content', 'config');
+  ensureDir(configDestDir);
+  for (const cf of configFiles) {
+    if (fs.existsSync(cf.src)) {
+      fs.copyFileSync(cf.src, path.join(configDestDir, cf.key + '.json'));
+      configManifest.push({ key: cf.key, label: cf.label });
+    }
+  }
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'config-manifest.json'),
+    JSON.stringify(configManifest)
+  );
+
+  // Render editor page
+  const template = readTemplate('editor-content.html');
+  const body = render(template, {
+    googleClientId: GOOGLE_OAUTH_CLIENT_ID,
+  });
+
+  let html = buildPage(body, {
+    title: 'Editor - LOTRO Guides',
+    metaDescription: 'Content editor for LOTRO Guides.',
+    currentPage: 'editor',
+    ...navData,
+  });
+
+  // Inject editor CSS bundle
+  const editorCss = '<link href="./js/editor.bundle.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${editorCss}\n  </head>`);
+
+  // Inject editor config + scripts
+  const editorScripts = [
+    (EDITOR_ALLOWED_EMAILS || GITHUB_REPO || GITHUB_CLIENT_ID)
+      ? '<script>window.LOTRO_EDITOR_CONFIG={'
+        + (EDITOR_ALLOWED_EMAILS ? 'allowedEmails:"' + EDITOR_ALLOWED_EMAILS.replace(/"/g, '\\"') + '",' : '')
+        + (GITHUB_REPO ? 'githubRepo:"' + GITHUB_REPO.replace(/"/g, '\\"') + '",' : '')
+        + (GITHUB_CLIENT_ID ? 'githubClientId:"' + GITHUB_CLIENT_ID.replace(/"/g, '\\"') + '"' : '')
+        + '};</script>'
+      : '',
+    '<script src="./js/editor.bundle.js"></script>',
+    '<script src="https://accounts.google.com/gsi/client" async defer></script>',
+  ].filter(Boolean).join('\n    ');
+  html = html.replace('</body>', `    ${editorScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'editor.html'), html);
+}
+
 // ─── Main Build ─────────────────────────────────────────────────────────────
 
 async function build() {
@@ -2038,6 +2187,10 @@ async function build() {
   // Build interactive map page
   buildMapPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ map.html');
+
+  // Build editor page
+  buildEditorPage(allPosts, { guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ editor.html');
 
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {

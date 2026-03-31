@@ -837,8 +837,36 @@
       clearDeedOverlay();
     });
 
+    // Deed overlay — switch map when clicking an off-map objective
+    $(document).on('click', '.deed-objective-offmap', function () {
+      var targetMap = $(this).data('deed-switch-map');
+      if (targetMap) switchDeedMap(String(targetMap));
+    });
+
+    // Quest overlay — switch map when clicking an off-map objective
+    $(document).on('click', '.quest-step-offmap', function () {
+      var targetMap = $(this).data('quest-switch-map');
+      if (targetMap) switchQuestMap(String(targetMap));
+    });
+
+    // Quest overlay — pan to objective when clicking an on-map step
+    $(document).on('click', '.quest-step-onmap', function () {
+      var lng = parseFloat($(this).data('pan-lng'));
+      var lat = parseFloat($(this).data('pan-lat'));
+      if (!isNaN(lng) && !isNaN(lat)) {
+        var ll = gameToLatLng(lng, lat);
+        map.setView(ll, map.getZoom() + 1, { animate: true });
+      }
+    });
+
     // Handle URL params for direct linking
     var params = new URLSearchParams(window.location.search);
+
+    // Embed mode: hide site chrome when loaded in an iframe
+    if (params.get('embed') === '1') {
+      document.body.classList.add('lotro-map-embed-mode');
+    }
+
     var questParam = params.get('quest');
     if (questParam) {
       loadQuestOverlay(questParam);
@@ -863,6 +891,12 @@
     var sharedLat = params.get('lat');
     if (sharedMap && sharedLng && sharedLat && mapById[sharedMap]) {
       goToSharedLocation(sharedMap, sharedLng, sharedLat);
+      return;
+    }
+
+    // Direct map link: ?map=ID (without coords)
+    if (sharedMap && mapById[sharedMap]) {
+      showMap(sharedMap, false);
       return;
     }
 
@@ -906,10 +940,24 @@
       showMap(primaryMap, true);
     }
 
-    // Add objective markers
+    // Render markers for the current map
+    renderDeedMarkers(deed, currentMapId);
+
+    // Show deed info panel
+    showDeedPanel(deed);
+  }
+
+  /**
+   * Render deed objective markers for only the given map.
+   * Called on initial load and when switching maps via the panel.
+   */
+  function renderDeedMarkers(deed, targetMapId) {
+    if (!deedOverlayLayer) return;
+    deedOverlayLayer.clearLayers();
+
     for (var i = 0; i < deed.pts.length; i++) {
       var pt = deed.pts[i];
-      if (pt.map !== primaryMap) continue;
+      if (pt.map !== targetMapId) continue;
       var ll = gameToLatLng(pt.lng, pt.lat);
       var divIcon = L.divIcon({
         className: 'deed-objective-icon',
@@ -929,8 +977,21 @@
       marker.bindPopup(popText);
       deedOverlayLayer.addLayer(marker);
     }
+  }
 
-    // Show deed info panel
+  /**
+   * Switch the deed overlay to a different map when the user clicks an
+   * off-map objective in the panel.
+   */
+  function switchDeedMap(targetMapId) {
+    var deed = deedOverlayData && deedOverlayData[activeDeedId];
+    if (!deed) return;
+
+    if (mapById[targetMapId]) {
+      showMap(targetMapId, true);
+    }
+
+    renderDeedMarkers(deed, currentMapId);
     showDeedPanel(deed);
   }
 
@@ -945,17 +1006,41 @@
 
   function showDeedPanel(deed) {
     $('#lotro-deed-panel').remove();
+
+    // Determine which maps this deed spans
+    var deedMaps = {};
+    for (var i = 0; i < deed.pts.length; i++) {
+      deedMaps[deed.pts[i].map] = true;
+    }
+    var isMultiMap = Object.keys(deedMaps).length > 1;
+
     var html = '<div id="lotro-deed-panel" class="lotro-map-deed-panel">' +
       '<span class="close-panel" id="deed-panel-close">&times;</span>' +
       '<h5>' + escapeHtml(deed.n) + '</h5>';
     if (deed.lv) html += '<div style="margin-bottom:6px;font-size:11px;opacity:0.7">Level ' + deed.lv + '</div>';
     if (deed.tp) html += '<div style="margin-bottom:8px;font-size:11px;opacity:0.7">' + escapeHtml(deed.tp) + '</div>';
+
     for (var i = 0; i < deed.pts.length; i++) {
       var obj = deed.pts[i];
-      html += '<div class="deed-objective-step">' +
-        '<span class="deed-step-num">' + (obj.i || (i + 1)) + '</span>' +
-        escapeHtml(obj.t || 'Objective location') +
-        '</div>';
+      var onCurrentMap = obj.map === currentMapId;
+      var stepNum = obj.i || (i + 1);
+
+      if (!onCurrentMap && isMultiMap) {
+        // Off-map objective — render as a clickable link to switch maps
+        var targetName = (mapById[obj.map] && mapById[obj.map].name)
+          ? cleanGameText(mapById[obj.map].name)
+          : 'Another map';
+        html += '<div class="deed-objective-step deed-objective-offmap" data-deed-switch-map="' + obj.map + '">' +
+          '<span class="deed-step-num deed-step-num-offmap">' + stepNum + '</span>' +
+          '<span class="deed-objective-text">' + escapeHtml(obj.t || 'Objective location') + '</span>' +
+          '<span class="deed-objective-map-hint"><i class="fa fa-map-o"></i> ' + escapeHtml(targetName) + '</span>' +
+          '</div>';
+      } else {
+        html += '<div class="deed-objective-step">' +
+          '<span class="deed-step-num">' + stepNum + '</span>' +
+          escapeHtml(obj.t || 'Objective location') +
+          '</div>';
+      }
     }
     html += '</div>';
     $('#lotro-map').parent().append(html);
@@ -994,6 +1079,7 @@
 
   function showQuestOverlay(questId) {
     clearQuestOverlay();
+    clearDeedOverlay(); // Clear any active deed overlay
     var quest = questOverlayData[questId];
     if (!quest) return;
 
@@ -1001,16 +1087,46 @@
     questOverlayLayer = L.layerGroup();
     map.addLayer(questOverlayLayer);
 
-    // If quest has map associations, navigate to the first one
-    if (quest.maps && quest.maps.length && mapById[quest.maps[0]]) {
-      showMap(quest.maps[0], true);
+    // Navigate to the first associated map
+    var primaryMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
+    // Fallback: use the map ID from the first point if available
+    if (!primaryMap) {
+      for (var s = 0; s < quest.steps.length; s++) {
+        for (var p = 0; p < quest.steps[s].pts.length; p++) {
+          if (quest.steps[s].pts[p][2]) { primaryMap = quest.steps[s].pts[p][2]; break; }
+        }
+        if (primaryMap) break;
+      }
+    }
+    if (primaryMap && mapById[primaryMap]) {
+      showMap(primaryMap, true);
     }
 
-    // Add objective markers
+    // Render only markers for the current map
+    renderQuestMarkers(quest, currentMapId);
+
+    // Show quest info panel
+    showQuestPanel(quest);
+  }
+
+  /**
+   * Render quest objective markers for only the given map.
+   * Points format: [lng, lat] or [lng, lat, mapId].
+   * Points without a mapId are assumed to belong to maps[0].
+   */
+  function renderQuestMarkers(quest, targetMapId) {
+    if (!questOverlayLayer) return;
+    questOverlayLayer.clearLayers();
+
+    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
+
     for (var s = 0; s < quest.steps.length; s++) {
       var step = quest.steps[s];
       for (var p = 0; p < step.pts.length; p++) {
         var pt = step.pts[p];
+        var ptMap = pt[2] || defaultMap;
+        if (ptMap && ptMap !== targetMapId) continue;
+
         var ll = gameToLatLng(pt[0], pt[1]);
         var divIcon = L.divIcon({
           className: 'quest-objective-icon',
@@ -1031,8 +1147,21 @@
         questOverlayLayer.addLayer(m);
       }
     }
+  }
 
-    // Show quest info panel
+  /**
+   * Switch the quest overlay to a different map when the user clicks an
+   * off-map objective in the panel.
+   */
+  function switchQuestMap(targetMapId) {
+    var quest = questOverlayData && questOverlayData[activeQuestId];
+    if (!quest) return;
+
+    if (mapById[targetMapId]) {
+      showMap(targetMapId, true);
+    }
+
+    renderQuestMarkers(quest, currentMapId);
     showQuestPanel(quest);
   }
 
@@ -1047,16 +1176,59 @@
 
   function showQuestPanel(quest) {
     $('#lotro-quest-panel').remove();
+
+    // Determine which maps this quest's points span
+    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
+    var questMaps = {};
+    for (var s = 0; s < quest.steps.length; s++) {
+      var step = quest.steps[s];
+      for (var p = 0; p < step.pts.length; p++) {
+        var ptMap = step.pts[p][2] || defaultMap;
+        if (ptMap) questMaps[ptMap] = true;
+      }
+    }
+    var isMultiMap = Object.keys(questMaps).length > 1;
+
     var html = '<div id="lotro-quest-panel" class="lotro-map-quest-panel">' +
       '<span class="close-panel" id="quest-panel-close">&times;</span>' +
       '<h5>' + escapeHtml(quest.n) + '</h5>';
     if (quest.lv) html += '<div style="margin-bottom:6px;font-size:11px;opacity:0.7">Level ' + quest.lv + '</div>';
+
     for (var i = 0; i < quest.steps.length; i++) {
       var step = quest.steps[i];
-      html += '<div class="quest-step">' +
-        '<span class="quest-step-num">' + step.i + '</span>' +
-        (step.t ? escapeHtml(step.t) : 'Objective ' + step.i) +
-        '</div>';
+      var stepText = step.t ? escapeHtml(step.t) : 'Objective ' + step.i;
+
+      // Determine which map(s) this step's points are on
+      var onCurrent = false;
+      var offMapId = null;
+      for (var p = 0; p < step.pts.length; p++) {
+        var ptMap = step.pts[p][2] || defaultMap;
+        if (ptMap === currentMapId || !ptMap) {
+          onCurrent = true;
+        } else if (!offMapId) {
+          offMapId = ptMap;
+        }
+      }
+
+      if (!onCurrent && offMapId && isMultiMap) {
+        // Off-map objective — clickable to switch maps
+        var targetName = (mapById[offMapId] && mapById[offMapId].name)
+          ? cleanGameText(mapById[offMapId].name)
+          : 'Another map';
+        html += '<div class="quest-step quest-step-offmap" data-quest-switch-map="' + offMapId + '">' +
+          '<span class="quest-step-num quest-step-num-offmap">' + step.i + '</span>' +
+          '<span class="quest-step-text">' + stepText + '</span>' +
+          '<span class="quest-step-map-hint"><i class="fa fa-map-o"></i> ' + escapeHtml(targetName) + '</span>' +
+          '</div>';
+      } else {
+        // On-map objective — clickable to pan to first point
+        var panLng = step.pts[0] ? step.pts[0][0] : null;
+        var panLat = step.pts[0] ? step.pts[0][1] : null;
+        html += '<div class="quest-step quest-step-onmap" data-pan-lng="' + panLng + '" data-pan-lat="' + panLat + '">' +
+          '<span class="quest-step-num">' + step.i + '</span>' +
+          stepText +
+          '</div>';
+      }
     }
     html += '</div>';
     $('#lotro-map').parent().append(html);

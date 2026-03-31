@@ -1826,6 +1826,34 @@ h1, h2, h3 {
   font-size: 11px;
   margin-right: 6px;
 }
+/* On-map objective — click to pan */
+.lotro-map-quest-panel .quest-step-onmap {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.lotro-map-quest-panel .quest-step-onmap:hover {
+  opacity: 0.8;
+}
+/* Off-map objective — click to switch maps */
+.lotro-map-quest-panel .quest-step-offmap {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.lotro-map-quest-panel .quest-step-offmap:hover {
+  opacity: 1;
+}
+.lotro-map-quest-panel .quest-step-num-offmap {
+  background: #555;
+}
+.lotro-map-quest-panel .quest-step-map-hint {
+  display: block;
+  font-size: 10px;
+  margin-left: 26px;
+  margin-top: 2px;
+  color: var(--lotro-gold);
+  opacity: 0.8;
+}
 .lotro-map-quest-panel .close-panel {
   float: right;
   cursor: pointer;
@@ -1901,6 +1929,27 @@ h1, h2, h3 {
 }
 .lotro-map-deed-panel .close-panel:hover {
   color: #fff;
+}
+
+/* Off-map objective — clickable to switch maps */
+.lotro-map-deed-panel .deed-objective-offmap {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.lotro-map-deed-panel .deed-objective-offmap:hover {
+  opacity: 1;
+}
+.lotro-map-deed-panel .deed-step-num-offmap {
+  background: #555;
+}
+.lotro-map-deed-panel .deed-objective-map-hint {
+  display: block;
+  font-size: 10px;
+  margin-left: 26px;
+  margin-top: 2px;
+  color: var(--lotro-gold);
+  opacity: 0.8;
 }
 
 /* Deed objective markers on map */
@@ -2072,4 +2121,398 @@ h1, h2, h3 {
 .lotro-drop-rare {
   color: #31708f;
   background: #d9edf7;
+}
+
+/* ─── Editor Page ───────────────────────────────────────────────────── */
+.editor-login-section {
+  text-align: center;
+  padding: 60px 0;
+}
+.editor-login-section h2 {
+  font-family: 'Cinzel', serif;
+  margin-bottom: 12px;
+}
+.editor-login-error {
+  color: #c62828;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.editor-access-request {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #e0e0e0;
+  text-align: left;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.editor-access-request h4 {
+  font-family: 'Cinzel', serif;
+  margin-bottom: 8px;
+}
+.editor-access-request p {
+  color: #666;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.editor-access-request iframe {
+  border-radius: 4px;
+  background: #fafafa;
+}
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.editor-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+.editor-tabs {
+  list-style: none;
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin: 0 0 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+.editor-tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #777;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.editor-tab:hover {
+  color: #333;
+}
+.editor-tab.active {
+  color: #333;
+  border-bottom-color: #337ab7;
+}
+.editor-tab i {
+  margin-right: 4px;
+}
+.editor-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.editor-panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.editor-article-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.editor-article-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.editor-article-item:hover {
+  background: #f8f8f8;
+}
+.editor-article-cat {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.badge-guides { background: #2e7d32; }
+.badge-news { background: #1565c0; }
+.editor-article-title {
+  flex: 1;
+  font-weight: 500;
+}
+.editor-article-date {
+  color: #999;
+  flex-shrink: 0;
+}
+.editor-frontmatter {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.editor-milkdown-container {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  min-height: 400px;
+}
+/* Config editor */
+.editor-config-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.15s;
+}
+.editor-config-item:hover {
+  background: #f8f8f8;
+  border-color: #ccc;
+}
+.editor-config-item i {
+  font-size: 18px;
+  color: #666;
+}
+.editor-config-item-label {
+  font-weight: 600;
+  flex: 1;
+}
+.editor-config-edit-label {
+  font-weight: 600;
+  font-size: 15px;
+  margin-left: 12px;
+  flex: 1;
+}
+.editor-json-textarea {
+  width: 100%;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+  color: #333;
+  resize: vertical;
+  tab-size: 2;
+}
+.editor-json-textarea:focus {
+  border-color: #337ab7;
+  outline: none;
+  background: #fff;
+}
+.editor-json-error {
+  color: #c62828;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* ─── Widget Dropdown ────────────────────────────────────── */
+.editor-panel-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-widget-dropdown {
+  position: relative;
+  display: inline-block;
+}
+.editor-widget-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  min-width: 200px;
+  margin-top: 2px;
+  padding: 4px 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  list-style: none;
+}
+.editor-widget-menu.open {
+  display: block;
+}
+.editor-widget-menu li {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.editor-widget-menu li:hover {
+  background: #f0f0f0;
+}
+.editor-widget-menu li i {
+  margin-right: 6px;
+  width: 16px;
+  text-align: center;
+}
+
+/* ─── Widget Modal ───────────────────────────────────────── */
+.widget-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.widget-modal {
+  background: #fff;
+  border-radius: 6px;
+  width: 90%;
+  max-width: 780px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.widget-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.widget-modal-header h4 {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+}
+.widget-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #999;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.widget-modal-close:hover {
+  color: #333;
+}
+.widget-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+.widget-modal-body h5 {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 8px;
+}
+.widget-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* ─── DPS Row Editor ─────────────────────────────────────── */
+.dps-row-editor {
+  margin-bottom: 6px;
+}
+.dps-row-editor .btn-danger {
+  padding: 4px 8px;
+}
+.dps-table-preview {
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.dps-table-preview table {
+  margin-bottom: 0;
+  font-size: 13px;
+}
+.dps-table-preview small {
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ── Connection status & toolbar right ──────────────── */
+.editor-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.workspace-status {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+}
+.workspace-status.connected {
+  color: #3c763d;
+}
+
+/* ── Save toast ─────────────────────────────────────── */
+.save-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  z-index: 10001;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: opacity 0.3s;
+}
+.save-toast.save-toast-success {
+  background: #3c763d;
+}
+.save-toast.save-toast-error {
+  background: #a94442;
+}
+
+/* ── Map embed ──────────────────────────────────────── */
+.lotro-map-embed {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+/* Embed mode: hide site chrome when map is loaded in an iframe */
+.lotro-map-embed-mode #header,
+.lotro-map-embed-mode #footer,
+.lotro-map-embed-mode .breadcrumbs {
+  display: none !important;
+}
+.lotro-map-embed-mode .lotro-map-section {
+  padding: 0;
+  margin: 0;
+}
+.lotro-map-embed-mode .lotro-map-container {
+  padding: 0;
+}
+.lotro-map-embed-mode #lotro-map {
+  height: 100vh !important;
 }

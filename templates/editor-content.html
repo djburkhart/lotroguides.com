@@ -1,0 +1,282 @@
+<section class="ptb ptb-sm-80">
+  <div class="container">
+    <!-- Login Section -->
+    <div id="login-section" class="editor-login-section">
+      <h2>Content Editor</h2>
+      <p>Sign in with your Google account to access the editor.</p>
+      <div id="g_id_onload"
+           data-client_id="{{googleClientId}}"
+           data-callback="handleGoogleCredential"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="rectangular"
+           data-theme="filled_black"
+           data-text="signin_with"
+           data-size="large"
+           data-logo_alignment="left">
+      </div>
+      <div id="login-error" class="editor-login-error" style="display:none"></div>
+
+      <div class="editor-access-request">
+        <h4>Want to become an editor?</h4>
+        <p>If you'd like editor access to contribute guides, news articles, or site content, please fill out the form below and we'll get back to you.</p>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdg22fxD0j7spB1NBd7IaXEBXSdedhXuXflQ2JrGlj9wiD84A/viewform?usp=dialog"
+                width="100%" height="600" frameborder="0" marginheight="0" marginwidth="0"
+                title="Editor Access Request Form">Loading…</iframe>
+      </div>
+    </div>
+
+    <!-- Editor App (hidden until signed in) -->
+    <div id="editor-app" style="display:none">
+      <div class="editor-toolbar">
+        <div class="editor-user">
+          <img id="user-avatar" src="" alt="" class="editor-user-avatar" style="display:none">
+          <span id="user-name"></span>
+        </div>
+        <div class="editor-toolbar-right">
+          <button id="btn-connect-workspace" class="btn btn-sm btn-default" title="Connect local project folder for direct saving"><i class="fa fa-plug"></i> Local Folder</button>
+          <button id="btn-connect-github" class="btn btn-sm btn-default" title="Connect to GitHub to save directly to the repo"><i class="fa fa-github"></i> GitHub</button>
+          <button id="btn-disconnect-github" class="btn btn-sm btn-warning btn-xs" title="Disconnect GitHub" style="display:none"><i class="fa fa-github"></i> Disconnect</button>
+          <span id="workspace-status" class="workspace-status"><i class="fa fa-folder"></i> Not connected</span>
+          <button id="btn-sign-out" class="btn btn-sm btn-default">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <ul class="editor-tabs">
+        <li class="editor-tab active" data-tab="articles"><i class="fa fa-file-text-o"></i> Articles</li>
+        <li class="editor-tab" data-tab="config"><i class="fa fa-cog"></i> Site Config</li>
+      </ul>
+
+      <!-- ─── Articles Tab ─────────────────────────────────── -->
+      <div id="tab-articles" class="editor-tab-content">
+        <!-- Article List Panel -->
+        <div id="article-panel">
+          <div class="editor-panel-header">
+            <h3>Articles</h3>
+            <button id="btn-new" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> New Article</button>
+          </div>
+          <ul id="article-list" class="editor-article-list"></ul>
+        </div>
+
+        <!-- Edit Panel (hidden until article selected) -->
+        <div id="edit-panel" style="display:none">
+          <div class="editor-panel-header">
+            <button id="btn-back" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Back</button>
+            <div class="editor-panel-header-right">
+              <div class="editor-widget-dropdown">
+                <button id="btn-insert-widget" class="btn btn-sm btn-info"><i class="fa fa-puzzle-piece"></i> Insert Widget <i class="fa fa-caret-down"></i></button>
+                <ul class="editor-widget-menu" id="widget-menu">
+                  <li data-widget="image"><i class="fa fa-image"></i> Image</li>
+                  <li data-widget="mapEmbed"><i class="fa fa-map-o"></i> Map Embed</li>
+                  <li data-widget="dpsStatTable"><i class="fa fa-table"></i> DPS Stat Table</li>
+                </ul>
+              </div>
+              <button id="btn-download" class="btn btn-sm btn-success"><i class="fa fa-download"></i> Download .md</button>
+            </div>
+          </div>
+          <div class="editor-frontmatter">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="fm-title">Title</label>
+                  <input type="text" id="fm-title" class="form-control" placeholder="Article title">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="fm-date">Date</label>
+                  <input type="date" id="fm-date" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="fm-category">Category</label>
+                  <select id="fm-category" class="form-control">
+                    <option value="guides">Guides</option>
+                    <option value="news">News</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="fm-author">Author</label>
+                  <input type="text" id="fm-author" class="form-control" placeholder="Author name">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="fm-tags">Tags</label>
+                  <input type="text" id="fm-tags" class="form-control" placeholder="tag1, tag2, tag3">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="fm-image">Image URL</label>
+                  <input type="text" id="fm-image" class="form-control" placeholder="img/news/image.jpg">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="fm-excerpt">Excerpt</label>
+              <textarea id="fm-excerpt" class="form-control" rows="2" placeholder="Brief description for cards and meta"></textarea>
+            </div>
+          </div>
+          <div id="milkdown-editor" class="editor-milkdown-container"></div>
+        </div>
+      </div>
+
+      <!-- ─── Site Config Tab ──────────────────────────────── -->
+      <div id="tab-config" class="editor-tab-content" style="display:none">
+        <div class="editor-panel-header">
+          <h3>Site Configuration</h3>
+        </div>
+        <div class="editor-config-list" id="config-list">
+          <p class="text-muted">Loading config files...</p>
+        </div>
+        <!-- Config JSON editor (hidden until a file is selected) -->
+        <div id="config-edit-panel" style="display:none">
+          <div class="editor-panel-header">
+            <button id="btn-config-back" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Back</button>
+            <span id="config-edit-label" class="editor-config-edit-label"></span>
+            <button id="btn-config-download" class="btn btn-sm btn-success"><i class="fa fa-download"></i> Download .json</button>
+          </div>
+          <div id="config-json-error" class="editor-json-error" style="display:none"></div>
+          <textarea id="config-json-editor" class="editor-json-textarea" rows="24" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DPS Stat Table Widget Modal ──────────────────── -->
+    <div id="dps-widget-modal" class="widget-modal-overlay" style="display:none">
+      <div class="widget-modal">
+        <div class="widget-modal-header">
+          <h4><i class="fa fa-table"></i> DPS Stat Table Widget</h4>
+          <button id="btn-dps-modal-close" class="widget-modal-close">&times;</button>
+        </div>
+        <div class="widget-modal-body">
+          <p class="text-muted">Configure the DPS stat reference table. Changes here update the global <code>dps-reference.json</code> config used across all guides.</p>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="dps-level-cap">Level Cap</label>
+                <input type="number" id="dps-level-cap" class="form-control" min="1" max="999" placeholder="e.g. 150">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="dps-section-heading">Table Heading</label>
+                <input type="text" id="dps-section-heading" class="form-control" placeholder="Section heading text">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="dps-applies-to">Applies To</label>
+                <input type="text" id="dps-applies-to" class="form-control" placeholder="class, raid">
+              </div>
+            </div>
+          </div>
+
+          <h5>Table Columns</h5>
+          <div class="row">
+            <div class="col-md-3"><input type="text" id="dps-col-0" class="form-control input-sm" placeholder="Column 1"></div>
+            <div class="col-md-3"><input type="text" id="dps-col-1" class="form-control input-sm" placeholder="Column 2"></div>
+            <div class="col-md-3"><input type="text" id="dps-col-2" class="form-control input-sm" placeholder="Column 3"></div>
+            <div class="col-md-3"><input type="text" id="dps-col-3" class="form-control input-sm" placeholder="Column 4"></div>
+          </div>
+
+          <h5 style="margin-top:16px">Stat Rows</h5>
+          <div id="dps-rows-container"></div>
+          <button id="btn-dps-add-row" class="btn btn-xs btn-default" style="margin-top:8px"><i class="fa fa-plus"></i> Add Row</button>
+
+          <h5 style="margin-top:16px">Preview</h5>
+          <div id="dps-table-preview" class="dps-table-preview"></div>
+        </div>
+        <div class="widget-modal-footer">
+          <button id="btn-dps-save-config" class="btn btn-sm btn-default"><i class="fa fa-download"></i> Save Config</button>
+          <button id="btn-dps-insert" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> Insert Widget</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Image Insert Modal ──────────────────────────── -->
+    <div id="image-insert-modal" class="widget-modal-overlay" style="display:none">
+      <div class="widget-modal" style="max-width:500px">
+        <div class="widget-modal-header">
+          <h4><i class="fa fa-image"></i> Insert Image</h4>
+          <button id="btn-image-modal-close" class="widget-modal-close">&times;</button>
+        </div>
+        <div class="widget-modal-body">
+          <div class="form-group">
+            <label for="image-url">Image URL</label>
+            <input type="text" id="image-url" class="form-control" placeholder="img/guides/my-image.jpg or full URL">
+          </div>
+          <div class="form-group">
+            <label for="image-alt">Alt Text</label>
+            <input type="text" id="image-alt" class="form-control" placeholder="Describe the image for accessibility">
+          </div>
+          <div id="image-preview" style="margin-top:12px"></div>
+        </div>
+        <div class="widget-modal-footer">
+          <button id="btn-image-insert" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> Insert</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Map Embed Modal ─────────────────────────────── -->
+    <div id="map-embed-modal" class="widget-modal-overlay" style="display:none">
+      <div class="widget-modal" style="max-width:520px">
+        <div class="widget-modal-header">
+          <h4><i class="fa fa-map-o"></i> Embed Map</h4>
+          <button id="btn-map-modal-close" class="widget-modal-close">&times;</button>
+        </div>
+        <div class="widget-modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="map-embed-type">Type</label>
+                <select id="map-embed-type" class="form-control">
+                  <option value="map">Map Region</option>
+                  <option value="deed">Deed</option>
+                  <option value="quest">Quest</option>
+                  <option value="mob">Mob</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="map-embed-height">Height (px)</label>
+                <input type="number" id="map-embed-height" class="form-control" value="450" min="200" max="900">
+              </div>
+            </div>
+          </div>
+          <div class="form-group" id="map-select-row">
+            <label for="map-embed-select">Select Map</label>
+            <select id="map-embed-select" class="form-control">
+              <option value="">-- Click to load maps --</option>
+            </select>
+          </div>
+          <div class="form-group" id="map-id-row" style="display:none">
+            <label for="map-embed-id">ID</label>
+            <input type="text" id="map-embed-id" class="form-control" placeholder="Enter the deed, quest, or mob ID">
+          </div>
+          <div id="map-embed-preview" style="margin-top:12px">
+            <small class="text-muted">Select a map or enter an ID to preview</small>
+          </div>
+        </div>
+        <div class="widget-modal-footer">
+          <button id="btn-map-insert" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> Insert</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save toast notification -->
+    <div id="save-toast" class="save-toast" style="display:none"></div>
+
+  </div>
+</section>

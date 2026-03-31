@@ -228,7 +228,10 @@ function extractQuests(npcMap) {
         const lng = parseFloat(pm[1]);
         const lat = parseFloat(pm[2]);
         if (!isNaN(lng) && !isNaN(lat)) {
-          points.push({ lng, lat });
+          const pt = { lng, lat };
+          const miMatch = pm[0].match(/mapIndex="(\d+)"/);
+          if (miMatch) pt.mi = parseInt(miMatch[1], 10);
+          points.push(pt);
         }
       }
       if (points.length) obj.points = points;
@@ -420,11 +423,21 @@ function buildQuestOverlay(quests) {
 
   for (const q of quests) {
     if (!q.objectives) continue;
+    const questMaps = q.maps || [];
 
     const steps = [];
     for (const obj of q.objectives) {
       if (!obj.points || !obj.points.length) continue;
-      const step = { i: obj.index, pts: obj.points.map(p => [p.lng, p.lat]) };
+      const step = {
+        i: obj.index,
+        pts: obj.points.map(p => {
+          const entry = [p.lng, p.lat];
+          // Resolve mapIndex to actual map ID
+          const mi = p.mi || 0;
+          if (questMaps[mi]) entry.push(questMaps[mi]);
+          return entry;
+        }),
+      };
       if (obj.text) step.t = obj.text;
       steps.push(step);
     }

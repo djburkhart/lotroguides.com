@@ -1,0 +1,6 @@
+packages:
+  - name: github
+    functions:
+      - name: auth
+        runtime: nodejs:20
+        web: true

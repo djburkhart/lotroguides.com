@@ -51,6 +51,10 @@ Strong options:
 - **The Shire**
 - **Ered Luin** (Elf/Dwarf routes)
 
+{{map:map=268437653,height=300}}
+{{map:map=268437678,height=300}}
+{{map:map=268437576,height=300}}
+
 Helpful lookups:
 
 - Bree-land style quest search: [Quests: Bree](../quests.html?q=Bree)
@@ -93,6 +97,8 @@ If a mob appears in the Mob Database with a spawn link, use **Spawn** to jump st
 ## Level 15-20: Move Toward Early Regional Progression
 
 By 15+, you can start mixing in broader regional questing while wrapping unfinished starter deeds.
+
+{{map:map=268437603,height=300}}
 
 Common next-step regions include:
 

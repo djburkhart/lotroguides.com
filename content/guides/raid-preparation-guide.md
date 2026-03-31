@@ -17,7 +17,7 @@ This guide covers what to bring, what to craft, and what to buy before stepping 
 
 Use the shared raid target reference as your baseline before consumables and temporary buffs:
 
-{{dpsStatTable}}
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=160}}
 
 ---
 

@@ -11,6 +11,8 @@ excerpt: "The following guide covers the mechanics and other useful information 
 
 The following guide covers the mechanics and other useful information about the Tower of Orthanc or ToO Fire and Ice Ring on T2C mode. Tower of Orthanc also known as ToO is a level 75 non-scaling raid from the previous level 75 end game content.
 
+{{map:map=268446985,lng=-2.465,lat=-79.154,height=350}}
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}

@@ -23,7 +23,7 @@ As a Hunter, your job is burst DPS with clean execution and high uptime. This gu
 
 Aim for these targets when preparing for group and raid content:
 
-{{dpsStatTable}}
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=160}}
 
 **Important note on mitigation caps:**
 

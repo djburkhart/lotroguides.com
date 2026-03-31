@@ -11,6 +11,8 @@ excerpt: "A comprehensive guide to The Abyss of Mordath raid covering all trash 
 
 A complete walkthrough of the Shadow of Mordor raid instance, covering every trash mob type, pull-by-pull strategies, and detailed boss fight breakdowns for both Tier 1 and Tier 2 challenge modes.
 
+{{map:map=268452166,lng=26.058,lat=-47.246,height=350}}
+
 ## Light of Eärendil Requirements
 
 | Tier | Suggested LoE | Base Area Requirement |

@@ -1,75 +1,60 @@
 {
+  "levelCap": 150,
   "title": "Desired Stat Percentages (Raid Targets)",
-  "intro": "Quick offensive targets adapted from Giseldah's LOTRO stat calculator for DPS-oriented builds.",
-  "sourceLabel": "Open Giseldah Stat Calculator",
-  "sourceUrl": "https://giseldah.github.io/",
-  "sourceNote": "for class-specific tuning and current breakpoints.",
-  "sectionHeading": "Desired Stat Percentages (Raid Targets)",
-  "appliesTo": ["class", "raid"],
+  "intro": "Quick offensive targets for DPS-oriented builds.",
+  "curves": {
+    "mastery": { "hardCap": 200, "targetCap": 6.0, "ratingByLevel": { "150": 450000, "160": 900000 } },
+    "criticalHit": { "hardCap": 25, "targetCap": 0.75, "ratingByLevel": { "150": 450000, "160": 900000 } },
+    "devastateHit": { "hardCap": 10, "targetCap": 0.3, "ratingByLevel": { "150": 600000, "160": 1200000 } },
+    "finesse": { "hardCap": 50, "targetCap": 1.5, "ratingByLevel": { "150": 300000, "160": 600000 } },
+    "lightMitigation": { "hardCap": 40, "targetCap": 1.2, "ratingByLevel": { "150": 200000, "160": 400000 } },
+    "mediumMitigation": { "hardCap": 50, "targetCap": 1.5, "ratingByLevel": { "150": 250000, "160": 500000 } },
+    "heavyMitigation": { "hardCap": 60, "targetCap": 1.8, "ratingByLevel": { "150": 300000, "160": 600000 } }
+  },
   "tableColumns": ["Stat", "T1 Target", "T2 Target", "T3+ Target"],
   "tableRows": [
     {
       "stat": "Physical Mastery",
+      "curve": "mastery",
       "t1": "**200%+**",
       "t2": "**210%+**",
       "t3": "**220%+**"
     },
     {
       "stat": "Critical Rating",
+      "curve": "criticalHit",
       "t1": "**28%+**",
       "t2": "**30%+**",
       "t3": "**33%+**"
     },
     {
       "stat": "Devastating Hits",
+      "curve": "devastateHit",
       "t1": "**8%+**",
       "t2": "**9%+**",
       "t3": "**10%+**"
     },
     {
       "stat": "Finesse",
+      "curve": "finesse",
       "t1": "**35%-40%**",
       "t2": "**40%-45%**",
       "t3": "**45%-50%**"
     },
     {
       "stat": "Tactical Mitigation",
+      "curve": "lightMitigation",
       "t1": "**40%-45%**",
       "t2": "**45%-50%**",
       "t3": "**50%-55%**"
     },
     {
       "stat": "Physical Mitigation",
+      "curve": "mediumMitigation",
       "t1": "**40%-45%**",
       "t2": "**45%-50%**",
-      "t3": "**50%-55%**"
-    }
-  ],
-  "stats": [
-    {
-      "label": "Critical Hit",
-      "target": "25.0%",
-      "rating": "450,000"
-    },
-    {
-      "label": "Devastate Chance",
-      "target": "10.0%",
-      "rating": "600,000"
-    },
-    {
-      "label": "Devastate Magnitude",
-      "target": "75.0%",
-      "rating": "900,000"
-    },
-    {
-      "label": "Finesse",
-      "target": "50.0%",
-      "rating": "300,000"
-    },
-    {
-      "label": "Primary Mastery (Physical or Tactical)",
-      "target": "up to 200.0%",
-      "rating": "450,000"
+      "t3": "**50%-55%**",
+      "note": "Physical Mitigation cap varies by armor type: Light 40%, Medium 50%, Heavy 60%."
     }
   ]
 }

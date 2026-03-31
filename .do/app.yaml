@@ -7,6 +7,8 @@ static_sites:
     build_command: npm run build
     output_dir: /
     environment_slug: node-js
+    routes:
+      - path: /
     envs:
       - key: GOOGLE_ADSENSE_ACCOUNT
         type: SECRET
@@ -17,3 +19,32 @@ static_sites:
       - key: GOOGLE_TAG_MANAGER_ID
         type: SECRET
         scope: BUILD_TIME
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        type: SECRET
+        scope: BUILD_TIME
+      - key: GOOGLE_OAUTH_CLIENT_SECRET
+        type: SECRET
+        scope: BUILD_TIME
+      - key: EDITOR_ALLOWED_EMAILS
+        type: SECRET
+        scope: BUILD_TIME
+      - key: GITHUB_REPO
+        type: SECRET
+        scope: BUILD_TIME
+      - key: GITHUB_CLIENT_ID
+        type: SECRET
+        scope: BUILD_TIME
+functions:
+  - name: github-auth
+    github:
+      repo: djburkhart/lotroguides.com
+      branch: main
+    source_dir: packages
+    routes:
+      - path: /api
+        preserve_path_prefix: true
+    envs:
+      - key: GITHUB_CLIENT_ID
+        type: SECRET
+      - key: GITHUB_CLIENT_SECRET
+        type: SECRET
