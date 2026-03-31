@@ -1919,3 +1919,157 @@ h1, h2, h3 {
 }
 
 /* (Quest popup styles are now integrated into .lotro-map-popup-details above) */
+
+/* ─── Instance Loot Accordion ───────────────────────────────────────────── */
+.lotro-loot-accordion {
+  margin: 20px 0;
+}
+
+.lotro-loot-boss {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.lotro-loot-boss[open] {
+  border-color: #ccc;
+}
+
+.lotro-loot-boss-name {
+  display: block;
+  padding: 10px 15px;
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+  background: #f5f5f5;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.lotro-loot-boss[open] > .lotro-loot-boss-name {
+  border-bottom-color: #ddd;
+}
+
+.lotro-loot-boss-name::-webkit-details-marker {
+  display: none;
+}
+
+.lotro-loot-boss-name::after {
+  content: '\f078';
+  font-family: 'FontAwesome';
+  font-size: 12px;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  color: #666;
+}
+
+.lotro-loot-boss[open] > .lotro-loot-boss-name::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.lotro-loot-boss-name:hover {
+  background: #e8e8e8;
+}
+
+.lotro-loot-boss-name a.lotro-mob {
+  color: #333;
+  text-decoration: none;
+  border-bottom: 1px dotted #999;
+}
+
+.lotro-loot-boss-name a.lotro-mob:hover {
+  color: var(--lotro-dark-accent);
+}
+
+.lotro-loot-chest {
+  padding: 10px 15px 14px;
+  border-top: 1px solid #eee;
+}
+
+.lotro-loot-chest:first-child {
+  border-top: none;
+}
+
+.lotro-loot-chest-label {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lotro-text);
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.lotro-loot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.lotro-loot-table thead th {
+  text-align: left;
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lotro-gold);
+  background: var(--lotro-dark);
+  padding: 8px 10px;
+}
+
+.lotro-loot-table tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--lotro-parchment-dark);
+  vertical-align: middle;
+  overflow: visible;
+  position: relative;
+}
+
+.lotro-loot-table tbody tr:nth-child(even) {
+  background: var(--lotro-parchment);
+}
+
+.lotro-loot-table tbody tr:hover {
+  background: var(--lotro-parchment-dark);
+}
+
+.lotro-loot-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lotro-drop-chance {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.lotro-drop-guaranteed {
+  color: #3c763d;
+  background: #dff0d8;
+}
+
+.lotro-drop-common {
+  color: #555;
+  background: #f0f0f0;
+}
+
+.lotro-drop-uncommon {
+  color: #8a6d3b;
+  background: #fcf8e3;
+}
+
+.lotro-drop-rare {
+  color: #31708f;
+  background: #d9edf7;
+}

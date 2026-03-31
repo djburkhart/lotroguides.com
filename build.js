@@ -11,12 +11,321 @@ const OUTPUT_DIR = __dirname; // Output into lotro/ root
 const ASSETS_PREFIX = '';   // Relative path to parent theme assets
 const SITE_BASE_URL = 'https://lotroguides.com';
 const GOOGLE_ADSENSE_ACCOUNT = process.env.GOOGLE_ADSENSE_ACCOUNT || '';
+const GOOGLE_ANALYTICS_ID = process.env.GOOGLE_ANALYTICS_ID || '';
+const GOOGLE_TAG_MANAGER_ID = process.env.GOOGLE_TAG_MANAGER_ID || '';
 const LORE_DIR = path.join(__dirname, 'data', 'lore');
+const MEDIA_VIDEOS_PATH = path.join(CONTENT_DIR, 'media', 'videos.json');
+const NAVIGATION_PATH = path.join(CONTENT_DIR, 'navigation.json');
+const DPS_REFERENCE_PATH = path.join(CONTENT_DIR, 'stats', 'dps-reference.json');
+const INSTANCE_LOOT_REFERENCE_PATH = path.join(CONTENT_DIR, 'instances', 'loot-reference.json');
 
 // ─── Lore / Item Index ─────────────────────────────────────────────────────
 let itemIndex = {};
 let questIndex = {};
 let mapMarkerIndexCache = null;
+let dpsReferenceCache = null;
+let instanceLootReferenceCache = null;
+
+function loadInstanceLootReferenceConfig() {
+  if (instanceLootReferenceCache) return instanceLootReferenceCache;
+
+  if (!fs.existsSync(INSTANCE_LOOT_REFERENCE_PATH)) {
+    instanceLootReferenceCache = {};
+    return instanceLootReferenceCache;
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(INSTANCE_LOOT_REFERENCE_PATH, 'utf8'));
+    instanceLootReferenceCache = parsed && typeof parsed === 'object' ? parsed : {};
+    return instanceLootReferenceCache;
+  } catch (err) {
+    console.warn(`   ⚠ Failed to parse instance loot reference JSON: ${err.message}`);
+    instanceLootReferenceCache = {};
+    return instanceLootReferenceCache;
+  }
+}
+
+function loadDpsReferenceConfig() {
+  if (dpsReferenceCache) return dpsReferenceCache;
+
+  const fallback = {
+    title: 'Desired Stat Percentages (Raid Targets)',
+    intro: 'Quick offensive targets adapted from Giseldah\'s LOTRO stat calculator for DPS-oriented builds.',
+    sourceLabel: 'Open Giseldah Stat Calculator',
+    sourceUrl: 'https://giseldah.github.io/',
+    sourceNote: 'for class-specific tuning and current breakpoints.',
+    sectionHeading: 'Desired Stat Percentages (Raid Targets)',
+    appliesTo: ['class', 'raid'],
+    tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
+    tableRows: [
+      { stat: 'Physical Mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
+      { stat: 'Critical Rating', t1: '**28%+**', t2: '**30%+**', t3: '**33%+**' },
+      { stat: 'Devastating Hits', t1: '**8%+**', t2: '**9%+**', t3: '**10%+**' },
+      { stat: 'Finesse', t1: '**35%-40%**', t2: '**40%-45%**', t3: '**45%-50%**' },
+      { stat: 'Tactical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
+      { stat: 'Physical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
+    ],
+    stats: [
+      { label: 'Critical Hit', target: '25.0%', rating: '450,000' },
+      { label: 'Devastate Chance', target: '10.0%', rating: '600,000' },
+      { label: 'Devastate Magnitude', target: '75.0%', rating: '900,000' },
+      { label: 'Finesse', target: '50.0%', rating: '300,000' },
+      { label: 'Primary Mastery (Physical or Tactical)', target: 'up to 200.0%', rating: '450,000' },
+    ],
+  };
+
+  if (!fs.existsSync(DPS_REFERENCE_PATH)) {
+    dpsReferenceCache = fallback;
+    return dpsReferenceCache;
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(DPS_REFERENCE_PATH, 'utf8'));
+    if (!parsed || typeof parsed !== 'object') {
+      dpsReferenceCache = fallback;
+      return dpsReferenceCache;
+    }
+
+    dpsReferenceCache = {
+      title: parsed.title || fallback.title,
+      intro: parsed.intro || fallback.intro,
+      sourceLabel: parsed.sourceLabel || fallback.sourceLabel,
+      sourceUrl: parsed.sourceUrl || fallback.sourceUrl,
+      sourceNote: parsed.sourceNote || fallback.sourceNote,
+      sectionHeading: parsed.sectionHeading || fallback.sectionHeading,
+      appliesTo: Array.isArray(parsed.appliesTo) ? parsed.appliesTo : fallback.appliesTo,
+      tableColumns: Array.isArray(parsed.tableColumns) ? parsed.tableColumns : fallback.tableColumns,
+      tableRows: Array.isArray(parsed.tableRows) ? parsed.tableRows : fallback.tableRows,
+      stats: Array.isArray(parsed.stats) ? parsed.stats : fallback.stats,
+    };
+    return dpsReferenceCache;
+  } catch (err) {
+    console.warn(`   ⚠ Failed to parse DPS reference JSON: ${err.message}`);
+    dpsReferenceCache = fallback;
+    return dpsReferenceCache;
+  }
+}
+
+function buildDpsReferenceMarkdownTable() {
+  const dpsRef = loadDpsReferenceConfig();
+  const cols = Array.isArray(dpsRef.tableColumns) ? dpsRef.tableColumns : [];
+  const rows = Array.isArray(dpsRef.tableRows) ? dpsRef.tableRows : [];
+  if (cols.length < 2 || !rows.length) return '';
+
+  const align = cols.map(() => '---').join(' | ');
+  const header = `| ${cols.join(' | ')} |`;
+  const separator = `|${align}|`;
+  const body = rows.map(r => {
+    const vals = [
+      String(r.stat || ''),
+      String(r.t1 || ''),
+      String(r.t2 || ''),
+      String(r.t3 || ''),
+    ];
+    return `| ${vals.join(' | ')} |`;
+  }).join('\n');
+
+  return [header, separator, body].join('\n');
+}
+
+function buildInstanceLootReferenceMarkdown(slug) {
+  const refs = loadInstanceLootReferenceConfig();
+  const entry = refs[slug];
+  if (!entry) return '';
+
+  const lines = [
+    `> **Loot Reference:** [${entry.label}](${entry.url})`,
+  ];
+
+  if (entry.levelRange || entry.groupSize) {
+    const meta = [];
+    if (entry.levelRange) meta.push(`Level Range: ${entry.levelRange}`);
+    if (entry.groupSize) meta.push(`Group Size: ${entry.groupSize}`);
+    lines.push(`> ${meta.join(' | ')}`);
+  }
+
+  if (entry.notes) {
+    lines.push('');
+    lines.push(entry.notes);
+  }
+
+  // Insert a placeholder that survives marked() + autolinkers;
+  // the real accordion HTML is injected later by expandLootAccordionPlaceholders()
+  const bosses = Array.isArray(entry.bosses) ? entry.bosses : [];
+  if (bosses.length) {
+    lines.push('');
+    lines.push(`<!--LOTRO_LOOT_ACCORDION:${slug}-->`);
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Build the full accordion HTML for an instance's boss loot tables.
+ * Called post-autolink so boss names don't get partial mob-link matches.
+ */
+function buildLootAccordionHtml(slug) {
+  const refs = loadInstanceLootReferenceConfig();
+  const entry = refs[slug];
+  if (!entry) return '';
+
+  const bosses = Array.isArray(entry.bosses) ? entry.bosses : [];
+  if (!bosses.length) return '';
+
+  const lines = ['<div class="lotro-loot-accordion">'];
+
+  for (const boss of bosses) {
+    const bossName = String(boss.name || '').trim();
+    if (!bossName) continue;
+
+    // Resolve boss name to mob link if available
+    const bossEntry = itemIndex[bossName];
+    const bossLabel = bossEntry && bossEntry.type === 'mob'
+      ? `<a href="../mobs.html?id=${bossEntry.id}" class="lotro-mob">${bossName}</a>`
+      : bossName;
+
+    lines.push(`<details class="lotro-loot-boss">`);
+    lines.push(`<summary class="lotro-loot-boss-name">${bossLabel}</summary>`);
+
+    const chests = Array.isArray(boss.chests) ? boss.chests : [];
+    for (const chest of chests) {
+      const chestLabel = String(chest.label || chest.tier || '').trim();
+      const chestItems = Array.isArray(chest.items) ? chest.items : [];
+      if (!chestItems.length) continue;
+
+      lines.push(`<div class="lotro-loot-chest">`);
+      lines.push(`<h5 class="lotro-loot-chest-label">${chestLabel}</h5>`);
+      lines.push(`<table class="lotro-loot-table">`);
+      lines.push(`<thead><tr><th>Item</th><th>Drop Chance</th></tr></thead>`);
+      lines.push(`<tbody>`);
+
+      for (const lootItem of chestItems) {
+        const itemName = String(lootItem.name || '').trim();
+        if (!itemName) continue;
+
+        const dbItem = itemIndex[itemName];
+        const qualityClass = dbItem && dbItem.quality ? ` lotro-${dbItem.quality}` : '';
+
+        // Build tooltip from loot-reference stats (preferred) or itemIndex stats
+        let tooltipAttr = '';
+        const statsSource = lootItem.stats || (dbItem && dbItem.stats);
+        if (statsSource && statsSource.length) {
+          const parts = [];
+          // Header: slot + level + scaling indicator
+          const slot = lootItem.slot || (dbItem && dbItem.slot) || '';
+          const level = lootItem.level || (dbItem && dbItem.level) || 0;
+          if (slot || level) {
+            let header = '';
+            if (slot) header += slot.replace(/\b\w/g, c => c.toUpperCase());
+            if (level) header += (header ? ' · ' : '') + 'iLvl ' + level;
+            if (lootItem.scaling) header += ' · ⚖ Scales';
+            parts.push(header);
+          }
+          // Stats
+          const statKey = s => s.stat || s.s;
+          const statVal = s => s.value !== undefined ? s.value : s.v;
+          const statLines = statsSource
+            .filter(s => statVal(s) !== 0)
+            .slice(0, 6)
+            .map(s => `${statKey(s)}: ${Number(statVal(s)).toLocaleString()}`);
+          parts.push(...statLines);
+          tooltipAttr = ` data-item-stats="${parts.join(' · ').replace(/"/g, '&quot;')}"`;
+        }
+
+        const itemHtml = dbItem
+          ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${itemName}</a>`
+          : (tooltipAttr ? `<span class="lotro-item"${tooltipAttr}>${itemName}</span>` : itemName);
+
+        const dropChance = String(lootItem.drop || '').trim();
+        const dropClass = dropChance ? ` lotro-drop-${dropChance.toLowerCase()}` : '';
+
+        lines.push(`<tr><td>${itemHtml}</td><td><span class="lotro-drop-chance${dropClass}">${dropChance}</span></td></tr>`);
+      }
+
+      lines.push(`</tbody></table>`);
+      lines.push(`</div>`);
+    }
+
+    lines.push(`</details>`);
+  }
+
+  lines.push('</div>');
+  return lines.join('\n');
+}
+
+/**
+ * Replace <!--LOTRO_LOOT_ACCORDION:slug--> placeholders with real HTML.
+ * Must be called after autolinkers have run.
+ */
+function expandLootAccordionPlaceholders(html) {
+  return html.replace(/<!--LOTRO_LOOT_ACCORDION:([\w-]+)-->/g, (_, slug) => buildLootAccordionHtml(slug));
+}
+
+function normalizeGuideDpsTableContent(markdown, fileName) {
+  const dpsRef = loadDpsReferenceConfig();
+  const sectionHeading = String(dpsRef.sectionHeading || dpsRef.title || '').trim();
+  if (!sectionHeading) return markdown;
+
+  const token = '{{dpsStatTable}}';
+  const headingRegex = new RegExp(`(^##\\s+${sectionHeading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$)`, 'im');
+  const headingMatch = headingRegex.exec(markdown);
+  if (!headingMatch) return markdown;
+
+  // Already using preferred token format.
+  if (markdown.includes(token)) return markdown;
+
+  const sectionStart = headingMatch.index + headingMatch[0].length;
+  const rest = markdown.slice(sectionStart);
+
+  // Find the first markdown table in this section.
+  const tableRegex = /(^\|.+\|\s*$\r?\n^\|[-:\s|]+\|\s*(?:\r?\n^\|.*\|\s*)+)/m;
+  const tableMatch = tableRegex.exec(rest);
+  if (!tableMatch) return markdown;
+
+  const before = markdown.slice(0, sectionStart);
+  const tableStartInRest = tableMatch.index;
+  const tableEndInRest = tableStartInRest + tableMatch[0].length;
+  const between = rest.slice(0, tableStartInRest);
+  const after = rest.slice(tableEndInRest);
+
+  console.log(`   ℹ Normalized DPS table token in guides/${fileName}`);
+  return `${before}${between}${token}\n\n${after}`;
+}
+
+function normalizeGuideInstanceLootReferenceContent(markdown, fileName, slug) {
+  const refs = loadInstanceLootReferenceConfig();
+  if (!refs[slug]) return markdown;
+
+  const heading = '## Instance Loot Reference';
+  const token = '{{instanceLootReference}}';
+
+  if (markdown.includes(token)) return markdown;
+
+  const headingRegex = new RegExp(`(^##\\s+${heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$)`, 'im');
+  const headingMatch = headingRegex.exec(markdown);
+
+  if (headingMatch) {
+    const sectionStart = headingMatch.index + headingMatch[0].length;
+    const rest = markdown.slice(sectionStart);
+    const nextHeadingMatch = /^##\s+/m.exec(rest);
+    const sectionEnd = nextHeadingMatch ? sectionStart + nextHeadingMatch.index : markdown.length;
+    const before = markdown.slice(0, sectionStart);
+    const after = markdown.slice(sectionEnd);
+
+    console.log(`   ℹ Normalized instance loot token in guides/${fileName}`);
+    return `${before}\n\n${token}\n\n${after.replace(/^\s+/, '')}`;
+  }
+
+  const sectionBlock = `${heading}\n\n${token}\n\n`;
+  const dividerMatch = /^---\s*$/m.exec(markdown);
+  if (dividerMatch) {
+    console.log(`   ℹ Inserted instance loot token in guides/${fileName}`);
+    return `${markdown.slice(0, dividerMatch.index)}${sectionBlock}${markdown.slice(dividerMatch.index)}`;
+  }
+
+  console.log(`   ℹ Appended instance loot token in guides/${fileName}`);
+  return `${markdown.trimEnd()}\n\n${sectionBlock}`;
+}
 
 function loadItemIndex() {
   const indexPath = path.join(LORE_DIR, 'item-index.json');
@@ -96,6 +405,24 @@ function findMarkerLocation(markerIndex, did, label) {
   return null;
 }
 
+function createProtectedHtmlStore(html) {
+  const fragments = [];
+
+  function protect(fragment) {
+    const token = `@@LOTRO_HTML_FRAGMENT_${fragments.length}@@`;
+    fragments.push(fragment);
+    return token;
+  }
+
+  return {
+    html: html.replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, (match) => protect(match)),
+    protect,
+    restore(value) {
+      return value.replace(/@@LOTRO_HTML_FRAGMENT_(\d+)@@/g, (_, index) => fragments[Number(index)] || '');
+    },
+  };
+}
+
 /**
  * Auto-link known item/consumable/mob names within HTML content.
  * - Only matches names 8+ chars to avoid false positives
@@ -106,6 +433,8 @@ function findMarkerLocation(markerIndex, did, label) {
  */
 function autoLinkItems(html) {
   if (!Object.keys(itemIndex).length) return html;
+  const protectedAnchors = createProtectedHtmlStore(html);
+  html = protectedAnchors.html;
 
   // Build list of names to match: 8+ chars, sorted longest-first.
   // Keep deed/set linking in their dedicated linkers to avoid overlap.
@@ -114,7 +443,7 @@ function autoLinkItems(html) {
     .filter(n => n.length >= 8 && allowedTypes.has(itemIndex[n].type))
     .sort((a, b) => b.length - a.length);
 
-  if (!names.length) return html;
+  if (!names.length) return protectedAnchors.restore(html);
 
   const linked = new Set();
 
@@ -146,14 +475,14 @@ function autoLinkItems(html) {
         tooltipData = ` data-item-stats="${statStr.replace(/"/g, '&quot;')}"`;
       }
 
-      const replacement = `<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${match[0]}</a>`;
+      const replacement = protectedAnchors.protect(`<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
     }
   }
 
-  return html;
+  return protectedAnchors.restore(html);
 }
 
 /**
@@ -162,12 +491,14 @@ function autoLinkItems(html) {
  */
 function autoLinkMobs(html) {
   if (!Object.keys(itemIndex).length) return html;
+  const protectedAnchors = createProtectedHtmlStore(html);
+  html = protectedAnchors.html;
 
   const names = Object.keys(itemIndex)
     .filter(n => n.length >= 8 && itemIndex[n].type === 'mob')
     .sort((a, b) => b.length - a.length);
 
-  if (!names.length) return html;
+  if (!names.length) return protectedAnchors.restore(html);
 
   const linked = new Set();
 
@@ -183,14 +514,14 @@ function autoLinkMobs(html) {
       const mobUrl = `../mobs.html?id=${entry.id}`;
       const genusInfo = entry.genus ? ` data-mob-genus="${entry.genus}"` : '';
       const speciesInfo = entry.species ? ` data-mob-species="${entry.species}"` : '';
-      const replacement = `<a href="${mobUrl}" class="lotro-mob" data-mob-id="${entry.id}"${genusInfo}${speciesInfo}>${match[0]}</a>`;
+      const replacement = protectedAnchors.protect(`<a href="${mobUrl}" class="lotro-mob" data-mob-id="${entry.id}"${genusInfo}${speciesInfo}>${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
     }
   }
 
-  return html;
+  return protectedAnchors.restore(html);
 }
 
 /**
@@ -198,12 +529,14 @@ function autoLinkMobs(html) {
  */
 function autoLinkSets(html) {
   if (!Object.keys(itemIndex).length) return html;
+  const protectedAnchors = createProtectedHtmlStore(html);
+  html = protectedAnchors.html;
 
   const names = Object.keys(itemIndex)
     .filter(n => n.length >= 10 && itemIndex[n].type === 'set')
     .sort((a, b) => b.length - a.length);
 
-  if (!names.length) return html;
+  if (!names.length) return protectedAnchors.restore(html);
 
   const linked = new Set();
 
@@ -217,14 +550,14 @@ function autoLinkSets(html) {
     if (match) {
       const entry = itemIndex[name];
       const setUrl = `../sets.html?id=${entry.id}`;
-      const replacement = `<a href="${setUrl}" class="lotro-set" data-set-id="${entry.id}">${match[0]}</a>`;
+      const replacement = protectedAnchors.protect(`<a href="${setUrl}" class="lotro-set" data-set-id="${entry.id}">${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
     }
   }
 
-  return html;
+  return protectedAnchors.restore(html);
 }
 
 /**
@@ -232,12 +565,14 @@ function autoLinkSets(html) {
  */
 function autoLinkDeeds(html) {
   if (!Object.keys(itemIndex).length) return html;
+  const protectedAnchors = createProtectedHtmlStore(html);
+  html = protectedAnchors.html;
 
   const names = Object.keys(itemIndex)
     .filter(n => n.length >= 10 && itemIndex[n].type === 'deed')
     .sort((a, b) => b.length - a.length);
 
-  if (!names.length) return html;
+  if (!names.length) return protectedAnchors.restore(html);
 
   const linked = new Set();
 
@@ -251,14 +586,14 @@ function autoLinkDeeds(html) {
     if (match) {
       const entry = itemIndex[name];
       const deedUrl = `../deeds.html?id=${entry.id}`;
-      const replacement = `<a href="${deedUrl}" class="lotro-deed" data-deed-type="${entry.deedType || ''}">${match[0]}</a>`;
+      const replacement = protectedAnchors.protect(`<a href="${deedUrl}" class="lotro-deed" data-deed-type="${entry.deedType || ''}">${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
     }
   }
 
-  return html;
+  return protectedAnchors.restore(html);
 }
 
 /**
@@ -266,6 +601,8 @@ function autoLinkDeeds(html) {
  */
 function autoLinkQuests(html) {
   if (!Object.keys(questIndex).length) return html;
+  const protectedAnchors = createProtectedHtmlStore(html);
+  html = protectedAnchors.html;
 
   const deedNames = new Set(
     Object.keys(itemIndex).filter(n => itemIndex[n].type === 'deed')
@@ -277,7 +614,7 @@ function autoLinkQuests(html) {
     .filter(n => !deedNames.has(n))
     .sort((a, b) => b.length - a.length);
 
-  if (!names.length) return html;
+  if (!names.length) return protectedAnchors.restore(html);
 
   const linked = new Set();
 
@@ -298,14 +635,14 @@ function autoLinkQuests(html) {
       const questUrl = `../quests.html?id=${entry.id}`;
       const levelInfo = entry.lv ? ` data-quest-level="${entry.lv}"` : '';
       const catInfo = entry.cat ? ` data-quest-category="${String(entry.cat).replace(/"/g, '&quot;')}"` : '';
-      const replacement = `<a href="${questUrl}" class="lotro-quest"${levelInfo}${catInfo}>${match[0]}</a>`;
+      const replacement = protectedAnchors.protect(`<a href="${questUrl}" class="lotro-quest"${levelInfo}${catInfo}>${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
     }
   }
 
-  return html;
+  return protectedAnchors.restore(html);
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -440,10 +777,95 @@ function render(template, data) {
   });
 }
 
+function resolveNavUrl(siteRoot, url) {
+  if (!url) return '#';
+  if (/^(https?:)?\/\//i.test(url) || url.startsWith('#') || url.startsWith('mailto:')) {
+    return url;
+  }
+  return `./${siteRoot}${url}`;
+}
+
+function loadNavigationConfig() {
+  if (!fs.existsSync(NAVIGATION_PATH)) {
+    console.log('   ℹ No navigation file found at content/navigation.json');
+    return { header: [], footer: { primary: [], secondary: [] } };
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(NAVIGATION_PATH, 'utf8'));
+
+    // Backward compatibility: a bare array means header-only config.
+    if (Array.isArray(parsed)) {
+      return { header: parsed, footer: { primary: [], secondary: [] } };
+    }
+
+    const header = Array.isArray(parsed.header) ? parsed.header : [];
+    const footer = parsed.footer && typeof parsed.footer === 'object' ? parsed.footer : {};
+
+    return {
+      header,
+      footer: {
+        primary: Array.isArray(footer.primary) ? footer.primary : [],
+        secondary: Array.isArray(footer.secondary) ? footer.secondary : [],
+      },
+    };
+  } catch (err) {
+    console.warn(`   ⚠ Failed to parse navigation JSON: ${err.message}`);
+    return { header: [], footer: { primary: [], secondary: [] } };
+  }
+}
+
+function buildNavigationItems(pageData) {
+  const siteRoot = pageData.siteRoot || '';
+  const navConfig = loadNavigationConfig().header;
+
+  return navConfig.map(item => {
+    const activeOn = Array.isArray(item.activeOn) ? item.activeOn : [];
+    const isActive = activeOn.includes(pageData.currentPage);
+    const staticChildren = Array.isArray(item.children) ? item.children : [];
+    const dynamicKey = item.childrenFrom;
+    const dynamicChildren = typeof pageData[dynamicKey] === 'string' ? pageData[dynamicKey] : '';
+    const hasChildren = staticChildren.length > 0 || Boolean(dynamicChildren);
+
+    const liClass = [hasChildren ? 'has-dropdown' : '', isActive ? 'active' : '']
+      .filter(Boolean)
+      .join(' ');
+
+    const parentHref = resolveNavUrl(siteRoot, item.url);
+    const parent = `<a href="${parentHref}">${item.label}</a>`;
+    if (!hasChildren) {
+      return `<li class="${liClass}">${parent}</li>`;
+    }
+
+    const staticHtml = staticChildren.map(child =>
+      `<li><a href="${resolveNavUrl(siteRoot, child.url)}">${child.label}</a></li>`
+    ).join('\n                      ');
+
+    const childBits = [staticHtml, dynamicChildren].filter(Boolean).join('\n                      ');
+    return `<li class="${liClass}">${parent}\n                    <ul>\n                      ${childBits}\n                    </ul>\n                  </li>`;
+  }).join('\n                  ');
+}
+
+function buildFooterLinks(pageData) {
+  const siteRoot = pageData.siteRoot || '';
+  const footer = loadNavigationConfig().footer;
+
+  const renderLinks = (links) => links.map(link =>
+    `<li><a href="${resolveNavUrl(siteRoot, link.url)}">${link.label}</a></li>`
+  ).join('\n                  ');
+
+  return {
+    footerLinksPrimary: renderLinks(footer.primary),
+    footerLinksSecondary: renderLinks(footer.secondary),
+  };
+}
+
 function buildPage(bodyContent, pageData) {
   const baseTemplate = readTemplate('base.html');
   const assetsPrefix = pageData.assets || ASSETS_PREFIX;
   const siteRoot = pageData.siteRoot || '';
+  const navItems = buildNavigationItems(pageData);
+  const footerLinks = buildFooterLinks(pageData);
   return render(baseTemplate, {
     title: pageData.title || 'LOTRO Guides & News',
     metaDescription: pageData.metaDescription || 'Lord of the Rings Online guides, news, and community content.',
@@ -462,12 +884,26 @@ function buildPage(bodyContent, pageData) {
     currentDeeds: pageData.currentPage === 'deeds' ? 'active' : '',
     currentQuests: pageData.currentPage === 'quests' ? 'active' : '',
     currentMap: pageData.currentPage === 'map' ? 'active' : '',
+    currentMedia: pageData.currentPage === 'media' ? 'active' : '',
     siteRoot,
+    navItems,
+    footerLinksPrimary: footerLinks.footerLinksPrimary,
+    footerLinksSecondary: footerLinks.footerLinksSecondary,
     guideNavItems: pageData.guideNavItems || '',
     newsNavItems: pageData.newsNavItems || '',
     ogUrl: pageData.ogUrl || SITE_BASE_URL,
     ogImage: pageData.ogImage || `${SITE_BASE_URL}/img/default.jpg`,
     googleAdsenseAccount: GOOGLE_ADSENSE_ACCOUNT,
+    googleAnalyticsId: GOOGLE_ANALYTICS_ID,
+    gtagScript: GOOGLE_ANALYTICS_ID
+      ? `<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag('js', new Date());\n  gtag('config', '${GOOGLE_ANALYTICS_ID}');\n</script>`
+      : '',
+    gtmHeadScript: GOOGLE_TAG_MANAGER_ID
+      ? `<!-- Google Tag Manager -->\n<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':\nnew Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],\nj=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=\n'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);\n})(window,document,'script','dataLayer','${GOOGLE_TAG_MANAGER_ID}');</script>\n<!-- End Google Tag Manager -->`
+      : '',
+    gtmBodyNoscript: GOOGLE_TAG_MANAGER_ID
+      ? `<!-- Google Tag Manager (noscript) -->\n<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${GOOGLE_TAG_MANAGER_ID}"\nheight="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n<!-- End Google Tag Manager (noscript) -->`
+      : '',
   });
 }
 
@@ -480,7 +916,20 @@ function loadContent(subdir) {
   return files.map(file => {
     const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
     const { data, content } = matter(raw);
-    const htmlContent = marked(content);
+    let resolvedContent = content;
+    if (subdir === 'guides') {
+      const slug = path.basename(file, '.md');
+      resolvedContent = normalizeGuideDpsTableContent(resolvedContent, file);
+      resolvedContent = normalizeGuideInstanceLootReferenceContent(resolvedContent, file, slug);
+      if (resolvedContent.includes('{{dpsStatTable}}')) {
+        resolvedContent = resolvedContent.replace(/\{\{dpsStatTable\}\}/g, buildDpsReferenceMarkdownTable());
+      }
+      if (resolvedContent.includes('{{instanceLootReference}}')) {
+        resolvedContent = resolvedContent.replace(/\{\{instanceLootReference\}\}/g, buildInstanceLootReferenceMarkdown(slug));
+      }
+    }
+
+    const htmlContent = marked(resolvedContent);
     const slug = path.basename(file, '.md');
 
     // Normalize image path to be relative to lotro/ root
@@ -580,10 +1029,61 @@ function classifyGuide(post) {
   return 'general';
 }
 
+function buildDpsStatPanel(post) {
+  if (!post || post.category !== 'guides') return '';
+
+  const guideType = classifyGuide(post);
+  const dpsRef = loadDpsReferenceConfig();
+  const appliesTo = (dpsRef.appliesTo || []).map(v => String(v).toLowerCase());
+  if (!appliesTo.includes(guideType)) return '';
+
+  // Prefer a guide-authored stat table under the configured section heading.
+  const sectionHeading = String(dpsRef.sectionHeading || dpsRef.title || '').trim();
+  let extractedTableHtml = '';
+  if (sectionHeading && typeof post.content === 'string') {
+    const headingRegex = new RegExp(`<h[1-6][^>]*>\\s*${sectionHeading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*<\\/h[1-6]>`, 'i');
+    const headingMatch = headingRegex.exec(post.content);
+    if (headingMatch) {
+      const afterHeading = post.content.slice(headingMatch.index + headingMatch[0].length);
+      const tableMatch = afterHeading.match(/<table>[\s\S]*?<\/table>/i);
+      if (tableMatch) {
+        extractedTableHtml = tableMatch[0].replace('<table>', '<table class="table table-striped table-condensed m-b-10">');
+      }
+    }
+  }
+
+  // If the guide already has the desired stat table in its content section
+  // (typically via {{dpsStatTable}}), do not inject a duplicate panel copy.
+  if (extractedTableHtml) return '';
+
+  const statRows = (dpsRef.stats || []).map(stat => {
+    const label = String(stat.label || '').trim();
+    const target = String(stat.target || '').trim();
+    const rating = String(stat.rating || '').trim();
+    const note = String(stat.note || '').trim();
+    if (!label || !target || !rating) return '';
+
+    const suffix = note ? ` ${note}` : '';
+    return `      <li>${label}: ${target} (about ${rating} rating)${suffix}</li>`;
+  }).filter(Boolean).join('\n');
+
+  if (!statRows) return '';
+
+  return [
+    '<div class="panel panel-default m-t-30">',
+    `  <div class="panel-heading"><strong>${dpsRef.title}</strong></div>`,
+    '  <div class="panel-body">',
+    `    <p class="m-b-10">${dpsRef.intro}</p>`,
+    ['    <ul class="m-b-10">', statRows, '    </ul>'].join('\n'),
+    `    <p class="m-b-0"><a href="${dpsRef.sourceUrl}" target="_blank" rel="noopener noreferrer">${dpsRef.sourceLabel}</a> ${dpsRef.sourceNote}</p>`,
+    '  </div>',
+    '</div>',
+  ].join('\n');
+}
+
 function buildGuideQuickNavLinks(siteRoot) {
   const root = `./${siteRoot}guides.html`;
   const links = [
-    { key: 'all', label: 'All Guides' },
     { key: 'raid', label: 'Raid Guides' },
     { key: 'class', label: 'Class Guides' },
     { key: 'leveling', label: 'Leveling Guides' },
@@ -591,10 +1091,8 @@ function buildGuideQuickNavLinks(siteRoot) {
     { key: 'general', label: 'General Guides' },
   ];
 
-  return links.map(l => {
-    const href = l.key === 'all' ? root : `${root}?filter=${l.key}`;
-    return `<li><a href="${href}">${l.label}</a></li>`;
-  }).join('\n                      ');
+  return links.map(l => `<li><a href="${root}?filter=${l.key}">${l.label}</a></li>`)
+    .join('\n                      ');
 }
 
 // ─── Page Generators ────────────────────────────────────────────────────────
@@ -755,6 +1253,7 @@ function buildArticle(post, relatedPosts, navData) {
   const postImg = post.image
     ? (post.image.startsWith('http') ? post.image : `../${post.image}`)
     : '../img/default.jpg';
+  const dpsStatPanel = buildDpsStatPanel(post);
   const articleUrl = `${SITE_BASE_URL}/${post.url}`;
   const encodedTitle = encodeURIComponent(post.title);
   const ogImage = post.image && post.image.startsWith('http')
@@ -765,7 +1264,8 @@ function buildArticle(post, relatedPosts, navData) {
     date: post.formattedDate,
     author: post.author || 'Amdor',
     image: postImg,
-    content: autoLinkQuests(autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content))))),
+    content: expandLootAccordionPlaceholders(autoLinkQuests(autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content)))))),
+    dpsStatPanel,
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
     categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
@@ -1373,6 +1873,80 @@ function buildMapPage(navData) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'map.html'), html);
 }
 
+// ─── Media Page ─────────────────────────────────────────────────────────────
+
+function loadMediaVideos() {
+  if (!fs.existsSync(MEDIA_VIDEOS_PATH)) {
+    console.log('   ℹ No media videos file found at content/media/videos.json');
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(MEDIA_VIDEOS_PATH, 'utf8'));
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch (err) {
+    console.warn(`   ⚠ Failed to parse media videos JSON: ${err.message}`);
+    return [];
+  }
+}
+
+function extractYouTubeId(input) {
+  const value = String(input || '').trim();
+  if (!value) return '';
+
+  const shortMatch = value.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/i);
+  if (shortMatch) return shortMatch[1];
+
+  const embedMatch = value.match(/youtube\.com\/embed\/([A-Za-z0-9_-]{6,})/i);
+  if (embedMatch) return embedMatch[1];
+
+  const watchMatch = value.match(/[?&]v=([A-Za-z0-9_-]{6,})/i);
+  if (watchMatch) return watchMatch[1];
+
+  // Support passing a raw video ID in the list.
+  return /^[A-Za-z0-9_-]{6,}$/.test(value) ? value : '';
+}
+
+function buildMediaPage(navData) {
+  const template = readTemplate('media-content.html');
+  const videos = loadMediaVideos()
+    .map(v => ({
+      title: String(v.title || '').trim() || 'LOTRO Video',
+      description: v.description || '',
+      youtubeId: extractYouTubeId(v.url || v.youtubeId),
+    }))
+    .filter(v => v.youtubeId);
+
+  const videoCards = videos.map(video => `
+      <div class="col-12 col-md-6 m-b-30">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="embed-responsive embed-responsive-16by9 m-b-15">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/${video.youtubeId}" title="${video.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <h4 class="m-b-10">${video.title}</h4>
+            <p class="text-muted m-b-10">${video.description}</p>
+            <a class="btn btn-sm btn-default" href="https://youtu.be/${video.youtubeId}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+          </div>
+        </div>
+      </div>`).join('\n');
+
+  const body = render(template, {
+    videoCount: String(videos.length),
+    videoCards,
+  });
+
+  const html = buildPage(body, {
+    title: 'Media Gallery - LOTRO Guides',
+    metaDescription: 'Watch LOTRO videos from the community in our embedded media gallery.',
+    currentPage: 'media',
+    ...navData,
+  });
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'media.html'), html);
+}
+
 // ─── Main Build ─────────────────────────────────────────────────────────────
 
 async function build() {
@@ -1402,10 +1976,10 @@ async function build() {
 
   console.log(`   Found ${allGuides.length} guides (${legacyGuides.length} legacy), ${allNews.length} news (${legacyNews.length} legacy)`);
 
-  // Build nav items from content (latest 5 each)
-  const guideNav = [buildGuideQuickNavLinks(''), buildNavItems(allGuides, '', 5)].filter(Boolean).join('\n                      ');
+  // Build nav items from content (guides use category links only)
+  const guideNav = buildGuideQuickNavLinks('');
   const newsNav = buildNavItems(allNews, '', 5);
-  const guideNavArticle = [buildGuideQuickNavLinks('../'), buildNavItems(allGuides, '../', 5)].filter(Boolean).join('\n                      ');
+  const guideNavArticle = buildGuideQuickNavLinks('../');
   const newsNavArticle = buildNavItems(allNews, '../', 5);
 
   // Ensure output directories
@@ -1432,6 +2006,10 @@ async function build() {
     newsNavItems: newsNav,
   })));
   console.log('   ✓ about.html');
+
+  // Build media page
+  buildMediaPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ media.html');
 
   // Build items database page
   buildItemsPage({ guideNavItems: guideNav, newsNavItems: newsNav });

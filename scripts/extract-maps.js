@@ -221,7 +221,15 @@ function assignMarkersToMaps(maps, markers) {
           child.min.lat >= region.min.lat && child.max.lat <= region.max.lat) {
         const childMarkers = mapMarkers[child.id];
         if (childMarkers) {
-          for (const idx of childMarkers) collected.add(idx);
+          for (const idx of childMarkers) {
+            const mk = markers[idx];
+            if (!mk) continue;
+            if (mk.lng < region.min.lng || mk.lng > region.max.lng ||
+                mk.lat < region.min.lat || mk.lat > region.max.lat) {
+              continue;
+            }
+            collected.add(idx);
+          }
         }
       }
     }
@@ -299,6 +307,7 @@ function main() {
   const links = extractLinks();
   const markers = extractMarkers();
   const mapMarkers = assignMarkersToMaps(maps, markers);
+  const mapById = Object.fromEntries(maps.map(m => [m.id, m]));
   const majorMapIds = getMajorMaps(maps, mapMarkers, links);
 
   // Copy category icon PNGs to site assets
@@ -335,8 +344,16 @@ function main() {
 
   let writtenMaps = 0;
   let totalDeduped = 0;
+  let totalOutOfBoundsFiltered = 0;
   for (const [mapId, indices] of Object.entries(mapMarkers)) {
-    const raw = indices.map(i => markers[i]);
+    const mapDef = mapById[mapId];
+    const raw = indices
+      .map(i => markers[i])
+      .filter(m => m && (!mapDef || (
+        m.lng >= mapDef.min.lng && m.lng <= mapDef.max.lng &&
+        m.lat >= mapDef.min.lat && m.lat <= mapDef.max.lat
+      )));
+    totalOutOfBoundsFiltered += indices.length - raw.length;
     // Deduplicate exact duplicate POIs emitted under different marker ids.
     const seen = new Set();
     const deduped = [];
@@ -380,6 +397,7 @@ function main() {
   console.log(`   Maps: ${maps.length}, Markers: ${markers.length}, Links: ${links.length}`);
   console.log(`   Per-map marker files: ${writtenMaps}`);
   console.log(`   Duplicate markers removed: ${totalDeduped}`);
+  console.log(`   Out-of-bounds markers filtered: ${totalOutOfBoundsFiltered}`);
   console.log(`   Major maps: ${majorMapIds.size}`);
   console.log(`   Core data size: ${totalSize.toFixed(0)} KB`);
 }

@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Content Database - LOTRO Guides</title>
-    <meta name="description" content="Browse 34,243 items from the LotRO Companion database. Search, filter, and view stats for weapons, armor, consumables, and more.">
+    <title>Media Gallery - LOTRO Guides</title>
+    <meta name="description" content="Watch LOTRO videos from the community in our embedded media gallery.">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Content Database - LOTRO Guides" />
-    <meta property="og:description" content="Browse 34,243 items from the LotRO Companion database. Search, filter, and view stats for weapons, armor, consumables, and more." />
+    <meta property="og:title" content="Media Gallery - LOTRO Guides" />
+    <meta property="og:description" content="Watch LOTRO videos from the community in our embedded media gallery." />
     <meta property="og:image" content="https://lotroguides.com/img/default.jpg" />
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-0V12T51X9V"></script>
@@ -39,7 +39,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link href="./css/theme.min.css" rel="stylesheet">
     <link href="./css/custom.css" rel="stylesheet">
     <link href="./css/lotro.css" rel="stylesheet">
-      <link href="./plugins/datatables/datatables.min.css" rel="stylesheet">
   </head>
   <body class="fixed-header">
     <!-- Google Tag Manager (noscript) -->
@@ -80,7 +79,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       <li><a href="./news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
                     </ul>
                   </li>
-                  <li class="has-dropdown active"><a href="./items.html">Database</a>
+                  <li class="has-dropdown"><a href="./items.html">Database</a>
                     <ul>
                       <li><a href="./items.html">Items</a></li>
                       <li><a href="./mobs.html">Mobs</a></li>
@@ -91,7 +90,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </ul>
                   </li>
                   <li class=""><a href="./map.html">Interactive Map</a></li>
-                  <li class=""><a href="./media.html">Media</a></li>
+                  <li class="active"><a href="./media.html">Media</a></li>
                   <li class=""><a href="./about.html">About</a></li>
                 </ul>
               </nav>
@@ -118,105 +117,75 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </header>
     <!-- main -->
-        <section class="breadcrumbs">
-      <div class="container">
-        <ol class="breadcrumb">
-          <li><a href="index.html">Home</a></li>
-          <li class="active">Content Database</li>
-        </ol>
-      </div>
-    </section>
-    <section class="p-y-80">
-      <div class="container">
-        <div class="heading">
-          <i class="fa fa-database"></i>
-          <h2>Content Database</h2>
-          <p>Browse 34,243 items from the LotRO Companion database. Click any item to view full details.</p>
-        </div>
+    <!-- Media Hero -->
+<section class="hero hero-sm hero-media" style="background-image: linear-gradient(120deg, rgba(10, 24, 38, 0.82), rgba(34, 59, 80, 0.78)), url('img/default.jpg');">
+  <div class="container">
+    <div class="hero-block text-center">
+      <h1 class="hero-title">Media Gallery</h1>
+      <p class="hero-text">Watch featured LOTRO videos without leaving the site.</p>
+      <div class="hero-meta"><i class="fa fa-play-circle"></i> 4 Featured Video(s)</div>
+    </div>
+  </div>
+</section>
 
-        <!-- Filters -->
-        <div class="row m-b-30">
-          <div class="col-sm-6 col-md-3 m-b-15">
-            <label class="item-filter-label">Type</label>
-            <select id="filter-type" class="form-control item-filter-select">
-              <option value="">All Types</option>
-              <option value="consumable">Consumables</option>
-              <option value="item">Equipment &amp; Items</option>
-              <option value="quest-reward">Quest Rewards</option>
-            </select>
-          </div>
-          <div class="col-sm-6 col-md-3 m-b-15">
-            <label class="item-filter-label">Subtype</label>
-            <select id="filter-subtype" class="form-control item-filter-select">
-              <option value="">All Subtypes</option>
-              <option value="food">Food</option>
-              <option value="trail-food">Trail Food</option>
-              <option value="feast">Feast</option>
-              <option value="battle-scroll">Battle Scroll</option>
-              <option value="warding-scroll">Warding Scroll</option>
-              <option value="token">Token</option>
-              <option value="tactical">Tactical (Shield-spikes, etc.)</option>
-              <option value="other">Other Consumable</option>
-            </select>
-          </div>
-          <div class="col-sm-6 col-md-3 m-b-15">
-            <label class="item-filter-label">Quality</label>
-            <select id="filter-quality" class="form-control item-filter-select">
-              <option value="">All Qualities</option>
-              <option value="legendary">Legendary</option>
-              <option value="incomparable">Incomparable</option>
-              <option value="rare">Rare</option>
-            </select>
-          </div>
-          <div class="col-sm-6 col-md-3 m-b-15">
-            <label class="item-filter-label">&nbsp;</label>
-            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
-          </div>
-        </div>
-
-        <!-- Loading progress bar (hidden once all chunks loaded) -->
-        <div class="items-loading-bar m-b-15">
-          <small class="text-muted"><i class="fa fa-spinner fa-spin"></i> Loading items…</small>
-          <div class="progress" style="height:4px; margin-top:4px;">
-            <div id="items-load-progress" class="progress-bar progress-bar-info" role="progressbar"
-                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-              <span class="sr-only">0% loaded</span>
+<section class="p-t-40 p-b-40">
+  <div class="container">
+    <div class="row">
+      
+      <div class="col-12 col-md-6 m-b-30">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="embed-responsive embed-responsive-16by9 m-b-15">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/me4hBwg7itc" title="Lord of the Rings Online - 15 Year Anniversary Trailer" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
+            <h4 class="m-b-10">Lord of the Rings Online - 15 Year Anniversary Trailer</h4>
+            <p class="text-muted m-b-10">A trailer celebrating the 15 year anniversary of Lord of the Rings Online.</p>
+            <a class="btn btn-sm btn-default" href="https://youtu.be/me4hBwg7itc" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
           </div>
-        </div>
-
-        <!-- Items Table -->
-        <div class="table-responsive">
-          <table id="items-table" class="table table-striped table-hover" style="width:100%">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Quality / Subtype</th>
-                <th>Stats</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
         </div>
       </div>
-    </section>
 
-    <!-- Item Detail Modal -->
-    <div class="modal fade" id="item-modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content item-modal-content">
-          <div class="modal-header item-modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title" id="item-modal-title"></h4>
+      <div class="col-12 col-md-6 m-b-30">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="embed-responsive embed-responsive-16by9 m-b-15">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/HAZHEYmZzeI" title="The Lord of the Rings Online: Rise of Isengard - E3 2011 Trailer" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <h4 class="m-b-10">The Lord of the Rings Online: Rise of Isengard - E3 2011 Trailer</h4>
+            <p class="text-muted m-b-10">The Lord of the Rings: Online Rise of Isengard launch trailer from E3 2011.</p>
+            <a class="btn btn-sm btn-default" href="https://youtu.be/HAZHEYmZzeI" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
           </div>
-          <div class="modal-body" id="item-modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 m-b-30">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="embed-responsive embed-responsive-16by9 m-b-15">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/Q0ZofpNoBQI" title="The Lord of the Rings Online: Mithril Edition - US Launch Trailer" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <h4 class="m-b-10">The Lord of the Rings Online: Mithril Edition - US Launch Trailer</h4>
+            <p class="text-muted m-b-10">The Lord of the Rings Online Mithril Edition US Launch Trailer.</p>
+            <a class="btn btn-sm btn-default" href="https://youtu.be/Q0ZofpNoBQI" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 m-b-30">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="embed-responsive embed-responsive-16by9 m-b-15">
+              <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/GaJ4mUktNzw" title="Lord of the Rings Online: Rise of Isengard Developer Diary - The Gap of Rohan" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            </div>
+            <h4 class="m-b-10">Lord of the Rings Online: Rise of Isengard Developer Diary - The Gap of Rohan</h4>
+            <p class="text-muted m-b-10">A developer diary from the Rise of Isengard expansion, focusing on the Gap of Rohan.</p>
+            <a class="btn btn-sm btn-default" href="https://youtu.be/GaJ4mUktNzw" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
           </div>
         </div>
       </div>
     </div>
+  </div>
+</section>
 
     <!-- footer -->
     <footer id="footer">
@@ -290,28 +259,5 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script src="./plugins/jquery/jquery-3.1.0.min.js"></script>
     <script src="./plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="./js/theme.min.js"></script>
-      <script src="./plugins/datatables/datatables.min.js"></script>
-    <script src="./js/items-db.js"></script>
-    <script>
-      // Progressive chunked loading
-      $.getJSON("./data/items-db-manifest.json", function(manifest) {
-        $.getJSON("./data/items-db-0.json", function(firstChunk) {
-          window.LOTRO_ITEMS_DB = firstChunk;
-          if (window.LOTRO_ITEMS_INIT) window.LOTRO_ITEMS_INIT();
-          // Load remaining chunks in background
-          if (manifest.totalChunks > 1 && window.LOTRO_ITEMS_ADD_CHUNK) {
-            var loaded = 1;
-            (function loadNext(i) {
-              if (i >= manifest.totalChunks) return;
-              $.getJSON("./data/items-db-" + i + ".json", function(chunk) {
-                loaded++;
-                window.LOTRO_ITEMS_ADD_CHUNK(chunk, loaded, manifest.totalChunks);
-                loadNext(i + 1);
-              });
-            })(1);
-          }
-        });
-      });
-    </script>
   </body>
 </html>

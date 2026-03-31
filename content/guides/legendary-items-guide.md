@@ -57,13 +57,24 @@ These provide secondary stat bonuses:
 
 Traceries come from several sources:
 
-| Source | Tracery Quality |
-|--------|----------------|
-| Landscape drops | Common to Rare |
-| Instance loot | Rare to Incomparable |
-| Raid drops | Incomparable |
-| Ancient Script vendor | Up to Incomparable |
-| Ember vendor | Specific high-end traceries |
+| Content Category | Where to Get Them | Typical Quality | Best Use |
+|------------------|-------------------|-----------------|----------|
+| Landscape / Open World | Quest rewards, landscape drops, and regional reward tracks while leveling | Common to Rare | Early filler traceries while leveling and gearing alts |
+| Missions / Solo Weeklies | Mission wrapper quests and repeatable solo/duo mission content | Rare to Incomparable (depending on level bracket) | Reliable baseline upgrades without a full group |
+| 3-man / 6-man Instances | Instance chest rewards, weekly instance quests, and associated barter loops | Rare to Incomparable | Main progression path before organized raiding |
+| Raids (T1/T2/T3+/T5) | Boss chests, completion wrappers, and raid barter vendors | Incomparable at standard tiers, with Legendary traceries showing up in the highest raid tiers such as T5 | Endgame optimization and BIS tracery progression |
+| Delvings / Challenge Scaling Content | Delving rewards and progression caches at higher delving tiers | Mid to high tier (varies by tier and season) | Supplemental source when pushing difficult scalable content |
+| Ancient Script Vendors | LI Archive / Rivendell-style LI vendors using Ancient Script | Up to Incomparable (targeted purchases) | Best way to target specific missing traceries |
+| Embers / Event / Seasonal Vendors | Featured traceries and occasional high-value options from event ecosystems | Specific high-end or niche traceries | Closing gaps for niche builds and final min-max tuning |
+
+### Practical Farming Priority
+
+1. Fill empty slots quickly from missions/instances so every slot is active.
+2. Use Ancient Script to target key Word of Power traceries for your build.
+3. Replace placeholders with raid/delving/vendor-targeted traceries as you progress.
+4. Save premium currencies (Embers/event barter) for hard-to-find or BIS traceries.
+
+If you are chasing true endgame LI optimization, the highest raid tiers are where the best tracery rewards live. Standard raid tiers are a strong source of Incomparable traceries, while top-end clears such as T5 are the content band to watch for Legendary tracery drops and the best upgrade path.
 
 ## Ancient Script
 

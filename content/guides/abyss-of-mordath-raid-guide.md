@@ -18,6 +18,10 @@ A complete walkthrough of the Shadow of Mordor raid instance, covering every tra
 | **T1** | 170 | 150 (extra needed for debuffs) |
 | **T2** | 220 | 200 (extra needed for debuffs) |
 
+## Instance Loot Reference
+
+{{instanceLootReference}}
+
 ---
 
 ## Meet the Trash

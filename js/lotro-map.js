@@ -16,6 +16,7 @@
   var markerLayer;            // MarkerClusterGroup for markers
   var linkLayer;              // LayerGroup for navigation links
   var basemapLayer;           // ImageOverlay for basemap image
+  var currentLinkCount = 0;   // Visible navigation links on current map
   var currentMapId = null;    // Currently displayed map
   var mapHistory = [];        // Navigation history for back button
   var markerCache = {};       // mapId → marker data array
@@ -38,7 +39,164 @@
   var mobOverlayData = null;     // Loaded on-demand for mob locations
 
   var MIDDLE_EARTH_ID = '268437554';
+  var ROHAN_ID = '268453621';
   var REGION_MAX_FACTOR = 65;
+
+  // Some overview maps benefit from a curated navigation set so the player sees
+  // the destinations that belong to that overview instead of every neighboring exit.
+  var OVERVIEW_LINK_ALLOWLIST = {
+    '268449746': {
+      '268449749': true,
+      '268449752': true,
+      '268449755': true,
+      '268449758': true,
+      '268449761': true
+    },
+    '268449749': {
+      '268448413': true,
+      '268449746': true,
+      '268449755': true,
+      '268450628': true
+    },
+    '268449752': {
+      '268449746': true,
+      '268451270': true
+    },
+    '268449755': {
+      '268449746': true,
+      '268449749': true,
+      '268449758': true,
+      '268450628': true
+    },
+    '268449758': {
+      '268449746': true,
+      '268449755': true,
+      '268449767': true
+    },
+    '268449761': {
+      '268449746': true
+    },
+    '268449767': {
+      '268449758': true,
+      '268453893': true
+    },
+    '268448413': {
+      '268448410': true,
+      '268448419': true,
+      '268448422': true,
+      '268449335': true
+    },
+    '268448416': {
+      '268448407': true,
+      '268448419': true,
+      '268448422': true,
+      '268451270': true
+    },
+    '268448419': {
+      '268448407': true,
+      '268448413': true,
+      '268448416': true,
+      '268448422': true,
+      '268449335': true
+    },
+    '268448422': {
+      '268448413': true,
+      '268448416': true,
+      '268448419': true,
+      '268448941': true
+    },
+    '268442355': {
+      '268442341': true,
+      '268442342': true,
+      '268442343': true,
+      '268442344': true,
+      '268442345': true,
+      '268442346': true,
+      '268442347': true,
+      '268442348': true,
+      '268442349': true,
+      '268442350': true,
+      '268442330': true,
+      '268442463': true
+    },
+    '268437557': {
+      '268437576': true,
+      '268437592': true,
+      '268437603': true,
+      '268437615': true,
+      '268437634': true,
+      '268437653': true,
+      '268437678': true,
+      '268437691': true,
+      '268437700': true,
+      '268439511': true,
+      '268441431': true,
+      '268442268': true,
+      '268444443': true,
+      '268446977': true,
+      '268453922': true,
+      '268453997': true,
+      '268454004': true
+    },
+    '268450901': {
+      '268450720': true,
+      '268450864': true,
+      '268450882': true,
+      '268450932': true,
+      '268450946': true,
+      '268451105': true,
+      '268451115': true,
+      '268451272': true,
+      '268454323': true
+    },
+    '268453619': {
+      '268442330': true,
+      '268443855': true,
+      '268452526': true,
+      '268452631': true,
+      '268452634': true,
+      '268453023': true,
+      '268453454': true,
+      '268453641': true
+    },
+    '268453621': {
+      '268447051': true,
+      '268447390': true,
+      '268448407': true,
+      '268448410': true,
+      '268448413': true,
+      '268448416': true,
+      '268448419': true,
+      '268448422': true,
+      '268449335': true,
+      '268449746': true,
+      '268449749': true,
+      '268449752': true,
+      '268449755': true,
+      '268449758': true,
+      '268449761': true,
+      '268449767': true
+    },
+    '268453620': {
+      '268452166': true,
+      '268453364': true,
+      '268451973': true
+    }
+  };
+
+  var MAP_SPECIFIC_DEFAULT_OFF = {
+    '268449749': { 43: true, 74: true },
+    '268449752': { 43: true, 74: true },
+    '268449755': { 43: true, 74: true },
+    '268448413': { 43: true, 74: true },
+    '268448416': { 43: true, 74: true },
+    '268448419': { 43: true, 74: true },
+    '268448422': { 43: true, 74: true },
+    '268448407': { 43: true, 74: true },
+    '268449335': { 43: true, 74: true },
+    '268449746': { 43: true, 74: true },
+    '268449758': { 43: true, 74: true }
+  };
 
   // Category groups for easier toggling
   var CAT_GROUPS = {
@@ -269,6 +427,22 @@
     }
   }
 
+  function resetCategoryDefaults(mapId) {
+    var mapSpecificOff = MAP_SPECIFIC_DEFAULT_OFF[mapId] || {};
+
+    for (var i = 0; i < categories.length; i++) {
+      var code = categories[i].code;
+      catEnabled[code] = !DEFAULT_OFF.has(code) && !mapSpecificOff[code];
+    }
+  }
+
+  function syncCategoryPanel() {
+    $('#map-category-grid input[type="checkbox"]').each(function () {
+      var code = parseInt($(this).data('cat'));
+      $(this).prop('checked', !!catEnabled[code]);
+    });
+  }
+
   // ─── Show Map ───────────────────────────────────────────────────────────
   function showMap(mapId, addToHistory) {
     var mapDef = mapById[mapId];
@@ -278,6 +452,9 @@
       mapHistory.push(currentMapId);
     }
     currentMapId = mapId;
+
+    resetCategoryDefaults(mapId);
+    syncCategoryPanel();
 
     // Compute the coordinate transform for this map
     computeMapTransform(mapDef);
@@ -364,6 +541,7 @@
     markerLayer.clearLayers();
     var count = 0;
     var mapDef = mapById[currentMapId];
+    if (!mapDef) return;
     var isRegionMap = mapDef && mapDef.factor > 2 && mapDef.factor <= REGION_MAX_FACTOR;
     // Strict layer enforcement should only apply to interior/instance style maps.
     // Outdoor world/region maps (id 268...) intentionally aggregate child POIs.
@@ -372,6 +550,11 @@
     for (var i = 0; i < markers.length; i++) {
       var mk = markers[i];
       if (!catEnabled[mk.c]) continue;
+
+        // Guard against leaked child/interior POIs that use a different coordinate
+        // space from the current basemap. These otherwise render far off-map.
+        if (mk.lng < mapDef.min.lng || mk.lng > mapDef.max.lng ||
+          mk.lat < mapDef.min.lat || mk.lat > mapDef.max.lat) continue;
 
       // On detailed maps, hide POIs that belong to other explicit parent zones.
       // Region maps intentionally aggregate child POIs, so keep those unchanged.
@@ -446,16 +629,23 @@
       count++;
     }
 
-    $('#map-marker-count').text(count + ' markers');
+    if (count === 0 && mapDef.factor <= 2 && currentLinkCount > 0) {
+      $('#map-marker-count').text(currentLinkCount + ' links');
+    } else {
+      $('#map-marker-count').text(count + ' markers');
+    }
   }
 
   // ─── Show Navigation Links ─────────────────────────────────────────────
   function showLinks(mapId) {
     linkLayer.clearLayers();
+    currentLinkCount = 0;
+    var allowedTargets = OVERVIEW_LINK_ALLOWLIST[mapId] || null;
 
     for (var i = 0; i < allLinks.length; i++) {
       var link = allLinks[i];
       if (link.from !== mapId) continue;
+      if (allowedTargets && !allowedTargets[link.to]) continue;
 
       var targetMap = mapById[link.to];
       if (!targetMap) continue;
@@ -472,6 +662,11 @@
 
       marker.bindPopup(popup);
       linkLayer.addLayer(marker);
+      currentLinkCount++;
+    }
+
+    if (mapId === ROHAN_ID && currentLinkCount > 0) {
+      $('#map-marker-count').text(currentLinkCount + ' links');
     }
   }
 

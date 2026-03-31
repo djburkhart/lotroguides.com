@@ -15,6 +15,10 @@ A walkthrough of The Dungeons of Naerband, a world instance in Mordor featuring 
 
 Unlike most world instances, the discovery for the Dungeons of Naerband is at the **exit** of the instance, not the entrance. Look for a sewer pipe located at **[62.0S, 19.7E]**, just northeast of the "d" in "Naerband" on the map.
 
+## Instance Loot Reference
+
+{{instanceLootReference}}
+
 ---
 
 ## Instance Overview

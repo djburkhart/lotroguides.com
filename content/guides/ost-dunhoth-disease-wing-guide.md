@@ -11,6 +11,10 @@ excerpt: "A detailed walkthrough of the Ost Dunhoth Disease Wing, covering trash
 
 This guide covers the Disease Wing of Ost Dunhoth, from the trash leading up to the Corrupted Huorns boss fight through the T2 Challenge strategy.
 
+## Instance Loot Reference
+
+{{instanceLootReference}}
+
 ## T2 Challenge
 
 **Kill both corrupted Huorns — Baleleaf and Dourbark — within 10 seconds of each other, while only killing two waves of Bog Lurkers (12 total).**

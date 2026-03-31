@@ -11,6 +11,10 @@ excerpt: "The following guide covers the mechanics and other useful information 
 
 The following guide covers the mechanics and other useful information about the Tower of Orthanc or ToO Fire and Ice Ring on T2C mode. Tower of Orthanc also known as ToO is a level 75 non-scaling raid from the previous level 75 end game content.
 
+## Instance Loot Reference
+
+{{instanceLootReference}}
+
 ## Raid Overview
 
 The Tower of Orthanc raid is a fight to reclaim the 6 rings that Saruman has made for himself and his minions. As you enter the Tower proper you will stand near a horse in the middle of the courtyard. You must defeat the first four instances to gain access to the final Towertop fight. In that vein, there are 5 divisions of the raid:

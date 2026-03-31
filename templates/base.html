@@ -12,6 +12,8 @@
     <meta property="og:title" content="{{title}}" />
     <meta property="og:description" content="{{metaDescription}}" />
     <meta property="og:image" content="{{ogImage}}" />
+    {{gtagScript}}
+    {{gtmHeadScript}}
     <!-- Google Ad Sense -->
     <meta name="google-adsense-account" content="{{googleAdsenseAccount}}">
     <!-- stylesheet -->
@@ -26,6 +28,7 @@
     <link href="./{{siteRoot}}css/lotro.css" rel="stylesheet">
   </head>
   <body class="{{bodyClass}}">
+    {{gtmBodyNoscript}}
     <!-- header -->
     <header id="header">
       <div class="container">
@@ -40,40 +43,7 @@
               </a>
               <nav class="nav">
                 <ul>
-                  <li class="{{currentHome}}">
-                    <a href="./{{siteRoot}}index.html">Home</a>
-                  </li>
-                  <li class="has-dropdown {{currentGuides}}">
-                    <a href="./{{siteRoot}}guides.html">Guides</a>
-                    <ul>
-                      <li><a href="./{{siteRoot}}guides.html">All Guides</a></li>
-                      {{guideNavItems}}
-                    </ul>
-                  </li>
-                  <li class="has-dropdown {{currentNews}}">
-                    <a href="./{{siteRoot}}news.html">News</a>
-                    <ul>
-                      <li><a href="./{{siteRoot}}news.html">All News</a></li>
-                      {{newsNavItems}}
-                    </ul>
-                  </li>
-                  <li class="has-dropdown {{currentItems}} {{currentMobs}} {{currentVirtues}} {{currentSets}} {{currentDeeds}} {{currentQuests}}">
-                    <a href="./{{siteRoot}}items.html">Database</a>
-                    <ul>
-                      <li><a href="./{{siteRoot}}items.html">Items</a></li>
-                      <li><a href="./{{siteRoot}}mobs.html">Mobs</a></li>
-                      <li><a href="./{{siteRoot}}sets.html">Sets</a></li>
-                      <li><a href="./{{siteRoot}}virtues.html">Virtues</a></li>
-                      <li><a href="./{{siteRoot}}deeds.html">Deeds</a></li>
-                      <li><a href="./{{siteRoot}}quests.html">Quests</a></li>
-                    </ul>
-                  </li>
-                  <li class="{{currentMap}}">
-                    <a href="./{{siteRoot}}map.html">Interactive Map</a>
-                  </li>
-                  <li class="{{currentAbout}}">
-                    <a href="./{{siteRoot}}about.html">About</a>
-                  </li>
+                  {{navItems}}
                 </ul>
               </nav>
             </div>
@@ -114,22 +84,12 @@
             <div class="row">
               <div class="col">
                 <ul>
-                  <li><a href="./{{siteRoot}}guides.html">Guides</a></li>
-                  <li><a href="./{{siteRoot}}news.html">News</a></li>
-                  <li><a href="./{{siteRoot}}items.html">Content Database</a></li>
-                  <li><a href="./{{siteRoot}}mobs.html">Mob Database</a></li>
-                  <li><a href="./{{siteRoot}}sets.html">Set Database</a></li>
-                  <li><a href="./{{siteRoot}}virtues.html">Virtue Database</a></li>
-                  <li><a href="./{{siteRoot}}deeds.html">Deed Database</a></li>
-                  <li><a href="./{{siteRoot}}map.html">Interactive Map</a></li>
-                  <li><a href="./{{siteRoot}}about.html">About</a></li>
+                  {{footerLinksPrimary}}
                 </ul>
               </div>
               <div class="col">
                 <ul>
-                  <li><a href="./{{siteRoot}}guides.html#class-guides">Class Builds</a></li>
-                  <li><a href="./{{siteRoot}}guides.html#crafting">Crafting</a></li>
-                  <li><a href="./{{siteRoot}}guides.html#instances">Instances</a></li>
+                  {{footerLinksSecondary}}
                 </ul>
               </div>
             </div>

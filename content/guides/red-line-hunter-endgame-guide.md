@@ -2,7 +2,7 @@
 title: "Red Line Hunter End-Game Guide (Post-Rework)"
 date: 2026-03-30
 author: "Amdor"
-tags: [hunter, red-line, endgame, raid, level-100-plus]
+tags: [hunter, class, red-line, level-100-plus]
 image: "../lotro/img/guides/hunter-guide.jpg"
 excerpt: "Updated Red Line Hunter guide for current end-game after the Hunter rework, including stat caps, burst rotation, LI tracery setup, virtues, and progression advice for level 100+."
 ---
@@ -23,14 +23,7 @@ As a Hunter, your job is burst DPS with clean execution and high uptime. This gu
 
 Aim for these targets when preparing for group and raid content:
 
-| Stat | Target |
-|------|--------|
-| Physical Mastery | **200%-220% or higher** |
-| Critical Rating | **28%-33% or higher** |
-| Devastating Hits | **9% or higher** |
-| Finesse | **40%-50%** |
-| Tactical Mitigation | **47%-51% or higher** |
-| Physical Mitigation | **47%-51% or higher** |
+{{dpsStatTable}}
 
 **Important note on mitigation caps:**
 

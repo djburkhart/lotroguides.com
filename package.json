@@ -11,7 +11,8 @@
     "heroku-postbuild": "node scrape-news.js || true && node build.js",
     "watch": "node build.js --watch",
     "scrape": "node scrape-news.js",
-    "scrape:build": "node scrape-news.js && node build.js"
+    "scrape:build": "node scrape-news.js && node build.js",
+    "import:loot": "node import-lotro-companion-loot.js"
   },
   "dependencies": {
     "chokidar": "^3.6.0",

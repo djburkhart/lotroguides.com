@@ -13,6 +13,12 @@ Running T2 Challenge content demands more than just good gear and a solid group.
 
 This guide covers what to bring, what to craft, and what to buy before stepping into any T2C raid.
 
+## Desired Stat Percentages (Raid Targets)
+
+Use the shared raid target reference as your baseline before consumables and temporary buffs:
+
+{{dpsStatTable}}
+
 ---
 
 ## On-Level Crafted Consumables
@@ -93,14 +99,6 @@ Crafted consumables get you most of the way there, but for T2 Challenge content 
 - These are **permanent account upgrades** — the best long-term investment in the store
 - Over time, stacking stat tomes gives a substantial baseline increase
 
-### Scrolls of Empowerment / Delving
-
-- **Scrolls of Empowerment** upgrade your Legendary Item traceries beyond their base cap
-- More empowerment scrolls = higher tracery values = more stats and damage
-- These are available as loot, barter, and from the store — the store is the fastest way to stock up
-- **Scrolls of Delving** increase the maximum item level of your LI, letting empowerment push even further
-- For T2C, having fully empowered and delved LIs is a significant advantage
-
 ### Enhancement Runes
 
 - Enhancement Rune +4, Lvl 151 is the current top tier — raises your LI item level by 4
@@ -151,8 +149,6 @@ Here's a checklist of what to have in your bags before every T2C raid:
 | Item | What It Does |
 |---|---|
 | Permanent Stat Tomes | +10 per stat, permanent |
-| Scrolls of Empowerment | Max out LI traceries |
-| Scrolls of Delving | Raise LI item level cap |
 | Enhancement Runes | Raise LI item level (Enhancement Rune +4, Lvl 151) |
 | Revival Tomes | Revive in place on defeat |
 | Morale/Power Bubbles | Emergency absorb shield |

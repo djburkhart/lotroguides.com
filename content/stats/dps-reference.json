@@ -1,0 +1,75 @@
+{
+  "title": "Desired Stat Percentages (Raid Targets)",
+  "intro": "Quick offensive targets adapted from Giseldah's LOTRO stat calculator for DPS-oriented builds.",
+  "sourceLabel": "Open Giseldah Stat Calculator",
+  "sourceUrl": "https://giseldah.github.io/",
+  "sourceNote": "for class-specific tuning and current breakpoints.",
+  "sectionHeading": "Desired Stat Percentages (Raid Targets)",
+  "appliesTo": ["class", "raid"],
+  "tableColumns": ["Stat", "T1 Target", "T2 Target", "T3+ Target"],
+  "tableRows": [
+    {
+      "stat": "Physical Mastery",
+      "t1": "**200%+**",
+      "t2": "**210%+**",
+      "t3": "**220%+**"
+    },
+    {
+      "stat": "Critical Rating",
+      "t1": "**28%+**",
+      "t2": "**30%+**",
+      "t3": "**33%+**"
+    },
+    {
+      "stat": "Devastating Hits",
+      "t1": "**8%+**",
+      "t2": "**9%+**",
+      "t3": "**10%+**"
+    },
+    {
+      "stat": "Finesse",
+      "t1": "**35%-40%**",
+      "t2": "**40%-45%**",
+      "t3": "**45%-50%**"
+    },
+    {
+      "stat": "Tactical Mitigation",
+      "t1": "**40%-45%**",
+      "t2": "**45%-50%**",
+      "t3": "**50%-55%**"
+    },
+    {
+      "stat": "Physical Mitigation",
+      "t1": "**40%-45%**",
+      "t2": "**45%-50%**",
+      "t3": "**50%-55%**"
+    }
+  ],
+  "stats": [
+    {
+      "label": "Critical Hit",
+      "target": "25.0%",
+      "rating": "450,000"
+    },
+    {
+      "label": "Devastate Chance",
+      "target": "10.0%",
+      "rating": "600,000"
+    },
+    {
+      "label": "Devastate Magnitude",
+      "target": "75.0%",
+      "rating": "900,000"
+    },
+    {
+      "label": "Finesse",
+      "target": "50.0%",
+      "rating": "300,000"
+    },
+    {
+      "label": "Primary Mastery (Physical or Tactical)",
+      "target": "up to 200.0%",
+      "rating": "450,000"
+    }
+  ]
+}

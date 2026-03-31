@@ -9,5 +9,11 @@ static_sites:
     environment_slug: node-js
     envs:
       - key: GOOGLE_ADSENSE_ACCOUNT
-        value: ca-pub-2480071878965715
+        type: SECRET
+        scope: BUILD_TIME
+      - key: GOOGLE_ANALYTICS_ID
+        type: SECRET
+        scope: BUILD_TIME
+      - key: GOOGLE_TAG_MANAGER_ID
+        type: SECRET
         scope: BUILD_TIME

@@ -1,0 +1,131 @@
+{
+  "header": [
+    {
+      "label": "Home",
+      "url": "index.html",
+      "activeOn": ["home"]
+    },
+    {
+      "label": "Guides",
+      "url": "guides.html",
+      "activeOn": ["guides"],
+      "childrenFrom": "guideNavItems"
+    },
+    {
+      "label": "News",
+      "url": "news.html",
+      "activeOn": ["news"],
+      "children": [
+        {
+          "label": "All News",
+          "url": "news.html"
+        }
+      ],
+      "childrenFrom": "newsNavItems"
+    },
+    {
+      "label": "Database",
+      "url": "items.html",
+      "activeOn": ["items", "mobs", "sets", "virtues", "deeds", "quests"],
+      "children": [
+        {
+          "label": "Items",
+          "url": "items.html"
+        },
+        {
+          "label": "Mobs",
+          "url": "mobs.html"
+        },
+        {
+          "label": "Sets",
+          "url": "sets.html"
+        },
+        {
+          "label": "Virtues",
+          "url": "virtues.html"
+        },
+        {
+          "label": "Deeds",
+          "url": "deeds.html"
+        },
+        {
+          "label": "Quests",
+          "url": "quests.html"
+        }
+      ]
+    },
+    {
+      "label": "Interactive Map",
+      "url": "map.html",
+      "activeOn": ["map"]
+    },
+    {
+      "label": "Media",
+      "url": "media.html",
+      "activeOn": ["media"]
+    },
+    {
+      "label": "About",
+      "url": "about.html",
+      "activeOn": ["about"]
+    }
+  ],
+  "footer": {
+    "primary": [
+      {
+        "label": "Guides",
+        "url": "guides.html"
+      },
+      {
+        "label": "News",
+        "url": "news.html"
+      },
+      {
+        "label": "Content Database",
+        "url": "items.html"
+      },
+      {
+        "label": "Mob Database",
+        "url": "mobs.html"
+      },
+      {
+        "label": "Set Database",
+        "url": "sets.html"
+      },
+      {
+        "label": "Virtue Database",
+        "url": "virtues.html"
+      },
+      {
+        "label": "Deed Database",
+        "url": "deeds.html"
+      },
+      {
+        "label": "Interactive Map",
+        "url": "map.html"
+      },
+      {
+        "label": "Media",
+        "url": "media.html"
+      },
+      {
+        "label": "About",
+        "url": "about.html"
+      }
+    ],
+    "secondary": [
+      {
+        "label": "Class Builds",
+        "url": "guides.html#class-guides"
+      },
+      {
+        "label": "Crafting",
+        "url": "guides.html#crafting"
+      },
+      {
+        "label": "Instances",
+        "url": "guides.html#instances"
+      }
+    ]
+  }
+}

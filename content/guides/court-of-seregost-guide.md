@@ -11,6 +11,10 @@ excerpt: "A complete walkthrough of The Court of Seregost instance, covering all
 
 A complete walkthrough of The Court of Seregost, set inside the keep of Seregost. This instance features tight corridors, medium-sized rooms of mobs, and three of Lhaereth's lieutenants guarding the way to her spire. Players are accompanied by Rhadrog and Faeron, though they do not fight until the final encounter.
 
+## Instance Loot Reference
+
+{{instanceLootReference}}
+
 ---
 
 ## Phase One: The Morroval Twins
