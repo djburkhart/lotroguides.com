@@ -20,6 +20,7 @@ const GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET || '';
 const EDITOR_ALLOWED_EMAILS = process.env.EDITOR_ALLOWED_EMAILS || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
+const GOOGLE_SEARCH_CONSOLE_VERIFICATION = process.env.GOOGLE_SEARCH_CONSOLE_VERIFICATION || '';
 const LORE_DIR = path.join(__dirname, 'data', 'lore');
 const MEDIA_VIDEOS_PATH = path.join(CONTENT_DIR, 'media', 'videos.json');
 const NAVIGATION_PATH = path.join(CONTENT_DIR, 'navigation.json');
@@ -28,6 +29,7 @@ const INSTANCE_LOOT_REFERENCE_PATH = path.join(CONTENT_DIR, 'instances', 'loot-r
 
 // ─── Lore / Item Index ─────────────────────────────────────────────────────
 let itemIndex = {};
+let iconMap = {};
 let questIndex = {};
 let mapMarkerIndexCache = null;
 let dpsReferenceCache = null;
@@ -268,8 +270,14 @@ function buildLootAccordionHtml(slug) {
           tooltipAttr = ` data-item-stats="${parts.join(' · ').replace(/"/g, '&quot;')}"`;
         }
 
+        // Build inline icon tag if available
+        const iconId = dbItem ? (dbItem.icon || iconMap[dbItem.id]) : null;
+        const lootIconHtml = iconId
+          ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+          : '';
+
         const itemHtml = dbItem
-          ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${itemName}</a>`
+          ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
           : (tooltipAttr ? `<span class="lotro-item"${tooltipAttr}>${itemName}</span>` : itemName);
 
         const dropChance = String(lootItem.drop || '').trim();
@@ -430,6 +438,12 @@ function loadItemIndex() {
   }
   itemIndex = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
   console.log(`   📇 Loaded item index (${Object.keys(itemIndex).length} entries)`);
+
+  // Load icon map (itemId → iconId) for inline icons in auto-linked content
+  const iconMapPath = path.join(LORE_DIR, 'icon-map.json');
+  if (fs.existsSync(iconMapPath)) {
+    iconMap = JSON.parse(fs.readFileSync(iconMapPath, 'utf8'));
+  }
 }
 
 function loadQuestIndex() {
@@ -570,7 +584,13 @@ function autoLinkItems(html) {
         tooltipData = ` data-item-stats="${statStr.replace(/"/g, '&quot;')}"`;
       }
 
-      const replacement = protectedAnchors.protect(`<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${match[0]}</a>`);
+      // Build inline icon tag if available
+      const iconId = entry.icon || iconMap[entry.id];
+      const iconHtml = iconId
+        ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+        : '';
+
+      const replacement = protectedAnchors.protect(`<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${iconHtml}<span class="lotro-item-text">${match[0]}</span></a>`);
 
       html = html.replace(match[0], replacement);
       linked.add(name);
@@ -830,6 +850,9 @@ async function convertImagesToWebp() {
  */
 function optimizeImages(html) {
   return html.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+    // Skip game icons — they have explicit sizing that must be preserved
+    if (attrs.includes('lotro-game-icon')) return match;
+
     const srcMatch = attrs.match(/src=["']([^"']+)["']/);
     if (!srcMatch) return match;
 
@@ -978,6 +1001,7 @@ function buildPage(bodyContent, pageData) {
     currentSets: pageData.currentPage === 'sets' ? 'active' : '',
     currentDeeds: pageData.currentPage === 'deeds' ? 'active' : '',
     currentQuests: pageData.currentPage === 'quests' ? 'active' : '',
+    currentInstances: pageData.currentPage === 'instances' ? 'active' : '',
     currentMap: pageData.currentPage === 'map' ? 'active' : '',
     currentMedia: pageData.currentPage === 'media' ? 'active' : '',
     siteRoot,
@@ -998,6 +1022,9 @@ function buildPage(bodyContent, pageData) {
       : '',
     gtmBodyNoscript: GOOGLE_TAG_MANAGER_ID
       ? `<!-- Google Tag Manager (noscript) -->\n<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${GOOGLE_TAG_MANAGER_ID}"\nheight="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n<!-- End Google Tag Manager (noscript) -->`
+      : '',
+    googleSearchConsoleVerification: GOOGLE_SEARCH_CONSOLE_VERIFICATION
+      ? `<meta name="google-site-verification" content="${GOOGLE_SEARCH_CONSOLE_VERIFICATION}">`
       : '',
   });
 }
@@ -1343,7 +1370,15 @@ function buildItemsPage(navData) {
     }
   }
 
-  // Build compact client-side JSON: array of {id, n, t, st, q, lv, sl, stats:[{s,v}], sid?, sn?, dt?}
+  // Load icon map (itemId → iconId) from extract-icons output
+  let iconMap = {};
+  const iconMapPath = path.join(LORE_DIR, 'icon-map.json');
+  if (fs.existsSync(iconMapPath)) {
+    iconMap = JSON.parse(fs.readFileSync(iconMapPath, 'utf8'));
+    console.log(`   Loaded icon map with ${Object.keys(iconMap).length} entries`);
+  }
+
+  // Build compact client-side JSON: array of {id, n, t, st, q, lv, sl, stats:[{s,v}], sid?, sn?, dt?, ic?}
   const clientItems = Object.entries(itemIndex)
     .filter(([, v]) => v.type !== 'mob')          // exclude mobs from item DB
     .map(([name, v]) => {
@@ -1360,6 +1395,9 @@ function buildItemsPage(navData) {
       if (setInfo) { row.sid = setInfo.sid; row.sn = setInfo.sn; }
       // Cross-link: deed type for deed entries
       if (v.deedType) row.dt = v.deedType;
+      // Icon: from item-index (extract-lore) or icon-map (extract-icons)
+      const ic = v.icon || iconMap[v.id];
+      if (ic) row.ic = ic;
       return row;
     });
 
@@ -1382,7 +1420,10 @@ function buildItemsPage(navData) {
     }
     let added = 0;
     for (const [, v] of rewardMap) {
-      clientItems.push({ id: v.id, n: v.n, t: 'quest-reward' });
+      const row = { id: v.id, n: v.n, t: 'quest-reward' };
+      const ic = iconMap[v.id];
+      if (ic) row.ic = ic;
+      clientItems.push(row);
       added++;
     }
     if (added) console.log(`   + ${added} quest reward items added to item DB`);
@@ -1537,13 +1578,17 @@ function buildVirtuesPage(navData) {
 
   const virtues = JSON.parse(fs.readFileSync(virtuesPath, 'utf8'));
 
-  // Compact format: {id, n, st:[], mr}
-  const clientVirtues = virtues.map(v => ({
-    id: v.id,
-    n: v.name,
-    st: v.stats || [],
-    mr: v.maxTier || 0,
-  }));
+  // Compact format: {id, n, st:[], mr, ic}
+  const clientVirtues = virtues.map(v => {
+    const row = {
+      id: v.id,
+      n: v.name,
+      st: v.stats || [],
+      mr: v.maxTier || 0,
+    };
+    if (v.iconId) row.ic = v.iconId;
+    return row;
+  });
 
   const count = clientVirtues.length;
 
@@ -1590,13 +1635,25 @@ function buildSetsPage(navData) {
 
   const sets = JSON.parse(fs.readFileSync(setsPath, 'utf8'));
 
-  // Compact format: {id, n, lv, ml, pc:[{id,n}], bn:[{c, st:[{s,v}]}]}
+  // Load icon map for piece icons
+  let iconMap = {};
+  const iconMapPath = path.join(LORE_DIR, 'icon-map.json');
+  if (fs.existsSync(iconMapPath)) {
+    iconMap = JSON.parse(fs.readFileSync(iconMapPath, 'utf8'));
+  }
+
+  // Compact format: {id, n, lv, ml, pc:[{id,n,ic}], bn:[{c, st:[{s,v}]}]}
   const clientSets = sets.map(s => {
     const row = { id: s.id, n: s.name };
     if (s.level) row.lv = s.level;
     if (s.maxLevel) row.ml = s.maxLevel;
     if (s.pieces && s.pieces.length) {
-      row.pc = s.pieces.map(p => ({ id: p.id, n: p.name }));
+      row.pc = s.pieces.map(p => {
+        const piece = { id: p.id, n: p.name };
+        const ic = iconMap[p.id];
+        if (ic) piece.ic = ic;
+        return piece;
+      });
     }
     if (s.bonuses && s.bonuses.length) {
       row.bn = s.bonuses.map(b => ({
@@ -1668,7 +1725,11 @@ function buildDeedsPage(navData) {
     const row = { id: d.id, n: d.name, tp: d.type || 'Other' };
     if (d.level) row.lv = d.level;
     if (d.rewards && d.rewards.length) {
-      row.rw = d.rewards.map(r => ({ t: r.type, v: r.value }));
+      row.rw = d.rewards.map(r => {
+        const cr = { t: r.type, v: r.value };
+        if (r.id) cr.i = r.id;
+        return cr;
+      });
     }
     if (d.requiredClass) row.cl = d.requiredClass;
 
@@ -1696,8 +1757,8 @@ function buildDeedsPage(navData) {
         }
         if (o.type === 'questCount') return { t: 'qc', c: o.count };
         if (o.type === 'landmark') return { t: 'lm', n: o.name };
-        if (o.type === 'item') return { t: 'item', n: o.name };
-        if (o.type === 'useItem') return { t: 'use', n: o.name };
+        if (o.type === 'item') return { t: 'item', n: o.name, i: o.itemId };
+        if (o.type === 'useItem') return { t: 'use', n: o.name, i: o.itemId };
         if (o.type === 'npc') return { t: 'npc', n: o.name };
         if (o.type === 'skill') return { t: 'skill', c: o.count };
         if (o.type === 'emote') return { t: 'emote', n: o.name, c: o.count };
@@ -1785,6 +1846,12 @@ function buildDeedsPage(navData) {
     JSON.stringify(deedOverlay)
   );
 
+  // Copy icon-map for client-side icon lookups (shared by deeds + quests pages)
+  const iconMapSrc = path.join(LORE_DIR, 'icon-map.json');
+  if (fs.existsSync(iconMapSrc)) {
+    fs.copyFileSync(iconMapSrc, path.join(OUTPUT_DIR, 'data', 'icon-map.json'));
+  }
+
   const template = readTemplate('deeds-content.html');
   const body = render(template, { deedCount: count.toLocaleString() });
 
@@ -1801,10 +1868,11 @@ function buildDeedsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.when($.getJSON("./data/deeds-db.json"), $.getJSON("./data/deed-overlay.json"))',
-    '    .done(function(deedsRes, overlayRes) {',
+    '  $.when($.getJSON("./data/deeds-db.json"), $.getJSON("./data/deed-overlay.json"), $.getJSON("./data/icon-map.json"))',
+    '    .done(function(deedsRes, overlayRes, iconRes) {',
     '      window.LOTRO_DEEDS_DB = deedsRes[0];',
     '      window.LOTRO_DEED_OVERLAY = overlayRes[0] || {};',
+    '      window.LOTRO_ICON_MAP = iconRes[0] || {};',
     '      $.getScript("./js/deeds-db.js", function() {',
     '        if (window.LOTRO_DEEDS_INIT) window.LOTRO_DEEDS_INIT();',
     '      });',
@@ -1832,14 +1900,55 @@ function buildQuestsPage(navData) {
     JSON.stringify(quests)
   );
 
+  // Write quest overlay index (quest IDs with plottable objectives — lightweight check for map link)
+  const questOverlayPath = path.join(LORE_DIR, 'quest-overlay.json');
+  const questOverlay = fs.existsSync(questOverlayPath)
+    ? JSON.parse(fs.readFileSync(questOverlayPath, 'utf8'))
+    : {};
+  const questOverlayKeys = Object.keys(questOverlay);
+  const questOverlayIndex = {};
+  for (const qid of questOverlayKeys) {
+    questOverlayIndex[qid] = 1;
+  }
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'quest-overlay-index.json'),
+    JSON.stringify(questOverlayIndex)
+  );
+
+  // Split quest-overlay into per-quest static files for on-demand map loading.
+  // Each file is ~641 bytes on average vs the 7.9 MB monolith.
+  const questsOutDir = path.join(OUTPUT_DIR, 'data', 'lore', 'quests');
+  if (!fs.existsSync(questsOutDir)) fs.mkdirSync(questsOutDir, { recursive: true });
+  // Remove stale quest files first
+  for (const f of fs.readdirSync(questsOutDir)) {
+    if (f.endsWith('.json')) fs.unlinkSync(path.join(questsOutDir, f));
+  }
+  for (const [qid, qdata] of Object.entries(questOverlay)) {
+    fs.writeFileSync(path.join(questsOutDir, `${qid}.json`), JSON.stringify(qdata));
+  }
+  console.log(`   → data/lore/quests/ (${questOverlayKeys.length} per-quest files)`);
+
+  // Build lightweight quest search index for the DO Function (id + name + level only).
+  // This file is committed to git so the function has it at deploy time.
+  // Re-run npm run build and commit packages/quests/lookup/quest-index.json after LOTRO updates.
+  const questSearchIndex = questOverlayKeys.map(id => {
+    const q = questOverlay[id];
+    return { id, n: q.n || '', lv: q.lv || 0 };
+  });
+  const funcDir = path.join(__dirname, 'packages', 'quests', 'lookup');
+  if (!fs.existsSync(funcDir)) fs.mkdirSync(funcDir, { recursive: true });
+  fs.writeFileSync(path.join(funcDir, 'quest-index.json'), JSON.stringify(questSearchIndex));
+  console.log(`   → packages/quests/lookup/quest-index.json (${questSearchIndex.length} entries)`);
+
   // Copy POI cross-reference files for map enrichment
-  const poiFiles = ['quest-poi.json', 'map-quests.json', 'quest-overlay.json', 'npcs.json'];
+  const poiFiles = ['quest-poi.json', 'map-quests.json', 'npcs.json'];
   for (const f of poiFiles) {
     const src = path.join(LORE_DIR, f);
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, path.join(OUTPUT_DIR, 'data', f));
     }
   }
+
 
   const template = readTemplate('quests-content.html');
   const body = render(template, { questCount: count.toLocaleString() });
@@ -1857,8 +1966,14 @@ function buildQuestsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.getJSON("./data/quests-db.json", function(data) {',
-    '    window.LOTRO_QUESTS_DB = data;',
+    '  $.when(',
+    '    $.getJSON("./data/quests-db.json"),',
+    '    $.getJSON("./data/icon-map.json"),',
+    '    $.getJSON("./data/quest-overlay-index.json")',
+    '  ).done(function(qRes, iRes, oRes) {',
+    '    window.LOTRO_QUESTS_DB = qRes[0];',
+    '    window.LOTRO_ICON_MAP = iRes[0] || {};',
+    '    window.LOTRO_QUEST_OVERLAY = oRes[0] || {};',
     '    $.getScript("./js/quests-db.js", function() {',
     '      if (window.LOTRO_QUESTS_INIT) window.LOTRO_QUESTS_INIT();',
     '    });',
@@ -1868,6 +1983,269 @@ function buildQuestsPage(navData) {
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
 
   fs.writeFileSync(path.join(OUTPUT_DIR, 'quests.html'), html);
+}
+
+// ─── Instances Database Page ────────────────────────────────────────────────
+
+function buildInstancesPage(navData) {
+  const dbPath = path.join(OUTPUT_DIR, 'data', 'instances-db.json');
+  if (!fs.existsSync(dbPath)) {
+    console.log('   ℹ No instances data found — run: node import-instances.js');
+    return;
+  }
+
+  const instances = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+  const instanceCount = instances.length;
+
+  // ── Load loot data ─────────────────────────────────────────────────
+  // Primary: comprehensive auto-discovered loot from import-all-instance-loot.js
+  const instanceLootPath = path.join(OUTPUT_DIR, 'data', 'instance-loot.json');
+  const instanceLoot = fs.existsSync(instanceLootPath)
+    ? JSON.parse(fs.readFileSync(instanceLootPath, 'utf8'))
+    : {};
+
+  // Secondary: curated loot-reference.json (for the 5 guide-linked instances)
+  const lootRef = loadInstanceLootReferenceConfig();
+  const instanceIdToLootSlug = {};
+  for (const [guideSlug, entry] of Object.entries(lootRef)) {
+    if (entry && entry.url) {
+      const idMatch = String(entry.url).match(/(\d{5,})(?:[^\d]|$)/);
+      if (idMatch) instanceIdToLootSlug[idMatch[1]] = guideSlug;
+    }
+  }
+
+  // ── Build compact client-side JSON (strip abilities for listing page) ──
+  const clientInstances = instances.map(inst => {
+    const hasLoot = instanceLoot[inst.slug] || instanceIdToLootSlug[inst.id];
+    const obj = {
+      slug: inst.slug,
+      name: inst.name,
+      groupType: inst.groupType,
+      tiers: inst.tiers,
+      mobCount: inst.mobCount,
+    };
+    if (hasLoot) {
+      obj.lootUrl = `instances/${inst.slug}.html#loot`;
+    }
+    return obj;
+  });
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'instances-db-listing.json'),
+    JSON.stringify(clientInstances)
+  );
+
+  // ── Build listing page ─────────────────────────────────────────────────
+  const template = readTemplate('instances-content.html');
+  const body = render(template, { instanceCount: instanceCount.toString() });
+
+  let html = buildPage(body, {
+    title: 'Instance Database - LOTRO Guides',
+    metaDescription: `Browse ${instanceCount} LOTRO instances with detailed mob and ability data from the Refridgerraiders project.`,
+    currentPage: 'instances',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script>',
+    '  $.getJSON("./data/instances-db-listing.json")',
+    '    .done(function(data) {',
+    '      window.LOTRO_INSTANCES_DB = data;',
+    '      $.getScript("./js/instances-db.js", function() {',
+    '        if (window.LOTRO_INSTANCES_INIT) window.LOTRO_INSTANCES_INIT();',
+    '      });',
+    '    });',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'instances.html'), html);
+
+  // ── Build individual instance pages ────────────────────────────────────
+  const detailTemplate = readTemplate('instance-detail-content.html');
+  const instancesDir = path.join(OUTPUT_DIR, 'instances');
+  ensureDir(instancesDir);
+
+  // Map of known guide slugs for cross-linking
+  const guideLinks = {
+    'the-abyss-of-mordath': { url: '../guides/abyss-of-mordath-raid-guide.html', label: 'Abyss of Mordath Raid Guide' },
+    'the-court-of-seregost': { url: '../guides/court-of-seregost-guide.html', label: 'Court of Seregost Guide' },
+    'the-dungeons-of-naerband': { url: '../guides/dungeons-of-naerband-guide.html', label: 'Dungeons of Naerband Guide' },
+    'ost-dunhoth-disease-and-poison-wing': { url: '../guides/ost-dunhoth-disease-wing-guide.html', label: 'Ost Dunhoth Disease Wing Guide' },
+    'the-tower-of-orthanc': { url: '../guides/tower-of-orthanc-fire-ice-guide.html', label: 'Tower of Orthanc Fire & Ice Guide' },
+  };
+
+  instances.forEach(inst => {
+    // Build mob accordion HTML using <details>/<summary> (consistent with loot tables)
+    const mobAccordions = inst.mobs.map((mob, idx) => {
+      const abilityRows = mob.abilities.map(a =>
+        `<tr><td>${escapeHtml(a.name)}</td><td class="text-muted">${a.id}</td></tr>`
+      ).join('\n');
+      const abilityTable = mob.abilities.length
+        ? `<div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
+            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
+            <tbody>${abilityRows}</tbody>
+          </table></div>`
+        : '<div class="lotro-loot-chest"><p class="text-muted">No specific abilities listed.</p></div>';
+
+      return `<details class="lotro-loot-boss instance-mob-boss">
+        <summary class="lotro-loot-boss-name">
+          ${escapeHtml(mob.name)}
+          <span class="instance-mob-meta">${mob.abilityCount} abilities · ID: ${mob.id}</span>
+        </summary>
+        ${abilityTable}
+      </details>`;
+    }).join('\n');
+
+    // Build related content links
+    const relatedLinks = [];
+    const guide = guideLinks[inst.slug];
+    if (guide) {
+      relatedLinks.push(`<a href="${guide.url}" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> ${guide.label}</a>`);
+    }
+    // Link to mobs database
+    relatedLinks.push(`<a href="../mobs.html" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database</a>`);
+
+    const relatedContent = relatedLinks.length
+      ? `<div class="row m-b-30"><div class="col-md-8 col-md-offset-2"><h3 class="instance-section-title"><i class="fa fa-link"></i> Related Content</h3><div class="instance-related-links">${relatedLinks.join('\n')}</div></div></div>`
+      : '';
+
+    // Build loot section from comprehensive instance-loot.json or fallback to loot-reference
+    let lootSection = '';
+    const instLoot = instanceLoot[inst.slug];
+    if (instLoot && instLoot.bosses && instLoot.bosses.length) {
+      // Build accordion HTML from auto-discovered loot data
+      const lootLines = ['<div class="lotro-loot-accordion">'];
+      for (const boss of instLoot.bosses) {
+        const bossName = escapeHtml(boss.name);
+        lootLines.push(`<details class="lotro-loot-boss">`);
+        lootLines.push(`<summary class="lotro-loot-boss-name">${bossName}</summary>`);
+
+        for (const chest of boss.chests) {
+          if (!chest.items || !chest.items.length) continue;
+          lootLines.push(`<div class="lotro-loot-chest">`);
+          lootLines.push(`<h5 class="lotro-loot-chest-label">${escapeHtml(chest.label)}</h5>`);
+          lootLines.push(`<table class="lotro-loot-table">`);
+          lootLines.push(`<thead><tr><th>Item</th><th>Drop Chance</th></tr></thead>`);
+          lootLines.push(`<tbody>`);
+
+          for (const lootItem of chest.items) {
+            const itemName = escapeHtml(lootItem.name);
+            // Try to link to item in items database
+            const dbItem = itemIndex[lootItem.name];
+            const qualityClass = dbItem && dbItem.quality ? ` lotro-${dbItem.quality}` : '';
+
+            // Build tooltip from stats
+            let tooltipAttr = '';
+            const statsSource = lootItem.stats;
+            if (statsSource && statsSource.length) {
+              const parts = [];
+              const slot = lootItem.slot || '';
+              const level = lootItem.level || 0;
+              if (slot || level) {
+                let header = '';
+                if (slot) header += slot.replace(/\b\w/g, c => c.toUpperCase());
+                if (level) header += (header ? ' · ' : '') + 'iLvl ' + level;
+                if (lootItem.scaling) header += ' · ⚖ Scales';
+                parts.push(header);
+              }
+              const statLines = statsSource
+                .filter(s => (s.value !== undefined ? s.value : 0) !== 0)
+                .slice(0, 6)
+                .map(s => `${s.stat}: ${Number(s.value).toLocaleString()}`);
+              parts.push(...statLines);
+              tooltipAttr = ` data-item-stats="${parts.join(' · ').replace(/"/g, '&quot;')}"`;
+            }
+
+            // Build inline icon tag if available
+            const iconId = dbItem ? (dbItem.icon || iconMap[dbItem.id]) : null;
+            const lootIconHtml = iconId
+              ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+              : '';
+
+            const itemHtml = dbItem
+              ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
+              : (tooltipAttr ? `<span class="lotro-item"${tooltipAttr}>${itemName}</span>` : itemName);
+
+            const dropChance = lootItem.drop || '';
+            const dropClass = dropChance ? ` lotro-drop-${dropChance.toLowerCase()}` : '';
+
+            lootLines.push(`<tr><td>${itemHtml}</td><td><span class="lotro-drop-chance${dropClass}">${dropChance}</span></td></tr>`);
+          }
+
+          lootLines.push(`</tbody></table>`);
+          lootLines.push(`</div>`);
+        }
+
+        lootLines.push(`</details>`);
+      }
+      lootLines.push('</div>');
+
+      lootSection = `<div class="m-b-30" id="loot">
+          <h3 class="instance-section-title"><i class="fa fa-gift"></i> Loot Tables</h3>
+          <p class="text-muted">Boss loot drops for this instance. Drop rates computed from game data.</p>
+          ${lootLines.join('\n')}
+        </div>`;
+    } else {
+      // Fallback: try curated loot-reference.json
+      const lootSlug = instanceIdToLootSlug[inst.id];
+      if (lootSlug) {
+        const lootHtml = buildLootAccordionHtml(lootSlug);
+        if (lootHtml) {
+          lootSection = `<div class="m-b-30" id="loot">
+            <h3 class="instance-section-title"><i class="fa fa-gift"></i> Loot Tables</h3>
+            <p class="text-muted">Boss loot drops for this instance.</p>
+            ${lootHtml}
+          </div>`;
+        }
+      }
+    }
+
+    const scalingRow = inst.scaling
+      ? `<tr><th><i class="fa fa-arrows-v"></i> Scaling</th><td>${escapeHtml(inst.scaling)}</td></tr>`
+      : '';
+    const instanceIdRow = inst.id
+      ? `<tr><th><i class="fa fa-hashtag"></i> Instance ID</th><td class="text-muted">${inst.id}</td></tr>`
+      : '';
+
+    const detailBody = render(detailTemplate, {
+      instanceName: escapeHtml(inst.name),
+      groupType: inst.groupType,
+      tiers: String(inst.tiers),
+      scalingRow,
+      mobCount: String(inst.mobCount),
+      instanceIdRow,
+      relatedContent,
+      lootSection,
+      mobAccordions: mobAccordions || '<p class="text-muted">No mob data available for this instance.</p>',
+    });
+
+    let detailHtml = buildPage(detailBody, {
+      title: `${inst.name} — Instance Details - LOTRO Guides`,
+      metaDescription: `Detailed mob and ability data for ${inst.name} (${inst.groupType}). ${inst.mobCount} mobs documented.`,
+      currentPage: 'instances',
+      siteRoot: '../',
+      ...navData,
+    });
+
+    fs.writeFileSync(path.join(instancesDir, `${inst.slug}.html`), detailHtml);
+  });
+
+  console.log(`   ✓ ${instanceCount} instance detail pages`);
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // ─── Interactive Map Page ───────────────────────────────────────────────────
@@ -2184,6 +2562,10 @@ async function build() {
   buildQuestsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ quests.html');
 
+  // Build instances database page + individual instance pages
+  buildInstancesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ instances.html');
+
   // Build interactive map page
   buildMapPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ map.html');
@@ -2207,9 +2589,70 @@ async function build() {
     console.log(`   ✓ news/${post.slug}.html`);
   });
 
+  // Build sitemap and robots.txt
+  buildSitemap(allPosts);
+  buildRobotsTxt();
+
   const elapsed = Date.now() - startTime;
   const itemCount = Object.keys(itemIndex).length;
   console.log(`\n✅ Build complete in ${elapsed}ms — ${allPosts.length} articles, ${itemCount.toLocaleString()} items`);
+}
+
+// ─── Sitemap & Robots ────────────────────────────────────────────────────────
+
+function buildSitemap(allPosts) {
+  const now = new Date().toISOString().split('T')[0];
+
+  // Static pages with their priorities and change frequencies
+  const staticPages = [
+    { loc: '',              changefreq: 'daily',   priority: '1.0' },
+    { loc: 'guides.html',  changefreq: 'weekly',  priority: '0.9' },
+    { loc: 'news.html',    changefreq: 'daily',   priority: '0.9' },
+    { loc: 'deeds.html',   changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'quests.html',  changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'items.html',   changefreq: 'weekly',  priority: '0.7' },
+    { loc: 'mobs.html',    changefreq: 'weekly',  priority: '0.7' },
+    { loc: 'virtues.html', changefreq: 'monthly', priority: '0.7' },
+    { loc: 'sets.html',    changefreq: 'monthly', priority: '0.7' },
+    { loc: 'instances.html', changefreq: 'weekly', priority: '0.7' },
+    { loc: 'map.html',     changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'about.html',   changefreq: 'monthly', priority: '0.5' },
+  ];
+
+  const urlEntries = staticPages.map(p => {
+    const fullUrl = p.loc ? `${SITE_BASE_URL}/${p.loc}` : SITE_BASE_URL;
+    return `  <url>\n    <loc>${fullUrl}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`;
+  });
+
+  // Article pages
+  for (const post of allPosts) {
+    const lastmod = post.date ? new Date(post.date).toISOString().split('T')[0] : now;
+    const isGuide = post.category === 'guides';
+    urlEntries.push(
+      `  <url>\n    <loc>${SITE_BASE_URL}/${post.url}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${isGuide ? 'monthly' : 'yearly'}</changefreq>\n    <priority>${isGuide ? '0.8' : '0.7'}</priority>\n  </url>`
+    );
+  }
+
+  // Instance detail pages
+  const instanceDbPath = path.join(OUTPUT_DIR, 'data', 'instances-db.json');
+  if (fs.existsSync(instanceDbPath)) {
+    const instances = JSON.parse(fs.readFileSync(instanceDbPath, 'utf8'));
+    for (const inst of instances) {
+      urlEntries.push(
+        `  <url>\n    <loc>${SITE_BASE_URL}/instances/${inst.slug}.html</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`
+      );
+    }
+  }
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries.join('\n')}\n</urlset>\n`;
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), xml, 'utf8');
+  console.log(`   ✓ sitemap.xml (${urlEntries.length} URLs)`);
+}
+
+function buildRobotsTxt() {
+  const content = `User-agent: *\nAllow: /\nDisallow: /editor.html\n\nSitemap: ${SITE_BASE_URL}/sitemap.xml\n`;
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'robots.txt'), content, 'utf8');
+  console.log('   ✓ robots.txt');
 }
 
 // ─── Watch Mode ─────────────────────────────────────────────────────────────

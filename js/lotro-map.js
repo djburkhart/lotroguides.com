@@ -13,9 +13,11 @@
   var categories = [];        // Category definitions
   var catEnabled = {};        // category code → enabled
   var allLinks = [];          // All inter-map links
+  var linkTargetsKnown = {};  // mapId → true if it has an incoming link from a known map
   var markerLayer;            // MarkerClusterGroup for markers
   var linkLayer;              // LayerGroup for navigation links
   var basemapLayer;           // ImageOverlay for basemap image
+  var regionSelectorControl;   // Region selector dropdown control
   var currentLinkCount = 0;   // Visible navigation links on current map
   var currentMapId = null;    // Currently displayed map
   var mapHistory = [];        // Navigation history for back button
@@ -24,11 +26,13 @@
   // Quest enrichment data
   var questPOI = null;        // NPC DID → [{id, n, r}] quest associations
   var npcData = null;         // NPC id → {n, t}
+  var mapAreaIcons = {};      // mapId → iconId for area icons
 
   // Quest overlay state
   var questOverlayData = null;  // Loaded on-demand from quest-overlay.json
   var questOverlayLayer = null; // LayerGroup for quest objective markers
   var activeQuestId = null;     // Currently overlaid quest
+  var activeQuestDefaultMap = null; // Resolved map for quests with no explicit map IDs
 
   // Deed overlay state
   var deedOverlayData = null;   // Loaded on-demand for deed overlays
@@ -297,7 +301,7 @@
     // Add attribution
     L.control.attribution({ prefix: false }).addTo(map);
     map.attributionControl.addAttribution(
-      'Data from <a href="https://github.com/LotroCompanion" target="_blank" rel="noopener">LotRO Companion</a>'
+      'Data from <a href="https://lotroguides.com/" target="_blank" rel="noopener">LotRO Guides</a>'
     );
 
     markerLayer = createMarkerCluster(40);
@@ -306,11 +310,97 @@
     linkLayer = L.layerGroup();
     map.addLayer(linkLayer);
   }
+  
+  // ─── Region Selector Control ────────────────────────────────────────────
+  function createRegionSelector() {
+    var RegionSelectorControl = L.Control.extend({
+      onAdd: function(map) {
+        var div = L.DomUtil.create('div', 'leaflet-control-region-selector');
+        
+        var select = L.DomUtil.create('select', 'region-dropdown', div);
+        select.style.fontSize = '14px';
+        select.style.padding = '4px 8px';
+        select.style.border = '1px solid #ccc';
+        select.style.borderRadius = '3px';
+        select.style.backgroundColor = '#fff';
+        select.style.cursor = 'pointer';
+        
+        // Populate dropdown with maps
+        this.populateDropdown(select);
+        
+        // Handle selection changes
+        L.DomEvent.on(select, 'change', function() {
+          var mapId = select.value;
+          if (mapId && mapId !== currentMapId) {
+            showMap(mapId, true);
+          }
+        });
+        
+        // Prevent map interaction when using dropdown
+        L.DomEvent.disableClickPropagation(div);
+        L.DomEvent.disableScrollPropagation(div);
+        
+        return div;
+      },
+      
+      populateDropdown: function(select) {
+        // Clear existing options
+        select.innerHTML = '';
+        
+        // Add default option
+        var defaultOption = L.DomUtil.create('option', '', select);
+        defaultOption.value = '';
+        defaultOption.text = 'Navigate to Region...';
+        
+        // Group maps by factor ranges for hierarchical dropdown
+        var overviews = [];
+        var regions = [];
+        var towns = [];
+
+        for (var i = 0; i < allMaps.length; i++) {
+          var m = allMaps[i];
+          var mapName = cleanGameText(m.name);
+          if (!mapName) continue; // skip blank entries
+          if (m.factor <= 2) overviews.push(m);
+          else if (m.factor <= 65) regions.push(m);
+          else towns.push(m);
+        }
+
+        overviews.sort(function (a, b) { return cleanGameText(a.name).localeCompare(cleanGameText(b.name)); });
+        regions.sort(function (a, b) { return cleanGameText(a.name).localeCompare(cleanGameText(b.name)); });
+        towns.sort(function (a, b) { return cleanGameText(a.name).localeCompare(cleanGameText(b.name)); });
+
+        var addGroup = function(label, maps) {
+          if (!maps.length) return;
+          var group = L.DomUtil.create('optgroup', '', select);
+          group.label = label;
+          for (var i = 0; i < maps.length; i++) {
+            var option = L.DomUtil.create('option', '', group);
+            option.value = maps[i].id;
+            option.text = cleanGameText(maps[i].name);
+          }
+        };
+
+        addGroup('Overview Maps', overviews);
+        addGroup('Regions', regions);
+        addGroup('Towns & Instances', towns);
+      },
+      
+      updateSelection: function(mapId) {
+        var select = this.getContainer().querySelector('select');
+        if (select) {
+          select.value = mapId || '';
+        }
+      }
+    });
+    
+    return new RegionSelectorControl({ position: 'topright' });
+  }
 
   // ─── Load Data ──────────────────────────────────────────────────────────
   function loadData(callback) {
     var loaded = 0;
-    var needed = 5;
+    var needed = 6;
 
     function check() {
       loaded++;
@@ -335,8 +425,19 @@
 
     $.getJSON('./data/lore/maps-links.json', function (data) {
       allLinks = data;
+      // Pre-build set of maps that already have an incoming link from a known map.
+      // Used in showLinks to skip false auto-links for maps reachable elsewhere.
+      for (var li = 0; li < allLinks.length; li++) {
+        if (mapById[allLinks[li].from]) linkTargetsKnown[allLinks[li].to] = true;
+      }
       check();
     });
+
+    // Map area icons (mapId → iconId)
+    $.getJSON('./data/lore/maps-area-icons.json', function (data) {
+      mapAreaIcons = data || {};
+      check();
+    }).fail(function () { mapAreaIcons = {}; check(); });
 
     // Quest ↔ POI cross-reference (NPC DID → quest list)
     $.getJSON('./data/quest-poi.json', function (data) {
@@ -461,6 +562,11 @@
 
     // Update selector
     $('#map-selector').val(mapId);
+    
+    // Update region selector control
+    if (regionSelectorControl) {
+      regionSelectorControl.updateSelection(mapId);
+    }
 
     // Update back button
     $('#map-back').prop('disabled', mapHistory.length === 0);
@@ -487,6 +593,11 @@
     var bounds = getMapBounds(mapDef);
     map.setMaxBounds(bounds.pad(0.5));
     map.fitBounds(bounds);
+    
+    // In embed mode, zoom in a bit more for better viewing
+    if (document.body.classList.contains('lotro-map-embed-mode')) {
+      map.setZoom(map.getZoom() + 1);
+    }
 
     // Try to load basemap image (WebP with PNG fallback)
     var imgUrl = './img/maps/basemaps/' + mapId + '.webp';
@@ -591,15 +702,6 @@
       if (hasDetails) {
         popup += '<ul class="lotro-map-popup-details">';
 
-        // Share location link
-        popup += '<li>' +
-          '<a href="#" class="lotro-map-share-btn" ' +
-          'data-map="' + currentMapId + '" ' +
-          'data-lng="' + mk.lng.toFixed(2) + '" ' +
-          'data-lat="' + mk.lat.toFixed(2) + '" ' +
-          'data-label="' + escapeHtml(mk.l).replace(/"/g, '&quot;') + '">' +
-          '<i class="fa fa-share-alt"></i> Share location</a></li>';
-
         // Quest associations
         if (mk.d && questPOI && questPOI[mk.d]) {
           var quests = questPOI[mk.d];
@@ -618,6 +720,22 @@
         }
 
         popup += '</ul>';
+        
+        // Action buttons
+        popup += '<div class="lotro-map-popup-actions">' +
+          '<a href="#" class="lotro-map-share-btn" ' +
+          'data-map="' + currentMapId + '" ' +
+          'data-lng="' + mk.lng.toFixed(2) + '" ' +
+          'data-lat="' + mk.lat.toFixed(2) + '" ' +
+          'data-label="' + escapeHtml(mk.l).replace(/"/g, '&quot;') + '">' +
+          '<i class="fa fa-share-alt"></i> Share</a>' +
+          '<a href="#" class="lotro-map-embed-btn" ' +
+          'data-map="' + currentMapId + '" ' +
+          'data-lng="' + mk.lng.toFixed(2) + '" ' +
+          'data-lat="' + mk.lat.toFixed(2) + '" ' +
+          'data-label="' + escapeHtml(mk.l).replace(/"/g, '&quot;') + '">' +
+          '<i class="fa fa-code"></i> Embed</a>' +
+          '</div>';
       }
 
       popup += '<div class="lotro-map-popup-coords">' +
@@ -637,32 +755,76 @@
   }
 
   // ─── Show Navigation Links ─────────────────────────────────────────────
+  function addLinkMarker(latlng, label, targetId) {
+    var popup = '<div class="lotro-map-popup lotro-map-popup-link">' +
+      '<div class="lotro-map-popup-title">' + escapeHtml(label) + '</div>' +
+      '<button class="btn btn-sm btn-primary lotro-map-nav-btn" data-target="' + targetId + '">' +
+      '<i class="fa fa-map-o"></i> Navigate</button>' +
+      '</div>';
+    var marker = L.marker(latlng, { icon: linkIcon });
+    marker.bindPopup(popup);
+    linkLayer.addLayer(marker);
+    currentLinkCount++;
+  }
+
   function showLinks(mapId) {
     linkLayer.clearLayers();
     currentLinkCount = 0;
     var allowedTargets = OVERVIEW_LINK_ALLOWLIST[mapId] || null;
+    var explicitTargets = {};
 
     for (var i = 0; i < allLinks.length; i++) {
       var link = allLinks[i];
       if (link.from !== mapId) continue;
       if (allowedTargets && !allowedTargets[link.to]) continue;
+      if (!mapById[link.to]) continue;
 
-      var targetMap = mapById[link.to];
-      if (!targetMap) continue;
+      addLinkMarker(gameToLatLng(link.lng, link.lat), link.label, link.to);
+      explicitTargets[link.to] = true;
+    }
 
-      var latlng = gameToLatLng(link.lng, link.lat);
-      var marker = L.marker(latlng, { icon: linkIcon });
+    // For region maps, also auto-generate link icons for spatially-contained child maps
+    // (towns/instances) that have no explicit link entry. To avoid false positives from
+    // LOTRO's overlapping bounding boxes, only add a child to its SMALLEST containing region.
+    var currentMapDef = mapById[mapId];
+    var REGION_MAX_FACTOR = 65;
+    var OVERVIEW_MAX_FACTOR = 2;
+    if (currentMapDef && currentMapDef.min &&
+        currentMapDef.factor > OVERVIEW_MAX_FACTOR && currentMapDef.factor <= REGION_MAX_FACTOR) {
+      // Pre-collect region maps for the "smallest containing region" check
+      var regionMaps = allMaps.filter(function (m) {
+        return m.min && m.factor > OVERVIEW_MAX_FACTOR && m.factor <= REGION_MAX_FACTOR;
+      });
 
-      // Build popup with navigation link
-      var popup = '<div class="lotro-map-popup lotro-map-popup-link">' +
-        '<div class="lotro-map-popup-title">' + escapeHtml(link.label) + '</div>' +
-        '<button class="btn btn-sm btn-primary lotro-map-nav-btn" data-target="' + link.to + '">' +
-        '<i class="fa fa-map-o"></i> Navigate</button>' +
-        '</div>';
+      for (var j = 0; j < allMaps.length; j++) {
+        var child = allMaps[j];
+        if (!child.min || child.factor <= REGION_MAX_FACTOR) continue; // only towns/instances
+        if (explicitTargets[child.id]) continue;
+        // Skip maps already reachable from another map's explicit link
+        if (linkTargetsKnown[child.id]) continue;
 
-      marker.bindPopup(popup);
-      linkLayer.addLayer(marker);
-      currentLinkCount++;
+        // Child must be fully contained within the current map
+        if (child.min.lng < currentMapDef.min.lng || child.max.lng > currentMapDef.max.lng ||
+            child.min.lat < currentMapDef.min.lat || child.max.lat > currentMapDef.max.lat) continue;
+
+        // Find the smallest-area region that fully contains this child —
+        // this is the region the child "belongs" to, preventing overlap bleed.
+        var bestArea = Infinity;
+        var bestRegionId = null;
+        for (var r = 0; r < regionMaps.length; r++) {
+          var reg = regionMaps[r];
+          if (child.min.lng < reg.min.lng || child.max.lng > reg.max.lng ||
+              child.min.lat < reg.min.lat || child.max.lat > reg.max.lat) continue;
+          var area = (reg.max.lng - reg.min.lng) * (reg.max.lat - reg.min.lat);
+          if (area < bestArea) { bestArea = area; bestRegionId = reg.id; }
+        }
+        if (bestRegionId !== mapId) continue;
+
+        // Place the link icon at the child map's geographic center
+        var cx = (child.min.lng + child.max.lng) / 2;
+        var cy = (child.min.lat + child.max.lat) / 2;
+        addLinkMarker(gameToLatLng(cx, cy), cleanGameText(child.name), child.id);
+      }
     }
 
     if (mapId === ROHAN_ID && currentLinkCount > 0) {
@@ -723,6 +885,16 @@
     }, 2000);
   }
 
+  function showEmbedFeedback($btn) {
+    var orig = $btn.html();
+    $btn.html('<i class="fa fa-check"></i> Code copied!');
+    $btn.addClass('lotro-map-embed-copied');
+    setTimeout(function () {
+      $btn.html(orig);
+      $btn.removeClass('lotro-map-embed-copied');
+    }, 2000);
+  }
+
   // Navigate to a shared location: show the map, then pan/zoom to the pin
   function goToSharedLocation(mapId, lng, lat, label) {
     showMap(mapId, false);
@@ -756,6 +928,15 @@
 
     // Back button
     $('#map-back').on('click', function () {
+      if (mapHistory.length > 0) {
+        var prevId = mapHistory.pop();
+        showMap(prevId, false);
+      }
+    });
+
+    // Right-click on the map goes back a level
+    map.getContainer().addEventListener('contextmenu', function (e) {
+      e.preventDefault();
       if (mapHistory.length > 0) {
         var prevId = mapHistory.pop();
         showMap(prevId, false);
@@ -827,6 +1008,35 @@
       }
     });
 
+    // Embed map button (copies iframe code to clipboard)
+    $(document).on('click', '.lotro-map-embed-btn', function (e) {
+      e.preventDefault();
+      var $btn = $(this);
+      var mapId = $btn.data('map').toString();
+      var lng = $btn.data('lng');
+      var lat = $btn.data('lat');
+      var embedUrl = window.location.origin + window.location.pathname +
+        '?embed=1&map=' + mapId + '&lng=' + lng + '&lat=' + lat;
+      var iframeCode = '<iframe src="' + embedUrl + '" width="800" height="600" frameborder="0" style="border:1px solid #ccc; border-radius:4px;" allowfullscreen></iframe>';
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(iframeCode).then(function () {
+          showEmbedFeedback($btn);
+        });
+      } else {
+        // Fallback for older browsers
+        var tmp = document.createElement('textarea');
+        tmp.value = iframeCode;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        showEmbedFeedback($btn);
+      }
+    });
+
     // Quest overlay panel close
     $(document).on('click', '#quest-panel-close', function () {
       clearQuestOverlay();
@@ -843,10 +1053,22 @@
       if (targetMap) switchDeedMap(String(targetMap));
     });
 
+    // Deed overlay — pan to objective when clicking an on-map step
+    $(document).on('click', '.deed-objective-onmap', function () {
+      var lng = parseFloat($(this).data('pan-lng'));
+      var lat = parseFloat($(this).data('pan-lat'));
+      if (!isNaN(lng) && !isNaN(lat)) {
+        var ll = gameToLatLng(lng, lat);
+        map.setView(ll, map.getZoom() + 1, { animate: true });
+      }
+    });
+
     // Quest overlay — switch map when clicking an off-map objective
     $(document).on('click', '.quest-step-offmap', function () {
       var targetMap = $(this).data('quest-switch-map');
-      if (targetMap) switchQuestMap(String(targetMap));
+      var panLng = parseFloat($(this).data('pan-lng'));
+      var panLat = parseFloat($(this).data('pan-lat'));
+      if (targetMap) switchQuestMap(String(targetMap), panLng, panLat);
     });
 
     // Quest overlay — pan to objective when clicking an on-map step
@@ -865,6 +1087,20 @@
     // Embed mode: hide site chrome when loaded in an iframe
     if (params.get('embed') === '1') {
       document.body.classList.add('lotro-map-embed-mode');
+      // Remove any classes that might add padding-top
+      document.body.classList.remove('fixed-header', 'search-open', 'search-active');
+      // Remove header and other chrome from DOM entirely
+      var headerEl = document.getElementById('header');
+      if (headerEl) headerEl.parentNode.removeChild(headerEl);
+      var footerEl = document.getElementById('footer');
+      if (footerEl) footerEl.parentNode.removeChild(footerEl);
+      var breadcrumbsEl = document.querySelector('.breadcrumbs');
+      if (breadcrumbsEl) breadcrumbsEl.parentNode.removeChild(breadcrumbsEl);
+      // Ensure no scroll offset at top
+      window.scrollTo(0, 0);
+      if (document.documentElement) {
+        document.documentElement.scrollTop = 0;
+      }
     }
 
     var questParam = params.get('quest');
@@ -1036,7 +1272,10 @@
           '<span class="deed-objective-map-hint"><i class="fa fa-map-o"></i> ' + escapeHtml(targetName) + '</span>' +
           '</div>';
       } else {
-        html += '<div class="deed-objective-step">' +
+        // On-map objective — clickable to pan to location
+        var panLng = obj.lng || null;
+        var panLat = obj.lat || null;
+        html += '<div class="deed-objective-step deed-objective-onmap" data-pan-lng="' + panLng + '" data-pan-lat="' + panLat + '">' +
           '<span class="deed-step-num">' + stepNum + '</span>' +
           escapeHtml(obj.t || 'Objective location') +
           '</div>';
@@ -1066,14 +1305,51 @@
   }
 
   // ─── Quest Overlay ───────────────────────────────────────────────────────
+  /**
+   * Find the best map for a quest by scanning point coordinates against map bounds.
+   * Returns the map whose bounding box is smallest (most specific) and contains
+   * the first quest point. Overview maps (factor ≤ 2) are excluded.
+   */
+  function resolveQuestPrimaryMap(quest) {
+    // Explicit maps[] entry
+    if (quest.maps && quest.maps.length) return quest.maps[0];
+    // Explicit map ID on individual points
+    for (var s = 0; s < quest.steps.length; s++) {
+      for (var p = 0; p < quest.steps[s].pts.length; p++) {
+        if (quest.steps[s].pts[p][2]) return quest.steps[s].pts[p][2];
+      }
+    }
+    // Coordinate lookup: find smallest map bounding box containing first point
+    var firstPt = null;
+    for (var si = 0; si < quest.steps.length; si++) {
+      if (quest.steps[si].pts.length > 0) { firstPt = quest.steps[si].pts[0]; break; }
+    }
+    if (!firstPt) return null;
+    var lng = firstPt[0], lat = firstPt[1];
+    var best = null, bestArea = Infinity;
+    for (var i = 0; i < allMaps.length; i++) {
+      var m = allMaps[i];
+      if (m.factor <= 2) continue;
+      if (lng < m.min.lng || lng > m.max.lng || lat < m.min.lat || lat > m.max.lat) continue;
+      var area = (m.max.lng - m.min.lng) * (m.max.lat - m.min.lat);
+      if (area < bestArea) { bestArea = area; best = m.id; }
+    }
+    return best;
+  }
+
   function loadQuestOverlay(questId) {
-    if (questOverlayData) {
+    // questOverlayData is a partial cache: {questId → questData}.
+    // We fetch only the specific quest file (~650 bytes) instead of the full 7.9 MB monolith.
+    if (questOverlayData && questOverlayData[questId]) {
       showQuestOverlay(questId);
       return;
     }
-    $.getJSON('./data/quest-overlay.json', function (data) {
-      questOverlayData = data;
+    if (!questOverlayData) questOverlayData = {};
+    $.getJSON('./data/lore/quests/' + questId + '.json', function (data) {
+      questOverlayData[questId] = data;
       showQuestOverlay(questId);
+    }).fail(function () {
+      console.warn('Quest overlay not found:', questId);
     });
   }
 
@@ -1087,22 +1363,13 @@
     questOverlayLayer = L.layerGroup();
     map.addLayer(questOverlayLayer);
 
-    // Navigate to the first associated map
-    var primaryMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
-    // Fallback: use the map ID from the first point if available
-    if (!primaryMap) {
-      for (var s = 0; s < quest.steps.length; s++) {
-        for (var p = 0; p < quest.steps[s].pts.length; p++) {
-          if (quest.steps[s].pts[p][2]) { primaryMap = quest.steps[s].pts[p][2]; break; }
-        }
-        if (primaryMap) break;
-      }
-    }
-    if (primaryMap && mapById[primaryMap]) {
-      showMap(primaryMap, true);
+    // Resolve the primary map (explicit → point-level → coordinate lookup)
+    activeQuestDefaultMap = resolveQuestPrimaryMap(quest);
+    if (activeQuestDefaultMap && mapById[activeQuestDefaultMap]) {
+      showMap(activeQuestDefaultMap, true);
     }
 
-    // Render only markers for the current map
+    // Render markers for the current map
     renderQuestMarkers(quest, currentMapId);
 
     // Show quest info panel
@@ -1118,7 +1385,7 @@
     if (!questOverlayLayer) return;
     questOverlayLayer.clearLayers();
 
-    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
+    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : activeQuestDefaultMap;
 
     for (var s = 0; s < quest.steps.length; s++) {
       var step = quest.steps[s];
@@ -1128,8 +1395,34 @@
         if (ptMap && ptMap !== targetMapId) continue;
 
         var ll = gameToLatLng(pt[0], pt[1]);
+
+        // Quest area circle highlight
+        if (step.kz) {
+          // Scale radius proportionally to map size (~3% of reference span)
+          var qaRadius = 0.03 * REF_SPAN;
+          var circle = L.circle(ll, {
+            radius: qaRadius,
+            color: '#e74c3c',
+            fillColor: '#e74c3c',
+            fillOpacity: 0.15,
+            weight: 2,
+            dashArray: '6 4',
+            interactive: true,
+          });
+          var areaLabel = step.kz.n || step.t || 'Quest area';
+          var areaPop = '<div class="lotro-map-popup">' +
+            '<div class="lotro-map-popup-title"><i class="fa fa-crosshairs"></i> Quest Area</div>' +
+            '<div style="margin-top:4px;font-size:12px;">' + escapeHtml(areaLabel) + '</div>';
+          if (step.kz.c > 1) {
+            areaPop += '<div style="margin-top:2px;font-size:11px;opacity:0.7">Defeat ' + step.kz.c + '</div>';
+          }
+          areaPop += '</div>';
+          circle.bindPopup(areaPop);
+          questOverlayLayer.addLayer(circle);
+        }
+
         var divIcon = L.divIcon({
-          className: 'quest-objective-icon',
+          className: step.kz ? 'quest-objective-icon quest-kill-icon' : 'quest-objective-icon',
           html: '' + step.i,
           iconSize: [24, 24],
           iconAnchor: [12, 12],
@@ -1153,7 +1446,7 @@
    * Switch the quest overlay to a different map when the user clicks an
    * off-map objective in the panel.
    */
-  function switchQuestMap(targetMapId) {
+  function switchQuestMap(targetMapId, panLng, panLat) {
     var quest = questOverlayData && questOverlayData[activeQuestId];
     if (!quest) return;
 
@@ -1163,6 +1456,12 @@
 
     renderQuestMarkers(quest, currentMapId);
     showQuestPanel(quest);
+
+    // Pan to the objective after switching maps
+    if (panLng !== undefined && panLat !== undefined && !isNaN(panLng) && !isNaN(panLat)) {
+      var ll = gameToLatLng(panLng, panLat);
+      map.setView(ll, map.getZoom() + 1, { animate: true });
+    }
   }
 
   function clearQuestOverlay() {
@@ -1171,6 +1470,7 @@
       questOverlayLayer = null;
     }
     activeQuestId = null;
+    activeQuestDefaultMap = null;
     $('#lotro-quest-panel').remove();
   }
 
@@ -1178,7 +1478,7 @@
     $('#lotro-quest-panel').remove();
 
     // Determine which maps this quest's points span
-    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : null;
+    var defaultMap = (quest.maps && quest.maps.length) ? quest.maps[0] : activeQuestDefaultMap;
     var questMaps = {};
     for (var s = 0; s < quest.steps.length; s++) {
       var step = quest.steps[s];
@@ -1187,7 +1487,6 @@
         if (ptMap) questMaps[ptMap] = true;
       }
     }
-    var isMultiMap = Object.keys(questMaps).length > 1;
 
     var html = '<div id="lotro-quest-panel" class="lotro-map-quest-panel">' +
       '<span class="close-panel" id="quest-panel-close">&times;</span>' +
@@ -1198,35 +1497,59 @@
       var step = quest.steps[i];
       var stepText = step.t ? escapeHtml(step.t) : 'Objective ' + step.i;
 
-      // Determine which map(s) this step's points are on
+      // Determine which map(s) this step's points are on.
+      // A point is "on current" if its explicit mapId matches OR its coordinates
+      // fall within the current map's bounding box (handles quests with no explicit mapIds).
+      var currentMapDef = mapById[currentMapId];
       var onCurrent = false;
       var offMapId = null;
+      var offPanLng = null, offPanLat = null;
       for (var p = 0; p < step.pts.length; p++) {
         var ptMap = step.pts[p][2] || defaultMap;
-        if (ptMap === currentMapId || !ptMap) {
+        var ptLng = step.pts[p][0], ptLat = step.pts[p][1];
+        var withinCurrent = currentMapDef && currentMapDef.min &&
+          ptLng >= currentMapDef.min.lng && ptLng <= currentMapDef.max.lng &&
+          ptLat >= currentMapDef.min.lat && ptLat <= currentMapDef.max.lat;
+        if (ptMap === currentMapId || !ptMap || withinCurrent) {
           onCurrent = true;
         } else if (!offMapId) {
           offMapId = ptMap;
+          offPanLng = ptLng;
+          offPanLat = ptLat;
         }
       }
 
-      if (!onCurrent && offMapId && isMultiMap) {
-        // Off-map objective — clickable to switch maps
+      if (!onCurrent && offMapId) {
+        // Off-map objective — clickable to switch maps and pan to objective
         var targetName = (mapById[offMapId] && mapById[offMapId].name)
           ? cleanGameText(mapById[offMapId].name)
           : 'Another map';
-        html += '<div class="quest-step quest-step-offmap" data-quest-switch-map="' + offMapId + '">' +
+        html += '<div class="quest-step quest-step-offmap" data-quest-switch-map="' + offMapId + '"' +
+          ' data-pan-lng="' + offPanLng + '" data-pan-lat="' + offPanLat + '">' +
           '<span class="quest-step-num quest-step-num-offmap">' + step.i + '</span>' +
           '<span class="quest-step-text">' + stepText + '</span>' +
           '<span class="quest-step-map-hint"><i class="fa fa-map-o"></i> ' + escapeHtml(targetName) + '</span>' +
           '</div>';
       } else {
-        // On-map objective — clickable to pan to first point
-        var panLng = step.pts[0] ? step.pts[0][0] : null;
-        var panLat = step.pts[0] ? step.pts[0][1] : null;
-        html += '<div class="quest-step quest-step-onmap" data-pan-lng="' + panLng + '" data-pan-lat="' + panLat + '">' +
-          '<span class="quest-step-num">' + step.i + '</span>' +
-          stepText +
+        // On-map objective — clickable to pan to first on-map point
+        var panLng = null, panLat = null;
+        for (var pp = 0; pp < step.pts.length; pp++) {
+          var ppMap = step.pts[pp][2] || defaultMap;
+          var ppLng = step.pts[pp][0], ppLat = step.pts[pp][1];
+          var ppWithin = currentMapDef && currentMapDef.min &&
+            ppLng >= currentMapDef.min.lng && ppLng <= currentMapDef.max.lng &&
+            ppLat >= currentMapDef.min.lat && ppLat <= currentMapDef.max.lat;
+          if (ppMap === currentMapId || !ppMap || ppWithin) {
+            panLng = ppLng;
+            panLat = ppLat;
+            break;
+          }
+        }
+        if (panLng === null && step.pts[0]) { panLng = step.pts[0][0]; panLat = step.pts[0][1]; }
+        var areaBadge = step.kz ? ' <span class="quest-kill-badge"><i class="fa fa-crosshairs"></i>' + (step.kz.c > 1 ? ' ×' + step.kz.c : '') + '</span>' : '';
+        html += '<div class="quest-step quest-step-onmap' + (step.kz ? ' quest-step-kill' : '') + '" data-pan-lng="' + panLng + '" data-pan-lat="' + panLat + '">' +
+          '<span class="quest-step-num' + (step.kz ? ' quest-step-num-kill' : '') + '">' + step.i + '</span>' +
+          stepText + areaBadge +
           '</div>';
       }
     }
@@ -1242,6 +1565,10 @@
       populateMapSelector();
       buildCategoryPanel();
       bindEvents();
+      
+      // Add region selector control to map
+      regionSelectorControl = createRegionSelector();
+      map.addControl(regionSelectorControl);
     });
   };
 

@@ -1,0 +1,51 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="index.html">Home</a></li>
+          <li class="active">Instances</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-fort-awesome"></i>
+          <h2>Instance Database</h2>
+          <p>Browse {{instanceCount}} instances documented with mob and ability data from the Refridgerraiders project. Click any instance for full details.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="row m-b-30">
+          <div class="col-sm-6 col-md-4 m-b-15">
+            <label class="item-filter-label">Group Size</label>
+            <select id="filter-group" class="form-control item-filter-select">
+              <option value="">All Sizes</option>
+              <option value="3-Player">3-Player</option>
+              <option value="6-Player">6-Player</option>
+              <option value="12-Player Raid">12-Player Raid</option>
+              <option value="24-Player Raid">24-Player Raid</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-4 m-b-15">
+            <label class="item-filter-label">&nbsp;</label>
+            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Instances Table -->
+        <div class="table-responsive">
+          <table id="instances-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Group Size</th>
+                <th>Tiers</th>
+                <th>Mobs</th>
+                <th>Loot</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>

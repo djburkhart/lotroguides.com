@@ -197,6 +197,10 @@ function extractItems() {
     if (level < 100) continue;
     if (!['LEGENDARY', 'INCOMPARABLE', 'RARE'].includes(quality)) continue;
 
+    // Extract icon (first component of compound icon ID)
+    const iconMatch = attrs.match(/icon="([^"]*)"/);
+    const iconId = iconMatch ? iconMatch[1].split('-')[0] : '';
+
     const body = m[4];
     const stats = [];
     const sr = /<stat name="([^"]*)"(?:[^/]*?(?:value|constant)="([^"]*)")?/g;
@@ -205,7 +209,7 @@ function extractItems() {
       if (s[2]) stats.push(formatStat(s[1], s[2]));
     }
 
-    items.push({
+    const item = {
       id: m[1],
       name: cleanGameText(m[2]),
       level,
@@ -213,7 +217,10 @@ function extractItems() {
       slot: slotMatch ? slotMatch[1].replace(/_/g, ' ').toLowerCase() : '',
       category: categoryMatch ? categoryMatch[1].toLowerCase() : '',
       stats,
-    });
+    };
+    if (iconId) item.icon = iconId;
+
+    items.push(item);
   }
 
   console.log(`    Found ${items.length} notable items (level 100+, rare+)`);
@@ -292,6 +299,17 @@ function extractVirtues() {
   const xml = readXml('virtues.xml');
   if (!xml) return [];
 
+  // Build virtue identifier → iconId map from traits.xml (virtues are nature="5")
+  const virtueIconMap = {};
+  const traitsXml = readXml('traits.xml');
+  if (traitsXml) {
+    const traitRe = /<trait identifier="(\d+)"[^>]*iconId="(\d+)"[^>]*nature="5"/g;
+    let tm;
+    while ((tm = traitRe.exec(traitsXml)) !== null) {
+      if (tm[2] !== '0') virtueIconMap[tm[1]] = tm[2];
+    }
+  }
+
   const re = /<virtue identifier="(\d+)" key="([^"]*)" name="([^"]*)"[^>]*>([\s\S]*?)<\/virtue>/g;
   const virtues = [];
   let m;
@@ -319,10 +337,12 @@ function extractVirtues() {
       if (tier > maxTier) maxTier = tier;
     }
 
-    virtues.push({ id, name, stats, maxTier });
+    const virtue = { id, name, stats, maxTier };
+    if (virtueIconMap[id]) virtue.iconId = virtueIconMap[id];
+    virtues.push(virtue);
   }
 
-  console.log(`    Found ${virtues.length} virtues`);
+  console.log(`    Found ${virtues.length} virtues (${Object.keys(virtueIconMap).length} with icons)`);
   return virtues;
 }
 
@@ -436,9 +456,9 @@ function extractDeeds() {
     if (vxpMatch) rewards.push({ type: 'VirtueXP', value: parseInt(vxpMatch[1]) });
     const xpMatch = body.match(/<XP quantity="(\d+)"/);
     if (xpMatch) rewards.push({ type: 'XP', value: parseInt(xpMatch[1]) });
-    const objMatches = [...body.matchAll(/<object id="[^"]*" name="([^"]*)" quantity="(\d+)"/g)];
+    const objMatches = [...body.matchAll(/<object id="(\d+)" name="([^"]*)" quantity="(\d+)"/g)];
     for (const om of objMatches) {
-      rewards.push({ type: 'Item', value: `${cleanGameText(om[1])} x${om[2]}` });
+      rewards.push({ type: 'Item', id: om[1], value: `${cleanGameText(om[2])} x${om[3]}` });
     }
 
     // Extract objectives
@@ -478,15 +498,15 @@ function extractDeeds() {
     }
 
     // Item collection
-    const items = [...body.matchAll(/<inventoryItem[^>]*itemName="([^"]*)"/g)];
+    const items = [...body.matchAll(/<inventoryItem[^>]*itemId="(\d+)"[^>]*itemName="([^"]*)"/g)];
     for (const it of items) {
-      objectives.push({ type: 'item', name: cleanGameText(it[1]) });
+      objectives.push({ type: 'item', itemId: it[1], name: cleanGameText(it[2]) });
     }
 
     // Item usage at locations
-    const itemsUsed = [...body.matchAll(/<itemUsed[^>]*itemName="([^"]*)"/g)];
+    const itemsUsed = [...body.matchAll(/<itemUsed[^>]*itemId="(\d+)"[^>]*itemName="([^"]*)"/g)];
     for (const iu of itemsUsed) {
-      objectives.push({ type: 'useItem', name: cleanGameText(iu[1]) });
+      objectives.push({ type: 'useItem', itemId: iu[1], name: cleanGameText(iu[2]) });
     }
 
     // NPC interactions
@@ -549,7 +569,9 @@ function buildItemIndex(consumables, statTomes, enhancementRunes, items, mobs, v
   // Add notable items
   for (const item of items) {
     if (!index[item.name]) {
-      index[item.name] = { id: item.id, type: 'item', quality: item.quality, level: item.level, slot: item.slot, stats: item.stats };
+      const entry = { id: item.id, type: 'item', quality: item.quality, level: item.level, slot: item.slot, stats: item.stats };
+      if (item.icon) entry.icon = item.icon;
+      index[item.name] = entry;
     }
   }
 

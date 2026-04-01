@@ -9,6 +9,30 @@
   var setById = {};
   var initialized = false;
 
+  // ── Game icon helper ────────────────────────────────────────────────────
+  function gameIcon(iconId, size) {
+    if (!iconId) return '';
+    size = size || 16;
+    return '<img src="./img/icons/items/' + iconId + '.png" ' +
+           'width="' + size + '" height="' + size + '" ' +
+           'class="lotro-game-icon" alt="" loading="lazy" ' +
+           'onerror="this.style.display=\'none\'">';
+  }
+
+  // Pick a representative icon from the first piece that has one
+  function setIcon(row) {
+    if (!row.pc) return '';
+    for (var i = 0; i < row.pc.length; i++) {
+      if (row.pc[i].ic) return gameIcon(row.pc[i].ic);
+    }
+    return '';
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function renderName(data, type, row) {
     if (type === 'filter') {
       var parts = [data];
@@ -29,7 +53,8 @@
       return parts.join(' ');
     }
     if (type !== 'display') return data;
-    return '<a href="sets.html?id=' + row.id + '" class="lotro-set-link" data-set-id="' + row.id + '">' + data + '</a>';
+    var icon = setIcon(row);
+    return '<a href="sets.html?id=' + row.id + '" class="lotro-set-link" data-set-id="' + row.id + '">' + icon + (icon ? ' ' : '') + escapeHtml(data) + '</a>';
   }
 
   function renderLevel(data, type, row) {
@@ -42,7 +67,11 @@
   function renderPieces(data, type) {
     if (type !== 'display') return data ? data.length : 0;
     if (!data || !data.length) return '—';
-    return '<span class="set-piece-count">' + data.length + ' pieces</span>';
+    var icons = '';
+    for (var i = 0; i < data.length && i < 6; i++) {
+      if (data[i].ic) icons += gameIcon(data[i].ic);
+    }
+    return (icons ? icons + ' ' : '') + '<span class="set-piece-count">' + data.length + ' pieces</span>';
   }
 
   function renderBonuses(data, type) {
@@ -50,7 +79,7 @@
     if (!data || !data.length) return '<span class="text-muted">—</span>';
     return data.map(function (b) {
       var statNames = b.st.map(function (s) {
-        return s.s + (s.v !== null ? ': ' + s.v : '');
+        return escapeHtml(s.s) + (s.v !== null ? ': ' + s.v : '');
       }).join(', ');
       return '<span class="set-bonus-badge">' + b.c + 'pc: ' + statNames + '</span>';
     }).join(' ');
@@ -118,29 +147,33 @@
     var s = setById[id];
     if (!s) return;
 
-    $('#set-modal-title').html('<span class="lotro-set-name">' + s.n + '</span>');
+    var titleIcon = setIcon(s);
+    $('#set-modal-title').html(titleIcon + (titleIcon ? ' ' : '') + '<span class="lotro-set-name">' + escapeHtml(s.n) + '</span>');
 
     var html = '<div class="item-modal-meta">';
     if (s.lv) html += '<p><strong>Item Level:</strong> ' + s.lv + '</p>';
     if (s.ml) html += '<p><strong>Max Character Level:</strong> ' + s.ml + '</p>';
+    html += '<p><strong>Pieces:</strong> ' + (s.pc ? s.pc.length : 0) + '</p>';
     html += '</div>';
 
-    html += '<h5>Set Pieces (' + s.pc.length + ')</h5>';
+    html += '<h5><i class="fa fa-cubes"></i> Set Pieces</h5>';
     html += '<ul class="set-pieces-list">';
     for (var i = 0; i < s.pc.length; i++) {
-      html += '<li>' + s.pc[i].n + '</li>';
+      var p = s.pc[i];
+      var pIcon = p.ic ? gameIcon(p.ic) + ' ' : '';
+      html += '<li>' + pIcon + '<a href="items.html?q=' + encodeURIComponent(p.n) + '" class="lotro-item-link">' + escapeHtml(p.n) + '</a></li>';
     }
     html += '</ul>';
 
     if (s.bn && s.bn.length) {
-      html += '<h5>Set Bonuses</h5>';
+      html += '<h5><i class="fa fa-star"></i> Set Bonuses</h5>';
       html += '<table class="table table-condensed item-stat-table">';
       for (var j = 0; j < s.bn.length; j++) {
         var b = s.bn[j];
         var stats = b.st.map(function (st) {
-          return st.s + (st.v !== null ? ': <strong>' + st.v + '</strong>' : '');
+          return escapeHtml(st.s) + (st.v !== null ? ': <strong>' + st.v + '</strong>' : '');
         }).join(', ');
-        html += '<tr><td>' + b.c + '-piece</td><td>' + stats + '</td></tr>';
+        html += '<tr><td><span class="set-bonus-badge">' + b.c + '-piece</span></td><td>' + stats + '</td></tr>';
       }
       html += '</table>';
     }

@@ -60,16 +60,40 @@
   // ── Type icons for cross-linked entries ─────────────────────────────────
   var typeIcons = {
     set: '<i class="fa fa-cubes" style="color:#bb86fc"></i> ',
-    deed: '<i class="fa fa-bookmark" style="color:#66bb6a"></i> ',
     virtue: '<i class="fa fa-shield" style="color:#ffd54f"></i> ',
     'quest-reward': '<i class="fa fa-gift" style="color:#4fc3f7"></i> '
   };
+
+  var deedTypeIcons = {
+    Slayer: 'slayer', Exploration: 'explorer', Lore: 'lore',
+    Reputation: 'reputation', Class: 'class', Event: 'event', Race: 'race'
+  };
+
+  function deedIcon(deedType, size) {
+    var file = deedTypeIcons[deedType];
+    if (!file) return '<i class="fa fa-bookmark" style="color:#66bb6a"></i> ';
+    size = size || 16;
+    return '<img src="./img/icons/deed-types/' + file + '.png" ' +
+           'width="' + size + '" height="' + size + '" ' +
+           'class="deed-type-icon" alt="" loading="lazy" ' +
+           'onerror="this.style.display=\'none\'">';
+  }
+
+  // ── Game icon helper ────────────────────────────────────────────────────
+  function gameIcon(iconId, size) {
+    if (!iconId) return '';
+    size = size || 16;
+    return '<img src="./img/icons/items/' + iconId + '.png" ' +
+           'width="' + size + '" height="' + size + '" ' +
+           'class="lotro-game-icon" alt="" loading="lazy" ' +
+           'onerror="this.style.display=\'none\'">';
+  }
 
   // ── Render name cell ────────────────────────────────────────────────────
   function renderName(data, type, row) {
     if (type === 'display') {
       var cls = row.q ? ' lotro-' + row.q : '';
-      var icon = typeIcons[row.t] || '';
+      var icon = row.ic ? gameIcon(row.ic) + ' ' : (row.t === 'deed' ? deedIcon(row.dt) + ' ' : (typeIcons[row.t] || ''));
       var link = '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
       if (row.sid) {
         link += ' <a href="sets.html?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
@@ -234,7 +258,8 @@
     if (!item) return;
 
     var cls = item.q ? ' lotro-' + item.q : '';
-    $('#item-modal-title').html('<span class="' + cls.trim() + '">' + item.n + '</span>');
+    var modalIcon = item.ic ? gameIcon(item.ic, 16) + ' ' : (item.t === 'deed' ? deedIcon(item.dt, 16) + ' ' : '');
+    $('#item-modal-title').html(modalIcon + '<span class="' + cls.trim() + '">' + item.n + '</span>');
 
     var html = '<div class="item-modal-meta">';
     html += '<p><strong>Type:</strong> ' + item.t + '</p>';
@@ -248,7 +273,7 @@
       html += '<p><strong>Set:</strong> <a href="sets.html?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a></p>';
     }
     if (item.t === 'deed') {
-      html += '<p><a href="deeds.html?id=' + item.id + '" class="item-crosslink item-crosslink-deed"><i class="fa fa-bookmark"></i> View in Deed Database</a></p>';
+      html += '<p><a href="deeds.html?id=' + item.id + '" class="item-crosslink item-crosslink-deed">' + deedIcon(item.dt, 14) + ' View in Deed Database</a></p>';
     }
     if (item.t === 'set') {
       html += '<p><a href="sets.html?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a></p>';

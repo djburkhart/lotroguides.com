@@ -12,7 +12,10 @@
     "watch": "node build.js --watch",
     "scrape": "node scrape-news.js",
     "scrape:build": "node scrape-news.js && node build.js",
-    "import:loot": "node import-lotro-companion-loot.js"
+    "import:loot": "node import-lotro-companion-loot.js",
+    "extract:lore": "node scripts/extract-lore.js",
+    "extract:icons": "node scripts/extract-icons.js",
+    "extract:all": "node scripts/extract-lore.js && node scripts/extract-icons.js"
   },
   "dependencies": {
     "@milkdown/crepe": "^7.20.0",
@@ -22,5 +25,9 @@
     "gray-matter": "^4.0.3",
     "marked": "^12.0.0",
     "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "adm-zip": "^0.5.17",
+    "xlsx": "^0.18.5"
   }
 }

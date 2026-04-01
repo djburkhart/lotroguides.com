@@ -7,7 +7,8 @@
       "Physical Mitigation",
       "Vitality"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664657"
   },
   {
     "id": "1879072874",
@@ -17,7 +18,8 @@
       "Tactical Mitigation",
       "Combat Agent Armor Value Float"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664658"
   },
   {
     "id": "1879072875",
@@ -27,7 +29,8 @@
       "Finesse",
       "EVADE"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664659"
   },
   {
     "id": "1879072876",
@@ -37,7 +40,8 @@
       "Physical Mastery",
       "Critical Rating"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664660"
   },
   {
     "id": "1879072877",
@@ -47,7 +51,8 @@
       "INCOMING HEALING",
       "Physical Mitigation"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664661"
   },
   {
     "id": "1879072878",
@@ -57,7 +62,8 @@
       "CRITICAL DEFENCE",
       "Resistance"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664662"
   },
   {
     "id": "1879072879",
@@ -67,7 +73,8 @@
       "Vitality",
       "Physical Mitigation"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664663"
   },
   {
     "id": "1879072880",
@@ -77,7 +84,8 @@
       "CRITICAL DEFENCE",
       "Resistance"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664664"
   },
   {
     "id": "1879072881",
@@ -87,7 +95,8 @@
       "Will",
       "Critical Rating"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664665"
   },
   {
     "id": "1879072882",
@@ -97,7 +106,8 @@
       "Tactical Mitigation",
       "CRITICAL DEFENCE"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664666"
   },
   {
     "id": "1879072883",
@@ -107,7 +117,8 @@
       "INCOMING HEALING",
       "Morale"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664667"
   },
   {
     "id": "1879072888",
@@ -117,7 +128,8 @@
       "Resistance",
       "Tactical Mitigation"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664668"
   },
   {
     "id": "1879072884",
@@ -127,7 +139,8 @@
       "Morale",
       "Tactical Mitigation"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664669"
   },
   {
     "id": "1879072885",
@@ -137,7 +150,8 @@
       "Combat Agent Armor Value Float",
       "INCOMING HEALING"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664670"
   },
   {
     "id": "1879072886",
@@ -147,7 +161,8 @@
       "Fate",
       "Vitality"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664671"
   },
   {
     "id": "1879072887",
@@ -157,7 +172,8 @@
       "EVADE",
       "Critical Rating"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664672"
   },
   {
     "id": "1879072889",
@@ -167,7 +183,8 @@
       "Resistance",
       "Physical Mitigation"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664673"
   },
   {
     "id": "1879072890",
@@ -177,7 +194,8 @@
       "Finesse",
       "Critical Rating"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664674"
   },
   {
     "id": "1879072891",
@@ -187,7 +205,8 @@
       "Tactical Mastery",
       "Finesse"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664675"
   },
   {
     "id": "1879388819",
@@ -198,7 +217,8 @@
       "Physical Mastery",
       "Tactical Mastery"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1092463638"
   },
   {
     "id": "1879072892",
@@ -208,6 +228,7 @@
       "Physical Mastery",
       "Critical Rating"
     ],
-    "maxTier": 130
+    "maxTier": 130,
+    "iconId": "1091664676"
   }
 ]

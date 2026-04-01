@@ -9,36 +9,6 @@
     <section class="lotro-map-section">
       <div class="container-fluid lotro-map-container">
 
-        <!-- Map Toolbar -->
-        <div class="lotro-map-toolbar">
-          <div class="lotro-map-toolbar-left">
-            <i class="fa fa-map-o"></i>
-            <select id="map-selector" class="form-control lotro-map-select">
-              <option value="">Loading maps...</option>
-            </select>
-            <button id="map-back" class="btn btn-sm btn-default lotro-map-btn" title="Back to parent map" disabled>
-              <i class="fa fa-arrow-left"></i>
-            </button>
-          </div>
-          <div class="lotro-map-toolbar-right">
-            <button id="map-toggle-categories" class="btn btn-sm btn-default lotro-map-btn" title="Toggle category filters">
-              <i class="fa fa-filter"></i> Filters
-            </button>
-            <span id="map-marker-count" class="lotro-map-marker-count"></span>
-          </div>
-        </div>
-
-        <!-- Category Filter Panel (collapsible) -->
-        <div id="map-category-panel" class="lotro-map-category-panel" style="display:none;">
-          <div class="lotro-map-category-grid" id="map-category-grid">
-            <!-- Populated by JS -->
-          </div>
-          <div class="lotro-map-category-actions">
-            <button id="cat-select-all" class="btn btn-xs btn-default">Select All</button>
-            <button id="cat-select-none" class="btn btn-xs btn-default">Select None</button>
-          </div>
-        </div>
-
         <!-- The Map -->
         <div id="lotro-map" class="lotro-map"></div>
 

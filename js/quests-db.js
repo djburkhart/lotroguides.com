@@ -9,6 +9,15 @@
   var questById = {};
   var initialized = false;
 
+  function gameIcon(itemId, size) {
+    if (!itemId) return '';
+    var map = window.LOTRO_ICON_MAP || {};
+    var iconId = map[itemId];
+    if (!iconId) return '';
+    var s = size || 16;
+    return '<img src="./img/icons/items/' + iconId + '.png" width="' + s + '" height="' + s + '" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+  }
+
   // ─── Renderers ──────────────────────────────────────────────────────────
 
   function escapeHtml(str) {
@@ -187,7 +196,7 @@
       if (q.rw.m) html += '<li><strong>Money:</strong> ' + escapeHtml(q.rw.m) + '</li>';
       if (q.rw.it) {
         for (var i = 0; i < q.rw.it.length; i++) {
-          html += '<li><strong>Item:</strong> <a href="items.html?q=' + encodeURIComponent(q.rw.it[i].n) + '">' + escapeHtml(q.rw.it[i].n) + '</a></li>';
+          html += '<li><strong>Item:</strong> ' + gameIcon(q.rw.it[i].id) + '<a href="items.html?q=' + encodeURIComponent(q.rw.it[i].n) + '">' + escapeHtml(q.rw.it[i].n) + '</a></li>';
         }
       }
       html += '</ul>';
@@ -196,8 +205,9 @@
 
     $('#quest-modal-body').html(html);
 
-    // Show on Map link
-    if (q.maps && q.maps.length) {
+    // Show on Map link — check overlay data for plottable objectives
+    var hasOverlay = window.LOTRO_QUEST_OVERLAY && window.LOTRO_QUEST_OVERLAY[id];
+    if (hasOverlay) {
       $('#quest-map-link').attr('href', 'map.html?quest=' + id).show();
     } else {
       $('#quest-map-link').hide();

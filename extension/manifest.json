@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "LOTRO Guides Character Bridge",
+  "version": "1.0.0",
+  "description": "Bridge your LOTRO character data to lotroguides.com seamlessly",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "nativeMessaging",
+    "downloads",
+    "downloads.open"
+  ],
+  "host_permissions": [
+    "https://lotroguides.com/*",
+    "http://localhost:*/*"
+  ],
+  "content_scripts": [{
+    "matches": ["https://lotroguides.com/*", "http://localhost:*/*"],
+    "js": ["content.js"],
+    "run_at": "document_end"
+  }],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "LOTRO Character Bridge"
+  },
+  "web_accessible_resources": [{
+    "resources": ["bridge.js", "LOTROGuidesExporter.lua"],
+    "matches": ["https://lotroguides.com/*", "http://localhost:*/*"]
+  }]
+}

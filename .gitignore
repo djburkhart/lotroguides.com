@@ -38,6 +38,7 @@ npm-debug.log*
 /quests.html
 /sets.html
 /virtues.html
+/instances.html
 
 # Markdown-sourced article HTML (legacy news HTML in news/ must stay tracked)
 /guides/*.html
@@ -55,3 +56,13 @@ npm-debug.log*
 
 # Sharp-converted images
 /img/**/*.webp
+
+# Extracted game icons (derived from LotRO Companion ZIPs)
+/img/icons/items/
+/img/icons/skills/
+/img/icons/traits/
+/img/icons/effects/
+/img/icons/virtues/
+
+# Temp files
+.tmp/

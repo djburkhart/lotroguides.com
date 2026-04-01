@@ -4,3 +4,8 @@ packages:
       - name: auth
         runtime: nodejs:20
         web: true
+  - name: quests
+    functions:
+      - name: lookup
+        runtime: nodejs:20
+        web: true

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LOTRO Extension Popup Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .popup-container {
+      width: 350px;
+      height: 500px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .test-results {
+      background: #f0f0f0;
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    .pass { color: green; }
+    .fail { color: red; }
+    .info { color: blue; }
+  </style>
+</head>
+<body>
+  <h1>🔧 LOTRO Extension Popup Test</h1>
+  
+  <div class="test-section">
+    <h3>📱 Popup Display Test</h3>
+    <p>This tests the popup HTML and CSS rendering:</p>
+    <div class="popup-container">
+      <iframe src="popup.html"></iframe>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h3>🧪 Functionality Tests</h3>
+    <button onclick="runTests()">Run All Tests</button>
+    <div id="test-results" class="test-results">
+      Click "Run All Tests" to verify popup functionality...
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h3>📋 Installation Checklist</h3>
+    <ul>
+      <li>☐ Load unpacked extension from <code>dist/</code> folder</li>
+      <li>☐ Check that extension icon appears in toolbar</li>
+      <li>☐ Click extension icon to open popup</li>
+      <li>☐ Verify popup can be closed by clicking outside</li>
+      <li>☐ Test ESC key to close popup</li>
+      <li>☐ Check developer mode info section</li>
+      <li>☐ Test "Reload Extension" button</li>
+      <li>☐ Verify status checking functionality</li>
+    </ul>
+  </div>
+
+  <script>
+    function runTests() {
+      const results = document.getElementById('test-results');
+      results.innerHTML = '<div class="info">Running tests...</div>';
+      
+      const tests = [
+        {
+          name: 'Popup HTML Structure',
+          test: () => {
+            const iframe = document.querySelector('iframe');
+            const doc = iframe.contentDocument;
+            if (!doc) return false;
+            
+            const elements = [
+              'game-status',
+              'plugin-status', 
+              'install-plugin',
+              'check-status',
+              'extension-id',
+              'reload-extension'
+            ];
+            
+            return elements.every(id => doc.getElementById(id) !== null);
+          }
+        },
+        {
+          name: 'CSS Styles Applied',
+          test: () => {
+            const iframe = document.querySelector('iframe');
+            const doc = iframe.contentDocument;
+            if (!doc) return false;
+            
+            const body = doc.body;
+            const computed = iframe.contentWindow.getComputedStyle(body);
+            return computed.width === '350px';
+          }
+        },
+        {
+          name: 'JavaScript Loading',
+          test: () => {
+            const iframe = document.querySelector('iframe');
+            const win = iframe.contentWindow;
+            return win && typeof win.addEventListener === 'function';
+          }
+        },
+        {
+          name: 'Extension APIs Available',
+          test: () => {
+            return typeof chrome !== 'undefined' && 
+                   chrome.runtime && 
+                   chrome.storage;
+          }
+        }
+      ];
+      
+      setTimeout(() => {
+        let output = '';
+        let passed = 0;
+        
+        tests.forEach(test => {
+          try {
+            const result = test.test();
+            if (result) {
+              output += `<div class="pass">✅ ${test.name}</div>`;
+              passed++;
+            } else {
+              output += `<div class="fail">❌ ${test.name}</div>`;
+            }
+          } catch (error) {
+            output += `<div class="fail">❌ ${test.name} - Error: ${error.message}</div>`;
+          }
+        });
+        
+        output += `<div class="info"><br>Results: ${passed}/${tests.length} tests passed</div>`;
+        
+        if (passed === tests.length) {
+          output += '<div class="pass"><strong>🎉 All tests passed! Popup is ready for installation.</strong></div>';
+        } else {
+          output += '<div class="fail"><strong>⚠️ Some tests failed. Check console for details.</strong></div>';
+        }
+        
+        results.innerHTML = output;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

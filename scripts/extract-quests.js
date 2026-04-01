@@ -22,8 +22,47 @@ const OUT_DIR = path.join(__dirname, '..', 'data', 'lore');
 const LABELS_DIR = path.join(LORE_DIR, 'labels', 'en');
 const ENUMS_DIR = path.join(LORE_DIR, 'enums');
 
+const MARKERS_DIR = path.join(OUT_DIR, 'map-markers');
+
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+// ─── Marker Index (for resolving mob locations) ─────────────────────────────
+function normalizeLookupName(value) {
+  if (!value) return '';
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function loadMapMarkerIndex() {
+  const byDid = {};
+  const byLabel = {};
+  if (!fs.existsSync(MARKERS_DIR)) return { byDid, byLabel };
+
+  const files = fs.readdirSync(MARKERS_DIR).filter(f => f.endsWith('.json'));
+  for (const file of files) {
+    const mapId = path.basename(file, '.json');
+    const markers = JSON.parse(fs.readFileSync(path.join(MARKERS_DIR, file), 'utf8'));
+    for (const mk of markers) {
+      const row = { map: mapId, lng: mk.lng, lat: mk.lat, l: mk.l || '' };
+      if (mk.d && !byDid[mk.d]) byDid[mk.d] = row;
+      const key = normalizeLookupName(mk.l);
+      if (key && !byLabel[key]) byLabel[key] = row;
+    }
+  }
+  return { byDid, byLabel };
+}
+
+function findMarkerLocation(markerIndex, did, label) {
+  if (did && markerIndex.byDid[did]) return markerIndex.byDid[did];
+  const key = normalizeLookupName(label);
+  if (key && markerIndex.byLabel[key]) return markerIndex.byLabel[key];
+  return null;
 }
 
 /** Clean game-specific markup from extracted text */
@@ -250,10 +289,24 @@ function extractQuests(npcMap) {
         });
       }
 
-      // Monster targets
-      const monsterMatch = objBody.match(/<monsterDied[^>]*count="(\d+)"[^>]*>/);
-      if (monsterMatch) {
-        obj.killCount = parseInt(monsterMatch[1]);
+      // Monster targets — capture kill count and mob identifiers
+      const monsterRe = /<monsterDied[^>]*>/g;
+      let mdm;
+      const mobs = [];
+      while ((mdm = monsterRe.exec(objBody)) !== null) {
+        const tag = mdm[0];
+        const cntMatch = tag.match(/count="(\d+)"/);
+        const midMatch = tag.match(/mobId="(\d+)"/);
+        const mnMatch = tag.match(/mobName="([^"]*)"/);
+        const mob = {};
+        if (cntMatch) mob.count = parseInt(cntMatch[1]);
+        if (midMatch) mob.id = midMatch[1];
+        if (mnMatch) mob.name = mnMatch[2];
+        mobs.push(mob);
+      }
+      if (mobs.length) {
+        obj.killCount = mobs[0].count || 1;
+        obj.mobs = mobs;
       }
 
       objectives.push(obj);
@@ -414,12 +467,13 @@ function buildClientData(quests) {
 }
 
 // ─── Quest Overlay Data (objectives with coordinates) ───────────────────────
-function buildQuestOverlay(quests) {
+function buildQuestOverlay(quests, markerIndex) {
   console.log('  🗺️  Building quest overlay data...');
 
   // For each quest that has objectives with points, create overlay entry
   const overlay = {};
   let count = 0;
+  let killZones = 0;
 
   for (const q of quests) {
     if (!q.objectives) continue;
@@ -427,10 +481,32 @@ function buildQuestOverlay(quests) {
 
     const steps = [];
     for (const obj of q.objectives) {
-      if (!obj.points || !obj.points.length) continue;
+      // Resolve points from objective or fall back to mob marker locations
+      let points = obj.points;
+      if ((!points || !points.length) && obj.mobs) {
+        // Try to find mob locations via marker index
+        for (const mob of obj.mobs) {
+          if (!mob.id && !mob.name) continue;
+          const loc = findMarkerLocation(markerIndex, mob.id, mob.name);
+          if (loc) {
+            points = [{ lng: loc.lng, lat: loc.lat }];
+            // Infer map index from the location
+            const mapIdx = questMaps.indexOf(loc.map);
+            if (mapIdx >= 0) points[0].mi = mapIdx;
+            else if (loc.map) {
+              // Add map to questMaps if not there
+              points[0].mi = questMaps.length;
+              questMaps.push(loc.map);
+            }
+            break;
+          }
+        }
+      }
+
+      if (!points || !points.length) continue;
       const step = {
         i: obj.index,
-        pts: obj.points.map(p => {
+        pts: points.map(p => {
           const entry = [p.lng, p.lat];
           // Resolve mapIndex to actual map ID
           const mi = p.mi || 0;
@@ -439,6 +515,15 @@ function buildQuestOverlay(quests) {
         }),
       };
       if (obj.text) step.t = obj.text;
+
+      // Mark kill-zone steps with mob info for area highlighting
+      if (obj.killCount && obj.mobs) {
+        step.kz = { c: obj.killCount };
+        const names = obj.mobs.filter(m => m.name).map(m => m.name);
+        if (names.length) step.kz.n = names.join(', ');
+        killZones++;
+      }
+
       steps.push(step);
     }
 
@@ -454,6 +539,7 @@ function buildQuestOverlay(quests) {
   }
 
   console.log(`    ${count} quests have plottable objectives`);
+  console.log(`    ${killZones} kill-zone objectives tagged`);
   return overlay;
 }
 
@@ -475,8 +561,9 @@ function main() {
   // Build client-side data
   const clientQuests = buildClientData(quests);
 
-  // Build quest overlay data (objectives with coordinates)
-  const questOverlay = buildQuestOverlay(quests);
+  // Build quest overlay data (objectives with coordinates + kill zones)
+  const markerIndex = loadMapMarkerIndex();
+  const questOverlay = buildQuestOverlay(quests, markerIndex);
 
   // Write output files
   fs.writeFileSync(path.join(OUT_DIR, 'quests.json'), JSON.stringify(clientQuests));

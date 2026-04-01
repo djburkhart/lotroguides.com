@@ -1,0 +1,16 @@
+# LOTRO Guides Character Exporter Plugin Manifest
+# This file is required for LOTRO to recognize the plugin
+
+<PluginConfig>
+    <Id>LOTROGuidesExporter</Id>
+    <Name>LOTRO Guides Character Exporter</Name>
+    <Version>1.0.0</Version>
+    <Author>LOTRO Guides</Author>
+    <InfoUrl>https://lotroguides.com</InfoUrl>
+    <DownloadUrl>https://lotroguides.com/extension</DownloadUrl>
+    <Descriptors>
+        <descriptor>LOTROGuidesExporter.lua</descriptor>
+    </Descriptors>
+    <Dependencies>
+    </Dependencies>
+</PluginConfig>

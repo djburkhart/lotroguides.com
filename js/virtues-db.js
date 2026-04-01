@@ -9,9 +9,25 @@
   var virtueById = {};
   var initialized = false;
 
+  // ── Helpers ─────────────────────────────────────────────────────────────
+  function gameIcon(iconId, size) {
+    if (!iconId) return '';
+    size = size || 16;
+    return '<img src="./img/icons/traits/' + iconId + '.png" ' +
+           'width="' + size + '" height="' + size + '" ' +
+           'class="lotro-game-icon" alt="" loading="lazy" ' +
+           'onerror="this.style.display=\'none\'">';
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function renderName(data, type, row) {
     if (type !== 'display') return data;
-    return '<a href="virtues.html?id=' + row.id + '" class="lotro-virtue-link" data-virtue-id="' + row.id + '">' + data + '</a>';
+    var icon = gameIcon(row.ic);
+    return '<a href="virtues.html?id=' + row.id + '" class="lotro-virtue-link" data-virtue-id="' + row.id + '">' + icon + escapeHtml(data) + '</a>';
   }
 
   function renderStats(data, type) {
@@ -62,14 +78,15 @@
     var v = virtueById[id];
     if (!v) return;
 
-    $('#virtue-modal-title').html('<span class="lotro-virtue-name">' + v.n + '</span>');
+    var icon = gameIcon(v.ic, 24);
+    $('#virtue-modal-title').html(icon + '<span class="lotro-virtue-name">' + escapeHtml(v.n) + '</span>');
 
     var html = '<div class="item-modal-meta">';
     html += '<p><strong>Max Rank:</strong> ' + v.mr + '</p>';
     html += '<p><strong>Active Stats:</strong></p>';
     html += '<ul class="virtue-stat-list">';
     for (var i = 0; i < v.st.length; i++) {
-      html += '<li>' + v.st[i] + '</li>';
+      html += '<li>' + escapeHtml(v.st[i]) + '</li>';
     }
     html += '</ul>';
     html += '</div>';
