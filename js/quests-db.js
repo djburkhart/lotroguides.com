@@ -219,6 +219,8 @@
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, '', 'quests?id=' + id);
     }
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'quest',content_id:id});
     $('#quest-modal').modal('show');
   }
 

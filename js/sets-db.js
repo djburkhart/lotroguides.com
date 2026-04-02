@@ -186,6 +186,8 @@
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, '', 'sets?id=' + id);
     }
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'set',content_id:id});
     $('#set-modal').modal('show');
   }
 

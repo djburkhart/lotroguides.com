@@ -1228,8 +1228,8 @@ h1, h2, h3 {
 }
 .deed-reward-rep      { color: #fff; background: #7b1fa2; border: 1px solid #6a1b9a; }
 .deed-reward-icon {
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
   vertical-align: middle;
 }
@@ -1540,6 +1540,51 @@ h1, h2, h3 {
   font-size: 14px !important;
   padding: 8px 10px !important;
 }
+
+/* ─── Leaflet Share Control ───────────────────────────────────────────────── */
+.leaflet-control-share {
+  position: relative;
+}
+.leaflet-control-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(26, 26, 46, 0.95) !important;
+  border: 1px solid var(--lotro-gold) !important;
+  border-radius: 6px !important;
+  color: var(--lotro-gold) !important;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.leaflet-control-share-btn:hover {
+  background: var(--lotro-gold) !important;
+  color: var(--lotro-dark) !important;
+}
+.leaflet-control-share-toast {
+  position: absolute;
+  bottom: 44px;
+  right: 0;
+  background: var(--lotro-gold);
+  color: var(--lotro-dark);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.leaflet-control-share-toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -3566,4 +3611,83 @@ body.lotro-map-embed-mode {
   border-left-color: var(--lotro-dark-accent);
   font-size: 1.1rem;
   letter-spacing: .04em;
+}
+
+/* ─── Lint Plugin (Spell & Grammar Check) ─────────────────── */
+.lint-problem {
+  position: relative;
+}
+.lint-problem.lint-error {
+  background: rgba(255, 0, 0, 0.12);
+  border-bottom: 2px wavy #e53935;
+}
+.lint-problem.lint-warning {
+  background: rgba(255, 165, 0, 0.10);
+  border-bottom: 2px wavy #f4a100;
+}
+.lint-problem.lint-info {
+  background: rgba(66, 133, 244, 0.08);
+  border-bottom: 1px dashed #6fa8dc;
+}
+.lint-icon {
+  display: inline-block;
+  position: absolute;
+  right: -20px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 14px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+  z-index: 5;
+  vertical-align: top;
+  margin-top: 2px;
+}
+.lint-icon::after {
+  content: '!';
+}
+.lint-icon-error {
+  background: #e53935;
+}
+.lint-icon-error::after {
+  content: '✗';
+}
+.lint-icon-warning {
+  background: #f4a100;
+}
+.lint-icon-info {
+  background: #6fa8dc;
+}
+.lint-icon-info::after {
+  content: 'i';
+}
+/* Lint count badge in toolbar */
+.lint-count-badge {
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 8px;
+  background: #f4a100;
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  padding: 0 4px;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+.lint-count-badge.lint-count-error {
+  background: #e53935;
+}
+.lint-count-badge.lint-count-ok {
+  background: #43a047;
+}
+/* Position lint icons in the gutter via overflow on the editor */
+.pm-editor-content .ProseMirror {
+  position: relative;
+  padding-right: 30px;
 }

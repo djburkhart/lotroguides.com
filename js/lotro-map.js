@@ -267,6 +267,13 @@
     return L.latLng(y, x);
   }
 
+  function latLngToGame(latlng) {
+    return {
+      lng: latlng.lng / mapScale + mapOrigin.lng,
+      lat: latlng.lat / mapScale + mapOrigin.lat
+    };
+  }
+
   function getMapBounds(mapDef) {
     var sw = gameToLatLng(mapDef.min.lng, mapDef.min.lat);
     var ne = gameToLatLng(mapDef.max.lng, mapDef.max.lat);
@@ -900,12 +907,13 @@
   }
 
   // Navigate to a shared location: show the map, then pan/zoom to the pin
-  function goToSharedLocation(mapId, lng, lat, label) {
+  function goToSharedLocation(mapId, lng, lat, label, zoom) {
     showMap(mapId, false);
     // Allow the map to render, then fly to the coordinates and drop a pin
     setTimeout(function () {
       var latlng = gameToLatLng(parseFloat(lng), parseFloat(lat));
-      map.setView(latlng, map.getZoom() + 1);
+      var z = zoom ? parseInt(zoom, 10) : map.getZoom() + 1;
+      map.setView(latlng, z);
       // Drop a temporary highlight marker
       var pin = L.circleMarker(latlng, {
         radius: 14,
@@ -1125,12 +1133,13 @@
       return;
     }
 
-    // Shared location link: ?map=ID&lng=X&lat=Y
+    // Shared location link: ?map=ID&lng=X&lat=Y[&z=Z]
     var sharedMap = params.get('map');
     var sharedLng = params.get('lng');
     var sharedLat = params.get('lat');
+    var sharedZoom = params.get('z');
     if (sharedMap && sharedLng && sharedLat && mapById[sharedMap]) {
-      goToSharedLocation(sharedMap, sharedLng, sharedLat);
+      goToSharedLocation(sharedMap, sharedLng, sharedLat, null, sharedZoom);
       return;
     }
 
@@ -1573,7 +1582,64 @@
       // Add region selector control to map
       regionSelectorControl = createRegionSelector();
       map.addControl(regionSelectorControl);
+
+      // Add share location control
+      map.addControl(createShareControl());
     });
   };
+
+  // ─── Share Location Control ──────────────────────────────────────────
+  function createShareControl() {
+    var ShareControl = L.Control.extend({
+      options: { position: 'bottomright' },
+      onAdd: function () {
+        var container = L.DomUtil.create('div', 'leaflet-control-share leaflet-bar');
+        var btn = L.DomUtil.create('a', 'leaflet-control-share-btn', container);
+        btn.href = '#';
+        btn.title = 'Share this map view';
+        btn.setAttribute('role', 'button');
+        btn.innerHTML = '<i class="fa fa-share-alt"></i>';
+
+        var toast = L.DomUtil.create('div', 'leaflet-control-share-toast', container);
+        toast.textContent = 'Link copied!';
+
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.on(btn, 'click', function (e) {
+          L.DomEvent.preventDefault(e);
+          var center = map.getCenter();
+          var game = latLngToGame(center);
+          var zoom = map.getZoom();
+          var url = window.location.origin + window.location.pathname +
+            '?map=' + encodeURIComponent(currentMapId) +
+            '&lng=' + game.lng.toFixed(1) +
+            '&lat=' + game.lat.toFixed(1) +
+            '&z=' + zoom;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function () {
+              showToast(toast);
+            });
+          } else {
+            // Fallback for older browsers
+            var input = document.createElement('input');
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast(toast);
+          }
+        });
+
+        return container;
+      }
+    });
+
+    function showToast(el) {
+      el.classList.add('visible');
+      setTimeout(function () { el.classList.remove('visible'); }, 2000);
+    }
+
+    return new ShareControl();
+  }
 
 })();

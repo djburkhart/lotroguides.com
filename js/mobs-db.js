@@ -152,6 +152,8 @@
       window.history.replaceState(null, '', 'mobs?id=' + id);
     }
 
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'mob',content_id:id});
     $('#mob-modal').modal('show');
   }
 

@@ -1,5 +1,5 @@
-import { EditorState, Plugin } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
+import { EditorState, Plugin, TextSelection } from 'prosemirror-state';
+import { EditorView, Decoration, DecorationSet } from 'prosemirror-view';
 import { Schema } from 'prosemirror-model';
 import { schema as mdSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser, MarkdownSerializer } from 'prosemirror-markdown';
 import { keymap } from 'prosemirror-keymap';
@@ -402,6 +402,295 @@ function showDraftStatus(msg, isError) {
   el.style.display = '';
   clearTimeout(el._hideTimer);
   el._hideTimer = setTimeout(function () { el.style.display = 'none'; }, 4000);
+}
+
+/* ─── Lint Plugin (Spelling & Grammar) ───────────────────────────── */
+
+// Common misspellings: misspelled → correct
+var MISSPELLINGS = {
+  'accomodate': 'accommodate', 'acheive': 'achieve', 'accross': 'across',
+  'agressive': 'aggressive', 'apparantly': 'apparently', 'arguement': 'argument',
+  'basicly': 'basically', 'begining': 'beginning', 'beleive': 'believe',
+  'calender': 'calendar', 'catagory': 'category', 'commited': 'committed',
+  'concious': 'conscious', 'definately': 'definitely', 'desparate': 'desperate',
+  'dissapear': 'disappear', 'dissapoint': 'disappoint', 'embarass': 'embarrass',
+  'enviroment': 'environment', 'existance': 'existence', 'familar': 'familiar',
+  'foreward': 'forward', 'goverment': 'government', 'gaurd': 'guard',
+  'happenned': 'happened', 'harrass': 'harass', 'humourous': 'humorous',
+  'immediatly': 'immediately', 'independant': 'independent', 'knowlege': 'knowledge',
+  'liason': 'liaison', 'liscence': 'licence', 'medeval': 'medieval',
+  'momento': 'memento', 'millenium': 'millennium', 'mischievious': 'mischievous',
+  'neccessary': 'necessary', 'noticable': 'noticeable', 'occassion': 'occasion',
+  'occured': 'occurred', 'occurence': 'occurrence', 'orignal': 'original',
+  'parliment': 'parliament', 'persistant': 'persistent', 'posession': 'possession',
+  'prefered': 'preferred', 'privelege': 'privilege', 'publically': 'publicly',
+  'recieve': 'receive', 'reccomend': 'recommend', 'refrence': 'reference',
+  'relevent': 'relevant', 'restaraunt': 'restaurant', 'rythm': 'rhythm',
+  'seige': 'siege', 'seperate': 'separate', 'succesful': 'successful',
+  'supercede': 'supersede', 'supress': 'suppress', 'suprise': 'surprise',
+  'temperture': 'temperature', 'threshhold': 'threshold', 'tommorow': 'tomorrow',
+  'truely': 'truly', 'tyrany': 'tyranny', 'underate': 'underrate',
+  'untill': 'until', 'usefull': 'useful', 'wierd': 'weird',
+  'writting': 'writing', 'writeable': 'writable',
+  // LOTRO-specific common misspellings
+  'mordoor': 'Mordor', 'rohan': 'Rohan', 'gondoor': 'Gondor',
+  'rivendel': 'Rivendell', 'lothloren': 'Lothlórien', 'isengaurd': 'Isengard',
+  'angmaar': 'Angmar', 'helms deep': "Helm's Deep", 'minas tirith': 'Minas Tirith',
+  'minas morgul': 'Minas Morgul', 'barad dur': 'Barad-dûr',
+};
+var MISSPELLING_KEYS = Object.keys(MISSPELLINGS);
+var misspellingRegex = new RegExp('\\b(' + MISSPELLING_KEYS.join('|') + ')\\b', 'gi');
+
+// Words that weaken writing
+var WEAK_WORDS = /\b(obviously|clearly|evidently|simply|basically|actually|really|very|just|quite|rather)\b/gi;
+
+// Repeated words: "the the", "is is", etc.
+var REPEATED_WORD = /\b(\w+)\s+\1\b/gi;
+
+// Punctuation issues: space before comma/period/exclamation/question
+var BAD_PUNC = / ([,\.!?:;]) ?/g;
+
+// Passive voice indicators
+var PASSIVE_VOICE = /\b(is|are|was|were|be|been|being)\s+([\w]+ed|[\w]+en)\b/gi;
+
+// Very long sentences (>40 words between sentence boundaries)
+var SENTENCE_END = /[.!?]/;
+
+var lintEnabled = false;
+
+function lintDoc(doc) {
+  var result = [];
+  var lastHeadLevel = null;
+
+  function record(msg, from, to, fix, severity) {
+    result.push({ msg: msg, from: from, to: to, fix: fix || null, severity: severity || 'warning' });
+  }
+
+  doc.descendants(function (node, pos) {
+    if (node.isText) {
+      var text = node.text;
+      var m;
+
+      // Misspellings
+      misspellingRegex.lastIndex = 0;
+      while ((m = misspellingRegex.exec(text)) !== null) {
+        var wrongWord = m[0];
+        var correct = MISSPELLINGS[wrongWord.toLowerCase()];
+        if (correct) {
+          (function (w, c, idx) {
+            record(
+              "Misspelling: '" + w + "' → '" + c + "'",
+              pos + idx, pos + idx + w.length,
+              function (view) {
+                view.dispatch(view.state.tr.replaceWith(
+                  this.from, this.to,
+                  view.state.schema.text(c)
+                ));
+              },
+              'error'
+            );
+          })(wrongWord, correct, m.index);
+        }
+      }
+
+      // Weak/filler words
+      WEAK_WORDS.lastIndex = 0;
+      while ((m = WEAK_WORDS.exec(text)) !== null) {
+        record(
+          "Consider removing filler word: '" + m[0] + "'",
+          pos + m.index, pos + m.index + m[0].length,
+          null, 'info'
+        );
+      }
+
+      // Repeated words
+      REPEATED_WORD.lastIndex = 0;
+      while ((m = REPEATED_WORD.exec(text)) !== null) {
+        (function (matched, single, idx) {
+          record(
+            "Repeated word: '" + single + "'",
+            pos + idx, pos + idx + matched.length,
+            function (view) {
+              view.dispatch(view.state.tr.replaceWith(
+                this.from, this.to,
+                view.state.schema.text(single)
+              ));
+            },
+            'error'
+          );
+        })(m[0], m[1], m.index);
+      }
+
+      // Punctuation spacing
+      BAD_PUNC.lastIndex = 0;
+      while ((m = BAD_PUNC.exec(text)) !== null) {
+        (function (matched, punc, idx) {
+          record(
+            'Suspicious spacing before punctuation',
+            pos + idx, pos + idx + matched.length,
+            function (view) {
+              view.dispatch(view.state.tr.replaceWith(
+                this.from, this.to,
+                view.state.schema.text(punc + ' ')
+              ));
+            },
+            'warning'
+          );
+        })(m[0], m[1], m.index);
+      }
+
+      // Passive voice hints
+      PASSIVE_VOICE.lastIndex = 0;
+      while ((m = PASSIVE_VOICE.exec(text)) !== null) {
+        record(
+          'Consider active voice instead of: "' + m[0] + '"',
+          pos + m.index, pos + m.index + m[0].length,
+          null, 'info'
+        );
+      }
+
+      // Long sentences
+      var sentences = text.split(SENTENCE_END);
+      var offset = 0;
+      for (var i = 0; i < sentences.length; i++) {
+        var s = sentences[i];
+        var wordCount = s.trim().split(/\s+/).filter(function (w) { return w.length > 0; }).length;
+        if (wordCount > 40) {
+          record(
+            'Long sentence (' + wordCount + ' words). Consider splitting.',
+            pos + offset, pos + offset + s.length,
+            null, 'info'
+          );
+        }
+        offset += s.length + 1; // +1 for the sentence-end character
+      }
+    } else if (node.type.name === 'heading') {
+      // Heading level jumps
+      var level = node.attrs.level;
+      if (lastHeadLevel !== null && level > lastHeadLevel + 1) {
+        (function (lvl, expectedLvl) {
+          record(
+            'Heading jumps from H' + lastHeadLevel + ' to H' + lvl + ' (expected H' + expectedLvl + ' or less)',
+            pos + 1, pos + 1 + node.content.size,
+            function (view) {
+              view.dispatch(view.state.tr.setNodeMarkup(this.from - 1, null, { level: expectedLvl }));
+            },
+            'warning'
+          );
+        })(level, lastHeadLevel + 1);
+      }
+      lastHeadLevel = level;
+    } else if (node.type.name === 'image' && !node.attrs.alt) {
+      record('Image without alt text', pos, pos + 1, function (view) {
+        var alt = prompt('Alt text', '');
+        if (alt) {
+          var attrs = Object.assign({}, view.state.doc.nodeAt(this.from).attrs, { alt: alt });
+          view.dispatch(view.state.tr.setNodeMarkup(this.from, null, attrs));
+        }
+      }, 'warning');
+    }
+  });
+
+  return result;
+}
+
+function lintDecorations(doc) {
+  var decos = [];
+  lintDoc(doc).forEach(function (prob) {
+    decos.push(
+      Decoration.inline(prob.from, prob.to, { class: 'lint-problem lint-' + prob.severity }, { prob: prob }),
+      Decoration.widget(prob.from, function () {
+        var icon = document.createElement('span');
+        icon.className = 'lint-icon lint-icon-' + prob.severity;
+        icon.title = prob.msg;
+        icon.setAttribute('aria-label', prob.msg);
+        return icon;
+      }, { key: prob.msg + prob.from })
+    );
+  });
+  return DecorationSet.create(doc, decos);
+}
+
+var emptyDecoSet = DecorationSet.empty;
+
+function getLintProb(view, lintPlugin, dom) {
+  var pos = view.posAtDOM(dom, 0);
+  var decos = lintPlugin.getState(view.state);
+  if (!decos || decos === emptyDecoSet) return null;
+  var found = decos.find(pos, pos, function (spec) { return spec.prob && spec.prob.msg === dom.title; });
+  return found.length ? found[0].spec.prob : null;
+}
+
+var lintPlugin = new Plugin({
+  state: {
+    init: function (_, state) {
+      return lintEnabled ? lintDecorations(state.doc) : emptyDecoSet;
+    },
+    apply: function (tr, old, oldState, newState) {
+      if (!lintEnabled) return emptyDecoSet;
+      return tr.docChanged ? lintDecorations(newState.doc) : old;
+    }
+  },
+  props: {
+    decorations: function (state) { return this.getState(state); },
+    handleClick: function (view, _, event) {
+      if (/lint-icon/.test(event.target.className)) {
+        var prob = getLintProb(view, this, event.target);
+        if (prob) {
+          view.dispatch(view.state.tr
+            .setSelection(TextSelection.create(view.state.doc, prob.from, prob.to))
+            .scrollIntoView());
+          return true;
+        }
+      }
+    },
+    handleDoubleClick: function (view, _, event) {
+      if (/lint-icon/.test(event.target.className)) {
+        var prob = getLintProb(view, this, event.target);
+        if (prob && prob.fix) {
+          prob.fix.call(prob, view);
+          view.focus();
+          return true;
+        }
+      }
+    }
+  }
+});
+
+function toggleLint() {
+  lintEnabled = !lintEnabled;
+  var btn = document.querySelector('[data-cmd="lint"]');
+  if (btn) btn.classList.toggle('active', lintEnabled);
+  // Update lint count badge
+  updateLintCount();
+  // Force plugin recompute
+  if (editorView) {
+    editorView.dispatch(editorView.state.tr);
+  }
+}
+
+function updateLintCount() {
+  var badge = document.getElementById('lint-count');
+  if (!badge) return;
+  if (!lintEnabled || !editorView) {
+    badge.style.display = 'none';
+    return;
+  }
+  var problems = lintDoc(editorView.state.doc);
+  var errors = problems.filter(function (p) { return p.severity === 'error'; }).length;
+  var warnings = problems.filter(function (p) { return p.severity === 'warning'; }).length;
+  var total = problems.length;
+  if (total > 0) {
+    badge.textContent = total;
+    badge.title = errors + ' errors, ' + warnings + ' warnings, ' + (total - errors - warnings) + ' suggestions';
+    badge.className = 'lint-count-badge' + (errors > 0 ? ' lint-count-error' : '');
+    badge.style.display = '';
+  } else {
+    badge.textContent = '✓';
+    badge.className = 'lint-count-badge lint-count-ok';
+    badge.title = 'No issues found';
+    badge.style.display = '';
+  }
 }
 
 /* ─── Change-Tracking Plugin ─────────────────────────────────────── */
@@ -844,6 +1133,7 @@ function createEditor(markdown) {
       }),
       keymap(baseKeymap),
       history(),
+      lintPlugin,
       changeTrackPlugin,
     ],
   });
@@ -854,6 +1144,7 @@ function createEditor(markdown) {
       var newState = editorView.state.apply(tr);
       editorView.updateState(newState);
       updateToolbarState();
+      if (lintEnabled && tr.docChanged) updateLintCount();
     },
     nodeViews: {
       dps_widget: function (node, view, getPos) { return new DpsWidgetView(node); },
@@ -1025,14 +1316,18 @@ function wireToolbar() {
       case 'hr': toolbarInsertHR(); break;
       case 'undo': execUndo(); break;
       case 'redo': execRedo(); break;
+      case 'lint': toggleLint(); break;
     }
   });
 }
 
 /* ─── Google Sign-In ─────────────────────────────────────────────── */
-window.handleGoogleCredential = function (response) {
-  googleIdToken = response.credential;
-  var parts = response.credential.split('.');
+var GOOGLE_SESSION_KEY = 'google_session';
+var GOOGLE_SESSION_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+function applyGoogleLogin(credential) {
+  googleIdToken = credential;
+  var parts = credential.split('.');
   var b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
   var json = decodeURIComponent(atob(b64).split('').map(function (c) {
     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -1047,7 +1342,7 @@ window.handleGoogleCredential = function (response) {
       var el = document.getElementById('login-error');
       el.textContent = 'Access denied. Your account (' + email + ') is not authorized.';
       el.style.display = 'block';
-      return;
+      return false;
     }
   }
 
@@ -1060,11 +1355,42 @@ window.handleGoogleCredential = function (response) {
   }
   document.getElementById('login-section').style.display = 'none';
   document.getElementById('editor-app').style.display = '';
-  loadArticleList();
+  return true;
+}
+
+window.handleGoogleCredential = function (response) {
+  if (applyGoogleLogin(response.credential)) {
+    try {
+      localStorage.setItem(GOOGLE_SESSION_KEY, JSON.stringify({
+        credential: response.credential,
+        savedAt: Date.now()
+      }));
+    } catch (e) { /* storage full or blocked */ }
+    loadArticleList();
+  }
 };
+
+function restoreGoogleSession() {
+  try {
+    var raw = localStorage.getItem(GOOGLE_SESSION_KEY);
+    if (!raw) return;
+    var session = JSON.parse(raw);
+    if (Date.now() - session.savedAt > GOOGLE_SESSION_MAX_AGE) {
+      localStorage.removeItem(GOOGLE_SESSION_KEY);
+      return;
+    }
+    if (applyGoogleLogin(session.credential)) {
+      loadArticleList();
+    }
+  } catch (e) {
+    localStorage.removeItem(GOOGLE_SESSION_KEY);
+  }
+}
 
 window.handleSignOut = function () {
   currentUser = null;
+  googleIdToken = null;
+  localStorage.removeItem(GOOGLE_SESSION_KEY);
   if (window.google && google.accounts && google.accounts.id) {
     google.accounts.id.disableAutoSelect();
   }
@@ -1784,6 +2110,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var btnGhDisconnect = document.getElementById('btn-disconnect-github');
   if (btnGhDisconnect) btnGhDisconnect.addEventListener('click', disconnectGitHub);
 
+  restoreGoogleSession();
   handleOAuthCallback();
   restoreGitHubSession();
   updateConnectionStatus();

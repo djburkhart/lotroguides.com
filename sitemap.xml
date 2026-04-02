@@ -73,6 +73,24 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://lotroguides.com/guides/lotro-guides-site-companion-guide</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-bonus-040226-en</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-sales-040226-en</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://lotroguides.com/guides/raid-preparation-guide</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>monthly</changefreq>
@@ -333,6 +351,54 @@
   <url>
     <loc>https://lotroguides.com/news/lotro-update-45-2-release-notes-launcher-en</loc>
     <lastmod>2025-08-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-pvmprewardtrack2-wrapper-en</loc>
+    <lastmod>2025-08-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-gen-con-meetup-august-1st</loc>
+    <lastmod>2025-07-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-letter-from-orion-july-2025-en</loc>
+    <lastmod>2025-07-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-community-rules-en</loc>
+    <lastmod>2025-07-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-loyal-knight-patrons-coffer-en</loc>
+    <lastmod>2025-06-26</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-kinship-escrow-resolution-en</loc>
+    <lastmod>2025-06-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-rotating-transfer-schedule-en</loc>
+    <lastmod>2025-06-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-lootbox-myrtle-update-may-25-en</loc>
+    <lastmod>2025-05-21</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -1,7 +1,12 @@
 {
-  "name": "lotro-fansite",
+  "name": "lotroguides.com",
   "version": "2.0.0",
   "description": "Lord of the Rings Online fansite - Markdown-powered static site generator",
+  "author": {
+    "name": "Daniel Burkhart",
+    "email": "me@danielburkhart.com"
+  },
+  "homepage": "https://lotroguides.com",
   "engines": {
     "node": "22.x"
   },
@@ -13,7 +18,7 @@
     "heroku-postbuild": "node scripts/scrape-news.js || true && node build.js",
     "watch": "node build.js --watch",
     "update:news": "node scripts/scrape-news.js",
-    "update:loot": "node scripts/import-lotro-companion-loot.js",
+    "update:loot": "node scripts/import-lotro-companion-loot.js && node scripts/import-loot.js",
     "update:skills": "node scripts/enrich-instance-skills.js",
     "update:lore": "node scripts/extract-lore.js",
     "update:icons": "node scripts/extract-icons.js",

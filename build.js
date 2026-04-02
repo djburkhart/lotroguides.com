@@ -291,6 +291,54 @@ function buildInstanceLootReferenceMarkdown(slug) {
 }
 
 /**
+ * When instance-loot.json has no dedicated boss entity (the chest name was used as the
+ * "boss" name), extract the real boss name and a tier label from the chest label.
+ * Returns { boss: string|null, tier: string }
+ *   boss  – extracted entity name to group under (null = no grouping, keep label as-is)
+ *   tier  – short label for the chest sub-header within the group
+ */
+function extractBossFromChestLabel(label) {
+  let m;
+  // Pattern: "[The] X['s|'] [TypeWord(s)] Chest - (Solo|Tier X[+]) N"
+  // e.g. "The Bloody Warden's Chest - Solo 1" → boss="The Bloody Warden", tier="Solo"
+  //      "Arena Champion's Chest - Tier 2 3"  → boss="Arena Champion",    tier="Tier 2"
+  m = label.match(/^(.+?)['\u2019]s?\s+.*?Chest\s*[-\u2013]\s*(Solo|Tier\s*[\d+]+)\s*\d*\s*$/i);
+  if (m) return { boss: m[1].trim(), tier: m[2].trim() };
+
+  // Pattern: "[The] X's [NonChestType] - (Solo|Tier X) N"
+  // e.g. "Ragrekhûl's Spoils - Solo 1", "Bombadil's Gift - Tier 1 2"
+  m = label.match(/^(.+?)['\u2019]s?\s+\w+\s*[-\u2013]\s*(Solo|Tier\s*[\d+]+)\s*\d*\s*$/i);
+  if (m) return { boss: m[1].trim(), tier: m[2].trim() };
+
+  // Pattern: "Chest of [the] X - (Solo|Tier X) N"
+  // e.g. "Chest of the Ashen - Solo 1", "Chest of Durin's Bane - Tier 1 1"
+  m = label.match(/^Chest\s+of\s+(?:the\s+)?(.+?)\s*[-\u2013]\s*(Solo|Tier\s*[\d+]+)\s*\d*\s*$/i);
+  if (m) return { boss: m[1].trim(), tier: m[2].trim() };
+
+  // Pattern: "(Fancy[/ier/iest]|Ornate|Gold) [Type] Chest - BossName N"
+  // Boss is after " - "; tier label is the chest quality prefix.
+  // e.g. "Fancier Wood Chest - Durchest 1"          → boss="Durchest",                tier="Fancier Wood Chest"
+  //      "Fancy Gold Chest - Disease Wing 1"         → boss="Disease Wing",             tier="Fancy Gold Chest"
+  //      "Ornate Chest - Gortheron 14"               → boss="Gortheron",                tier="Ornate Chest"
+  m = label.match(/^((?:Fancy(?:ier|iest)?|Ornate|Gold)\s+.*?Chest)\s*[-\u2013]\s*(.+?)\s*\d+\s*$/i);
+  if (m) return { boss: m[2].trim(), tier: m[1].trim() };
+
+  // Pattern: "BossEntity - (Solo|Tier X) N"  (entity with no 'Chest' suffix)
+  // e.g. "Azagath Sea-shadow - Tier 1 1"
+  m = label.match(/^(.+?)\s*[-\u2013]\s*(Solo|Tier\s*[\d+]+)\s*\d*\s*$/i);
+  if (m) return { boss: m[1].trim(), tier: m[2].trim() };
+
+  // Pattern: "[The] X's [MultiWordType] N"  (possessive, no tier suffix — differentiate by type)
+  // e.g. "The Witch King's Golden Chest 1" → boss="The Witch King", tier="Golden Chest"
+  //      "Storvâgûn's Tinier Trinket Box 2"→ boss="Storvâgûn",     tier="Tinier Trinket Box"
+  m = label.match(/^(.+?)['\u2019]s?\s+(.+?)\s+\d+\s*$/i);
+  if (m) return { boss: m[1].trim(), tier: m[2].trim() };
+
+  // Cannot identify boss — keep label as-is (no grouping)
+  return { boss: null, tier: label };
+}
+
+/**
  * Build the full accordion HTML for an instance's boss loot tables.
  * Called post-autolink so boss names don't get partial mob-link matches.
  */
@@ -299,8 +347,38 @@ function buildLootAccordionHtml(slug) {
   const entry = refs[slug];
   if (!entry) return '';
 
-  const bosses = Array.isArray(entry.bosses) ? entry.bosses : [];
-  if (!bosses.length) return '';
+  const rawBosses = Array.isArray(entry.bosses) ? entry.bosses : [];
+  if (!rawBosses.length) return '';
+
+  // Pre-process: when boss.name === the single chest's label the import script had no real boss
+  // entity — extract the actual boss name from the chest label and group chests accordingly.
+  const processedBosses = [];
+  const bossGroupMap = new Map(); // extractedBossName → synthetic group entry
+  for (const boss of rawBosses) {
+    const bossName = String(boss.name || '').trim();
+    if (!bossName) continue;
+    const chests = Array.isArray(boss.chests) ? boss.chests : [];
+    const isDegenerate = chests.length === 1 && String(chests[0].label || '').trim() === bossName;
+    if (isDegenerate) {
+      const { boss: extractedBoss, tier: tierLabel } = extractBossFromChestLabel(bossName);
+      if (extractedBoss) {
+        if (!bossGroupMap.has(extractedBoss)) {
+          const groupEntry = { name: extractedBoss, chests: [] };
+          bossGroupMap.set(extractedBoss, groupEntry);
+          processedBosses.push(groupEntry);
+        }
+        // Attach the chest with a cleaned-up tier label instead of the full chest name
+        bossGroupMap.get(extractedBoss).chests.push(Object.assign({}, chests[0], { label: tierLabel }));
+      } else {
+        // No boss extractable — pass through unchanged (chest name shown as boss header)
+        processedBosses.push(boss);
+      }
+    } else {
+      processedBosses.push(boss);
+    }
+  }
+
+  const bosses = processedBosses;
 
   const lines = ['<div class="lotro-loot-accordion">'];
 
@@ -1072,7 +1150,7 @@ function buildCommentsSection(pageId, pageUrl, pageTitle) {
     cusdisPageTitle: pageTitle,
     recaptchaSiteKey: RECAPTCHA_SITE_KEY,
     recaptchaScript: RECAPTCHA_SITE_KEY
-      ? `<script src="https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}"></script>`
+      ? `<script src="https://www.google.com/recaptcha/enterprise.js?render=${RECAPTCHA_SITE_KEY}"></script>`
       : '',
   });
 }
@@ -1413,6 +1491,9 @@ function buildIndex(allPosts, navData) {
     html = html.replace('</body>',
       `  <script defer data-host="${CUSDIS_HOST}" data-app-id="${CUSDIS_APP_ID}" src="${CUSDIS_HOST}/js/cusdis-count.umd.js"></script>\n  </body>`);
   }
+  // Buy Me a Coffee widget
+  html = html.replace('</body>',
+    `  <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="lotroguides" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>\n  </body>`);
   return html;
 }
 
@@ -2403,8 +2484,34 @@ function buildInstancesPage(navData, subDirNavData) {
     const instLoot = instanceLoot[inst.slug];
     if (instLoot && instLoot.bosses && instLoot.bosses.length) {
       // Build accordion HTML from auto-discovered loot data
+      // Pre-process: group degenerate entries where chest name was used as boss name
+      const rawInstBosses = instLoot.bosses;
+      const processedInstBosses = [];
+      const instBossGroupMap = new Map();
+      for (const boss of rawInstBosses) {
+        const bossNameRaw = String(boss.name || '').trim();
+        if (!bossNameRaw) continue;
+        const rawChests = Array.isArray(boss.chests) ? boss.chests : [];
+        const isDegenerate = rawChests.length === 1 && String(rawChests[0].label || '').trim() === bossNameRaw;
+        if (isDegenerate) {
+          const { boss: extractedBoss, tier: tierLabel } = extractBossFromChestLabel(bossNameRaw);
+          if (extractedBoss) {
+            if (!instBossGroupMap.has(extractedBoss)) {
+              const groupEntry = { name: extractedBoss, chests: [] };
+              instBossGroupMap.set(extractedBoss, groupEntry);
+              processedInstBosses.push(groupEntry);
+            }
+            instBossGroupMap.get(extractedBoss).chests.push(Object.assign({}, rawChests[0], { label: tierLabel }));
+          } else {
+            processedInstBosses.push(boss);
+          }
+        } else {
+          processedInstBosses.push(boss);
+        }
+      }
+
       const lootLines = ['<div class="lotro-loot-accordion">'];
-      for (const boss of instLoot.bosses) {
+      for (const boss of processedInstBosses) {
         const bossName = escapeHtml(boss.name);
         lootLines.push(`<details class="lotro-loot-boss">`);
         lootLines.push(`<summary class="lotro-loot-boss-name">${bossName}</summary>`);
@@ -2448,7 +2555,7 @@ function buildInstancesPage(navData, subDirNavData) {
             // Build inline icon tag if available
             const iconId = dbItem ? (dbItem.icon || iconMap[dbItem.id]) : null;
             const lootIconHtml = iconId
-              ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+              ? `<img src="${CDN_URL ? CDN_URL + '/img/icons/items/' + iconId + '.png' : '../img/icons/items/' + iconId + '.png'}" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
               : '';
 
             const itemHtml = dbItem

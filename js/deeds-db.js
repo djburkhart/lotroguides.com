@@ -205,6 +205,8 @@
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, '', 'deeds?id=' + id);
     }
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'deed',content_id:id});
     $('#deed-modal').modal('show');
   }
 

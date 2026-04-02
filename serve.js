@@ -125,40 +125,54 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // ── reCAPTCHA v3 verification endpoint ───────────────────────────
+  // ── reCAPTCHA Enterprise verification endpoint ──────────────────
   if (req.method === 'POST' && req.url === '/api/verify-recaptcha') {
     const chunks = [];
     req.on('data', c => chunks.push(c));
     req.on('end', () => {
       if (!RECAPTCHA_SECRET_KEY) {
+        // No key configured — pass through for local dev
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, score: 1.0 }));
         return;
       }
-      let token;
-      try { token = JSON.parse(Buffer.concat(chunks).toString()).token; }
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
       catch (e) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: false, error: 'Invalid request body' }));
         return;
       }
-      const postData = `secret=${encodeURIComponent(RECAPTCHA_SECRET_KEY)}&response=${encodeURIComponent(token)}`;
-      const verifyReq = https.request({
-        hostname: 'www.google.com',
-        path: '/recaptcha/api/siteverify',
+      const { token, action } = body;
+      if (!token) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Missing token' }));
+        return;
+      }
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT || '';
+      const apiKey = RECAPTCHA_SECRET_KEY;
+      const siteKey = process.env.RECAPTCHA_SITE_KEY || '';
+      const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments?key=${apiKey}`;
+      const payload = JSON.stringify({
+        event: { token, siteKey, expectedAction: action || 'comment' }
+      });
+      const verifyReq = https.request(url, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Content-Length': Buffer.byteLength(postData),
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload),
         },
       }, (verifyRes) => {
-        let body = '';
-        verifyRes.on('data', d => body += d);
+        let data = '';
+        verifyRes.on('data', d => data += d);
         verifyRes.on('end', () => {
           try {
-            const result = JSON.parse(body);
+            const result = JSON.parse(data);
+            const score = result.riskAnalysis ? result.riskAnalysis.score : 0;
+            const valid = result.tokenProperties && result.tokenProperties.valid;
+            const actionMatch = result.tokenProperties && result.tokenProperties.action === (action || 'comment');
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: result.success, score: result.score || 0 }));
+            res.end(JSON.stringify({ success: !!(valid && actionMatch), score }));
           } catch (e) {
             res.writeHead(502, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: false, error: 'Invalid upstream response' }));
@@ -169,7 +183,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(502, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: false, error: 'Verification request failed' }));
       });
-      verifyReq.write(postData);
+      verifyReq.write(payload);
       verifyReq.end();
     });
     return;

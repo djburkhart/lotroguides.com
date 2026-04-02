@@ -99,6 +99,8 @@
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, '', 'virtues?id=' + id);
     }
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'virtue',content_id:id});
     $('#virtue-modal').modal('show');
   }
 

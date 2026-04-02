@@ -1,11 +1,13 @@
 /**
- * reCAPTCHA v3 Verify — DigitalOcean Serverless Function
+ * reCAPTCHA Enterprise Verify — DigitalOcean Serverless Function
  *
- * Accepts a reCAPTCHA v3 token, verifies it with Google,
- * and returns the success/score result.
+ * Accepts a reCAPTCHA Enterprise token, creates an assessment via
+ * the Enterprise API, and returns the risk score.
  *
  * Required env vars:
- *   RECAPTCHA_SECRET_KEY
+ *   RECAPTCHA_SECRET_KEY   — Google Cloud API key
+ *   RECAPTCHA_SITE_KEY     — reCAPTCHA Enterprise site key
+ *   GOOGLE_CLOUD_PROJECT   — GCP project ID
  */
 'use strict';
 
@@ -22,16 +24,21 @@ async function main(args) {
     return { statusCode: 204, headers: CORS_HEADERS, body: '' };
   }
 
-  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secretKey) {
+  const apiKey = process.env.RECAPTCHA_SECRET_KEY;
+  const siteKey = process.env.RECAPTCHA_SITE_KEY;
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
+
+  if (!apiKey || !projectId) {
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ success: false, error: 'RECAPTCHA_SECRET_KEY not configured' }),
+      body: JSON.stringify({ success: false, error: 'reCAPTCHA Enterprise not configured' }),
     };
   }
 
   const token = args.token;
+  const action = args.action || 'comment';
+
   if (!token) {
     return {
       statusCode: 400,
@@ -41,18 +48,24 @@ async function main(args) {
   }
 
   try {
-    const params = new URLSearchParams({ secret: secretKey, response: token });
-    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments?key=${apiKey}`;
+    const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: { token, siteKey, expectedAction: action },
+      }),
     });
     const result = await res.json();
+
+    const valid = result.tokenProperties && result.tokenProperties.valid;
+    const actionMatch = result.tokenProperties && result.tokenProperties.action === action;
+    const score = result.riskAnalysis ? result.riskAnalysis.score : 0;
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ success: result.success, score: result.score || 0 }),
+      body: JSON.stringify({ success: !!(valid && actionMatch), score }),
     };
   } catch (err) {
     return {

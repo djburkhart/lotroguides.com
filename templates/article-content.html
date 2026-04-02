@@ -64,3 +64,55 @@
         </div>
       </div>
     </section>
+    <script>
+    (function(){
+      /* ── GA4 share event + per-platform custom events ── */
+      var buttons = document.querySelectorAll('.btn-social');
+      var pageTitle = document.querySelector('.post-title');
+      var title = pageTitle ? pageTitle.textContent.trim() : document.title;
+      buttons.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var method;
+          if(btn.classList.contains('btn-facebook')) method='facebook';
+          else if(btn.classList.contains('btn-twitter')) method='x';
+          else if(btn.classList.contains('btn-reddit')) method='reddit';
+          else return;
+          window.dataLayer=window.dataLayer||[];
+          window.dataLayer.push({
+            event: 'share',
+            method: method,
+            content_type: 'article',
+            item_id: window.location.pathname
+          });
+          window.dataLayer.push({
+            event: 'share_' + method,
+            share_platform: method,
+            share_url: btn.href,
+            share_title: title
+          });
+        });
+      });
+
+      /* ── GA4 tutorial_begin (guide page load) ── */
+      var isGuide = window.location.pathname.indexOf('/guides/') !== -1;
+      if(isGuide){
+        window.dataLayer=window.dataLayer||[];
+        window.dataLayer.push({event:'tutorial_begin'});
+
+        /* ── GA4 tutorial_complete (scroll to article bottom) ── */
+        var postContent = document.querySelector('.post-content');
+        if(postContent){
+          var fired = false;
+          var observer = new IntersectionObserver(function(entries){
+            if(entries[0].isIntersecting && !fired){
+              fired = true;
+              window.dataLayer.push({event:'tutorial_complete'});
+              observer.disconnect();
+            }
+          }, {threshold: 0.5});
+          var lastChild = postContent.lastElementChild || postContent;
+          observer.observe(lastChild);
+        }
+      }
+    })();
+    </script>

@@ -27,7 +27,6 @@
     <link href="./{{siteRoot}}plugins/animate/animate.min.css" rel="stylesheet">
     <!-- theme stylesheet -->
     <link href="./{{siteRoot}}css/theme.min.css" rel="stylesheet">
-    <link href="./{{siteRoot}}css/custom.css" rel="stylesheet">
     <link href="./{{siteRoot}}css/lotro.css" rel="stylesheet">
     {{cdnScript}}
     <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
@@ -141,5 +140,18 @@
     <script src="./{{siteRoot}}plugins/jquery/jquery-3.1.0.min.js"></script>
     <script src="./{{siteRoot}}plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="./{{siteRoot}}js/theme.min.js"></script>
+    <script>
+    /* GA4 search event — navbar item search */
+    (function(){
+      var form = document.getElementById('navbar-search-form');
+      if(form) form.addEventListener('submit', function(){
+        var q = form.querySelector('input[name="q"]');
+        if(q && q.value.trim()){
+          window.dataLayer=window.dataLayer||[];
+          window.dataLayer.push({event:'search', search_term: q.value.trim()});
+        }
+      });
+    })();
+    </script>
   </body>
 </html>

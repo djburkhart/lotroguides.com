@@ -298,6 +298,8 @@
       window.history.replaceState(null, '', 'items?id=' + id);
     }
 
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'select_content',content_type:'item',content_id:id});
     $('#item-modal').modal('show');
   }
 

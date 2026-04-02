@@ -141,7 +141,47 @@
         }catch(e){}
         /* Periodic fallback for dynamic content the observer might miss */
         setInterval(function(){syncHeight(iframe)},500);
+        /* GTM dataLayer event: track Cusdis comment submissions */
+        trackCusdisSubmit(iframe);
       });
+    }
+
+    function trackCusdisSubmit(iframe){
+      try{
+        var doc=iframe.contentDocument;
+        if(!doc)return;
+        /* Cusdis uses button.font-bold or button.bg-gray-200 for submit */
+        doc.addEventListener('click',function(e){
+          var btn=e.target.closest('button');
+          if(!btn)return;
+          var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+          /* Also match reply submit buttons */
+          var isReply=btn.textContent.trim().toLowerCase()==='reply';
+          if(!isSub&&!isReply)return;
+          /* Read form field values from the iframe */
+          var nickname='',email='',comment='';
+          try{
+            var inputs=doc.querySelectorAll('input,textarea');
+            inputs.forEach(function(el){
+              var v=el.value||'';
+              if(!v)return;
+              if(el.type==='email'||el.placeholder.toLowerCase().indexOf('email')>-1)email=v;
+              else if(el.tagName==='TEXTAREA')comment=v;
+              else if(el.type==='text')nickname=v;
+            });
+          }catch(ex){}
+          window.dataLayer=window.dataLayer||[];
+          window.dataLayer.push({
+            event:'cusdis_comment_submit',
+            cusdis_action:isReply?'reply':'comment',
+            cusdis_nickname:nickname,
+            cusdis_email:email,
+            cusdis_comment_length:comment.length,
+            cusdis_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
+            cusdis_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+          });
+        });
+      }catch(e){}
     }
 
     function initWidget(){
@@ -177,15 +217,15 @@
 
     var siteKey='{{recaptchaSiteKey}}';
     if(siteKey){
-      /* reCAPTCHA v3: hide widget until verified */
+      /* reCAPTCHA Enterprise: hide widget until verified */
       var thread=document.getElementById('cusdis_thread');
       if(thread)thread.style.display='none';
-      grecaptcha.ready(function(){
-        grecaptcha.execute(siteKey,{action:'comment'}).then(function(token){
+      grecaptcha.enterprise.ready(function(){
+        grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
           fetch('/api/verify-recaptcha',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({token:token})
+            body:JSON.stringify({token:token,action:'comment'})
           }).then(function(r){return r.json()}).then(function(data){
             if(data.success&&data.score>=0.5){
               if(thread)thread.style.display='';

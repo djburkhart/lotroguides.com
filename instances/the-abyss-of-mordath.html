@@ -42,7 +42,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link href="./../plugins/animate/animate.min.css" rel="stylesheet">
     <!-- theme stylesheet -->
     <link href="./../css/theme.min.css" rel="stylesheet">
-    <link href="./../css/custom.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
     
     <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
@@ -79,11 +78,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <li class="has-dropdown"><a href="./../news">News</a>
                     <ul>
                       <li><a href="./../news">All News</a></li>
+                      <li><a href="./../news/lotro-bonus-040226-en">LOTRO Bonus Days!</a></li>
+                      <li><a href="./../news/lotro-sales-040226-en">Sales: April 2nd - 9th!</a></li>
                       <li><a href="./../news/spring-festival-2026">Spring Festival 2026 — Event Guide & New Rewards</a></li>
                       <li><a href="./../news/lotro-bonus-032626-en">LOTRO Bonus Days!</a></li>
                       <li><a href="./../news/lotro-housing-livestream-4-1-en">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
-                      <li><a href="./../news/lotro-sales-032626-en">Sales: March 26th - April 2nd</a></li>
-                      <li><a href="./../news/lotro-u42-soundtrack-en">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown active"><a href="./../items">Database</a>
@@ -2128,7 +2127,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <!-- Prevent Cusdis auto-render so we control timing -->
   <script>window.CUSDIS_PREVENT_INITIAL_RENDER=true;</script>
   <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17"></script>
+  <script src="https://www.google.com/recaptcha/enterprise.js?render=6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17"></script>
   <script>
   (function(){
     var THEME_CSS=[
@@ -2258,7 +2257,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }catch(e){}
         /* Periodic fallback for dynamic content the observer might miss */
         setInterval(function(){syncHeight(iframe)},500);
+        /* GTM dataLayer event: track Cusdis comment submissions */
+        trackCusdisSubmit(iframe);
       });
+    }
+
+    function trackCusdisSubmit(iframe){
+      try{
+        var doc=iframe.contentDocument;
+        if(!doc)return;
+        /* Cusdis uses button.font-bold or button.bg-gray-200 for submit */
+        doc.addEventListener('click',function(e){
+          var btn=e.target.closest('button');
+          if(!btn)return;
+          var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+          /* Also match reply submit buttons */
+          var isReply=btn.textContent.trim().toLowerCase()==='reply';
+          if(!isSub&&!isReply)return;
+          /* Read form field values from the iframe */
+          var nickname='',email='',comment='';
+          try{
+            var inputs=doc.querySelectorAll('input,textarea');
+            inputs.forEach(function(el){
+              var v=el.value||'';
+              if(!v)return;
+              if(el.type==='email'||el.placeholder.toLowerCase().indexOf('email')>-1)email=v;
+              else if(el.tagName==='TEXTAREA')comment=v;
+              else if(el.type==='text')nickname=v;
+            });
+          }catch(ex){}
+          window.dataLayer=window.dataLayer||[];
+          window.dataLayer.push({
+            event:'cusdis_comment_submit',
+            cusdis_action:isReply?'reply':'comment',
+            cusdis_nickname:nickname,
+            cusdis_email:email,
+            cusdis_comment_length:comment.length,
+            cusdis_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
+            cusdis_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+          });
+        });
+      }catch(e){}
     }
 
     function initWidget(){
@@ -2294,15 +2333,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     var siteKey='6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17';
     if(siteKey){
-      /* reCAPTCHA v3: hide widget until verified */
+      /* reCAPTCHA Enterprise: hide widget until verified */
       var thread=document.getElementById('cusdis_thread');
       if(thread)thread.style.display='none';
-      grecaptcha.ready(function(){
-        grecaptcha.execute(siteKey,{action:'comment'}).then(function(token){
+      grecaptcha.enterprise.ready(function(){
+        grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
           fetch('/api/verify-recaptcha',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({token:token})
+            body:JSON.stringify({token:token,action:'comment'})
           }).then(function(r){return r.json()}).then(function(data){
             if(data.success&&data.score>=0.5){
               if(thread)thread.style.display='';
@@ -2402,5 +2441,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script src="./../plugins/jquery/jquery-3.1.0.min.js"></script>
     <script src="./../plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="./../js/theme.min.js"></script>
+    <script>
+    /* GA4 search event — navbar item search */
+    (function(){
+      var form = document.getElementById('navbar-search-form');
+      if(form) form.addEventListener('submit', function(){
+        var q = form.querySelector('input[name="q"]');
+        if(q && q.value.trim()){
+          window.dataLayer=window.dataLayer||[];
+          window.dataLayer.push({event:'search', search_term: q.value.trim()});
+        }
+      });
+    })();
+    </script>
   </body>
 </html>
