@@ -1287,6 +1287,218 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </details>
         </div>
 
+        <div class="comments-section m-t-30">
+  <h6 class="subtitle">Comments</h6>
+  <div id="cusdis_thread"
+    data-host="https://cusdis.com"
+    data-app-id="1dd13822-dad7-4c7b-983e-b7fed82beea4"
+    data-page-id="spider-wing"
+    data-page-url="https://lotroguides.com/instances/spider-wing"
+    data-page-title="Spider Wing"
+    data-theme="dark"
+  ></div>
+  <!-- Prevent Cusdis auto-render so we control timing -->
+  <script>window.CUSDIS_PREVENT_INITIAL_RENDER=true;</script>
+  <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17"></script>
+  <script>
+  (function(){
+    var THEME_CSS=[
+      'body{font-family:Roboto,sans-serif;color:#2C2C2C;background:transparent}',
+      /* ── Comment list area (mt-4 px-1) ── */
+      '.mt-4.px-1{padding:0!important;margin-top:1.5rem!important}',
+      /* ── Individual comments ── */
+      '.my-4{margin:1.25rem 0!important;padding:12px 16px!important;background:rgba(255,255,255,.04)!important;border:1px solid #E8DCC8!important;border-radius:8px!important}',
+      /* Nested replies */
+      '.my-4 .my-4{background:rgba(255,255,255,.02)!important;border-left:2px solid #E8DCC8!important;border-top:none!important;border-right:none!important;border-bottom:none!important;border-radius:0 8px 8px 0!important}',
+      /* ── Nickname ── */
+      '.font-medium{color:#2C2C2C!important;font-weight:600!important}',
+      /* ── Mod badge ── */
+      '.bg-gray-200{background:rgba(201,168,76,.15)!important;color:#C9A84C!important}',
+      /* ── Timestamp ── */
+      '.text-gray-500.text-sm{color:#8A8A8A!important}',
+      /* ── Comment body text ── */
+      '.text-gray-500.my-2,.dark\\:text-gray-200{color:#2C2C2C!important}',
+      /* ── Reply button ── */
+      'button.text-sm.text-gray-500{background:none!important;color:#C9A84C!important;padding:4px 0!important;font-weight:500!important}',
+      'button.text-sm.text-gray-500:hover{color:#E5D49A!important;background:none!important}',
+      /* ── Pagination buttons ── */
+      'button.px-2.py-1{background:rgba(201,168,76,.1)!important;color:#C9A84C!important;border:1px solid rgba(201,168,76,.3)!important;border-radius:4px!important}',
+      'button.px-2.py-1.underline{background:#C9A84C!important;color:#1A1A2E!important}',
+      /* ── Powered-by footer ── */
+      '.text-center.text-xs{color:#2C2C2C!important}',
+      '.text-center.text-xs a{color:#C9A84C!important}',
+      /* ── Labels ── */
+      'label{color:#2C2C2C!important;font-weight:500!important;margin-bottom:6px!important}',
+      /* ── Form inputs ── */
+      'input,textarea{background:rgba(255,255,255,.06)!important;color:#2C2C2C!important;border:1px solid #E8DCC8!important;border-radius:6px!important;padding:8px 10px!important}',
+      'input::placeholder,textarea::placeholder{color:#2C2C2C!important}',
+      'input:focus,textarea:focus{border-color:#C9A84C!important;outline:none!important;box-shadow:0 0 0 2px rgba(201,168,76,.2)!important}',
+      /* ── Submit / Post button ── */
+      'button.bg-gray-200,button.font-bold{background:#C9A84C!important;color:#1A1A2E!important;border:none!important;border-radius:6px!important;font-weight:600!important;padding:8px 20px!important;cursor:pointer!important}',
+      'button.bg-gray-200:hover,button.font-bold:hover{background:#E5D49A!important}',
+      /* ── Status message banner ── */
+      '.bg-blue-500{background:rgba(201,168,76,.15)!important;color:#C9A84C!important;border:1px solid rgba(201,168,76,.3)!important;border-radius:6px!important}',
+      /* ── Loading text ── */
+      '.text-gray-900{color:#2C2C2C!important}',
+      /* ── Links ── */
+      'a{color:#C9A84C!important}',
+      'a:hover{color:#E5D49A!important}',
+      /* ── Separator spacing ── */
+      '.my-8{margin:1rem 0!important}'
+    ].join('\n');
+
+    function injectTheme(iframe){
+      try{
+        var doc=iframe.contentDocument;
+        if(!doc)return;
+        if(doc.querySelector('[data-cusdis-theme]'))return;
+        var s=doc.createElement('style');
+        s.setAttribute('data-cusdis-theme','1');
+        s.textContent=THEME_CSS;
+        doc.head.appendChild(s);
+        injectShowMore(iframe);
+      }catch(e){}
+    }
+
+    var SHOW_FIRST=5,SHOW_MAX=10;
+    var BTN_STYLE='display:block;margin:1rem auto;padding:8px 20px;background:#C9A84C;color:#1A1A2E;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.9rem;';
+    function injectShowMore(iframe){
+      try{
+        var doc=iframe.contentDocument;
+        if(!doc||doc.querySelector('[data-lotro-paged]'))return;
+        var container=doc.querySelector('.mt-4.px-1');
+        if(!container)return;
+        function apply(){
+          var comments=[];
+          for(var i=0;i<container.children.length;i++){
+            var c=container.children[i];
+            if(c.classList.contains('my-4'))comments.push(c);
+          }
+          if(comments.length<=SHOW_FIRST)return;
+          /* Remove old controls */
+          var old=container.querySelectorAll('[data-lotro-paged]');
+          for(var j=0;j<old.length;j++)old[j].remove();
+          var shown=SHOW_FIRST;
+          comments.forEach(function(c,idx){c.style.display=idx<shown?'':'none';});
+          if(comments.length>SHOW_FIRST){
+            var btn=doc.createElement('button');
+            btn.setAttribute('data-lotro-paged','1');
+            btn.style.cssText=BTN_STYLE;
+            var remaining=Math.min(SHOW_MAX,comments.length)-SHOW_FIRST;
+            btn.textContent='Show '+remaining+' More Comment'+(remaining>1?'s':'');
+            btn.addEventListener('click',function(){
+              shown=Math.min(SHOW_MAX,comments.length);
+              comments.forEach(function(c,idx){c.style.display=idx<shown?'':'none';});
+              btn.remove();
+              if(comments.length>SHOW_MAX){
+                var info=doc.createElement('div');
+                info.setAttribute('data-lotro-paged','1');
+                info.style.cssText='text-align:center;color:#8A8A8A;font-size:.85rem;margin:1rem 0;';
+                info.textContent='Showing '+SHOW_MAX+' of '+comments.length+' comments. Use pagination below for more.';
+                container.appendChild(info);
+              }
+            });
+            container.appendChild(btn);
+          }
+        }
+        apply();
+        new MutationObserver(function(){apply()}).observe(container,{childList:true});
+      }catch(e){}
+    }
+
+    function syncHeight(iframe){
+      try{
+        var h=iframe.contentDocument.documentElement.scrollHeight;
+        if(h&&h>0)iframe.style.height=h+'px';
+      }catch(e){}
+    }
+
+    function setupIframe(iframe){
+      iframe.style.border='0';
+      iframe.style.width='100%';
+      iframe.style.minHeight='350px';
+      iframe.addEventListener('load',function(){
+        injectTheme(iframe);
+        syncHeight(iframe);
+        /* Keep height in sync as content changes */
+        try{
+          new MutationObserver(function(){
+            injectTheme(iframe);
+            syncHeight(iframe);
+          }).observe(iframe.contentDocument.body,{childList:true,subtree:true,attributes:true});
+        }catch(e){}
+        /* Periodic fallback for dynamic content the observer might miss */
+        setInterval(function(){syncHeight(iframe)},500);
+      });
+    }
+
+    function initWidget(){
+      var target=document.getElementById('cusdis_thread');
+      if(!target)return;
+
+      /* Watch for the iframe that Cusdis will create */
+      new MutationObserver(function(mutations){
+        mutations.forEach(function(m){
+          m.addedNodes.forEach(function(n){
+            if(n.tagName==='IFRAME')setupIframe(n);
+          });
+        });
+      }).observe(target,{childList:true});
+
+      /* Handle iframe that may already exist (fallback) */
+      var existing=target.querySelector('iframe');
+      if(existing)setupIframe(existing);
+
+      /* Now tell Cusdis to render */
+      if(window.CUSDIS&&window.CUSDIS.renderTo){
+        window.CUSDIS.renderTo(target);
+      }else{
+        /* SDK hasn't loaded yet — wait for it */
+        var poll=setInterval(function(){
+          if(window.CUSDIS&&window.CUSDIS.renderTo){
+            clearInterval(poll);
+            window.CUSDIS.renderTo(target);
+          }
+        },100);
+      }
+    }
+
+    var siteKey='6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17';
+    if(siteKey){
+      /* reCAPTCHA v3: hide widget until verified */
+      var thread=document.getElementById('cusdis_thread');
+      if(thread)thread.style.display='none';
+      grecaptcha.ready(function(){
+        grecaptcha.execute(siteKey,{action:'comment'}).then(function(token){
+          fetch('/api/verify-recaptcha',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({token:token})
+          }).then(function(r){return r.json()}).then(function(data){
+            if(data.success&&data.score>=0.5){
+              if(thread)thread.style.display='';
+              initWidget();
+            }else{
+              var p=document.createElement('p');
+              p.className='text-muted';
+              p.textContent='Unable to load comments. Please refresh and try again.';
+              thread.parentNode.insertBefore(p,thread);
+            }
+          }).catch(function(){
+            /* On verify failure, show widget anyway (graceful degradation) */
+            if(thread)thread.style.display='';
+            initWidget();
+          });
+        });
+      });
+    }else{
+      initWidget();
+    }
+  })();
+  </script>
+</div>
+
       </div>
     </section>
 

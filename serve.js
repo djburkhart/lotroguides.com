@@ -1,9 +1,12 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 8080;
 const ROOT = __dirname;
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || '';
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -99,6 +102,75 @@ const server = http.createServer((req, res) => {
       fs.writeFileSync(dest, imgPart.data);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, path: relPath }));
+    });
+    return;
+  }
+
+  // ── Cusdis webhook dev endpoint ────────────────────────────────
+  if (req.method === 'POST' && req.url.startsWith('/api/cusdis-webhook')) {
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      let payload;
+      try { payload = JSON.parse(Buffer.concat(chunks).toString()); }
+      catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        return;
+      }
+      console.log('[cusdis-webhook]', JSON.stringify(payload, null, 2));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, dev: true }));
+    });
+    return;
+  }
+
+  // ── reCAPTCHA v3 verification endpoint ───────────────────────────
+  if (req.method === 'POST' && req.url === '/api/verify-recaptcha') {
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      if (!RECAPTCHA_SECRET_KEY) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, score: 1.0 }));
+        return;
+      }
+      let token;
+      try { token = JSON.parse(Buffer.concat(chunks).toString()).token; }
+      catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid request body' }));
+        return;
+      }
+      const postData = `secret=${encodeURIComponent(RECAPTCHA_SECRET_KEY)}&response=${encodeURIComponent(token)}`;
+      const verifyReq = https.request({
+        hostname: 'www.google.com',
+        path: '/recaptcha/api/siteverify',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(postData),
+        },
+      }, (verifyRes) => {
+        let body = '';
+        verifyRes.on('data', d => body += d);
+        verifyRes.on('end', () => {
+          try {
+            const result = JSON.parse(body);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: result.success, score: result.score || 0 }));
+          } catch (e) {
+            res.writeHead(502, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: false, error: 'Invalid upstream response' }));
+          }
+        });
+      });
+      verifyReq.on('error', () => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Verification request failed' }));
+      });
+      verifyReq.write(postData);
+      verifyReq.end();
     });
     return;
   }

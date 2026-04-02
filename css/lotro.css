@@ -2402,6 +2402,10 @@ h1, h2, h3 {
 }
 
 /* ─── Editor Page ───────────────────────────────────────────────────── */
+#login-section {
+  text-align: center;
+  padding: 60px 0;
+}
 .editor-login-section {
   text-align: center;
   padding: 60px 0;
@@ -3489,4 +3493,77 @@ body.lotro-map-embed-mode {
 
 .instance-loot-btn {
   white-space: nowrap;
+}
+
+/* ─── Cusdis Comments ────────────────────────────────────────────────────── */
+.comments-section {
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  padding-top: 30px;
+}
+#cusdis_thread iframe {
+  display: block;
+  color-scheme: dark;
+  width: 100%;
+  min-height: 350px;
+  border: 0;
+}
+
+/* ─── Card Widget (Related Posts) ────────────────────────────────────────── */
+.card-widget {
+  background: var(--lotro-dark-mid) !important;
+  border: 1px solid rgba(255, 255, 255, .06) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card-widget:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35) !important;
+}
+.card-widget .card-img img {
+  border-radius: 12px 12px 0 0 !important;
+  margin-bottom: 0 !important;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.card-widget .card-block {
+  padding: 14px 16px 16px !important;
+}
+.card-widget .card-title {
+  font-size: 15px;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+.card-widget .card-title a {
+  color: var(--lotro-parchment);
+}
+.card-widget .card-title a:hover {
+  color: var(--lotro-gold);
+}
+.card-widget .card-meta {
+  color: var(--lotro-text-light) !important;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.card-widget .card-block p {
+  font-size: 13px;
+  color: rgba(245, 240, 225, .7);
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-read-more {
+  font-size: 12px;
+  padding: 4px 14px !important;
+}
+
+/* ─── Subtitle Override ──────────────────────────────────────────────────── */
+.subtitle {
+  color: var(--lotro-text);
+  border-left-color: var(--lotro-dark-accent);
+  font-size: 1.1rem;
+  letter-spacing: .04em;
 }

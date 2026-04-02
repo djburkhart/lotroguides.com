@@ -22,6 +22,9 @@ const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
 const CDN_UPLOAD_URL = process.env.CDN_UPLOAD_URL || '';
 const GOOGLE_SEARCH_CONSOLE_VERIFICATION = process.env.GOOGLE_SEARCH_CONSOLE_VERIFICATION || '';
+const CUSDIS_APP_ID = process.env.CUSDIS_APP_ID || '';
+const CUSDIS_HOST = process.env.CUSDIS_HOST || 'https://cusdis.com';
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
 // CDN base URL for large binary assets (basemaps ~34 MB, icons ~72 MB).
 // Set to your DO Spaces CDN endpoint, e.g. https://lotroguides.nyc3.cdn.digitaloceanspaces.com
 // Leave blank to serve from the site origin (local/dev).
@@ -1055,6 +1058,26 @@ function render(template, data) {
 }
 
 /**
+ * Build the Cusdis comments widget HTML for a page.
+ * Returns empty string when CUSDIS_APP_ID is not configured.
+ */
+function buildCommentsSection(pageId, pageUrl, pageTitle) {
+  if (!CUSDIS_APP_ID) return '';
+  const template = readTemplate('partials/comments.html');
+  return render(template, {
+    cusdisHost: CUSDIS_HOST,
+    cusdisAppId: CUSDIS_APP_ID,
+    cusdisPageId: pageId,
+    cusdisPageUrl: pageUrl,
+    cusdisPageTitle: pageTitle,
+    recaptchaSiteKey: RECAPTCHA_SITE_KEY,
+    recaptchaScript: RECAPTCHA_SITE_KEY
+      ? `<script src="https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}"></script>`
+      : '',
+  });
+}
+
+/**
  * Strip .html from internal URLs for clean URLs on the live site.
  * index.html → '' (or '../' for subdirectory pages)
  * page.html  → page
@@ -1353,6 +1376,7 @@ function buildIndex(allPosts, navData) {
     url: featured.url,
     image: featured.image || 'img/default.jpg',
     title: featured.title,
+    slug: featured.slug,
     date: featured.formattedDate,
     author: featured.author || 'Amdor',
     excerpt: featured.excerpt,
@@ -1368,6 +1392,7 @@ function buildIndex(allPosts, navData) {
     url: post.url,
     image: post.image || 'img/default.jpg',
     title: post.title,
+    slug: post.slug,
     date: post.formattedDate,
     author: post.author || 'Amdor',
     excerpt: post.excerpt,
@@ -1383,7 +1408,12 @@ function buildIndex(allPosts, navData) {
     siteRoot: '',
   });
 
-  return buildPage(body, { title: 'LOTRO Guides - LOTRO Fansite', currentPage: 'home', ...navData });
+  let html = buildPage(body, { title: 'LOTRO Guides - LOTRO Fansite', currentPage: 'home', ...navData });
+  if (CUSDIS_APP_ID) {
+    html = html.replace('</body>',
+      `  <script defer data-host="${CUSDIS_HOST}" data-app-id="${CUSDIS_APP_ID}" src="${CUSDIS_HOST}/js/cusdis-count.umd.js"></script>\n  </body>`);
+  }
+  return html;
 }
 
 function buildListing(posts, category, navData) {
@@ -1404,6 +1434,7 @@ function buildListing(posts, category, navData) {
     url: post.url,
     image: post.image || 'img/default.jpg',
     title: post.title,
+    slug: post.slug,
     date: post.formattedDate,
     author: post.author || 'Amdor',
     excerpt: post.excerpt,
@@ -1472,6 +1503,11 @@ function buildListing(posts, category, navData) {
     html = html.replace('</body>', `    ${filterScript}\n  </body>`);
   }
 
+  if (CUSDIS_APP_ID) {
+    html = html.replace('</body>',
+      `  <script defer data-host="${CUSDIS_HOST}" data-app-id="${CUSDIS_APP_ID}" src="${CUSDIS_HOST}/js/cusdis-count.umd.js"></script>\n  </body>`);
+  }
+
   return html;
 }
 
@@ -1490,6 +1526,7 @@ function buildArticle(post, relatedPosts, navData) {
       url: `../${rp.url}`,
       image: rpImg,
       title: rp.title,
+      slug: rp.slug,
       date: rp.formattedDate,
       excerpt: rp.excerpt,
       assets: articleAssets,
@@ -1504,6 +1541,7 @@ function buildArticle(post, relatedPosts, navData) {
   const ogImage = post.image && post.image.startsWith('http')
     ? post.image
     : `${SITE_BASE_URL}/${post.image || 'img/default.jpg'}`;
+  const comments = buildCommentsSection(post.slug, articleUrl, post.title);
   const body = render(template, {
     title: post.title,
     date: post.formattedDate,
@@ -1517,9 +1555,10 @@ function buildArticle(post, relatedPosts, navData) {
     assets: articleAssets,
     articleUrl,
     encodedTitle,
+    comments,
   });
 
-  return buildPage(body, {
+  let html = buildPage(body, {
     title: `${post.title} - LOTRO Guides`,
     metaDescription: post.excerpt,
     currentPage: post.category,
@@ -1529,6 +1568,13 @@ function buildArticle(post, relatedPosts, navData) {
     ogImage,
     ...navData,
   });
+
+  if (CUSDIS_APP_ID) {
+    html = html.replace('</body>',
+      `  <script defer data-host="${CUSDIS_HOST}" data-app-id="${CUSDIS_APP_ID}" src="${CUSDIS_HOST}/js/cusdis-count.umd.js"></script>\n  </body>`);
+  }
+
+  return html;
 }
 
 // ─── Items Database Page ────────────────────────────────────────────────────
@@ -2450,6 +2496,9 @@ function buildInstancesPage(navData, subDirNavData) {
       ? `<tr><th><i class="fa fa-hashtag"></i> Instance ID</th><td class="text-muted">${inst.id}</td></tr>`
       : '';
 
+    const instanceUrl = `${SITE_BASE_URL}/instances/${inst.slug}`;
+    const comments = buildCommentsSection(inst.slug, instanceUrl, inst.name);
+
     const detailBody = render(detailTemplate, {
       instanceName: escapeHtml(inst.name),
       groupType: inst.groupType,
@@ -2460,6 +2509,7 @@ function buildInstancesPage(navData, subDirNavData) {
       relatedContent,
       lootSection,
       mobAccordions: mobAccordions || '<p class="text-muted">No mob data available for this instance.</p>',
+      comments,
     });
 
     let detailHtml = buildPage(detailBody, {

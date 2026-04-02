@@ -14,3 +14,13 @@ packages:
       - name: lookup
         runtime: nodejs:20
         web: true
+  - name: recaptcha
+    functions:
+      - name: verify
+        runtime: nodejs:20
+        web: true
+  - name: cusdis
+    functions:
+      - name: webhook
+        runtime: nodejs:20
+        web: true
