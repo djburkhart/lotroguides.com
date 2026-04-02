@@ -1,7 +1,7 @@
 ---
 title: "Ost Dunhoth Disease Wing T2c - Raid Guide"
 date: 2026-03-29
-author: "Robrelloth/Tinnuviel"
+author: "Amdor"
 tags: [raid, ost-dunhoth, t2-challenge, huorns, endgame, instance]
 image: "../lotro/img/guides/od-guide.jpg"
 excerpt: "A detailed walkthrough of the Ost Dunhoth Disease Wing, covering trash pulls and the T2 Corrupted Huorns challenge. Includes tank swaps, Bog Lurker coordination, and DPS strategy."
@@ -135,15 +135,7 @@ There is no hard timer on this fight. When Lurkers are active, you may **keep 2 
 
 Ost Dunhoth Disease Wing features heavy disease pressure and distributed damage. Come prepared:
 
-| Consumable | Purpose |
-|---|---|
-| Luxurious Roasted Oryx Shank (or your class stat food) | Primary stat boost |
-| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
-| Scroll of Mûrai Battle Lore | Offensive mastery |
-| Scroll of Mûrai Warding Lore | Defensive mitigation (critical for tanks and Lurker swaps) |
-| Mûrai Edhelharn Token | Hope — counters the dread in Ost Dunhoth |
-| Greater Mûrai Athelas Essence | Emergency morale recovery |
-| Greater Mûrai Celebrant Essence | Power sustain during extended Lurker phases |
+{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant,notes=warding=Defensive mitigation (critical for tanks and Lurker swaps)|hope=Hope — counters the dread in Ost Dunhoth|celebrant=Power sustain during extended Lurker phases}}
 
 > **Tip:** Disease cleanse pots are essential in this wing. The Grodbog Queens and Deep-worm Scavengers apply diseases constantly — have extra pots on your quickbar.
 

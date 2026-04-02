@@ -54,14 +54,6 @@ Each ring has different trash pulls and mechanics for the final boss in each rin
 
 Fire and Ice is a pure DPS race — every point of mastery matters. Stack everything:
 
-| Consumable | Purpose |
-|---|---|
-| Luxurious Roasted Oryx Shank (Might) / Luxurious Stuffed Eggplant (Agility) / Luxurious Eggplant Dip (Will) | Primary stat food for your class |
-| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
-| Scroll of Mûrai Battle Lore | Offensive mastery — critical for meeting the 30-second DPS windows |
-| Scroll of Mûrai Warding Lore | Defensive mitigation for tanks holding Grims |
-| Mûrai Edhelharn Token | Hope buff |
-| Enhancement Rune +4, Lvl 151 | Extra LI item levels for maximum DPS |
-| Greater Mûrai Athelas Essence | Emergency morale between phases |
+{{consumableTable:items=food+trail+battle+warding+hope+rune+athelas,notes=battle=Offensive mastery — critical for the 30-second DPS windows|warding=Defensive mitigation for tanks holding Grims|rune=Extra LI item levels for maximum DPS}}
 
 > **Tip:** Coordinate Splendid Mûrai Feast or Durable Umbari Feast before the pull so the entire raid starts with food buffs active.

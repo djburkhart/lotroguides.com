@@ -34,6 +34,9 @@ static_sites:
       - key: GITHUB_CLIENT_ID
         type: SECRET
         scope: BUILD_TIME
+      - key: DO_CDN_URL
+        type: SECRET
+        scope: BUILD_TIME
 functions:
   - name: github-auth
     github:

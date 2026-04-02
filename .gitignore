@@ -46,9 +46,10 @@ npm-debug.log*
 /news/spring-festival-2026.html
 /news/update-42-preview.html
 
-# Build output data (lore/ is source data, keep tracked)
-/data/*.json
-/data/content/
+# Build output data — all data/ files come from CDN
+# Source data (lore/, instances-db, instance-loot) uploaded via sync:cdn
+# and downloaded at build time by scripts/download-cdn-data.js
+/data/
 
 # Esbuild bundle outputs
 /js/editor.bundle.*

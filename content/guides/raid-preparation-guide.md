@@ -133,16 +133,7 @@ Here's a checklist of what to have in your bags before every T2C raid:
 
 ### The Essentials (Crafted)
 
-| Consumable | Example | Slot |
-|---|---|---|
-| Cooked Food (crit) | Luxurious Roasted Oryx Shank | Food buff |
-| Trail Food | Pot of Mûrai Honey and Oats | Trail food buff |
-| Morale Potions | On-level Scholar pots | Emergency heal |
-| Power Potions | On-level Scholar pots | Sustain |
-| Battle Scroll | Scroll of Mûrai Battle Lore | Offensive buff |
-| Warding Scroll | Scroll of Mûrai Warding Lore | Defensive buff |
-| Hope Token | Mûrai Edhelharn Token | Dread counter |
-| Shield-spikes | Mûrai Westernesse Shield-spike Kit | Tank buff |
+{{consumableTable:items=food+trail+morale+power+battle+warding+hope+shield,heading=Essential Crafted Consumables}}
 
 ### The Store Edge (T2C Push)
 

@@ -1,7 +1,7 @@
 ---
 title: "The Abyss of Mordath — Full Raid Guide (T1 & T2)"
 date: 2026-03-29
-author: "Robrelloth"
+author: "Amdor"
 tags: [raid, abyss-of-mordath, mordor, endgame, instance, t2-challenge]
 image: "../lotro/img/guides/abyss-guide.jpg"
 excerpt: "A comprehensive guide to The Abyss of Mordath raid covering all trash pulls, boss mechanics, and T1/T2 challenge strategies for all three boss fights."
@@ -389,17 +389,7 @@ King Vaskmun Greytooth spawns. The tank grabs him (minimal damage). Continue the
 
 The Abyss of Mordath is a long raid with high sustained damage. Full consumable uptime is non-negotiable for T2.
 
-| Consumable | Purpose |
-|---|---|
-| Luxurious Roasted Oryx Shank / Luxurious Stuffed Eggplant / Luxurious Eggplant Dip | Primary stat food (match to your class) |
-| Pot of Mûrai Honey and Oats | Trail food — mitigation buffs |
-| Scroll of Mûrai Battle Lore | Offensive mastery |
-| Scroll of Mûrai Warding Lore | Defensive mitigation — critical for tanks and off-tanks managing ESGs |
-| Mûrai Edhelharn Token | Hope buff — counters Abyssal Darkness dread from Deathless Watchers |
-| Greater Mûrai Athelas Essence | Emergency morale after Bursting Boils or Blood Sickness |
-| Greater Mûrai Celebrant Essence | Power sustain — essential during long corruption removal phases |
-| Enhancement Rune +4, Lvl 151 | Extra LI item levels for DPS and healing output |
-| Mûrai Westernesse Shield-spike Kit | Shield-spike for tanks (match damage type to content) |
+{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant+rune+shield,notes=warding=Defensive mitigation — critical for tanks and off-tanks managing ESGs|hope=Hope buff — counters Abyssal Darkness dread from Deathless Watchers|athelas=Emergency morale after Bursting Boils or Blood Sickness|celebrant=Power sustain — essential during long corruption removal phases|rune=Extra LI item levels for DPS and healing output|shield=Shield-spike for tanks (match damage type to content)}}
 
 > **Tip:** Bring at least 3 stacks of each consumable — the Abyss is long and wipes mean rebuffing. The 25-minute enrage on Fingar means every stat point counts. Coordinate a Splendid Mûrai Feast or Durable Umbari Feast before each boss pull.
 

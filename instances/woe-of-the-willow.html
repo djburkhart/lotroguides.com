@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Woe of the Willow — Instance Details - LOTRO Guides</title>
+    <link rel="icon" type="image/png" href="./../img/favicon.png">
     <meta name="description" content="Detailed mob and ability data for Woe of the Willow (3-Player). 14 mobs documented.">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com" />
@@ -29,6 +30,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <!-- Google Ad Sense -->
     <meta name="google-adsense-account" content="ca-pub-2480071878965715">
+    <!-- Google Consent Management (Funding Choices) -->
+<script async src="https://fundingchoicesmessages.google.com/i/pub-2480071878965715?ers=1"></script>
+<script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';i.style.display='none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>
     
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
@@ -40,6 +44,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link href="./../css/theme.min.css" rel="stylesheet">
     <link href="./../css/custom.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
+    
+    <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
   </head>
   <body class="fixed-header">
     <!-- Google Tag Manager (noscript) -->
@@ -63,21 +69,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <li class=""><a href="./../index.html">Home</a></li>
                   <li class="has-dropdown"><a href="./../guides.html">Guides</a>
                     <ul>
-                      <li><a href="./guides.html?filter=raid">Raid Guides</a></li>
-                      <li><a href="./guides.html?filter=class">Class Guides</a></li>
-                      <li><a href="./guides.html?filter=leveling">Leveling Guides</a></li>
-                      <li><a href="./guides.html?filter=systems">Systems Guides</a></li>
-                      <li><a href="./guides.html?filter=general">General Guides</a></li>
+                      <li><a href="./../guides.html?filter=raid">Raid Guides</a></li>
+                      <li><a href="./../guides.html?filter=class">Class Guides</a></li>
+                      <li><a href="./../guides.html?filter=leveling">Leveling Guides</a></li>
+                      <li><a href="./../guides.html?filter=systems">Systems Guides</a></li>
+                      <li><a href="./../guides.html?filter=general">General Guides</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown"><a href="./../news.html">News</a>
                     <ul>
                       <li><a href="./../news.html">All News</a></li>
-                      <li><a href="./news/spring-festival-2026.html">Spring Festival 2026 — Event Guide & New Rewards</a></li>
-                      <li><a href="./news/lotro-bonus-032626-en.html">LOTRO Bonus Days!</a></li>
-                      <li><a href="./news/lotro-housing-livestream-4-1-en.html">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
-                      <li><a href="./news/lotro-sales-032626-en.html">Sales: March 26th - April 2nd</a></li>
-                      <li><a href="./news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
+                      <li><a href="./../news/spring-festival-2026.html">Spring Festival 2026 — Event Guide & New Rewards</a></li>
+                      <li><a href="./../news/lotro-bonus-032626-en.html">LOTRO Bonus Days!</a></li>
+                      <li><a href="./../news/lotro-housing-livestream-4-1-en.html">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
+                      <li><a href="./../news/lotro-sales-032626-en.html">Sales: March 26th - April 2nd</a></li>
+                      <li><a href="./../news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown active"><a href="./../items.html">Database</a>
@@ -166,7 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- Mob / Boss Listing -->
         <div class="m-b-30">
           <h3 class="instance-section-title"><i class="fa fa-crosshairs"></i> Mobs &amp; Bosses</h3>
-          <p class="text-muted">All mobs found in this instance, with their abilities. Data from the Refridgerraiders project.</p>
+          <p class="text-muted">All mobs found in this instance with their skills, damage types, and effects. Skill data from <a href="https://github.com/LotroCompanion" class="text-muted" style="text-decoration:underline">LotRO Companion</a>.</p>
         </div>
 
         <div class="lotro-loot-accordion">
@@ -176,8 +182,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">1 abilities · ID: 1879401390</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -186,8 +195,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">1 abilities · ID: 1879401391</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -196,20 +208,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">13 abilities · ID: 1879413684</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak swipe attack</td><td class="text-muted">1879052848</td></tr>
-<tr><td>a minor swipe attack</td><td class="text-muted">1879054587</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Striking Blows</td><td class="text-muted">1879413993</td></tr>
-<tr><td>Sweeping Limbs</td><td class="text-muted">1879413992</td></tr>
-<tr><td>Corrupted Pool</td><td class="text-muted">1879413996</td></tr>
-<tr><td>Corrupted Pool</td><td class="text-muted">1879414588</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Thrown Knockdown</td><td class="text-muted">1879059986</td></tr>
-<tr><td>a strong thrown attack</td><td class="text-muted">1879085456</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Striking Blows<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 90° 7m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Sweeping Limbs<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Corrupted Pool<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Cry</span> <span class="skill-badge skill-badge-aoe">Radius 75m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Corrupted Pool</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Corrupted Pool<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Cry</span> <span class="skill-badge skill-badge-aoe">Radius 75m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Corrupted Pool</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thrown Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a strong thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -218,10 +269,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">3 abilities · ID: 1879413685</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Wave of Darkness</td><td class="text-muted">1879414599</td></tr>
-<tr><td>Stirring Darkness</td><td class="text-muted">1879416116</td></tr>
-<tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">Wave of Darkness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Stirring Darkness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -230,12 +290,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">5 abilities · ID: 1879413686</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Sapped Strength</td><td class="text-muted">1879415517</td></tr>
-<tr><td>Sapped Focus</td><td class="text-muted">1879415518</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879415516</td></tr>
-<tr><td>a strong melee attack</td><td class="text-muted">1879415519</td></tr>
-<tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sapped Strength<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Common</span> <span class="skill-badge skill-badge-range">60m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Slowed</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090523949.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sapped Focus<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Common</span> <span class="skill-badge skill-badge-range">60m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Chilled Slow</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a strong melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 15m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -244,15 +319,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">8 abilities · ID: 1879413788</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak swipe attack</td><td class="text-muted">1879052848</td></tr>
-<tr><td>a minor swipe attack</td><td class="text-muted">1879054587</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Poisoned Wound</td><td class="text-muted">1879414282</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522396.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Poisoned Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Cry</span> <span class="skill-badge skill-badge-range">5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-dot">Poison · 7 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -261,10 +360,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">3 abilities · ID: 1879413789</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Sweep</td><td class="text-muted">1879078381</td></tr>
-<tr><td>Slap</td><td class="text-muted">1879078382</td></tr>
-<tr><td>Burrowed Attack</td><td class="text-muted">1879061538</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">Sweep<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Slap<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Burrowed Attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">40m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -273,17 +381,47 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">10 abilities · ID: 1879413790</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak swipe attack</td><td class="text-muted">1879052848</td></tr>
-<tr><td>a minor swipe attack</td><td class="text-muted">1879054587</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Thorned Snare</td><td class="text-muted">1879414163</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Thrown Knockdown</td><td class="text-muted">1879059986</td></tr>
-<tr><td>a strong thrown attack</td><td class="text-muted">1879085456</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thorned Snare<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Root Prison</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thrown Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a strong thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -292,16 +430,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">9 abilities · ID: 1879413792</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak swipe attack</td><td class="text-muted">1879052848</td></tr>
-<tr><td>a minor swipe attack</td><td class="text-muted">1879054587</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Blight</td><td class="text-muted">1879414165</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Hardening Root</td><td class="text-muted">1879085103</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Blight<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 90° 7m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1091476366.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Hardening Root<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">10m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Hardened Bark</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -310,22 +475,67 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">15 abilities · ID: 1879415044</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879052676</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879052677</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879052678</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>Induction Enter Invulnerability State</td><td class="text-muted">1879052679</td></tr>
-<tr><td>Exit Invulnerability State</td><td class="text-muted">1879052680</td></tr>
-<tr><td>Shadow Burst</td><td class="text-muted">1879052681</td></tr>
-<tr><td>Shadow Scream</td><td class="text-muted">1879052682</td></tr>
-<tr><td>Shadow Touched</td><td class="text-muted">1879052683</td></tr>
-<tr><td>Shadow Grip</td><td class="text-muted">1879057830</td></tr>
-<tr><td>Induction Enter Invulnerability State</td><td class="text-muted">1879052679</td></tr>
-<tr><td>Exit Invulnerability State</td><td class="text-muted">1879052680</td></tr>
-<tr><td>Shadow Burst</td><td class="text-muted">1879052681</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Induction Enter Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Exit Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Exit MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Burst<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Scream<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Touched<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">15m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Shadow Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090532173.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Shadow Grip<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Shadow Grip · 3 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Induction Enter Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Exit Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Exit MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Burst<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -334,20 +544,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">13 abilities · ID: 1879415048</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879052676</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879052677</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879052678</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a weak thrown attack</td><td class="text-muted">1879057827</td></tr>
-<tr><td>a minor thrown attack</td><td class="text-muted">1879057828</td></tr>
-<tr><td>a moderate thrown attack</td><td class="text-muted">1879057829</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>Fell Curse</td><td class="text-muted">1879414281</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090523949.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Fell Curse<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Icy Lethargy</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -356,21 +605,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">14 abilities · ID: 1879415049</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879052676</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879052677</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879052678</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a weak thrown attack</td><td class="text-muted">1879057827</td></tr>
-<tr><td>a minor thrown attack</td><td class="text-muted">1879057828</td></tr>
-<tr><td>a moderate thrown attack</td><td class="text-muted">1879057829</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879076096</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>Fell Curse</td><td class="text-muted">1879414281</td></tr>
-<tr><td>Wretched Doom</td><td class="text-muted">1879414514</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090523949.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Fell Curse<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Icy Lethargy</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wretched Doom<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -379,16 +670,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">9 abilities · ID: 1879415050</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak swipe attack</td><td class="text-muted">1879052848</td></tr>
-<tr><td>a minor swipe attack</td><td class="text-muted">1879054587</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Blight</td><td class="text-muted">1879414165</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Hardening Root</td><td class="text-muted">1879085103</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Blight<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 90° 7m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1091476366.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Hardening Root<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">10m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Hardened Bark</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -397,15 +715,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">8 abilities · ID: 1879415497</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879052676</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879052677</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879052678</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076087</td></tr>
-<tr><td>Fell Curse</td><td class="text-muted">1879414281</td></tr>
-<tr><td>Wretched Doom</td><td class="text-muted">1879414514</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090523949.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Fell Curse<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Icy Lethargy</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wretched Doom<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr></tbody>
           </table></div>
       </details>
         </div>

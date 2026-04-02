@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Haudh Valandil — Instance Details - LOTRO Guides</title>
+    <link rel="icon" type="image/png" href="./../img/favicon.png">
     <meta name="description" content="Detailed mob and ability data for Haudh Valandil (6-Player). 23 mobs documented.">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com" />
@@ -29,6 +30,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <!-- Google Ad Sense -->
     <meta name="google-adsense-account" content="ca-pub-2480071878965715">
+    <!-- Google Consent Management (Funding Choices) -->
+<script async src="https://fundingchoicesmessages.google.com/i/pub-2480071878965715?ers=1"></script>
+<script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';i.style.display='none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>
     
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
@@ -40,6 +44,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link href="./../css/theme.min.css" rel="stylesheet">
     <link href="./../css/custom.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
+    
+    <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
   </head>
   <body class="fixed-header">
     <!-- Google Tag Manager (noscript) -->
@@ -63,21 +69,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <li class=""><a href="./../index.html">Home</a></li>
                   <li class="has-dropdown"><a href="./../guides.html">Guides</a>
                     <ul>
-                      <li><a href="./guides.html?filter=raid">Raid Guides</a></li>
-                      <li><a href="./guides.html?filter=class">Class Guides</a></li>
-                      <li><a href="./guides.html?filter=leveling">Leveling Guides</a></li>
-                      <li><a href="./guides.html?filter=systems">Systems Guides</a></li>
-                      <li><a href="./guides.html?filter=general">General Guides</a></li>
+                      <li><a href="./../guides.html?filter=raid">Raid Guides</a></li>
+                      <li><a href="./../guides.html?filter=class">Class Guides</a></li>
+                      <li><a href="./../guides.html?filter=leveling">Leveling Guides</a></li>
+                      <li><a href="./../guides.html?filter=systems">Systems Guides</a></li>
+                      <li><a href="./../guides.html?filter=general">General Guides</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown"><a href="./../news.html">News</a>
                     <ul>
                       <li><a href="./../news.html">All News</a></li>
-                      <li><a href="./news/spring-festival-2026.html">Spring Festival 2026 — Event Guide & New Rewards</a></li>
-                      <li><a href="./news/lotro-bonus-032626-en.html">LOTRO Bonus Days!</a></li>
-                      <li><a href="./news/lotro-housing-livestream-4-1-en.html">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
-                      <li><a href="./news/lotro-sales-032626-en.html">Sales: March 26th - April 2nd</a></li>
-                      <li><a href="./news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
+                      <li><a href="./../news/spring-festival-2026.html">Spring Festival 2026 — Event Guide & New Rewards</a></li>
+                      <li><a href="./../news/lotro-bonus-032626-en.html">LOTRO Bonus Days!</a></li>
+                      <li><a href="./../news/lotro-housing-livestream-4-1-en.html">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
+                      <li><a href="./../news/lotro-sales-032626-en.html">Sales: March 26th - April 2nd</a></li>
+                      <li><a href="./../news/lotro-u42-soundtrack-en.html">The soundtrack for Update 42: Legacy of Morgoth is now available on our YouTube channel!</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown active"><a href="./../items.html">Database</a>
@@ -166,7 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- Mob / Boss Listing -->
         <div class="m-b-30">
           <h3 class="instance-section-title"><i class="fa fa-crosshairs"></i> Mobs &amp; Bosses</h3>
-          <p class="text-muted">All mobs found in this instance, with their abilities. Data from the Refridgerraiders project.</p>
+          <p class="text-muted">All mobs found in this instance with their skills, damage types, and effects. Skill data from <a href="https://github.com/LotroCompanion" class="text-muted" style="text-decoration:underline">LotRO Companion</a>.</p>
         </div>
 
         <div class="lotro-loot-accordion">
@@ -176,18 +182,51 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">11 abilities · ID: 1879090814</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Vulnerability to Fire</td><td class="text-muted">1879088962</td></tr>
-<tr><td>Terrify</td><td class="text-muted">1879052670</td></tr>
-<tr><td>Invoke The Eye</td><td class="text-muted">1879088964</td></tr>
-<tr><td>Scorched Earth</td><td class="text-muted">1879088965</td></tr>
-<tr><td>Scorched Earth</td><td class="text-muted">1879088965</td></tr>
-<tr><td>Fire from the Deep</td><td class="text-muted">1879089138</td></tr>
-<tr><td>Growing Fire</td><td class="text-muted">1879093329</td></tr>
-<tr><td>Fire From The Sky</td><td class="text-muted">1879093328</td></tr>
-<tr><td>Seeking Flame</td><td class="text-muted">1879093367</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879051300</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Vulnerability to Fire<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Fire Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Terrify<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Cowering</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1091475959.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Invoke The Eye<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Invoke the Eye</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Scorched Earth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Burning</span> <span class="skill-effect skill-effect-debuff">Burning</span> <span class="skill-effect skill-effect-debuff">Induce KnockedOut</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Scorched Earth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-aoe">Radius 10m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Burning</span> <span class="skill-effect skill-effect-debuff">Burning</span> <span class="skill-effect skill-effect-debuff">Induce KnockedOut</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Fire from the Deep<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Growing Fire<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">50m</span> <span class="skill-badge skill-badge-ind">10s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Growing Fire</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Fire From The Sky<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-range">50m</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Immolated</span> <span class="skill-effect skill-effect-debuff">Immolated</span> <span class="skill-effect skill-effect-debuff">Immolated</span> <span class="skill-effect skill-effect-debuff">Immolated</span> <span class="skill-effect skill-effect-debuff">Immolated</span> <span class="skill-effect skill-effect-debuff">Immolated</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Seeking Flame<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -196,24 +235,75 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">17 abilities · ID: 1879092067</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879054546</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879077450</td></tr>
-<tr><td>Minor Laceration</td><td class="text-muted">1879093786</td></tr>
-<tr><td>Minor Sprain</td><td class="text-muted">1879049462</td></tr>
-<tr><td>Minor Dislocation</td><td class="text-muted">1879049463</td></tr>
-<tr><td>Minor Injury</td><td class="text-muted">1879049464</td></tr>
-<tr><td>Laceration</td><td class="text-muted">1879093785</td></tr>
-<tr><td>Sprain</td><td class="text-muted">1879049465</td></tr>
-<tr><td>Dislocation</td><td class="text-muted">1879049466</td></tr>
-<tr><td>Injury</td><td class="text-muted">1879049467</td></tr>
-<tr><td>Degrading Wound</td><td class="text-muted">1879049468</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Charge</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Serious Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Minor Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522395.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Degrading Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Degrading Wound · 2 ticks</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -222,30 +312,99 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">23 abilities · ID: 1879092068</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879054546</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879077450</td></tr>
-<tr><td>Induction Enter Invulnerability State</td><td class="text-muted">1879052679</td></tr>
-<tr><td>Burrowed Attack</td><td class="text-muted">1879077523</td></tr>
-<tr><td>Exit Invulnerability State</td><td class="text-muted">1879052680</td></tr>
-<tr><td>Induction Enter Invulnerability State</td><td class="text-muted">1879052679</td></tr>
-<tr><td>Burrowed Attack</td><td class="text-muted">1879077523</td></tr>
-<tr><td>Exit Invulnerability State</td><td class="text-muted">1879052680</td></tr>
-<tr><td>Minor Laceration</td><td class="text-muted">1879093786</td></tr>
-<tr><td>Minor Sprain</td><td class="text-muted">1879049462</td></tr>
-<tr><td>Minor Dislocation</td><td class="text-muted">1879049463</td></tr>
-<tr><td>Minor Injury</td><td class="text-muted">1879049464</td></tr>
-<tr><td>Laceration</td><td class="text-muted">1879093785</td></tr>
-<tr><td>Sprain</td><td class="text-muted">1879049465</td></tr>
-<tr><td>Dislocation</td><td class="text-muted">1879049466</td></tr>
-<tr><td>Injury</td><td class="text-muted">1879049467</td></tr>
-<tr><td>Degrading Wound</td><td class="text-muted">1879049468</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Charge</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Serious Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Induction Enter Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Burrowed Attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Exit Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Exit MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Induction Enter Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Burrowed Attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Exit Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Exit MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Minor Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522395.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Degrading Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Degrading Wound · 2 ticks</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -254,24 +413,75 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">17 abilities · ID: 1879092069</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879054546</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879077450</td></tr>
-<tr><td>Minor Laceration</td><td class="text-muted">1879093786</td></tr>
-<tr><td>Minor Sprain</td><td class="text-muted">1879049462</td></tr>
-<tr><td>Minor Dislocation</td><td class="text-muted">1879049463</td></tr>
-<tr><td>Minor Injury</td><td class="text-muted">1879049464</td></tr>
-<tr><td>Laceration</td><td class="text-muted">1879093785</td></tr>
-<tr><td>Sprain</td><td class="text-muted">1879049465</td></tr>
-<tr><td>Dislocation</td><td class="text-muted">1879049466</td></tr>
-<tr><td>Injury</td><td class="text-muted">1879049467</td></tr>
-<tr><td>Degrading Wound</td><td class="text-muted">1879049468</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Charge</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Serious Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Minor Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522395.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Degrading Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Degrading Wound · 2 ticks</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -280,15 +490,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">8 abilities · ID: 1879092070</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Induction Enter Invulnerability State</td><td class="text-muted">1879052679</td></tr>
-<tr><td>Exit Invulnerability State</td><td class="text-muted">1879052680</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Induction Enter Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce MonsterInvulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Exit Invulnerability State<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Exit MonsterInvulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -297,40 +531,139 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">33 abilities · ID: 1879092071</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a weak thrown attack</td><td class="text-muted">1879049325</td></tr>
-<tr><td>a minor thrown attack</td><td class="text-muted">1879049326</td></tr>
-<tr><td>a moderate thrown attack</td><td class="text-muted">1879049327</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>Thrown Stun</td><td class="text-muted">1879051777</td></tr>
-<tr><td>Thrown Interruption</td><td class="text-muted">1879080425</td></tr>
-<tr><td>Stinking Filth</td><td class="text-muted">1879087459</td></tr>
-<tr><td>Stinking Filth</td><td class="text-muted">1879087459</td></tr>
-<tr><td>Mend Minions</td><td class="text-muted">1879087466</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087460</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Melee Strike Knockback</td><td class="text-muted">1879072419</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thrown Stun<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Stunned</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090519170.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Thrown Interruption<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT - interrupt</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stinking Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Stinking Filth · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stinking Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Stinking Filth · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Mend Minions<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Healing</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Strike Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -339,29 +672,95 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">22 abilities · ID: 1879092072</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>a melee triple attack</td><td class="text-muted">1879049734</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Melee Knockdown</td><td class="text-muted">1879049733</td></tr>
-<tr><td>Melee Knockdown</td><td class="text-muted">1879049733</td></tr>
-<tr><td>Rage</td><td class="text-muted">1879059633</td></tr>
-<tr><td>Foul Spew</td><td class="text-muted">1879087440</td></tr>
-<tr><td>Despoil the Dead</td><td class="text-muted">1879087471</td></tr>
-<tr><td>Despoil the Dead</td><td class="text-muted">1879087548</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee triple attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Rage<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Rage</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Foul Spew<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Foul Ichor · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Despoil the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">3m</span> <span class="skill-badge skill-badge-ind">10s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Protected</span> <span class="skill-effect skill-effect-debuff">Continual Major Renewal</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090599071.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Despoil the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">3m</span> <span class="skill-badge skill-badge-ind">10s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Protected</span> <span class="skill-effect skill-effect-debuff">Continual Major Renewal</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -370,29 +769,95 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">22 abilities · ID: 1879092073</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a weak thrown attack</td><td class="text-muted">1879049325</td></tr>
-<tr><td>a minor thrown attack</td><td class="text-muted">1879049326</td></tr>
-<tr><td>a moderate thrown attack</td><td class="text-muted">1879049327</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>Thrown Stun</td><td class="text-muted">1879051777</td></tr>
-<tr><td>Thrown Interruption</td><td class="text-muted">1879080425</td></tr>
-<tr><td>Pestilent Filth</td><td class="text-muted">1879087473</td></tr>
-<tr><td>Pestilent Filth</td><td class="text-muted">1879087473</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thrown Stun<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Stunned</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090519170.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Thrown Interruption<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT - interrupt</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Pestilent Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Pestilent Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -401,34 +866,115 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">27 abilities · ID: 1879092074</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a weak thrown attack</td><td class="text-muted">1879049325</td></tr>
-<tr><td>a minor thrown attack</td><td class="text-muted">1879049326</td></tr>
-<tr><td>a moderate thrown attack</td><td class="text-muted">1879049327</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>a mighty thrown attack</td><td class="text-muted">1879051390</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>Thrown Stun</td><td class="text-muted">1879051777</td></tr>
-<tr><td>Thrown Interruption</td><td class="text-muted">1879080425</td></tr>
-<tr><td>Stinking Filth</td><td class="text-muted">1879087459</td></tr>
-<tr><td>Stinking Filth</td><td class="text-muted">1879087459</td></tr>
-<tr><td>Mend Minions</td><td class="text-muted">1879087466</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087460</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Summon Caveclaw</td><td class="text-muted">1879087461</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty thrown attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Thrown Stun<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Stunned</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090519170.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Thrown Interruption<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT - interrupt</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stinking Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Stinking Filth · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stinking Filth<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Stinking Filth · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Mend Minions<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Healing</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Summon Caveclaw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Cave-claw</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -437,21 +983,63 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">14 abilities · ID: 1879092075</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Diseased Roar</td><td class="text-muted">1879054063</td></tr>
-<tr><td>Lesser Wasting Sickness</td><td class="text-muted">1879049527</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Roar<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Box 10×6m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -460,11 +1048,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">4 abilities · ID: 1879092870</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Call to the Dead</td><td class="text-muted">1879093833</td></tr>
-<tr><td>Expiring Burst</td><td class="text-muted">1879093834</td></tr>
-<tr><td>Call to the Dead</td><td class="text-muted">1879093835</td></tr>
-<tr><td>Expiring Burst</td><td class="text-muted">1879093834</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">Call to the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Spectral Warrior</span> <span class="skill-effect skill-effect-debuff">Summoned Spectral Warrior</span> <span class="skill-effect skill-effect-debuff">Summoned Spectral Warrior</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Expiring Burst<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Percent Morale Damage To Self</span> <span class="skill-effect skill-effect-debuff">Percent Power Damage To Target</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Call to the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Summoned Spectral Warrior</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Expiring Burst<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Percent Morale Damage To Self</span> <span class="skill-effect skill-effect-debuff">Percent Power Damage To Target</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -473,29 +1073,95 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">22 abilities · ID: 1879093485</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>a melee triple attack</td><td class="text-muted">1879049734</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>Melee Knockdown</td><td class="text-muted">1879049733</td></tr>
-<tr><td>Melee Knockdown</td><td class="text-muted">1879049733</td></tr>
-<tr><td>Rage</td><td class="text-muted">1879059633</td></tr>
-<tr><td>Foul Spew</td><td class="text-muted">1879087440</td></tr>
-<tr><td>Despoil the Dead</td><td class="text-muted">1879087471</td></tr>
-<tr><td>Despoil the Dead</td><td class="text-muted">1879087548</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Greater Wasting Sickness</td><td class="text-muted">1879050250</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee triple attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Knockdown<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Knockeddown</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Rage<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Rage</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522617.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Foul Spew<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Foul Ichor · 1 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Despoil the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">3m</span> <span class="skill-badge skill-badge-ind">10s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Protected</span> <span class="skill-effect skill-effect-debuff">Continual Major Renewal</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090599071.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Despoil the Dead<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">3m</span> <span class="skill-badge skill-badge-ind">10s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Protected</span> <span class="skill-effect skill-effect-debuff">Continual Major Renewal</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -504,14 +1170,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">7 abilities · ID: 1879093826</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879051299</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879056906</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879051300</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>Final Flare</td><td class="text-muted">1879093838</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Final Flare<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Fire</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Percent Morale Damage To Self</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -520,33 +1207,111 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">26 abilities · ID: 1879093917</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879051299</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879056906</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879051300</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076091</td></tr>
-<tr><td>Melee Disarm</td><td class="text-muted">1879050127</td></tr>
-<tr><td>a weak swipe attack</td><td class="text-muted">1879050128</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Shadow Grip</td><td class="text-muted">1879052653</td></tr>
-<tr><td>Shaken</td><td class="text-muted">1879052654</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr>
-<tr><td>Unnatural Scream</td><td class="text-muted">1879052655</td></tr>
-<tr><td>Threat of Retribution</td><td class="text-muted">1879052656</td></tr>
-<tr><td>Melee Arc Knockback</td><td class="text-muted">1879051748</td></tr>
-<tr><td>Melee Knockback</td><td class="text-muted">1879051304</td></tr>
-<tr><td>Cleansing Fire</td><td class="text-muted">1879058404</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879076098</td></tr>
-<tr><td>a melee triple attack</td><td class="text-muted">1879056910</td></tr>
-<tr><td>Swirling Fire</td><td class="text-muted">1879058405</td></tr>
-<tr><td>Swirling Fire</td><td class="text-muted">1879058405</td></tr>
-<tr><td>Chilled</td><td class="text-muted">1879051281</td></tr>
-<tr><td>Dread</td><td class="text-muted">1879051282</td></tr>
-<tr><td>Distraught</td><td class="text-muted">1879052687</td></tr>
-<tr><td>Greater Dread</td><td class="text-muted">1879052669</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Disarm<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Primary Weapon: Disarmed</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Grip<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Shadow Grip</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shaken<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Unsettled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Unnatural Scream<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Rooted</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Threat of Retribution<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Terrible Retribution</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Arc Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockaway</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Knockback<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Knockaway</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Cleansing Fire<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-ind">12.5s cast</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Cleansing Fire</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span> <span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee triple attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT</span> <span class="skill-effect skill-effect-debuff">DNT</span> <span class="skill-effect skill-effect-debuff">DNT</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Swirling Fire<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Swirling Fire<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Fire</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Chilled<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Chilled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Distraught<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Distraught</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -555,20 +1320,59 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">13 abilities · ID: 1879093918</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>Lesser Wasting Sickness</td><td class="text-muted">1879049527</td></tr>
-<tr><td>Lesser Diseased Frailty</td><td class="text-muted">1879049528</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -577,28 +1381,91 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">21 abilities · ID: 1879127794</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>Diseased Roar</td><td class="text-muted">1879059827</td></tr>
-<tr><td>Virulent Wasting Sickness</td><td class="text-muted">1879086522</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr>
-<tr><td>Susceptibility to disease</td><td class="text-muted">1879086527</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Greater Diseased Frailty</td><td class="text-muted">1879050251</td></tr>
-<tr><td>Healing</td><td class="text-muted">1879078724</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Lesser Wasting Sickness</td><td class="text-muted">1879049527</td></tr>
-<tr><td>Lesser Diseased Frailty</td><td class="text-muted">1879049528</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Roar<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Box 10×6m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span> <span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090625088.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Virulent Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-dot">Virulent Disease · 10 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522616.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Susceptibility to disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Susceptibility to Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Greater Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Healing<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Healing</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -607,34 +1474,115 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">27 abilities · ID: 1879127796</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a weak ranged attack</td><td class="text-muted">1879050054</td></tr>
-<tr><td>a minor ranged attack</td><td class="text-muted">1879050055</td></tr>
-<tr><td>a moderate ranged attack</td><td class="text-muted">1879050056</td></tr>
-<tr><td>a mighty ranged attack</td><td class="text-muted">1879059968</td></tr>
-<tr><td>a mighty ranged attack</td><td class="text-muted">1879059968</td></tr>
-<tr><td>a mighty ranged attack</td><td class="text-muted">1879059968</td></tr>
-<tr><td>Withdraw</td><td class="text-muted">1879049328</td></tr>
-<tr><td>a ranged double attack</td><td class="text-muted">1879052861</td></tr>
-<tr><td>Healing</td><td class="text-muted">1879080089</td></tr>
-<tr><td>Healing</td><td class="text-muted">1879080091</td></tr>
-<tr><td>Diseased Roar</td><td class="text-muted">1879059827</td></tr>
-<tr><td>Ranged Max Bleed</td><td class="text-muted">1879086523</td></tr>
-<tr><td>a mighty ranged attack</td><td class="text-muted">1879076097</td></tr>
-<tr><td>Greater Ill Wind</td><td class="text-muted">1879086533</td></tr>
-<tr><td>Ranged Interruption</td><td class="text-muted">1879054550</td></tr>
-<tr><td>a mighty ranged attack</td><td class="text-muted">1879086507</td></tr>
-<tr><td>Susceptibility to Wounds</td><td class="text-muted">1879086514</td></tr>
-<tr><td>Degrading Wound</td><td class="text-muted">1879049468</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr>
-<tr><td>Lurking Sickness</td><td class="text-muted">1879050252</td></tr>
-<tr><td>Combat State Immunity</td><td class="text-muted">1879117451</td></tr>
-<tr><td>Combat State Immunity</td><td class="text-muted">1879117451</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Withdraw<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a ranged double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Healing<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Healing</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Healing<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Healing</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Roar<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Box 10×6m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span> <span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Ranged Max Bleed<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Deep Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Shadow</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Ill Wind<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Power Damage Max</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090519170.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Ranged Interruption<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT - interrupt</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty ranged attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">120m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Susceptibility to Wounds<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Susceptibility to Wounds</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522395.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Degrading Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Degrading Wound · 2 ticks</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lurking Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Lurking Sickness</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Combat State Immunity<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Immune</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Combat State Immunity<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Immune</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -643,32 +1591,107 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">25 abilities · ID: 1879127797</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>a moderate swipe attack</td><td class="text-muted">1879052832</td></tr>
-<tr><td>Diseased Roar</td><td class="text-muted">1879059827</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879054546</td></tr>
-<tr><td>Rage</td><td class="text-muted">1879059633</td></tr>
-<tr><td>Melee Max Bleed</td><td class="text-muted">1879057803</td></tr>
-<tr><td>a mighty swipe attack</td><td class="text-muted">1879054542</td></tr>
-<tr><td>a melee strike attack</td><td class="text-muted">1879059699</td></tr>
-<tr><td>Melee Interruption</td><td class="text-muted">1879059657</td></tr>
-<tr><td>Melee Stun</td><td class="text-muted">1879053184</td></tr>
-<tr><td>Susceptibility to Wounds</td><td class="text-muted">1879086514</td></tr>
-<tr><td>Major Dislocation</td><td class="text-muted">1879050260</td></tr>
-<tr><td>Major Injury</td><td class="text-muted">1879050261</td></tr>
-<tr><td>a thrown strike attack</td><td class="text-muted">1879086528</td></tr>
-<tr><td>Lesser Wasting Sickness</td><td class="text-muted">1879049527</td></tr>
-<tr><td>Lesser Diseased Frailty</td><td class="text-muted">1879049528</td></tr>
-<tr><td>Wasting Sickness</td><td class="text-muted">1879049529</td></tr>
-<tr><td>Diseased Frailty</td><td class="text-muted">1879049530</td></tr>
-<tr><td>Festering disease</td><td class="text-muted">1879049531</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Roar<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical · Shadow</span> <span class="skill-badge skill-badge-aoe">Box 10×6m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span> <span class="skill-effect skill-effect-debuff">Knockback</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Charge</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Rage<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Rage</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Max Bleed<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Deep Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee strike attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090519170.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Melee Interruption<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">DNT - interrupt</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Stun<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Stunned</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Susceptibility to Wounds<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Susceptibility to Wounds</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Major Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Major Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a thrown strike attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Ranged · Common</span> <span class="skill-badge skill-badge-range">20m</span> <span class="skill-badge skill-badge-aoe">Radius 5m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Lesser Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Wasting Sickness<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Disease</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Diseased Frailty<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Diseased Frailty</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Festering disease<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Festering Disease</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -677,8 +1700,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">1 abilities · ID: 1879401390</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -687,8 +1713,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">1 abilities · ID: 1879401391</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>Stand Fast</td><td class="text-muted">1879080134</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522263.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Stand Fast<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppression Vulnerability</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -697,24 +1726,75 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">17 abilities · ID: 1879087463</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879054546</td></tr>
-<tr><td>Charge</td><td class="text-muted">1879077450</td></tr>
-<tr><td>Minor Laceration</td><td class="text-muted">1879093786</td></tr>
-<tr><td>Minor Sprain</td><td class="text-muted">1879049462</td></tr>
-<tr><td>Minor Dislocation</td><td class="text-muted">1879049463</td></tr>
-<tr><td>Minor Injury</td><td class="text-muted">1879049464</td></tr>
-<tr><td>Laceration</td><td class="text-muted">1879093785</td></tr>
-<tr><td>Sprain</td><td class="text-muted">1879049465</td></tr>
-<tr><td>Dislocation</td><td class="text-muted">1879049466</td></tr>
-<tr><td>Injury</td><td class="text-muted">1879049467</td></tr>
-<tr><td>Degrading Wound</td><td class="text-muted">1879049468</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee</span> <span class="skill-badge skill-badge-range">50m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Charge</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Charge<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Serious Wound</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Minor Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Minor Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Minor Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Laceration<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Laceration</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Sprain<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Sprain</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522393.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Dislocation<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Dislocation</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522394.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Injury<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Injury</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell"><img src="../img/icons/effects/1090522395.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">Degrading Wound<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-countdown">Degrading Wound · 2 ticks</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -723,26 +1803,83 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">19 abilities · ID: 1879093839</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Melee Disarm</td><td class="text-muted">1879050127</td></tr>
-<tr><td>a weak swipe attack</td><td class="text-muted">1879050128</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Shadow Grip</td><td class="text-muted">1879052653</td></tr>
-<tr><td>Shaken</td><td class="text-muted">1879052654</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr>
-<tr><td>Unnatural Scream</td><td class="text-muted">1879052655</td></tr>
-<tr><td>Threat of Retribution</td><td class="text-muted">1879052656</td></tr>
-<tr><td>Chilled</td><td class="text-muted">1879051281</td></tr>
-<tr><td>Dread</td><td class="text-muted">1879051282</td></tr>
-<tr><td>Distraught</td><td class="text-muted">1879052687</td></tr>
-<tr><td>Greater Dread</td><td class="text-muted">1879052669</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Disarm<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Primary Weapon: Disarmed</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Grip<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Shadow Grip</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shaken<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Unsettled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Unnatural Scream<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Rooted</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Threat of Retribution<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Terrible Retribution</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Chilled<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Chilled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Distraught<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Distraught</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
 <details class="lotro-loot-boss instance-mob-boss">
@@ -751,26 +1888,83 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="instance-mob-meta">19 abilities · ID: 1879093840</span>
         </summary>
         <div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
-            <tbody><tr><td>a weak melee attack</td><td class="text-muted">1879049322</td></tr>
-<tr><td>a minor melee attack</td><td class="text-muted">1879049323</td></tr>
-<tr><td>a moderate melee attack</td><td class="text-muted">1879049324</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>a mighty melee attack</td><td class="text-muted">1879076051</td></tr>
-<tr><td>Melee Disarm</td><td class="text-muted">1879050127</td></tr>
-<tr><td>a weak swipe attack</td><td class="text-muted">1879050128</td></tr>
-<tr><td>a melee double attack</td><td class="text-muted">1879049732</td></tr>
-<tr><td>Shadow Grip</td><td class="text-muted">1879052653</td></tr>
-<tr><td>Shaken</td><td class="text-muted">1879052654</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr>
-<tr><td>Unnatural Scream</td><td class="text-muted">1879052655</td></tr>
-<tr><td>Threat of Retribution</td><td class="text-muted">1879052656</td></tr>
-<tr><td>Chilled</td><td class="text-muted">1879051281</td></tr>
-<tr><td>Dread</td><td class="text-muted">1879051282</td></tr>
-<tr><td>Distraught</td><td class="text-muted">1879052687</td></tr>
-<tr><td>Greater Dread</td><td class="text-muted">1879052669</td></tr>
-<tr><td>Suppressed Trauma</td><td class="text-muted">1879051283</td></tr></tbody>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
+            <tbody><tr>
+          <td class="skill-name-cell">a weak melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a minor melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a moderate melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a mighty melee attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Melee Disarm<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Primary Weapon: Disarmed</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a weak swipe attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Arc 120° 3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">a melee double attack<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">3m</span></div></td>
+          <td class="skill-detail-cell"></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shadow Grip<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span> <span class="skill-badge skill-badge-range">30m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Shadow Grip</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Shaken<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Unsettled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Unnatural Scream<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-aoe">Radius 20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Induce Rooted</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Threat of Retribution<div class="skill-badges"><span class="skill-badge skill-badge-atk">Tactical</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Terrible Retribution</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Chilled<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Chilled</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Distraught<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Distraught</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Greater Dread<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Major Fright</span></div></td>
+        </tr>
+<tr>
+          <td class="skill-name-cell">Suppressed Trauma<div class="skill-badges"><span class="skill-badge skill-badge-atk">Melee · Common</span> <span class="skill-badge skill-badge-range">20m</span></div></td>
+          <td class="skill-detail-cell"><div class="skill-effects"><span class="skill-effect skill-effect-debuff">Suppressed Fear</span></div></td>
+        </tr></tbody>
           </table></div>
       </details>
         </div>

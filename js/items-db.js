@@ -5,6 +5,9 @@
 (function () {
   'use strict';
 
+  var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
+  function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
+
   var table;
   var allData = [];
 
@@ -73,7 +76,7 @@
     var file = deedTypeIcons[deedType];
     if (!file) return '<i class="fa fa-bookmark" style="color:#66bb6a"></i> ';
     size = size || 16;
-    return '<img src="./img/icons/deed-types/' + file + '.png" ' +
+    return '<img src="' + cdnUrl('img/icons/deed-types/' + file + '.png') + '" ' +
            'width="' + size + '" height="' + size + '" ' +
            'class="deed-type-icon" alt="" loading="lazy" ' +
            'onerror="this.style.display=\'none\'">';
@@ -83,7 +86,7 @@
   function gameIcon(iconId, size) {
     if (!iconId) return '';
     size = size || 16;
-    return '<img src="./img/icons/items/' + iconId + '.png" ' +
+    return '<img src="' + cdnUrl('img/icons/items/' + iconId + '.png') + '" ' +
            'width="' + size + '" height="' + size + '" ' +
            'class="lotro-game-icon" alt="" loading="lazy" ' +
            'onerror="this.style.display=\'none\'">';

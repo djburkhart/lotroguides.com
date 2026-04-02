@@ -36,10 +36,9 @@
           <span id="user-name"></span>
         </div>
         <div class="editor-toolbar-right">
-          <button id="btn-connect-workspace" class="btn btn-sm btn-default" title="Connect local project folder for direct saving"><i class="fa fa-plug"></i> Local Folder</button>
           <button id="btn-connect-github" class="btn btn-sm btn-default" title="Connect to GitHub to save directly to the repo"><i class="fa fa-github"></i> GitHub</button>
           <button id="btn-disconnect-github" class="btn btn-sm btn-warning btn-xs" title="Disconnect GitHub" style="display:none"><i class="fa fa-github"></i> Disconnect</button>
-          <span id="workspace-status" class="workspace-status"><i class="fa fa-folder"></i> Not connected</span>
+          <span id="workspace-status" class="workspace-status"><i class="fa fa-cloud-upload"></i> Not connected</span>
           <button id="btn-sign-out" class="btn btn-sm btn-default">Sign Out</button>
         </div>
       </div>
@@ -66,15 +65,7 @@
           <div class="editor-panel-header">
             <button id="btn-back" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Back</button>
             <div class="editor-panel-header-right">
-              <div class="editor-widget-dropdown">
-                <button id="btn-insert-widget" class="btn btn-sm btn-info"><i class="fa fa-puzzle-piece"></i> Insert Widget <i class="fa fa-caret-down"></i></button>
-                <ul class="editor-widget-menu" id="widget-menu">
-                  <li data-widget="image"><i class="fa fa-image"></i> Image</li>
-                  <li data-widget="mapEmbed"><i class="fa fa-map-o"></i> Map Embed</li>
-                  <li data-widget="dpsStatTable"><i class="fa fa-table"></i> DPS Stat Table</li>
-                </ul>
-              </div>
-              <button id="btn-download" class="btn btn-sm btn-success"><i class="fa fa-download"></i> Download .md</button>
+              <button id="btn-download" class="btn btn-sm btn-default"><i class="fa fa-download"></i> .md</button>
             </div>
           </div>
           <div class="editor-frontmatter">
@@ -116,8 +107,20 @@
               </div>
               <div class="col-md-4">
                 <div class="form-group">
-                  <label for="fm-image">Image URL</label>
-                  <input type="text" id="fm-image" class="form-control" placeholder="img/news/image.jpg">
+                  <label for="fm-image">Image</label>
+                  <div class="fm-image-picker">
+                    <input type="hidden" id="fm-image">
+                    <div id="fm-image-preview" class="fm-image-preview">
+                      <span class="fm-image-placeholder"><i class="fa fa-image"></i> No image</span>
+                    </div>
+                    <div class="fm-image-actions">
+                      <label class="btn btn-sm btn-default fm-image-browse-btn">
+                        <i class="fa fa-folder-open"></i> Browse
+                        <input type="file" id="fm-image-file" accept="image/*" style="display:none">
+                      </label>
+                      <span id="fm-image-status" class="fm-image-status"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -126,7 +129,53 @@
               <textarea id="fm-excerpt" class="form-control" rows="2" placeholder="Brief description for cards and meta"></textarea>
             </div>
           </div>
-          <div id="milkdown-editor" class="editor-milkdown-container"></div>
+          <!-- Save Changes bar (appears when dirty) -->
+          <div id="save-changes-bar" class="save-changes-bar">
+            <div class="save-changes-left">
+              <span class="save-changes-dot"></span>
+              <span class="save-changes-label">Unsaved changes</span>
+              <span id="draft-status" class="draft-status" style="display:none"></span>
+            </div>
+            <div class="save-changes-right">
+              <button id="btn-draft-versions" class="btn btn-xs btn-default" title="View draft history"><i class="fa fa-history"></i></button>
+              <button id="btn-save-changes" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Save Changes</button>
+            </div>
+          </div>
+          <div id="milkdown-editor" class="editor-milkdown-container">
+            <div class="pm-toolbar">
+              <button data-cmd="bold" title="Bold (Ctrl+B)"><i class="fa fa-bold"></i></button>
+              <button data-cmd="italic" title="Italic (Ctrl+I)"><i class="fa fa-italic"></i></button>
+              <button data-cmd="code" title="Inline Code (Ctrl+`)"><i class="fa fa-code"></i></button>
+              <button data-cmd="link" title="Insert Link"><i class="fa fa-link"></i></button>
+              <span class="pm-toolbar-sep"></span>
+              <button data-cmd="h1" title="Heading 1">H1</button>
+              <button data-cmd="h2" title="Heading 2">H2</button>
+              <button data-cmd="h3" title="Heading 3">H3</button>
+              <button data-cmd="paragraph" title="Normal Paragraph"><i class="fa fa-paragraph"></i></button>
+              <span class="pm-toolbar-sep"></span>
+              <button data-cmd="bullet_list" title="Bullet List"><i class="fa fa-list-ul"></i></button>
+              <button data-cmd="ordered_list" title="Ordered List"><i class="fa fa-list-ol"></i></button>
+              <button data-cmd="blockquote" title="Blockquote"><i class="fa fa-quote-left"></i></button>
+              <button data-cmd="code_block" title="Code Block"><i class="fa fa-file-code-o"></i></button>
+              <button data-cmd="lift" title="Decrease Indent / Unwrap"><i class="fa fa-outdent"></i></button>
+              <button data-cmd="hr" title="Horizontal Rule"><i class="fa fa-minus"></i></button>
+              <span class="pm-toolbar-sep"></span>
+              <button data-cmd="undo" title="Undo (Ctrl+Z)"><i class="fa fa-undo"></i></button>
+              <button data-cmd="redo" title="Redo (Ctrl+Y)"><i class="fa fa-repeat"></i></button>
+              <span class="pm-toolbar-sep"></span>
+              <div class="pm-toolbar-dropdown">
+                <button id="btn-insert-widget" title="Insert Widget"><i class="fa fa-puzzle-piece"></i> <i class="fa fa-caret-down" style="font-size:10px"></i></button>
+                <ul class="editor-widget-menu" id="widget-menu">
+                  <li data-widget="image"><i class="fa fa-image"></i> Image</li>
+                  <li data-widget="mapEmbed"><i class="fa fa-map-o"></i> Map Embed</li>
+                  <li data-widget="dpsStatTable"><i class="fa fa-table"></i> DPS Stat Table</li>
+                  <li data-widget="consumableTable"><i class="fa fa-flask"></i> Consumable Table</li>
+                  <li data-widget="instanceLootReference"><i class="fa fa-trophy"></i> Instance Loot Reference</li>
+                </ul>
+              </div>
+            </div>
+            <div id="prosemirror-editor" class="pm-editor-content"></div>
+          </div>
         </div>
       </div>
 
@@ -143,6 +192,7 @@
           <div class="editor-panel-header">
             <button id="btn-config-back" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Back</button>
             <span id="config-edit-label" class="editor-config-edit-label"></span>
+            <button id="btn-config-versions" class="btn btn-sm btn-default" title="View version history"><i class="fa fa-history"></i> Versions</button>
             <button id="btn-config-download" class="btn btn-sm btn-success"><i class="fa fa-download"></i> Download .json</button>
           </div>
           <div id="config-json-error" class="editor-json-error" style="display:none"></div>
@@ -275,8 +325,46 @@
       </div>
     </div>
 
+    <!-- ─── Consumable Table Modal ──────────────────────── -->
+    <div id="consumable-modal" class="widget-modal-overlay" style="display:none">
+      <div class="widget-modal" style="max-width:600px">
+        <div class="widget-modal-header">
+          <h4><i class="fa fa-flask"></i> Consumable Table</h4>
+          <button id="btn-consumable-modal-close" class="widget-modal-close">&times;</button>
+        </div>
+        <div class="widget-modal-body">
+          <p class="text-muted">Select which consumables to include. The table pulls data from the shared <code>consumables-reference.json</code> config.</p>
+          <div class="form-group">
+            <label for="consumable-heading">Heading (optional)</label>
+            <input type="text" id="consumable-heading" class="form-control" placeholder="e.g. Recommended Consumables">
+          </div>
+          <div class="form-group">
+            <label>Consumables</label>
+            <div id="consumable-checklist" class="consumable-checklist"></div>
+          </div>
+          <div id="consumable-preview" style="margin-top:12px"></div>
+        </div>
+        <div class="widget-modal-footer">
+          <button id="btn-consumable-insert" class="btn btn-sm btn-primary"><i class="fa fa-check"></i> Insert</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Save toast notification -->
     <div id="save-toast" class="save-toast" style="display:none"></div>
+
+    <!-- ─── Version History Modal ────────────────────────── -->
+    <div id="versions-modal" class="widget-modal-overlay" style="display:none">
+      <div class="widget-modal" style="max-width:650px">
+        <div class="widget-modal-header">
+          <h4><i class="fa fa-history"></i> <span id="versions-title">Version History</span></h4>
+          <button id="btn-versions-modal-close" class="widget-modal-close">&times;</button>
+        </div>
+        <div class="widget-modal-body">
+          <div id="versions-list"></div>
+        </div>
+      </div>
+    </div>
 
   </div>
 </section>

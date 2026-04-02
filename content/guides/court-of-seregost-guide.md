@@ -1,7 +1,7 @@
 ---
 title: "The Court of Seregost — Full Instance Guide"
 date: 2026-03-29
-author: "Robrelloth"
+author: "Amdor"
 tags: [instance, court-of-seregost, mordor, endgame, guide, t2-challenge]
 image: "../lotro/img/guides/seregost-guide.jpg"
 excerpt: "A complete walkthrough of The Court of Seregost instance, covering all four phases, boss mechanics for the Morroval Twins, Dulgabêth, and Lhaereth's Plague Chambers, plus the T2 Challenge against Khílnat."
@@ -191,15 +191,7 @@ Lhaereth calls in Khílnat after **6 Plagued Great Bats have been defeated**.
 
 Seregost features heavy poison/disease pressure from Plagued Bats and Dulgabêrth’s Bursting Boils. Tactical mitigation and cleanse ability are paramount.
 
-| Consumable | Purpose |
-|---|---|
-| Luxurious Roasted Oryx Shank (or your class stat food) | Primary stat boost |
-| Pot of Mûrai Honey and Oats | Trail food — bonus mitigation |
-| Scroll of Mûrai Battle Lore | Offensive mastery |
-| Scroll of Mûrai Warding Lore | Defensive mitigation — essential for surviving Bursting Boils at T2 |
-| Mûrai Edhelharn Token | Hope buff |
-| Greater Mûrai Athelas Essence | Emergency morale after Bursting Boils |
-| Greater Mûrai Celebrant Essence | Power sustain during the extended T2 Khílnat fight |
+{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant,notes=warding=Defensive mitigation — essential for surviving Bursting Boils at T2|athelas=Emergency morale after Bursting Boils|celebrant=Power sustain during the extended T2 Khílnat fight}}
 
 > **Tip:** For the T2 Challenge against Khílnat, the kiting tank should use Mûrai Westernesse Shield-spike Kit or the appropriate damage-type shield-spike kit and keep Scroll of Mûrai Warding Lore active at all times. The fight duration makes power management critical — bring extra Greater Mûrai Celebrant Essence.
 

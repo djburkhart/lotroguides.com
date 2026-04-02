@@ -1,59 +1,522 @@
-import { Crepe } from '@milkdown/crepe';
-import { editorViewCtx } from '@milkdown/core';
-import '@milkdown/crepe/theme/common/style.css';
-import '@milkdown/crepe/theme/frame.css';
+import { EditorState, Plugin } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+import { Schema } from 'prosemirror-model';
+import { schema as mdSchema, defaultMarkdownParser, defaultMarkdownSerializer, MarkdownParser, MarkdownSerializer } from 'prosemirror-markdown';
+import { keymap } from 'prosemirror-keymap';
+import { baseKeymap, toggleMark, setBlockType, wrapIn, lift } from 'prosemirror-commands';
+import { history, undo, redo } from 'prosemirror-history';
+import { inputRules, wrappingInputRule, textblockTypeInputRule } from 'prosemirror-inputrules';
+import 'prosemirror-view/style/prosemirror.css';
+
+/* ─── Custom Schema (extends markdown with widget nodes) ─────────── */
+var schema = new Schema({
+  nodes: mdSchema.spec.nodes
+    .addToEnd('dps_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{dpsStatTable}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-dps', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-dps', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{dpsStatTable}}' };
+      }}]
+    })
+    .addToEnd('map_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{map:map=1,height=450}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-map', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-map', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{map:map=1,height=450}}' };
+      }}]
+    })
+    .addToEnd('consumable_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{consumableTable}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-consumable', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-consumable', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{consumableTable}}' };
+      }}]
+    })
+    .addToEnd('instance_loot_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{instanceLootReference}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-instance-loot', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-instance-loot', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{instanceLootReference}}' };
+      }}]
+    }),
+  marks: mdSchema.spec.marks
+});
+
+/* ─── Custom Markdown Parser & Serializer ────────────────────────── */
+var mdParser = new MarkdownParser(schema, defaultMarkdownParser.tokenizer, defaultMarkdownParser.tokens);
+
+var mdSerializer = new MarkdownSerializer(
+  Object.assign({}, defaultMarkdownSerializer.nodes, {
+    dps_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    map_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    consumable_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    instance_loot_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    }
+  }),
+  defaultMarkdownSerializer.marks
+);
+
+/* ─── Widget Token Helpers ───────────────────────────────────────── */
+function parseDpsToken(token) {
+  var m = token.match(/^\{\{dpsStatTable(?::([^}]*))?\}\}$/);
+  if (!m) return {};
+  var opts = {};
+  if (m[1]) {
+    m[1].split(',').forEach(function (pair) {
+      var eq = pair.indexOf('=');
+      if (eq === -1) return;
+      var key = pair.slice(0, eq).trim();
+      var val = pair.slice(eq + 1).trim();
+      if (key === 'levelCap') opts.levelCap = val;
+      else if (key === 'heading') opts.heading = val;
+    });
+  }
+  return opts;
+}
+
+function parseMapToken(token) {
+  var m = token.match(/^\{\{map:([^}]+)\}\}$/);
+  if (!m) return { type: 'map', id: '', height: '450' };
+  var inner = m[1];
+  var opts = {};
+  inner.split(',').forEach(function (pair) {
+    var eq = pair.indexOf('=');
+    if (eq === -1) return;
+    opts[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+  });
+  var firstPair = inner.split(',')[0];
+  var eqIdx = firstPair.indexOf('=');
+  return {
+    type: firstPair.slice(0, eqIdx).trim(),
+    id: firstPair.slice(eqIdx + 1).trim(),
+    height: opts.height || '450'
+  };
+}
+
+function replaceWidgetTokens(doc) {
+  var dpsRe = /^\{\{dpsStatTable(?::[^}]*)?\}\}$/;
+  var mapRe = /^\{\{map:[^}]+\}\}$/;
+  var consumableRe = /^\{\{consumableTable(?::[^}]*)?\}\}$/;
+  var instanceLootRe = /^\{\{instanceLootReference\}\}$/;
+  var changed = false;
+  var newContent = [];
+  doc.forEach(function (node) {
+    if (node.type === schema.nodes.paragraph && node.childCount === 1 && node.firstChild.isText) {
+      var text = node.firstChild.text.trim();
+      if (dpsRe.test(text)) {
+        newContent.push(schema.nodes.dps_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (mapRe.test(text)) {
+        newContent.push(schema.nodes.map_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (consumableRe.test(text)) {
+        newContent.push(schema.nodes.consumable_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (instanceLootRe.test(text)) {
+        newContent.push(schema.nodes.instance_loot_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+    }
+    newContent.push(node);
+  });
+  if (!changed) return doc;
+  return schema.node('doc', null, newContent);
+}
+
+/* ─── Widget NodeViews ───────────────────────────────────────────── */
+function DpsWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-dps';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+DpsWidgetView.prototype.render = function () {
+  var opts = parseDpsToken(this.node.attrs.token);
+  var html = '<div class="pm-widget-badge"><i class="fa fa-table"></i> DPS Stat Table</div>';
+  var details = [];
+  if (opts.levelCap) details.push('Level Cap: ' + opts.levelCap);
+  if (opts.heading) details.push(opts.heading);
+  if (details.length) html += '<div class="pm-widget-info">' + details.join(' &middot; ') + '</div>';
+  this.dom.innerHTML = html;
+};
+DpsWidgetView.prototype.stopEvent = function () { return false; };
+DpsWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function MapWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-map';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+MapWidgetView.prototype.render = function () {
+  var info = parseMapToken(this.node.attrs.token);
+  var label = info.type === 'map' ? 'Map Region' : info.type.charAt(0).toUpperCase() + info.type.slice(1);
+  var html = '<div class="pm-widget-badge"><i class="fa fa-map-o"></i> Map Embed</div>'
+    + '<div class="pm-widget-info">' + label + ': ' + info.id + ' &middot; ' + info.height + 'px</div>'
+    + '<iframe src="map.html?' + encodeURIComponent(info.type) + '=' + encodeURIComponent(info.id)
+    + '&embed=1" class="pm-widget-map-preview" loading="lazy" title="Map preview"></iframe>';
+  this.dom.innerHTML = html;
+};
+MapWidgetView.prototype.stopEvent = function () { return false; };
+MapWidgetView.prototype.ignoreMutation = function () { return true; };
+
+/* ─── Consumable Widget Token Parser ─────────────────────────────── */
+var consumablesRefCache = null;
+
+function loadConsumablesRef() {
+  if (consumablesRefCache) return Promise.resolve(consumablesRefCache);
+  return fetch('./data/content/config/consumables-reference.json')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      consumablesRefCache = data || { items: [] };
+      return consumablesRefCache;
+    })
+    .catch(function () {
+      consumablesRefCache = { items: [] };
+      return consumablesRefCache;
+    });
+}
+
+function parseConsumableToken(token) {
+  var m = token.match(/^\{\{consumableTable(?::([^}]*))?\}\}$/);
+  if (!m) return {};
+  var opts = {};
+  if (m[1]) {
+    m[1].split(',').forEach(function (pair) {
+      var eq = pair.indexOf('=');
+      if (eq === -1) return;
+      var key = pair.slice(0, eq).trim();
+      var val = pair.slice(eq + 1).trim();
+      if (key === 'items') opts.items = val.split('+').map(function (s) { return s.trim(); });
+      else if (key === 'heading') opts.heading = val;
+    });
+  }
+  return opts;
+}
+
+function ConsumableWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-consumable';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+ConsumableWidgetView.prototype.render = function () {
+  var opts = parseConsumableToken(this.node.attrs.token);
+  var badge = '<div class="pm-widget-badge"><i class="fa fa-flask"></i> Consumable Table</div>';
+  var info = '';
+  if (opts.heading) info += opts.heading;
+  if (opts.items && opts.items.length) {
+    info += (info ? ' &middot; ' : '') + opts.items.length + ' items: ' + opts.items.join(', ');
+  } else {
+    info += (info ? ' &middot; ' : '') + 'All consumables (default)';
+  }
+
+  // Build a preview table from cache (async-loaded)
+  var self = this;
+  var html = badge + '<div class="pm-widget-info">' + info + '</div>';
+
+  if (consumablesRefCache) {
+    html += this.buildPreviewTable(consumablesRefCache, opts);
+    this.dom.innerHTML = html;
+  } else {
+    this.dom.innerHTML = html + '<div class="pm-widget-info">Loading preview...</div>';
+    loadConsumablesRef().then(function (ref) {
+      self.dom.innerHTML = badge + '<div class="pm-widget-info">' + info + '</div>' + self.buildPreviewTable(ref, opts);
+    });
+  }
+};
+ConsumableWidgetView.prototype.buildPreviewTable = function (ref, opts) {
+  var items = ref.items || [];
+  if (opts.items && opts.items.length) {
+    var keys = opts.items;
+    items = items.filter(function (it) { return keys.indexOf(it.key) !== -1; });
+    items.sort(function (a, b) { return keys.indexOf(a.key) - keys.indexOf(b.key); });
+  }
+  if (!items.length) return '';
+  var html = '<table class="pm-widget-table"><thead><tr><th>Consumable</th><th>Example</th><th>Purpose</th></tr></thead><tbody>';
+  items.forEach(function (it) {
+    html += '<tr><td>' + (it.consumable || '') + '</td><td>' + (it.example || '') + '</td><td>' + (it.purpose || '') + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+};
+ConsumableWidgetView.prototype.stopEvent = function () { return false; };
+ConsumableWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function InstanceLootWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-instance-loot';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+InstanceLootWidgetView.prototype.render = function () {
+  var html = '<div class="pm-widget-badge"><i class="fa fa-trophy"></i> Instance Loot Reference</div>'
+    + '<div class="pm-widget-info">Renders the instance loot table for this guide\'s instance slug at build time</div>';
+  this.dom.innerHTML = html;
+};
+InstanceLootWidgetView.prototype.stopEvent = function () { return false; };
+InstanceLootWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function insertWidgetNode(nodeType, attrs) {
+  if (!editorView) return;
+  var state = editorView.state;
+  var tr = state.tr.replaceSelectionWith(nodeType.create(attrs));
+  editorView.dispatch(tr);
+  editorView.focus();
+}
 
 /* ─── State ──────────────────────────────────────────────────────── */
-var crepe = null;
+var editorView = null;
 var currentUser = null;
 var currentSlug = null;
-var workspaceDirHandle = null;
+var googleIdToken = null;
 var githubToken = null;
 var githubRepo = null; // { owner, name }
 var githubBranch = 'main';
 
-/* ─── File System Access (Workspace Save) ────────────────────────── */
-var fsAccessSupported = typeof window.showDirectoryPicker === 'function';
+/* ─── Dirty / Change Tracking ────────────────────────────────────── */
+var cleanDocJSON = null;       // JSON snapshot of doc after load/save
+var cleanFrontmatter = null;   // snapshot of frontmatter field values
+var autoDraftTimer = null;
+var AUTO_DRAFT_DELAY = 5000;   // ms after last change before auto-draft
+var lastDraftKey = null;
 
-function connectWorkspace() {
-  if (!fsAccessSupported) {
-    alert('Your browser does not support the File System Access API. Use Chrome or Edge for direct save support.');
-    return;
+function snapshotFrontmatter() {
+  return {
+    title: document.getElementById('fm-title').value,
+    date: document.getElementById('fm-date').value,
+    category: document.getElementById('fm-category').value,
+    author: document.getElementById('fm-author').value,
+    tags: document.getElementById('fm-tags').value,
+    image: document.getElementById('fm-image').value,
+    excerpt: document.getElementById('fm-excerpt').value
+  };
+}
+
+function isFrontmatterDirty() {
+  if (!cleanFrontmatter) return false;
+  var cur = snapshotFrontmatter();
+  for (var k in cleanFrontmatter) {
+    if (cur[k] !== cleanFrontmatter[k]) return true;
   }
-  window.showDirectoryPicker({ mode: 'readwrite' }).then(function (handle) {
-    // Verify it's a project root by checking for content/ and build.js
-    return handle.getDirectoryHandle('content').then(function () {
-      workspaceDirHandle = handle;
-      updateConnectionStatus();
-    });
-  }).catch(function (err) {
-    if (err.name !== 'AbortError') {
-      alert('Could not connect workspace. Make sure you select the project root directory (containing the content/ folder).');
+  return false;
+}
+
+function isDocDirty() {
+  if (!editorView || !cleanDocJSON) return false;
+  return JSON.stringify(editorView.state.doc.toJSON()) !== cleanDocJSON;
+}
+
+function isDirty() {
+  return isFrontmatterDirty() || isDocDirty();
+}
+
+function markClean() {
+  if (editorView) cleanDocJSON = JSON.stringify(editorView.state.doc.toJSON());
+  cleanFrontmatter = snapshotFrontmatter();
+  updateSaveBar();
+}
+
+function updateSaveBar() {
+  var bar = document.getElementById('save-changes-bar');
+  if (!bar) return;
+  var dirty = isDirty();
+  bar.classList.toggle('visible', dirty);
+  var btnSave = document.getElementById('btn-save-changes');
+  if (btnSave) btnSave.disabled = !dirty;
+}
+
+function onEditorOrFrontmatterChange() {
+  updateSaveBar();
+  scheduleAutoDraft();
+}
+
+/* ─── Auto-Draft to CDN ──────────────────────────────────────────── */
+function scheduleAutoDraft() {
+  if (autoDraftTimer) clearTimeout(autoDraftTimer);
+  if (!isDirty()) return;
+  autoDraftTimer = setTimeout(function () {
+    autoDraftTimer = null;
+    saveAutoDraft();
+  }, AUTO_DRAFT_DELAY);
+}
+
+function saveAutoDraft() {
+  if (!isCdnConfigured() || !isDirty()) return;
+  var article = buildArticleJson();
+  var draftKey = 'drafts/' + article.category + '/' + article.slug + '.json';
+  lastDraftKey = draftKey;
+  var payload = JSON.stringify(article);
+  cdnUploadFile(draftKey, payload, 'application/json; charset=utf-8')
+    .then(function (res) {
+      var msg = 'Auto-draft saved';
+      if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+      showDraftStatus(msg);
+    })
+    .catch(function () { showDraftStatus('Draft save failed', true); });
+}
+
+function showDraftStatus(msg, isError) {
+  var el = document.getElementById('draft-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'draft-status' + (isError ? ' draft-error' : '');
+  el.style.display = '';
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(function () { el.style.display = 'none'; }, 4000);
+}
+
+/* ─── Change-Tracking Plugin ─────────────────────────────────────── */
+var changeTrackPlugin = new Plugin({
+  state: {
+    init: function () { return { changeCount: 0 }; },
+    apply: function (tr, value) {
+      if (tr.docChanged) {
+        return { changeCount: value.changeCount + 1 };
+      }
+      return value;
     }
+  },
+  view: function () {
+    return {
+      update: function () {
+        onEditorOrFrontmatterChange();
+      }
+    };
+  }
+});
+
+/* ─── CDN Upload (DigitalOcean Spaces via serverless function) ───── */
+function cdnApi(payload) {
+  var cfg = window.LOTRO_EDITOR_CONFIG || {};
+  var url = cfg.cdnUploadUrl;
+  if (!url) return Promise.reject(new Error('CDN upload URL not configured'));
+  payload.idToken = googleIdToken;
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function (r) { return r.json(); }).then(function (data) {
+    if (data.error) throw new Error(data.error);
+    return data;
   });
 }
 
-function getNestedDirHandle(rootHandle, pathParts) {
-  var chain = Promise.resolve(rootHandle);
-  pathParts.forEach(function (part) {
-    chain = chain.then(function (dir) {
-      return dir.getDirectoryHandle(part, { create: true });
-    });
-  });
-  return chain;
+function cdnUploadFile(key, content, contentType) {
+  var encoded = btoa(unescape(encodeURIComponent(content)));
+  return cdnApi({ action: 'upload', key: key, content: encoded, contentType: contentType });
 }
 
-function writeFileToWorkspace(relativePath, contents) {
-  if (!workspaceDirHandle) return Promise.reject(new Error('No workspace'));
-  var parts = relativePath.replace(/\\/g, '/').split('/');
-  var fileName = parts.pop();
-  return getNestedDirHandle(workspaceDirHandle, parts).then(function (dirHandle) {
-    return dirHandle.getFileHandle(fileName, { create: true });
-  }).then(function (fileHandle) {
-    return fileHandle.createWritable();
-  }).then(function (writable) {
-    return writable.write(contents).then(function () { return writable.close(); });
-  });
+function cdnListVersions(key) {
+  return cdnApi({ action: 'versions', key: key });
+}
+
+function cdnRestoreVersion(key, versionId) {
+  return cdnApi({ action: 'restore', key: key, versionId: versionId });
+}
+
+function isCdnConfigured() {
+  return !!(window.LOTRO_EDITOR_CONFIG || {}).cdnUploadUrl;
+}
+
+/* ─── Image Upload ───────────────────────────────────────────────── */
+function updateImagePreview(src) {
+  var preview = document.getElementById('fm-image-preview');
+  if (!preview) return;
+  if (src) {
+    // Normalize the stored path for display: strip ../lotro/ prefix if present
+    var displaySrc = src.replace(/^\.\.\/lotro\//, './');
+    preview.innerHTML = '<img src="' + displaySrc + '" alt="Featured image">';
+  } else {
+    preview.innerHTML = '<span class="fm-image-placeholder"><i class="fa fa-image"></i> No image</span>';
+  }
+}
+
+function setImageStatus(msg, isError) {
+  var el = document.getElementById('fm-image-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'fm-image-status' + (isError ? ' error' : '');
+}
+
+function uploadImage(file) {
+  var category = document.getElementById('fm-category').value || 'guides';
+  var ext = file.name.split('.').pop().toLowerCase();
+  var slug = currentSlug || slugify(document.getElementById('fm-title').value) || 'article';
+  var filename = slug + '.' + ext;
+  var imgPath = 'img/' + category + '/' + filename;
+
+  setImageStatus('Uploading...', false);
+
+  if (isCdnConfigured()) {
+    // Live: upload to CDN
+    var reader = new FileReader();
+    reader.onload = function () {
+      var base64 = reader.result.split(',')[1];
+      cdnApi({ action: 'upload', key: imgPath, content: base64, contentType: file.type })
+        .then(function () {
+          document.getElementById('fm-image').value = imgPath;
+          updateImagePreview(imgPath);
+          setImageStatus('Uploaded to CDN', false);
+          onEditorOrFrontmatterChange();
+        })
+        .catch(function (err) { setImageStatus('Upload failed: ' + err.message, true); });
+    };
+    reader.readAsDataURL(file);
+  } else {
+    // Dev: upload to local server
+    var formData = new FormData();
+    formData.append('image', file);
+    formData.append('path', imgPath);
+    fetch('/api/upload-image', { method: 'POST', body: formData })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.error) throw new Error(data.error);
+        document.getElementById('fm-image').value = imgPath;
+        updateImagePreview(imgPath);
+        setImageStatus('Saved locally', false);
+        onEditorOrFrontmatterChange();
+      })
+      .catch(function (err) { setImageStatus('Upload failed: ' + err.message, true); });
+  }
 }
 
 function showSaveToast(message, isError) {
@@ -223,7 +686,6 @@ function updateConnectionStatus() {
   var statusEl = document.getElementById('workspace-status');
   var btnGh = document.getElementById('btn-connect-github');
   var btnGhDisc = document.getElementById('btn-disconnect-github');
-  var btnLocal = document.getElementById('btn-connect-workspace');
 
   if (isGitHubConnected()) {
     if (statusEl) {
@@ -232,28 +694,21 @@ function updateConnectionStatus() {
     }
     if (btnGh) btnGh.style.display = 'none';
     if (btnGhDisc) btnGhDisc.style.display = '';
-    if (btnLocal) btnLocal.style.display = 'none';
-  } else if (workspaceDirHandle) {
-    if (statusEl) {
-      statusEl.innerHTML = '<i class="fa fa-folder-open"></i> ' + esc(workspaceDirHandle.name);
-      statusEl.className = 'workspace-status connected';
-    }
-    if (btnGh) btnGh.style.display = '';
-    if (btnGhDisc) btnGhDisc.style.display = 'none';
-    if (btnLocal) btnLocal.style.display = (fsAccessSupported ? '' : 'none');
   } else {
     if (statusEl) {
-      statusEl.innerHTML = '<i class="fa fa-cloud-upload"></i> Not connected';
-      statusEl.className = 'workspace-status';
+      statusEl.innerHTML = isCdnConfigured()
+        ? '<i class="fa fa-cloud-upload"></i> CDN'
+        : '<i class="fa fa-cloud-upload"></i> Not connected';
+      statusEl.className = 'workspace-status' + (isCdnConfigured() ? ' connected' : '');
     }
     if (btnGh) btnGh.style.display = '';
     if (btnGhDisc) btnGhDisc.style.display = 'none';
-    if (btnLocal) btnLocal.style.display = (fsAccessSupported ? '' : 'none');
   }
 
   // Update save button labels
-  var saveLabel = (isGitHubConnected() || workspaceDirHandle) ? 'Save' : 'Download';
-  var icon = isGitHubConnected() ? 'github' : (workspaceDirHandle ? 'save' : 'download');
+  var canSave = isGitHubConnected() || isCdnConfigured();
+  var saveLabel = canSave ? 'Save' : 'Download';
+  var icon = isGitHubConnected() ? 'github' : (isCdnConfigured() ? 'cloud-upload' : 'download');
   var btnDl = document.getElementById('btn-download');
   if (btnDl) btnDl.innerHTML = '<i class="fa fa-' + icon + '"></i> ' + saveLabel + ' .md';
   var btnCfgDl = document.getElementById('btn-config-download');
@@ -321,25 +776,262 @@ function buildFrontmatter() {
   return lines.join('\n') + '\n';
 }
 
-/* ─── Crepe Editor ───────────────────────────────────────────────── */
+function buildArticleJson() {
+  var tagsRaw = document.getElementById('fm-tags').value;
+  var tags = tagsRaw ? tagsRaw.split(',').map(function (t) { return t.trim(); }).filter(Boolean) : [];
+  return {
+    slug: currentSlug || slugify(document.getElementById('fm-title').value) || 'article',
+    category: document.getElementById('fm-category').value || 'guides',
+    title: document.getElementById('fm-title').value || '',
+    date: document.getElementById('fm-date').value || '',
+    author: document.getElementById('fm-author').value || '',
+    tags: tags,
+    image: document.getElementById('fm-image').value || '',
+    excerpt: document.getElementById('fm-excerpt').value || '',
+    markdown: getMarkdown(),
+  };
+}
+
+/* ─── ProseMirror Editor ─────────────────────────────────────────── */
+
+function buildInputRules() {
+  return inputRules({ rules: [
+    // > blockquote
+    wrappingInputRule(/^\s*>\s$/, schema.nodes.blockquote),
+    // 1. ordered list
+    wrappingInputRule(/^(\d+)\.\s$/, schema.nodes.ordered_list, function (match) {
+      return { order: +match[1] };
+    }, function (match, node) { return node.childCount + node.attrs.order === +match[1]; }),
+    // - or * bullet list
+    wrappingInputRule(/^\s*[-*]\s$/, schema.nodes.bullet_list),
+    // ``` code block
+    textblockTypeInputRule(/^```$/, schema.nodes.code_block),
+    // # headings 1-6
+    textblockTypeInputRule(/^(#{1,6})\s$/, schema.nodes.heading, function (match) {
+      return { level: match[1].length };
+    }),
+  ]});
+}
+
 function createEditor(markdown) {
-  var chain = Promise.resolve();
-  if (crepe) {
-    chain = crepe.destroy();
+  var root = document.getElementById('prosemirror-editor');
+  if (!root) throw new Error('No editor root');
+
+  if (editorView) {
+    editorView.destroy();
+    editorView = null;
   }
-  return chain.then(function () {
-    var root = document.getElementById('milkdown-editor');
-    if (!root) throw new Error('No editor root');
-    root.innerHTML = '';
-    crepe = new Crepe({ root: root, defaultValue: markdown || '' });
-    return crepe.create();
-  }).then(function () {
-    return crepe;
+  root.innerHTML = '';
+
+  // Cancel any pending auto-draft from previous article
+  if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
+
+  var doc = mdParser.parse(markdown || '');
+  doc = replaceWidgetTokens(doc);
+
+  var state = EditorState.create({
+    doc: doc,
+    plugins: [
+      buildInputRules(),
+      keymap({
+        'Mod-z': undo,
+        'Mod-y': redo,
+        'Mod-Shift-z': redo,
+        'Mod-b': toggleMark(schema.marks.strong),
+        'Mod-i': toggleMark(schema.marks.em),
+        'Mod-`': toggleMark(schema.marks.code),
+        'Mod-s': function (state, dispatch) { saveMarkdown(); return true; },
+      }),
+      keymap(baseKeymap),
+      history(),
+      changeTrackPlugin,
+    ],
+  });
+
+  editorView = new EditorView(root, {
+    state: state,
+    dispatchTransaction: function (tr) {
+      var newState = editorView.state.apply(tr);
+      editorView.updateState(newState);
+      updateToolbarState();
+    },
+    nodeViews: {
+      dps_widget: function (node, view, getPos) { return new DpsWidgetView(node); },
+      map_widget: function (node, view, getPos) { return new MapWidgetView(node); },
+      consumable_widget: function (node, view, getPos) { return new ConsumableWidgetView(node); },
+      instance_loot_widget: function (node, view, getPos) { return new InstanceLootWidgetView(node); },
+    },
+  });
+
+  // Snapshot clean state after editor is ready
+  cleanDocJSON = JSON.stringify(editorView.state.doc.toJSON());
+  cleanFrontmatter = snapshotFrontmatter();
+
+  updateToolbarState();
+  updateSaveBar();
+  return Promise.resolve(editorView);
+}
+
+function getMarkdown() {
+  if (!editorView) return '';
+  return mdSerializer.serialize(editorView.state.doc);
+}
+
+/* ─── Toolbar Commands ───────────────────────────────────────────── */
+function execToggleMark(markType) {
+  if (!editorView) return;
+  toggleMark(markType)(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function execSetBlock(nodeType, attrs) {
+  if (!editorView) return;
+  setBlockType(nodeType, attrs)(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function execWrapIn(nodeType) {
+  if (!editorView) return;
+  wrapIn(nodeType)(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function execLift() {
+  if (!editorView) return;
+  lift(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function execUndo() {
+  if (!editorView) return;
+  undo(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function execRedo() {
+  if (!editorView) return;
+  redo(editorView.state, editorView.dispatch, editorView);
+  editorView.focus();
+}
+
+function toolbarInsertLink() {
+  if (!editorView) return;
+  var state = editorView.state;
+  var linkMark = schema.marks.link;
+  // Check if there's an existing link at cursor
+  var from = state.selection.from;
+  var to = state.selection.to;
+  var existing = null;
+  state.doc.nodesBetween(from, to, function (node) {
+    var m = linkMark.isInSet(node.marks);
+    if (m) existing = m;
+  });
+
+  var href = prompt('URL:', existing ? existing.attrs.href : 'https://');
+  if (href === null) return;
+  if (!href) {
+    // Remove link
+    toggleMark(linkMark)(editorView.state, editorView.dispatch, editorView);
+  } else {
+    // Apply link
+    var markType = linkMark.create({ href: href, title: '' });
+    var tr = state.tr.addMark(from, to, markType);
+    editorView.dispatch(tr);
+  }
+  editorView.focus();
+}
+
+function toolbarInsertHR() {
+  if (!editorView) return;
+  var state = editorView.state;
+  var tr = state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create());
+  editorView.dispatch(tr);
+  editorView.focus();
+}
+
+function isMarkActive(markType) {
+  if (!editorView) return false;
+  var state = editorView.state;
+  var from = state.selection.from;
+  var to = state.selection.to;
+  if (from === to) {
+    return !!markType.isInSet(state.storedMarks || state.doc.resolve(from).marks());
+  }
+  var active = false;
+  state.doc.nodesBetween(from, to, function (node) {
+    if (markType.isInSet(node.marks)) active = true;
+  });
+  return active;
+}
+
+function isBlockType(nodeType, attrs) {
+  if (!editorView) return false;
+  var state = editorView.state;
+  var $from = state.selection.$from;
+  for (var d = $from.depth; d >= 0; d--) {
+    var node = $from.node(d);
+    if (node.type === nodeType) {
+      if (!attrs) return true;
+      for (var k in attrs) {
+        if (node.attrs[k] !== attrs[k]) return false;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+function updateToolbarState() {
+  var buttons = document.querySelectorAll('.pm-toolbar [data-cmd]');
+  buttons.forEach(function (btn) {
+    var cmd = btn.getAttribute('data-cmd');
+    var active = false;
+    switch (cmd) {
+      case 'bold': active = isMarkActive(schema.marks.strong); break;
+      case 'italic': active = isMarkActive(schema.marks.em); break;
+      case 'code': active = isMarkActive(schema.marks.code); break;
+      case 'h1': active = isBlockType(schema.nodes.heading, { level: 1 }); break;
+      case 'h2': active = isBlockType(schema.nodes.heading, { level: 2 }); break;
+      case 'h3': active = isBlockType(schema.nodes.heading, { level: 3 }); break;
+      case 'blockquote': active = isBlockType(schema.nodes.blockquote); break;
+      case 'code_block': active = isBlockType(schema.nodes.code_block); break;
+    }
+    btn.classList.toggle('active', active);
+  });
+}
+
+function wireToolbar() {
+  var toolbar = document.querySelector('.pm-toolbar');
+  if (!toolbar) return;
+  toolbar.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-cmd]');
+    if (!btn) return;
+    e.preventDefault();
+    var cmd = btn.getAttribute('data-cmd');
+    switch (cmd) {
+      case 'bold': execToggleMark(schema.marks.strong); break;
+      case 'italic': execToggleMark(schema.marks.em); break;
+      case 'code': execToggleMark(schema.marks.code); break;
+      case 'link': toolbarInsertLink(); break;
+      case 'h1': execSetBlock(schema.nodes.heading, { level: 1 }); break;
+      case 'h2': execSetBlock(schema.nodes.heading, { level: 2 }); break;
+      case 'h3': execSetBlock(schema.nodes.heading, { level: 3 }); break;
+      case 'paragraph': execSetBlock(schema.nodes.paragraph); break;
+      case 'blockquote': execWrapIn(schema.nodes.blockquote); break;
+      case 'bullet_list': execWrapIn(schema.nodes.bullet_list); break;
+      case 'ordered_list': execWrapIn(schema.nodes.ordered_list); break;
+      case 'code_block': execSetBlock(schema.nodes.code_block); break;
+      case 'lift': execLift(); break;
+      case 'hr': toolbarInsertHR(); break;
+      case 'undo': execUndo(); break;
+      case 'redo': execRedo(); break;
+    }
   });
 }
 
 /* ─── Google Sign-In ─────────────────────────────────────────────── */
 window.handleGoogleCredential = function (response) {
+  googleIdToken = response.credential;
   var parts = response.credential.split('.');
   var b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
   var json = decodeURIComponent(atob(b64).split('').map(function (c) {
@@ -403,23 +1095,22 @@ function loadArticleList() {
 
 /* ─── Load Article ───────────────────────────────────────────────── */
 function loadArticle(category, slug) {
-  var parsed;
-  fetch('./data/content/' + encodeURIComponent(category) + '/' + encodeURIComponent(slug) + '.md')
+  fetch('./data/content/' + encodeURIComponent(category) + '/' + encodeURIComponent(slug) + '.json')
     .then(function (r) {
       if (!r.ok) throw new Error('Not found');
-      return r.text();
+      return r.json();
     })
-    .then(function (text) {
-      parsed = parseFrontmatter(text);
-      document.getElementById('fm-title').value = parsed.data.title || '';
-      document.getElementById('fm-date').value = parsed.data.date || '';
-      document.getElementById('fm-author').value = parsed.data.author || '';
-      document.getElementById('fm-tags').value = Array.isArray(parsed.data.tags) ? parsed.data.tags.join(', ') : (parsed.data.tags || '');
-      document.getElementById('fm-excerpt').value = parsed.data.excerpt || '';
-      document.getElementById('fm-image').value = parsed.data.image || '';
-      document.getElementById('fm-category').value = category;
+    .then(function (data) {
+      document.getElementById('fm-title').value = data.title || '';
+      document.getElementById('fm-date').value = data.date || '';
+      document.getElementById('fm-author').value = data.author || '';
+      document.getElementById('fm-tags').value = Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || '');
+      document.getElementById('fm-excerpt').value = data.excerpt || '';
+      document.getElementById('fm-image').value = data.image || '';
+      updateImagePreview(data.image || '');
+      document.getElementById('fm-category').value = data.category || category;
       currentSlug = slug;
-      return createEditor(parsed.content);
+      return createEditor(data.markdown || '');
     })
     .then(function () {
       showEditPanel();
@@ -436,6 +1127,7 @@ function newArticle() {
   document.getElementById('fm-tags').value = '';
   document.getElementById('fm-excerpt').value = '';
   document.getElementById('fm-image').value = '';
+  updateImagePreview('');
   document.getElementById('fm-category').value = 'guides';
   createEditor('').then(function () {
     showEditPanel();
@@ -444,25 +1136,40 @@ function newArticle() {
 
 /* ─── Save / Download ────────────────────────────────────────────── */
 function saveMarkdown() {
-  var fm = buildFrontmatter();
-  var md = crepe ? crepe.getMarkdown() : '';
-  var full = fm + '\n' + md + '\n';
-  var slug = currentSlug || slugify(document.getElementById('fm-title').value) || 'article';
-  var category = document.getElementById('fm-category').value || 'guides';
-  var filename = slug + '.md';
+  var article = buildArticleJson();
+  var slug = article.slug;
+  var category = article.category;
+
+  function afterSave() {
+    markClean();
+    if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
+  }
 
   if (isGitHubConnected()) {
-    var ghPath = 'content/' + category + '/' + filename;
-    ghSaveFile(ghPath, full, 'Update ' + category + '/' + filename)
-      .then(function () { showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
+    // GitHub saves as .md with frontmatter for compatibility with the build pipeline
+    var fm = buildFrontmatter();
+    var full = fm + '\n' + article.markdown + '\n';
+    var ghPath = 'content/' + category + '/' + slug + '.md';
+    ghSaveFile(ghPath, full, 'Update ' + category + '/' + slug + '.md')
+      .then(function () { afterSave(); showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
       .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (workspaceDirHandle) {
-    var relativePath = 'content/' + category + '/' + filename;
-    writeFileToWorkspace(relativePath, full)
-      .then(function () { showSaveToast('Saved ' + relativePath); })
-      .catch(function (err) { showSaveToast('Save failed: ' + err.message, true); });
+  } else if (isCdnConfigured()) {
+    var cdnKey = 'content/' + category + '/' + slug + '.json';
+    var payload = JSON.stringify(article);
+    cdnUploadFile(cdnKey, payload, 'application/json; charset=utf-8')
+      .then(function (res) {
+        afterSave();
+        var msg = 'Uploaded ' + cdnKey + ' to CDN';
+        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        showSaveToast(msg);
+      })
+      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
-    downloadBlob(new Blob([full], { type: 'text/markdown;charset=utf-8' }), filename);
+    // Fallback: download as .md with frontmatter
+    var fm = buildFrontmatter();
+    var full = fm + '\n' + article.markdown + '\n';
+    downloadBlob(new Blob([full], { type: 'text/markdown;charset=utf-8' }), slug + '.md');
+    afterSave();
   }
 }
 
@@ -574,11 +1281,15 @@ function saveConfigJson() {
     ghSaveFile(ghPath, text, 'Update ' + filename)
       .then(function () { showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
       .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (workspaceDirHandle && CONFIG_KEY_PATHS[currentConfigKey]) {
-    var relativePath = CONFIG_KEY_PATHS[currentConfigKey];
-    writeFileToWorkspace(relativePath, text)
-      .then(function () { showSaveToast('Saved ' + relativePath); })
-      .catch(function (err) { showSaveToast('Save failed: ' + err.message, true); });
+  } else if (isCdnConfigured() && CONFIG_KEY_PATHS[currentConfigKey]) {
+    var cdnKey = CONFIG_KEY_PATHS[currentConfigKey];
+    cdnUploadFile(cdnKey, text, 'application/json')
+      .then(function (res) {
+        var msg = 'Uploaded ' + cdnKey + ' to CDN';
+        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        showSaveToast(msg);
+      })
+      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
     downloadBlob(new Blob([text], { type: 'application/json;charset=utf-8' }), filename);
   }
@@ -586,15 +1297,12 @@ function saveConfigJson() {
 
 /* ─── Insert Text at Cursor ──────────────────────────────────────── */
 function insertTextAtCursor(text) {
-  if (!crepe || !crepe.editor) return;
-  crepe.editor.action(function (ctx) {
-    var view = ctx.get(editorViewCtx);
-    var state = view.state;
-    var from = state.selection.from;
-    var tr = state.tr.insertText(text, from);
-    view.dispatch(tr);
-    view.focus();
-  });
+  if (!editorView) return;
+  var state = editorView.state;
+  var from = state.selection.from;
+  var tr = state.tr.insertText(text, from);
+  editorView.dispatch(tr);
+  editorView.focus();
 }
 
 /* ─── DPS Widget Modal ───────────────────────────────────────────── */
@@ -750,10 +1458,14 @@ function saveDpsConfig() {
     ghSaveFile('content/stats/dps-reference.json', json, 'Update DPS reference config')
       .then(function () { showSaveToast('Committed dps-reference.json to ' + githubBranch); })
       .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (workspaceDirHandle) {
-    writeFileToWorkspace('content/stats/dps-reference.json', json)
-      .then(function () { showSaveToast('Saved content/stats/dps-reference.json'); })
-      .catch(function (err) { showSaveToast('Save failed: ' + err.message, true); });
+  } else if (isCdnConfigured()) {
+    cdnUploadFile('content/stats/dps-reference.json', json, 'application/json')
+      .then(function (res) {
+        var msg = 'Uploaded dps-reference.json to CDN';
+        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        showSaveToast(msg);
+      })
+      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
     downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), 'dps-reference.json');
   }
@@ -765,7 +1477,7 @@ function insertDpsWidget() {
   if (dpsConfig.levelCap) opts.push('levelCap=' + dpsConfig.levelCap);
   if (dpsConfig.sectionHeading) opts.push('heading=' + dpsConfig.sectionHeading);
   var token = '{{dpsStatTable' + (opts.length ? ':' + opts.join(',') : '') + '}}';
-  insertTextAtCursor('\n\n' + token + '\n\n');
+  insertWidgetNode(schema.nodes.dps_widget, { token: token });
   closeDpsModal();
 }
 
@@ -885,8 +1597,150 @@ function insertMapEmbed() {
     id = (document.getElementById('map-embed-id').value || '').trim();
   }
   if (!id) { alert('Please select or enter an ID.'); return; }
-  insertTextAtCursor('\n\n{{map:' + type + '=' + id + ',height=' + height + '}}\n\n');
+  var token = '{{map:' + type + '=' + id + ',height=' + height + '}}';
+  insertWidgetNode(schema.nodes.map_widget, { token: token });
   closeMapModal();
+}
+
+/* ─── Insert Consumable Table ────────────────────────────────────── */
+function openConsumableModal() {
+  var modal = document.getElementById('consumable-modal');
+  if (!modal) return;
+  document.getElementById('consumable-heading').value = '';
+  var checklist = document.getElementById('consumable-checklist');
+  checklist.innerHTML = '<small class="text-muted">Loading consumables...</small>';
+  modal.style.display = '';
+
+  loadConsumablesRef().then(function (ref) {
+    var items = ref.items || [];
+    var html = '';
+    items.forEach(function (it) {
+      html += '<label class="consumable-check-item">'
+        + '<input type="checkbox" value="' + esc(it.key) + '" checked> '
+        + '<strong>' + esc(it.consumable) + '</strong> '
+        + '<small class="text-muted">' + esc(it.example) + '</small>'
+        + '</label>';
+    });
+    checklist.innerHTML = html;
+    updateConsumablePreview();
+
+    // Wire change events
+    var boxes = checklist.querySelectorAll('input[type="checkbox"]');
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].addEventListener('change', updateConsumablePreview);
+    }
+  });
+}
+
+function closeConsumableModal() {
+  var modal = document.getElementById('consumable-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function getSelectedConsumableKeys() {
+  var boxes = document.querySelectorAll('#consumable-checklist input[type="checkbox"]:checked');
+  var keys = [];
+  for (var i = 0; i < boxes.length; i++) keys.push(boxes[i].value);
+  return keys;
+}
+
+function updateConsumablePreview() {
+  var keys = getSelectedConsumableKeys();
+  var preview = document.getElementById('consumable-preview');
+  if (!preview) return;
+  if (!keys.length) {
+    preview.innerHTML = '<small class="text-muted">Select at least one consumable.</small>';
+    return;
+  }
+  var ref = consumablesRefCache || { items: [] };
+  var items = ref.items || [];
+  var selected = items.filter(function (it) { return keys.indexOf(it.key) !== -1; });
+  selected.sort(function (a, b) { return keys.indexOf(a.key) - keys.indexOf(b.key); });
+
+  var html = '<table class="table table-bordered table-sm"><thead><tr><th>Consumable</th><th>Example</th><th>Purpose</th></tr></thead><tbody>';
+  selected.forEach(function (it) {
+    html += '<tr><td>' + esc(it.consumable) + '</td><td>' + esc(it.example) + '</td><td>' + esc(it.purpose) + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  var heading = document.getElementById('consumable-heading').value.trim();
+  var tokenStr = '{{consumableTable:items=' + keys.join('+');
+  if (heading) tokenStr += ',heading=' + heading;
+  tokenStr += '}}';
+  html += '<small>Token: <code>' + esc(tokenStr) + '</code></small>';
+  preview.innerHTML = html;
+}
+
+function insertConsumableTable() {
+  var keys = getSelectedConsumableKeys();
+  if (!keys.length) { alert('Select at least one consumable.'); return; }
+  var heading = (document.getElementById('consumable-heading').value || '').trim();
+  var token = '{{consumableTable:items=' + keys.join('+');
+  if (heading) token += ',heading=' + heading;
+  token += '}}';
+  insertWidgetNode(schema.nodes.consumable_widget, { token: token });
+  closeConsumableModal();
+}
+
+/* ─── CDN Version History ────────────────────────────────────────── */
+function openVersionsModal(key, label) {
+  var modal = document.getElementById('versions-modal');
+  if (!modal) return;
+  document.getElementById('versions-title').textContent = 'Version History: ' + (label || key);
+  document.getElementById('versions-list').innerHTML = '<p class="text-muted">Loading versions...</p>';
+  modal.setAttribute('data-key', key);
+  modal.style.display = '';
+
+  cdnListVersions(key).then(function (data) {
+    var list = document.getElementById('versions-list');
+    var versions = data.versions || [];
+    if (!versions.length) {
+      list.innerHTML = '<p class="text-muted">No version history available. Versioning may not be enabled on this bucket.</p>';
+      return;
+    }
+    var html = '<table class="table table-bordered table-sm"><thead><tr>'
+      + '<th>Date</th><th>Size</th><th>Version</th><th></th>'
+      + '</tr></thead><tbody>';
+    versions.forEach(function (v) {
+      var date = v.lastModified ? new Date(v.lastModified).toLocaleString() : '—';
+      var size = v.size ? (v.size / 1024).toFixed(1) + ' KB' : '—';
+      var badge = v.isLatest ? ' <span class="label label-success">current</span>' : '';
+      var restoreBtn = v.isLatest
+        ? ''
+        : '<button class="btn btn-xs btn-warning btn-restore-version" data-vid="' + esc(v.versionId) + '"><i class="fa fa-undo"></i> Restore</button>';
+      html += '<tr><td>' + esc(date) + badge + '</td><td>' + esc(size) + '</td>'
+        + '<td><code>' + esc((v.versionId || '').slice(0, 12)) + '</code></td>'
+        + '<td>' + restoreBtn + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    list.innerHTML = html;
+
+    // Wire restore buttons
+    list.querySelectorAll('.btn-restore-version').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var vid = btn.getAttribute('data-vid');
+        var fileKey = modal.getAttribute('data-key');
+        if (!confirm('Restore version ' + vid.slice(0, 12) + '? This will overwrite the current file.')) return;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        cdnRestoreVersion(fileKey, vid).then(function (res) {
+          showSaveToast('Restored ' + fileKey + ' from version ' + vid.slice(0, 12));
+          closeVersionsModal();
+        }).catch(function (err) {
+          showSaveToast('Restore failed: ' + err.message, true);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa fa-undo"></i> Restore';
+        });
+      });
+    });
+  }).catch(function (err) {
+    document.getElementById('versions-list').innerHTML =
+      '<p class="text-danger">Failed to load versions: ' + esc(err.message) + '</p>';
+  });
+}
+
+function closeVersionsModal() {
+  var modal = document.getElementById('versions-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 /* ─── Wire Up Buttons ────────────────────────────────────────────── */
@@ -895,18 +1749,34 @@ document.addEventListener('DOMContentLoaded', function () {
   var btnDownload = document.getElementById('btn-download');
   var btnBack = document.getElementById('btn-back');
   var btnSignOut = document.getElementById('btn-sign-out');
+  var btnSaveChanges = document.getElementById('btn-save-changes');
+  var btnDraftVersions = document.getElementById('btn-draft-versions');
 
   if (btnNew) btnNew.addEventListener('click', newArticle);
   if (btnDownload) btnDownload.addEventListener('click', saveMarkdown);
-  if (btnBack) btnBack.addEventListener('click', showArticlePanel);
+  if (btnSaveChanges) btnSaveChanges.addEventListener('click', saveMarkdown);
+  if (btnDraftVersions) btnDraftVersions.addEventListener('click', function () {
+    if (!lastDraftKey && currentSlug) {
+      var cat = document.getElementById('fm-category').value || 'guides';
+      lastDraftKey = 'drafts/' + cat + '/' + currentSlug + '.json';
+    }
+    if (lastDraftKey) openVersionsModal(lastDraftKey, 'Drafts');
+  });
+  if (btnBack) btnBack.addEventListener('click', function () {
+    if (isDirty() && !confirm('You have unsaved changes. Discard them?')) return;
+    showArticlePanel();
+  });
   if (btnSignOut) btnSignOut.addEventListener('click', window.handleSignOut);
 
+  // Frontmatter change listeners
+  ['fm-title', 'fm-date', 'fm-category', 'fm-author', 'fm-tags', 'fm-image', 'fm-excerpt'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', onEditorOrFrontmatterChange);
+    if (el) el.addEventListener('change', onEditorOrFrontmatterChange);
+  });
+
   // Workspace connect (File System Access API – local only)
-  var btnConnect = document.getElementById('btn-connect-workspace');
-  if (btnConnect) {
-    if (!fsAccessSupported) btnConnect.style.display = 'none';
-    else btnConnect.addEventListener('click', connectWorkspace);
-  }
+  // [Removed — replaced by CDN upload]
 
   // GitHub connect / disconnect
   var btnGh = document.getElementById('btn-connect-github');
@@ -917,6 +1787,16 @@ document.addEventListener('DOMContentLoaded', function () {
   handleOAuthCallback();
   restoreGitHubSession();
   updateConnectionStatus();
+
+  // Image file picker
+  var imgFileInput = document.getElementById('fm-image-file');
+  if (imgFileInput) imgFileInput.addEventListener('change', function () {
+    if (this.files && this.files[0]) uploadImage(this.files[0]);
+    this.value = '';  // reset so re-selecting same file fires change
+  });
+
+  // ProseMirror formatting toolbar
+  wireToolbar();
 
   // Tab switching
   var tabs = document.querySelectorAll('.editor-tab');
@@ -958,6 +1838,14 @@ document.addEventListener('DOMContentLoaded', function () {
     widgetMenu.querySelector('[data-widget="mapEmbed"]').addEventListener('click', function () {
       widgetMenu.classList.remove('open');
       openMapModal();
+    });
+    widgetMenu.querySelector('[data-widget="consumableTable"]').addEventListener('click', function () {
+      widgetMenu.classList.remove('open');
+      openConsumableModal();
+    });
+    widgetMenu.querySelector('[data-widget="instanceLootReference"]').addEventListener('click', function () {
+      widgetMenu.classList.remove('open');
+      insertWidgetNode(schema.nodes.instance_loot_widget, { token: '{{instanceLootReference}}' });
     });
   }
 
@@ -1010,4 +1898,29 @@ document.addEventListener('DOMContentLoaded', function () {
   if (mapEmbedSelect) mapEmbedSelect.addEventListener('change', updateMapEmbedPreview);
   var mapOverlay = document.getElementById('map-embed-modal');
   if (mapOverlay) mapOverlay.addEventListener('click', function (e) { if (e.target === mapOverlay) closeMapModal(); });
+
+  // Consumable table modal
+  var btnConsumableClose = document.getElementById('btn-consumable-modal-close');
+  var btnConsumableInsert = document.getElementById('btn-consumable-insert');
+  var consumableHeading = document.getElementById('consumable-heading');
+  if (btnConsumableClose) btnConsumableClose.addEventListener('click', closeConsumableModal);
+  if (btnConsumableInsert) btnConsumableInsert.addEventListener('click', insertConsumableTable);
+  if (consumableHeading) consumableHeading.addEventListener('input', updateConsumablePreview);
+  var consumableOverlay = document.getElementById('consumable-modal');
+  if (consumableOverlay) consumableOverlay.addEventListener('click', function (e) { if (e.target === consumableOverlay) closeConsumableModal(); });
+
+  // Versions modal
+  var btnVersionsClose = document.getElementById('btn-versions-modal-close');
+  if (btnVersionsClose) btnVersionsClose.addEventListener('click', closeVersionsModal);
+  var versionsOverlay = document.getElementById('versions-modal');
+  if (versionsOverlay) versionsOverlay.addEventListener('click', function (e) { if (e.target === versionsOverlay) closeVersionsModal(); });
+
+  // Config version history button
+  var btnConfigVersions = document.getElementById('btn-config-versions');
+  if (btnConfigVersions) {
+    btnConfigVersions.addEventListener('click', function () {
+      if (!currentConfigKey || !CONFIG_KEY_PATHS[currentConfigKey]) return;
+      openVersionsModal(CONFIG_KEY_PATHS[currentConfigKey], currentConfigKey + '.json');
+    });
+  }
 });

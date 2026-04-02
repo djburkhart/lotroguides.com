@@ -4,6 +4,9 @@
 (function () {
   'use strict';
 
+  var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
+  function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
+
   var table;
   var allData = [];
   var questById = {};
@@ -15,7 +18,7 @@
     var iconId = map[itemId];
     if (!iconId) return '';
     var s = size || 16;
-    return '<img src="./img/icons/items/' + iconId + '.png" width="' + s + '" height="' + s + '" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+    return '<img src="' + cdnUrl('img/icons/items/' + iconId + '.png') + '" width="' + s + '" height="' + s + '" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
   }
 
   // ─── Renderers ──────────────────────────────────────────────────────────

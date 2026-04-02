@@ -1,0 +1,18 @@
+{
+  "title": "Recommended Consumables",
+  "tableColumns": ["Consumable", "Example", "Purpose"],
+  "items": [
+    { "key": "food", "consumable": "Cooked Food (crit)", "example": "Luxurious Roasted Oryx Shank", "purpose": "Primary stat food for your class" },
+    { "key": "trail", "consumable": "Trail Food", "example": "Pot of Mûrai Honey and Oats", "purpose": "Trail food — mitigation buffs" },
+    { "key": "morale", "consumable": "Morale Potions", "example": "On-level Scholar pots", "purpose": "Emergency morale recovery" },
+    { "key": "power", "consumable": "Power Potions", "example": "On-level Scholar pots", "purpose": "Power sustain" },
+    { "key": "battle", "consumable": "Battle Scroll", "example": "Scroll of Mûrai Battle Lore", "purpose": "Offensive mastery buff" },
+    { "key": "warding", "consumable": "Warding Scroll", "example": "Scroll of Mûrai Warding Lore", "purpose": "Defensive mitigation buff" },
+    { "key": "hope", "consumable": "Hope Token", "example": "Mûrai Edhelharn Token", "purpose": "Hope buff / dread counter" },
+    { "key": "shield", "consumable": "Shield-spikes", "example": "Mûrai Westernesse Shield-spike Kit", "purpose": "Tank reflective damage buff" },
+    { "key": "athelas", "consumable": "Athelas Essence", "example": "Greater Mûrai Athelas Essence", "purpose": "Emergency morale between phases" },
+    { "key": "celebrant", "consumable": "Celebrant Essence", "example": "Greater Mûrai Celebrant Essence", "purpose": "Power sustain during extended fights" },
+    { "key": "rune", "consumable": "Enhancement Rune", "example": "Enhancement Rune +4, Lvl 151", "purpose": "Extra LI item levels" },
+    { "key": "caltrops", "consumable": "Caltrops", "example": "Mûrai Caltrops", "purpose": "AoE ground damage" }
+  ]
+}

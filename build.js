@@ -20,7 +20,14 @@ const GOOGLE_OAUTH_CLIENT_SECRET = process.env.GOOGLE_OAUTH_CLIENT_SECRET || '';
 const EDITOR_ALLOWED_EMAILS = process.env.EDITOR_ALLOWED_EMAILS || '';
 const GITHUB_REPO = process.env.GITHUB_REPO || '';
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
+const CDN_UPLOAD_URL = process.env.CDN_UPLOAD_URL || '';
 const GOOGLE_SEARCH_CONSOLE_VERIFICATION = process.env.GOOGLE_SEARCH_CONSOLE_VERIFICATION || '';
+// CDN base URL for large binary assets (basemaps ~34 MB, icons ~72 MB).
+// Set to your DO Spaces CDN endpoint, e.g. https://lotroguides.nyc3.cdn.digitaloceanspaces.com
+// Leave blank to serve from the site origin (local/dev).
+// Disabled in --watch / --local mode so localhost builds use local files.
+const LOCAL_MODE = process.argv.includes('--watch') || process.argv.includes('--local');
+const CDN_URL = LOCAL_MODE ? '' : (process.env.DO_CDN_URL || '').replace(/\/$/, '');
 const LORE_DIR = path.join(__dirname, 'data', 'lore');
 const MEDIA_VIDEOS_PATH = path.join(CONTENT_DIR, 'media', 'videos.json');
 const NAVIGATION_PATH = path.join(CONTENT_DIR, 'navigation.json');
@@ -58,7 +65,7 @@ function loadDpsReferenceConfig() {
   if (dpsReferenceCache) return dpsReferenceCache;
 
   const fallback = {
-    levelCap: 150,
+    levelCap: 160,
     title: 'Desired Stat Percentages (Raid Targets)',
     intro: 'Quick offensive targets for DPS-oriented builds.',
     tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
@@ -168,6 +175,88 @@ function buildDpsTableHtml(dpsRef, overrides) {
     + notesHtml;
 }
 
+/**
+ * Load consumables reference config from content/stats/consumables-reference.json
+ */
+let consumablesReferenceCache = null;
+function loadConsumablesReferenceConfig() {
+  if (consumablesReferenceCache) return consumablesReferenceCache;
+  const cfgPath = path.join(__dirname, 'content', 'stats', 'consumables-reference.json');
+  const fallback = { title: 'Recommended Consumables', tableColumns: ['Consumable', 'Example', 'Purpose'], items: [] };
+  try {
+    const raw = fs.readFileSync(cfgPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    consumablesReferenceCache = Object.assign({}, fallback, parsed);
+    return consumablesReferenceCache;
+  } catch (err) {
+    consumablesReferenceCache = fallback;
+    return consumablesReferenceCache;
+  }
+}
+
+/**
+ * Build an HTML table from consumables reference config.
+ * @param {Object} overrides - { items: 'food,trail,battle,...', heading: 'Custom Heading', notes: ['note1', ...] }
+ */
+function buildConsumablesTableHtml(overrides) {
+  const cfg = loadConsumablesReferenceConfig();
+  const heading = (overrides && overrides.heading) || cfg.title || '';
+  let items = cfg.items || [];
+
+  // Filter items by key if specified
+  if (overrides && overrides.items) {
+    const keys = overrides.items.split('+').map(k => k.trim().toLowerCase());
+    items = items.filter(it => keys.indexOf(it.key) !== -1);
+    // Preserve requested order
+    items.sort((a, b) => keys.indexOf(a.key) - keys.indexOf(b.key));
+  }
+
+  if (!items.length) return '';
+
+  // Parse per-item note overrides: key=note pairs in overrides.notes string
+  const noteOverrides = {};
+  if (overrides && overrides.notes) {
+    overrides.notes.split('|').forEach(pair => {
+      const eq = pair.indexOf('=');
+      if (eq > 0) noteOverrides[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+    });
+  }
+
+  const cols = cfg.tableColumns || ['Consumable', 'Example', 'Purpose'];
+  const headingHtml = heading ? `<p><strong>${heading}</strong></p>\n` : '';
+  const headerCells = cols.map(c => `<th>${c}</th>`).join('');
+
+  const bodyRows = items.map(it => {
+    const purpose = noteOverrides[it.key] || it.purpose || '';
+    return `<tr><td>${it.consumable || ''}</td><td>${it.example || ''}</td><td>${purpose}</td></tr>`;
+  }).join('\n');
+
+  return headingHtml
+    + `<table class="table table-striped table-condensed m-b-10">\n<thead><tr>${headerCells}</tr></thead>\n<tbody>\n${bodyRows}\n</tbody>\n</table>`;
+}
+
+/**
+ * Resolve {{consumableTable}} and {{consumableTable:...}} tokens in HTML.
+ */
+function resolveConsumableTokens(html) {
+  html = html.replace(/<p>\s*(\{\{consumableTable(?::[^}]*)?\}\})\s*<\/p>/gi, '$1');
+  return html.replace(/\{\{consumableTable(?::([^}]*))?\}\}/g, function (_, optStr) {
+    const overrides = {};
+    if (optStr) {
+      optStr.split(',').forEach(function (pair) {
+        const eq = pair.indexOf('=');
+        if (eq === -1) return;
+        const key = pair.slice(0, eq).trim();
+        const val = pair.slice(eq + 1).trim();
+        if (key === 'items') overrides.items = val;
+        else if (key === 'heading') overrides.heading = val;
+        else if (key === 'notes') overrides.notes = val;
+      });
+    }
+    return buildConsumablesTableHtml(overrides);
+  });
+}
+
 function buildInstanceLootReferenceMarkdown(slug) {
   const refs = loadInstanceLootReferenceConfig();
   const entry = refs[slug];
@@ -273,7 +362,7 @@ function buildLootAccordionHtml(slug) {
         // Build inline icon tag if available
         const iconId = dbItem ? (dbItem.icon || iconMap[dbItem.id]) : null;
         const lootIconHtml = iconId
-          ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+          ? `<img src="${CDN_URL ? CDN_URL + '/img/icons/items/' + iconId + '.png' : '../img/icons/items/' + iconId + '.png'}" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
           : '';
 
         const itemHtml = dbItem
@@ -369,6 +458,76 @@ function normalizeGuideInstanceLootReferenceContent(markdown, fileName, slug) {
 
   console.log(`   ℹ Appended instance loot token in guides/${fileName}`);
   return `${markdown.trimEnd()}\n\n${sectionBlock}`;
+}
+
+/**
+ * Auto-normalize consumable markdown tables under common headings to {{consumableTable:items=...}} tokens.
+ * Matches 2-col (Consumable|Purpose) and 3-col (Consumable|Example|Slot) tables.
+ */
+function normalizeGuideConsumableTableContent(markdown, fileName) {
+  if (markdown.includes('{{consumableTable')) return markdown;
+
+  // Match section headings that commonly wrap consumable tables
+  const headingRe = /^##\s+(Recommended Consumables|Consumables Checklist|Consumables)\s*$/im;
+  const headingMatch = headingRe.exec(markdown);
+  if (!headingMatch) return markdown;
+
+  const sectionStart = headingMatch.index + headingMatch[0].length;
+  const rest = markdown.slice(sectionStart);
+
+  // Find first markdown table in this section
+  const tableRe = /(^\|.+\|\s*$\r?\n^\|[-:\s|]+\|\s*(?:\r?\n^\|.*\|\s*)+)/m;
+  const tableMatch = tableRe.exec(rest);
+  if (!tableMatch) return markdown;
+
+  // Parse row content to match known consumable keys
+  const cfg = loadConsumablesReferenceConfig();
+  const allItems = cfg.items || [];
+  const tableText = tableMatch[0];
+  const rows = tableText.split(/\r?\n/).filter(r => r.trim().startsWith('|'));
+  // skip header and separator rows
+  const dataRows = rows.slice(2);
+  const matchedKeys = [];
+  const noteOverrides = [];
+
+  for (const row of dataRows) {
+    const cells = row.split('|').map(c => c.trim()).filter(Boolean);
+    if (cells.length < 2) continue;
+    const name = cells[0].toLowerCase();
+    const purpose = cells.length >= 2 ? cells[cells.length - 1] : '';
+
+    // Match against known items by checking if the consumable name or example appears in the row
+    let found = null;
+    for (const it of allItems) {
+      if (name.includes(it.key) || name.includes(it.consumable.toLowerCase()) ||
+          (cells.length > 1 && cells[1].toLowerCase().includes(it.example.toLowerCase()))) {
+        found = it;
+        break;
+      }
+    }
+    if (found) {
+      matchedKeys.push(found.key);
+      // If the purpose/slot text differs from default, add a note override
+      if (purpose && purpose.toLowerCase() !== (found.purpose || '').toLowerCase()) {
+        noteOverrides.push(found.key + '=' + purpose);
+      }
+    }
+  }
+
+  if (matchedKeys.length < 2) return markdown; // Not enough matches to be confident
+
+  let token = '{{consumableTable:items=' + matchedKeys.join('+');
+  if (noteOverrides.length) token += ',notes=' + noteOverrides.join('|');
+  token += '}}';
+
+  const before = markdown.slice(0, sectionStart);
+  const tableStartInRest = tableMatch.index;
+  const tableEndInRest = tableStartInRest + tableMatch[0].length;
+  const between = rest.slice(0, tableStartInRest);
+  const after = rest.slice(tableEndInRest);
+
+  console.log(`   ℹ Normalized consumable table token in guides/${fileName}`);
+  return `${before}${between}${token}\n\n${after}`;
 }
 
 /**
@@ -587,7 +746,7 @@ function autoLinkItems(html) {
       // Build inline icon tag if available
       const iconId = entry.icon || iconMap[entry.id];
       const iconHtml = iconId
-        ? `<img src="../img/icons/items/${iconId}.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+        ? `<img src="${CDN_URL ? CDN_URL + '/img/icons/items/' + iconId + '.png' : '../img/icons/items/' + iconId + '.png'}" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
         : '';
 
       const replacement = protectedAnchors.protect(`<a href="${itemUrl}" class="lotro-item${qualityClass}" data-item-type="${typeLabel}"${tooltipData}>${iconHtml}<span class="lotro-item-text">${match[0]}</span></a>`);
@@ -1023,8 +1182,14 @@ function buildPage(bodyContent, pageData) {
     gtmBodyNoscript: GOOGLE_TAG_MANAGER_ID
       ? `<!-- Google Tag Manager (noscript) -->\n<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${GOOGLE_TAG_MANAGER_ID}"\nheight="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>\n<!-- End Google Tag Manager (noscript) -->`
       : '',
+    googleFcScript: GOOGLE_ADSENSE_ACCOUNT
+      ? `<!-- Google Consent Management (Funding Choices) -->\n<script async src="https://fundingchoicesmessages.google.com/i/${GOOGLE_ADSENSE_ACCOUNT.replace('ca-', '')}?ers=1"></script>\n<script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';i.style.display='none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>`
+      : '',
     googleSearchConsoleVerification: GOOGLE_SEARCH_CONSOLE_VERIFICATION
       ? `<meta name="google-site-verification" content="${GOOGLE_SEARCH_CONSOLE_VERIFICATION}">`
+      : '',
+    cdnScript: CDN_URL
+      ? `<script>window.LOTRO_CDN='${CDN_URL}';</script>`
       : '',
   });
 }
@@ -1042,6 +1207,7 @@ function loadContent(subdir) {
     if (subdir === 'guides') {
       const slug = path.basename(file, '.md');
       resolvedContent = normalizeGuideDpsTableContent(resolvedContent, file);
+      resolvedContent = normalizeGuideConsumableTableContent(resolvedContent, file);
       resolvedContent = normalizeGuideInstanceLootReferenceContent(resolvedContent, file, slug);
       if (resolvedContent.includes('{{instanceLootReference}}')) {
         resolvedContent = resolvedContent.replace(/\{\{instanceLootReference\}\}/g, buildInstanceLootReferenceMarkdown(slug));
@@ -1049,7 +1215,7 @@ function loadContent(subdir) {
     }
 
     const siteRoot = (subdir === 'guides' || subdir === 'news') ? '../' : '';
-    const htmlContent = resolveDpsTokens(resolveMapEmbeds(marked(resolvedContent), siteRoot));
+    const htmlContent = resolveConsumableTokens(resolveDpsTokens(resolveMapEmbeds(marked(resolvedContent), siteRoot)));
     const slug = path.basename(file, '.md');
 
     // Normalize image path to be relative to lotro/ root
@@ -1473,9 +1639,10 @@ function buildItemsPage(navData) {
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script src="./js/items-db.js"></script>',
     '<script>',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  // Progressive chunked loading',
-    '  $.getJSON("./data/items-db-manifest.json", function(manifest) {',
-    '    $.getJSON("./data/items-db-0.json", function(firstChunk) {',
+    '  $.getJSON(_cdn + "data/items-db-manifest.json", function(manifest) {',
+    '    $.getJSON(_cdn + "data/items-db-0.json", function(firstChunk) {',
     '      window.LOTRO_ITEMS_DB = firstChunk;',
     '      if (window.LOTRO_ITEMS_INIT) window.LOTRO_ITEMS_INIT();',
     '      // Load remaining chunks in background',
@@ -1483,7 +1650,7 @@ function buildItemsPage(navData) {
     '        var loaded = 1;',
     '        (function loadNext(i) {',
     '          if (i >= manifest.totalChunks) return;',
-    '          $.getJSON("./data/items-db-" + i + ".json", function(chunk) {',
+    '          $.getJSON(_cdn + "data/items-db-" + i + ".json", function(chunk) {',
     '            loaded++;',
     '            window.LOTRO_ITEMS_ADD_CHUNK(chunk, loaded, manifest.totalChunks);',
     '            loadNext(i + 1);',
@@ -1554,8 +1721,9 @@ function buildMobsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  // Load mobs data + map overlay, then init',
-    '  $.when($.getJSON("./data/mobs-db.json"), $.getJSON("./data/mob-overlay.json"))',
+    '  $.when($.getJSON(_cdn + "data/mobs-db.json"), $.getJSON(_cdn + "data/mob-overlay.json"))',
     '    .done(function(mobsRes, overlayRes) {',
     '      window.LOTRO_MOBS_DB = mobsRes[0];',
     '      window.LOTRO_MOB_OVERLAY = overlayRes[0] || {};',
@@ -1614,7 +1782,8 @@ function buildVirtuesPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.getJSON("./data/virtues-db.json", function(data) {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/virtues-db.json", function(data) {',
     '    window.LOTRO_VIRTUES_DB = data;',
     '    $.getScript("./js/virtues-db.js", function() {',
     '      if (window.LOTRO_VIRTUES_INIT) window.LOTRO_VIRTUES_INIT();',
@@ -1688,7 +1857,8 @@ function buildSetsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.getJSON("./data/sets-db.json", function(data) {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/sets-db.json", function(data) {',
     '    window.LOTRO_SETS_DB = data;',
     '    $.getScript("./js/sets-db.js", function() {',
     '      if (window.LOTRO_SETS_INIT) window.LOTRO_SETS_INIT();',
@@ -1868,7 +2038,8 @@ function buildDeedsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.when($.getJSON("./data/deeds-db.json"), $.getJSON("./data/deed-overlay.json"), $.getJSON("./data/icon-map.json"))',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.when($.getJSON(_cdn + "data/deeds-db.json"), $.getJSON(_cdn + "data/deed-overlay.json"), $.getJSON(_cdn + "data/icon-map.json"))',
     '    .done(function(deedsRes, overlayRes, iconRes) {',
     '      window.LOTRO_DEEDS_DB = deedsRes[0];',
     '      window.LOTRO_DEED_OVERLAY = overlayRes[0] || {};',
@@ -1966,10 +2137,11 @@ function buildQuestsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.when(',
-    '    $.getJSON("./data/quests-db.json"),',
-    '    $.getJSON("./data/icon-map.json"),',
-    '    $.getJSON("./data/quest-overlay-index.json")',
+    '    $.getJSON(_cdn + "data/quests-db.json"),',
+    '    $.getJSON(_cdn + "data/icon-map.json"),',
+    '    $.getJSON(_cdn + "data/quest-overlay-index.json")',
     '  ).done(function(qRes, iRes, oRes) {',
     '    window.LOTRO_QUESTS_DB = qRes[0];',
     '    window.LOTRO_ICON_MAP = iRes[0] || {};',
@@ -1987,7 +2159,7 @@ function buildQuestsPage(navData) {
 
 // ─── Instances Database Page ────────────────────────────────────────────────
 
-function buildInstancesPage(navData) {
+function buildInstancesPage(navData, subDirNavData) {
   const dbPath = path.join(OUTPUT_DIR, 'data', 'instances-db.json');
   if (!fs.existsSync(dbPath)) {
     console.log('   ℹ No instances data found — run: node import-instances.js');
@@ -2053,7 +2225,8 @@ function buildInstancesPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
-    '  $.getJSON("./data/instances-db-listing.json")',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/instances-db-listing.json")',
     '    .done(function(data) {',
     '      window.LOTRO_INSTANCES_DB = data;',
     '      $.getScript("./js/instances-db.js", function() {',
@@ -2083,12 +2256,64 @@ function buildInstancesPage(navData) {
   instances.forEach(inst => {
     // Build mob accordion HTML using <details>/<summary> (consistent with loot tables)
     const mobAccordions = inst.mobs.map((mob, idx) => {
-      const abilityRows = mob.abilities.map(a =>
-        `<tr><td>${escapeHtml(a.name)}</td><td class="text-muted">${a.id}</td></tr>`
-      ).join('\n');
+      const abilityRows = mob.abilities.map(a => {
+        // Attack type badge
+        const atkBadge = a.attackType
+          ? `<span class="skill-badge skill-badge-atk">${escapeHtml(a.attackType)}</span>`
+          : '';
+
+        // Range
+        const rangeBadge = a.range
+          ? `<span class="skill-badge skill-badge-range">${a.range}m</span>`
+          : '';
+
+        // AoE
+        const aoeBadge = a.aoe
+          ? `<span class="skill-badge skill-badge-aoe">${escapeHtml(a.aoe)}</span>`
+          : '';
+
+        // Cooldown
+        const cdBadge = a.cooldown
+          ? `<span class="skill-badge skill-badge-cd">${a.cooldown}s cd</span>`
+          : '';
+
+        // Induction
+        const indBadge = a.induction
+          ? `<span class="skill-badge skill-badge-ind">${a.induction}s cast</span>`
+          : '';
+
+        const badges = [atkBadge, rangeBadge, aoeBadge, cdBadge, indBadge].filter(Boolean).join(' ');
+
+        // Effects row
+        let effectsHtml = '';
+        if (a.effects && a.effects.length > 0) {
+          const effectTags = a.effects.map(e => {
+            const parts = [escapeHtml(e.name)];
+            if (e.cc) parts.push(`<strong class="skill-cc">${escapeHtml(e.cc)}${e.ccDuration ? ' ' + e.ccDuration + 's' : ''}</strong>`);
+            if (e.duration) parts.push(`${e.duration}s`);
+            if (e.ticks) parts.push(`${e.ticks} ticks`);
+            const cls = e.type === 'cc' ? 'skill-effect-cc'
+              : e.type === 'dot' ? 'skill-effect-dot'
+              : e.type === 'countdown' ? 'skill-effect-countdown'
+              : 'skill-effect-debuff';
+            return `<span class="skill-effect ${cls}">${parts.join(' · ')}</span>`;
+          }).join(' ');
+          effectsHtml = `<div class="skill-effects">${effectTags}</div>`;
+        }
+
+        const iconHtml = a.iconId && a.iconDir
+          ? `<img src="../img/icons/${a.iconDir}/${a.iconId}.webp" width="12" height="12" class="skill-icon" alt="" loading="lazy" onerror="this.style.display='none'">`
+          : '';
+
+        return `<tr>
+          <td class="skill-name-cell">${iconHtml}${escapeHtml(a.name)}${badges ? '<div class="skill-badges">' + badges + '</div>' : ''}</td>
+          <td class="skill-detail-cell">${effectsHtml}</td>
+        </tr>`;
+      }).join('\n');
+
       const abilityTable = mob.abilities.length
         ? `<div class="lotro-loot-chest"><table class="lotro-loot-table instance-ability-table">
-            <thead><tr><th>Ability</th><th>ID</th></tr></thead>
+            <thead><tr><th>Skill</th><th>Effects</th></tr></thead>
             <tbody>${abilityRows}</tbody>
           </table></div>`
         : '<div class="lotro-loot-chest"><p class="text-muted">No specific abilities listed.</p></div>';
@@ -2230,7 +2455,7 @@ function buildInstancesPage(navData) {
       metaDescription: `Detailed mob and ability data for ${inst.name} (${inst.groupType}). ${inst.mobCount} mobs documented.`,
       currentPage: 'instances',
       siteRoot: '../',
-      ...navData,
+      ...(subDirNavData || navData),
     });
 
     fs.writeFileSync(path.join(instancesDir, `${inst.slug}.html`), detailHtml);
@@ -2332,10 +2557,17 @@ function buildMediaPage(navData) {
       title: String(v.title || '').trim() || 'LOTRO Video',
       description: v.description || '',
       youtubeId: extractYouTubeId(v.url || v.youtubeId),
+      publishedAt: v.publishedAt || '',
+      thumbnail: v.thumbnail || '',
     }))
     .filter(v => v.youtubeId);
 
-  const videoCards = videos.map(video => `
+  const videoCards = videos.map(video => {
+    const dateStr = video.publishedAt
+      ? new Date(video.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+      : '';
+    const dateBadge = dateStr ? `<span class="text-muted" style="font-size:13px"><i class="fa fa-calendar"></i> ${dateStr}</span>` : '';
+    return `
       <div class="col-12 col-md-6 m-b-30">
         <div class="panel panel-default">
           <div class="panel-body">
@@ -2343,11 +2575,13 @@ function buildMediaPage(navData) {
               <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/${video.youtubeId}" title="${video.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
             <h4 class="m-b-10">${video.title}</h4>
+            ${dateBadge}
             <p class="text-muted m-b-10">${video.description}</p>
             <a class="btn btn-sm btn-default" href="https://youtu.be/${video.youtubeId}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
           </div>
         </div>
-      </div>`).join('\n');
+      </div>`;
+  }).join('\n');
 
   const body = render(template, {
     videoCount: String(videos.length),
@@ -2356,7 +2590,7 @@ function buildMediaPage(navData) {
 
   const html = buildPage(body, {
     title: 'Media Gallery - LOTRO Guides',
-    metaDescription: 'Watch LOTRO videos from the community in our embedded media gallery.',
+    metaDescription: `Watch ${videos.length} official LOTRO videos from the Lord of the Rings YouTube channel.`,
     currentPage: 'media',
     ...navData,
   });
@@ -2390,7 +2624,7 @@ function buildEditorBundle() {
 }
 
 function buildEditorPage(allPosts, navData) {
-  // Bundle Milkdown Crepe editor JS + CSS
+  // Bundle ProseMirror editor JS + CSS
   buildEditorBundle();
 
   // Generate article manifest for the editor
@@ -2407,14 +2641,30 @@ function buildEditorPage(allPosts, navData) {
     JSON.stringify(manifest)
   );
 
-  // Copy raw .md files so the editor can fetch them
+  // Generate per-article JSON files (metadata + raw markdown body) for the editor
   for (const subdir of ['guides', 'news']) {
     const srcDir = path.join(CONTENT_DIR, subdir);
     const destDir = path.join(OUTPUT_DIR, 'data', 'content', subdir);
     ensureDir(destDir);
     if (fs.existsSync(srcDir)) {
       for (const f of fs.readdirSync(srcDir).filter(f => f.endsWith('.md'))) {
-        fs.copyFileSync(path.join(srcDir, f), path.join(destDir, f));
+        const raw = fs.readFileSync(path.join(srcDir, f), 'utf-8');
+        const { data, content } = matter(raw);
+        const articleJson = {
+          slug: path.basename(f, '.md'),
+          category: subdir,
+          title: data.title || '',
+          date: data.date instanceof Date ? data.date.toISOString().slice(0, 10) : (data.date ? String(data.date).slice(0, 10) : ''),
+          author: data.author || '',
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          image: data.image || '',
+          excerpt: data.excerpt || '',
+          markdown: content.trim(),
+        };
+        fs.writeFileSync(
+          path.join(destDir, path.basename(f, '.md') + '.json'),
+          JSON.stringify(articleJson)
+        );
       }
     }
   }
@@ -2459,11 +2709,12 @@ function buildEditorPage(allPosts, navData) {
 
   // Inject editor config + scripts
   const editorScripts = [
-    (EDITOR_ALLOWED_EMAILS || GITHUB_REPO || GITHUB_CLIENT_ID)
+    (EDITOR_ALLOWED_EMAILS || GITHUB_REPO || GITHUB_CLIENT_ID || CDN_UPLOAD_URL)
       ? '<script>window.LOTRO_EDITOR_CONFIG={'
         + (EDITOR_ALLOWED_EMAILS ? 'allowedEmails:"' + EDITOR_ALLOWED_EMAILS.replace(/"/g, '\\"') + '",' : '')
         + (GITHUB_REPO ? 'githubRepo:"' + GITHUB_REPO.replace(/"/g, '\\"') + '",' : '')
-        + (GITHUB_CLIENT_ID ? 'githubClientId:"' + GITHUB_CLIENT_ID.replace(/"/g, '\\"') + '"' : '')
+        + (GITHUB_CLIENT_ID ? 'githubClientId:"' + GITHUB_CLIENT_ID.replace(/"/g, '\\"') + '",' : '')
+        + (CDN_UPLOAD_URL ? 'cdnUploadUrl:"' + CDN_UPLOAD_URL.replace(/"/g, '\\"') + '"' : '')
         + '};</script>'
       : '',
     '<script src="./js/editor.bundle.js"></script>',
@@ -2563,7 +2814,7 @@ async function build() {
   console.log('   ✓ quests.html');
 
   // Build instances database page + individual instance pages
-  buildInstancesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  buildInstancesPage({ guideNavItems: guideNav, newsNavItems: newsNav }, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle });
   console.log('   ✓ instances.html');
 
   // Build interactive map page

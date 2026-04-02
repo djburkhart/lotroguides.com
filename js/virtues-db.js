@@ -4,6 +4,9 @@
 (function () {
   'use strict';
 
+  var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
+  function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
+
   var table;
   var allData = [];
   var virtueById = {};
@@ -13,7 +16,7 @@
   function gameIcon(iconId, size) {
     if (!iconId) return '';
     size = size || 16;
-    return '<img src="./img/icons/traits/' + iconId + '.png" ' +
+    return '<img src="' + cdnUrl('img/icons/traits/' + iconId + '.png') + '" ' +
            'width="' + size + '" height="' + size + '" ' +
            'class="lotro-game-icon" alt="" loading="lazy" ' +
            'onerror="this.style.display=\'none\'">';

@@ -6,6 +6,10 @@
 (function () {
   'use strict';
 
+  // CDN base URL injected by build.js as window.LOTRO_CDN (empty when running locally)
+  var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
+  function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
+
   // ─── State ──────────────────────────────────────────────────────────────
   var map;
   var allMaps = [];           // All map definitions
@@ -219,7 +223,7 @@
   function getCategoryIcon(catCode) {
     if (iconCache[catCode]) return iconCache[catCode];
     var icon = L.icon({
-      iconUrl: './img/maps/categories/' + catCode + '.png',
+      iconUrl: cdnUrl('img/maps/categories/' + catCode + '.png'),
       iconSize: [24, 24],
       iconAnchor: [12, 12],
       popupAnchor: [0, -12],
@@ -407,7 +411,7 @@
       if (loaded >= needed) callback();
     }
 
-    $.getJSON('./data/lore/maps-index.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/maps-index.json'), function (data) {
       allMaps = data;
       for (var i = 0; i < allMaps.length; i++) {
         mapById[allMaps[i].id] = allMaps[i];
@@ -415,7 +419,7 @@
       check();
     });
 
-    $.getJSON('./data/lore/maps-categories.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/maps-categories.json'), function (data) {
       categories = data;
       for (var i = 0; i < categories.length; i++) {
         catEnabled[categories[i].code] = !DEFAULT_OFF.has(categories[i].code);
@@ -423,7 +427,7 @@
       check();
     });
 
-    $.getJSON('./data/lore/maps-links.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/maps-links.json'), function (data) {
       allLinks = data;
       // Pre-build set of maps that already have an incoming link from a known map.
       // Used in showLinks to skip false auto-links for maps reachable elsewhere.
@@ -434,19 +438,19 @@
     });
 
     // Map area icons (mapId → iconId)
-    $.getJSON('./data/lore/maps-area-icons.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/maps-area-icons.json'), function (data) {
       mapAreaIcons = data || {};
       check();
     }).fail(function () { mapAreaIcons = {}; check(); });
 
     // Quest ↔ POI cross-reference (NPC DID → quest list)
-    $.getJSON('./data/quest-poi.json', function (data) {
+    $.getJSON(cdnUrl('data/quest-poi.json'), function (data) {
       questPOI = data;
       check();
     }).fail(function () { questPOI = {}; check(); });
 
     // NPC data for enriched popups
-    $.getJSON('./data/npcs.json', function (data) {
+    $.getJSON(cdnUrl('data/npcs.json'), function (data) {
       npcData = data;
       check();
     }).fail(function () { npcData = {}; check(); });
@@ -518,7 +522,7 @@
         $group.append(
           '<label class="lotro-map-cat-item">' +
           '<input type="checkbox" data-cat="' + code + '"' + checked + '> ' +
-          '<img src="./img/maps/categories/' + cat.icon + '.png" alt=""> ' +
+          '<img src="' + cdnUrl('img/maps/categories/' + cat.icon + '.png') + '" alt=""> ' +
           '<span>' + cat.name + '</span>' +
           '</label>'
         );
@@ -600,14 +604,14 @@
     }
 
     // Try to load basemap image (WebP with PNG fallback)
-    var imgUrl = './img/maps/basemaps/' + mapId + '.webp';
+    var imgUrl = cdnUrl('img/maps/basemaps/' + mapId + '.webp');
     basemapLayer = L.imageOverlay(imgUrl, bounds, { opacity: 0.9 });
     basemapLayer.addTo(map);
     // If image fails to load, try PNG fallback then give up
     basemapLayer.getElement().onerror = function () {
       var el = this;
-      if (el.src.endsWith('.webp')) {
-        el.src = './img/maps/basemaps/' + mapId + '.png';
+      if (el.src.indexOf('.webp') !== -1) {
+        el.src = cdnUrl('img/maps/basemaps/' + mapId + '.png');
       } else {
         map.removeLayer(basemapLayer);
         basemapLayer = null;
@@ -638,7 +642,7 @@
       return;
     }
 
-    $.getJSON('./data/lore/map-markers/' + mapId + '.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/map-markers/' + mapId + '.json'), function (data) {
       markerCache[mapId] = data;
       renderMarkers(data);
     }).fail(function () {
@@ -684,7 +688,7 @@
       // Build popup content — header with icon + title
       var popup = '<div class="lotro-map-popup">' +
         '<div class="lotro-map-popup-header">' +
-        '<img class="lotro-map-popup-icon" src="./img/maps/categories/' + mk.c + '.png" alt="">' +
+          '<img class="lotro-map-popup-icon" src="' + cdnUrl('img/maps/categories/' + mk.c + '.png') + '" alt="">' +
         '<div class="lotro-map-popup-header-text">' +
         '<div class="lotro-map-popup-title">' + escapeHtml(mk.l) + '</div>' +
         '<div class="lotro-map-popup-cat">' + escapeHtml(catName) + '</div>';
@@ -1153,7 +1157,7 @@
       showDeedOverlay(deedId);
       return;
     }
-    $.getJSON('./data/deed-overlay.json', function (data) {
+    $.getJSON(cdnUrl('data/deed-overlay.json'), function (data) {
       deedOverlayData = data || {};
       showDeedOverlay(deedId);
     });
@@ -1290,7 +1294,7 @@
       showMobOverlay(mobId);
       return;
     }
-    $.getJSON('./data/mob-overlay.json', function (data) {
+    $.getJSON(cdnUrl('data/mob-overlay.json'), function (data) {
       mobOverlayData = data || {};
       showMobOverlay(mobId);
     });
@@ -1345,7 +1349,7 @@
       return;
     }
     if (!questOverlayData) questOverlayData = {};
-    $.getJSON('./data/lore/quests/' + questId + '.json', function (data) {
+    $.getJSON(cdnUrl('data/lore/quests/' + questId + '.json'), function (data) {
       questOverlayData[questId] = data;
       showQuestOverlay(questId);
     }).fail(function () {

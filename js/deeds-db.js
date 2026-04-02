@@ -4,6 +4,9 @@
 (function () {
   'use strict';
 
+  var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
+  function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
+
   var table;
   var allData = [];
   var deedById = {};
@@ -15,7 +18,7 @@
     var iconId = map[itemId];
     if (!iconId) return '';
     var s = size || 16;
-    return '<img src="./img/icons/items/' + iconId + '.png" width="' + s + '" height="' + s + '" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+    return '<img src="' + cdnUrl('img/icons/items/' + iconId + '.png') + '" width="' + s + '" height="' + s + '" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">'  ;
   }
 
   var typeColors = {
@@ -44,7 +47,7 @@
     var c = typeColors[t] || '#666';
     var iconFile = typeIcons[t];
     var iconHtml = iconFile
-      ? '<img src="./img/icons/deed-types/' + iconFile + '.png" class="deed-type-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+      ? '<img src="' + cdnUrl('img/icons/deed-types/' + iconFile + '.png') + '" class="deed-type-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">' 
       : '';
     return '<span class="deed-type-badge" style="background:' + c + '">' + iconHtml + t + '</span>';
   }
@@ -78,11 +81,11 @@
     if (!data || !data.length) return '<span class="text-muted">—</span>';
     return data.slice(0, 3).map(function (r) {
       var value = escHtml(r && r.v !== undefined && r.v !== null ? String(r.v) : '');
-      if (r.t === 'LP') return '<span class="deed-reward-badge deed-reward-lp"><img src="./img/icons/lp.png" class="deed-reward-icon" alt="LP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' LP</span>';
+      if (r.t === 'LP') return '<span class="deed-reward-badge deed-reward-lp"><img src="' + cdnUrl('img/icons/lp.png') + '"   class="deed-reward-icon" alt="LP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' LP</span>';
       if (r.t === 'Title') return '<span class="deed-reward-badge deed-reward-title">' + value + '</span>';
       if (r.t === 'Virtue') return '<span class="deed-reward-badge deed-reward-virtue">' + virtueIcon(value) + value + '</span>';
       if (r.t === 'Reputation') return '<span class="deed-reward-badge deed-reward-rep">' + value + '</span>';
-      if (r.t === 'VirtueXP') return '<span class="deed-reward-badge deed-reward-virtue-xp"><img src="./img/icons/virtue-xp.png" class="deed-reward-icon" alt="VXP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' VXP</span>';
+      if (r.t === 'VirtueXP') return '<span class="deed-reward-badge deed-reward-virtue-xp"><img src="' + cdnUrl('img/icons/virtue-xp.png') + '" class="deed-reward-icon" alt="VXP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' VXP</span>';
       if (r.t === 'XP') return '<span class="deed-reward-badge deed-reward-xp">' + value + ' XP</span>';
       if (r.t === 'Item') return '<span class="deed-reward-badge deed-reward-item">' + gameIcon(r.i) + value + '</span>';
       return '<span class="deed-reward-badge">' + value + '</span>';
@@ -92,7 +95,7 @@
   function virtueIcon(name) {
     if (!name) return '';
     var file = name.toLowerCase();
-    return '<img src="./img/icons/virtues/' + file + '.png" class="deed-reward-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
+    return '<img src="' + cdnUrl('img/icons/virtues/' + file + '.png') + '" class="deed-reward-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
   }
 
   function loadData() {
