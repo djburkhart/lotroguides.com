@@ -168,7 +168,7 @@ wb.SheetNames.forEach(sheetName => {
 instances.sort((a, b) => a.name.localeCompare(b.name));
 
 // Write the output
-const outDir = path.join(__dirname, 'data');
+const outDir = path.join(__dirname, '..', 'data');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 const outPath = path.join(outDir, 'instances-db.json');
 fs.writeFileSync(outPath, JSON.stringify(instances, null, 2));

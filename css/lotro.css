@@ -1185,8 +1185,8 @@ h1, h2, h3 {
   letter-spacing: 0.5px;
 }
 .deed-type-icon {
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   vertical-align: middle;
   border-radius: 2px;

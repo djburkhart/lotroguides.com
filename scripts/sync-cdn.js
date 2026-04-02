@@ -50,6 +50,8 @@ const MIME = {
   '.gif':  'image/gif',
   '.svg':  'image/svg+xml',
   '.json': 'application/json',
+  '.xml':  'application/xml',
+  '.txt':  'text/plain',
 };
 
 function getMime(filePath) {

@@ -189,7 +189,7 @@ MapWidgetView.prototype.render = function () {
   var label = info.type === 'map' ? 'Map Region' : info.type.charAt(0).toUpperCase() + info.type.slice(1);
   var html = '<div class="pm-widget-badge"><i class="fa fa-map-o"></i> Map Embed</div>'
     + '<div class="pm-widget-info">' + label + ': ' + info.id + ' &middot; ' + info.height + 'px</div>'
-    + '<iframe src="map.html?' + encodeURIComponent(info.type) + '=' + encodeURIComponent(info.id)
+    + '<iframe src="map?' + encodeURIComponent(info.type) + '=' + encodeURIComponent(info.id)
     + '&embed=1" class="pm-widget-map-preview" loading="lazy" title="Map preview"></iframe>';
   this.dom.innerHTML = html;
 };

@@ -716,7 +716,7 @@
               ? '<i class="fa fa-exclamation-circle lotro-popup-quest-bestower"></i> '
               : '<i class="fa fa-book"></i> ';
             popup += '<li>' + roleIcon +
-              '<a href="./quests.html?id=' + quest.id + '">' + escapeHtml(quest.n) + '</a></li>';
+              '<a href="./quests?id=' + quest.id + '">' + escapeHtml(quest.n) + '</a></li>';
           }
           if (quests.length > 5) {
             popup += '<li class="lotro-popup-more">+ ' + (quests.length - 5) + ' more quests</li>';
@@ -840,7 +840,7 @@
   function updateBreadcrumb(mapDef) {
     var $bc = $('#map-breadcrumb');
     $bc.empty();
-    $bc.append('<li><a href="index.html">Home</a></li>');
+    $bc.append('<li><a href="./">Home</a></li>');
 
     if (mapHistory.length > 0) {
       $bc.append('<li><a href="#" id="bc-map-home">Interactive Map</a></li>');

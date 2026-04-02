@@ -7,943 +7,1003 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides.html</loc>
+    <loc>https://lotroguides.com/guides</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news.html</loc>
+    <loc>https://lotroguides.com/news</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/deeds.html</loc>
+    <loc>https://lotroguides.com/deeds</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/quests.html</loc>
+    <loc>https://lotroguides.com/quests</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/items.html</loc>
+    <loc>https://lotroguides.com/items</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/mobs.html</loc>
+    <loc>https://lotroguides.com/mobs</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/virtues.html</loc>
+    <loc>https://lotroguides.com/virtues</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/sets.html</loc>
+    <loc>https://lotroguides.com/sets</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances.html</loc>
+    <loc>https://lotroguides.com/instances</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/map.html</loc>
+    <loc>https://lotroguides.com/map</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/about.html</loc>
+    <loc>https://lotroguides.com/about</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/raid-preparation-guide.html</loc>
+    <loc>https://lotroguides.com/guides/raid-preparation-guide</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/red-line-hunter-endgame-guide.html</loc>
+    <loc>https://lotroguides.com/guides/red-line-hunter-endgame-guide</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/starter-zones-leveling-guide-0-20.html</loc>
+    <loc>https://lotroguides.com/guides/starter-zones-leveling-guide-0-20</loc>
     <lastmod>2026-03-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/abyss-of-mordath-raid-guide.html</loc>
+    <loc>https://lotroguides.com/guides/abyss-of-mordath-raid-guide</loc>
     <lastmod>2026-03-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/court-of-seregost-guide.html</loc>
+    <loc>https://lotroguides.com/guides/court-of-seregost-guide</loc>
     <lastmod>2026-03-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/crafting-guide.html</loc>
+    <loc>https://lotroguides.com/guides/crafting-guide</loc>
     <lastmod>2026-03-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/dungeons-of-naerband-guide.html</loc>
+    <loc>https://lotroguides.com/guides/dungeons-of-naerband-guide</loc>
     <lastmod>2026-03-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/ost-dunhoth-disease-wing-guide.html</loc>
+    <loc>https://lotroguides.com/guides/ost-dunhoth-disease-wing-guide</loc>
     <lastmod>2026-03-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/spring-festival-2026.html</loc>
+    <loc>https://lotroguides.com/news/spring-festival-2026</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-bonus-032626-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-bonus-032626-en</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-housing-livestream-4-1-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-housing-livestream-4-1-en</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-sales-032626-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-sales-032626-en</loc>
     <lastmod>2026-03-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/legendary-items-guide.html</loc>
+    <loc>https://lotroguides.com/guides/legendary-items-guide</loc>
     <lastmod>2026-03-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-u42-soundtrack-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-u42-soundtrack-en</loc>
     <lastmod>2026-03-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-deco-du-milieu-rivendell-housing-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-deco-du-milieu-rivendell-housing-en</loc>
     <lastmod>2026-03-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-t3-raid-timing-folly-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-t3-raid-timing-folly-en</loc>
     <lastmod>2026-03-23</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/update-42-preview.html</loc>
+    <loc>https://lotroguides.com/news/update-42-preview</loc>
     <lastmod>2026-03-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/best-plugins-2026.html</loc>
+    <loc>https://lotroguides.com/news/best-plugins-2026</loc>
     <lastmod>2026-03-18</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/beginners-guide.html</loc>
+    <loc>https://lotroguides.com/guides/beginners-guide</loc>
     <lastmod>2026-03-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-pax-east-rsvp-2026.html</loc>
+    <loc>https://lotroguides.com/news/lotro-pax-east-rsvp-2026</loc>
     <lastmod>2026-03-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/guides/tower-of-orthanc-fire-ice-guide.html</loc>
+    <loc>https://lotroguides.com/guides/tower-of-orthanc-fire-ice-guide</loc>
     <lastmod>2026-03-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-pvmp-track-update-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-pvmp-track-update-en</loc>
     <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-raid-timing-adjustment-u47-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-raid-timing-adjustment-u47-en</loc>
     <lastmod>2026-03-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/news/lotro-creator-program-en.html</loc>
+    <loc>https://lotroguides.com/news/lotro-creator-program-en</loc>
     <lastmod>2026-01-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/adkh-t-zahhar-the-houses-of-rest.html</loc>
+    <loc>https://lotroguides.com/news/lotro-angmar-mordor-timing-update-en</loc>
+    <lastmod>2026-01-27</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-letter-to-players-jan-26-en</loc>
+    <lastmod>2026-01-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-public-event-schedule-en</loc>
+    <lastmod>2026-01-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-4th-pvmp-reward-track-en</loc>
+    <lastmod>2025-11-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-gilded-caravan-patrons-coffer-en</loc>
+    <lastmod>2025-11-12</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-extra-life-2025-en</loc>
+    <lastmod>2025-10-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-64-bit-transfers-october-25-en</loc>
+    <lastmod>2025-10-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-dark-worlds-transfers-en</loc>
+    <lastmod>2025-10-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-harad-prepurchase-en</loc>
+    <lastmod>2025-09-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-filbert-fig-september-2025-en</loc>
+    <lastmod>2025-09-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/instances/adkh-t-zahhar-the-houses-of-rest</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/agoroth-the-narrowdelve.html</loc>
+    <loc>https://lotroguides.com/instances/agoroth-the-narrowdelve</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/amd-n-dammul-the-bloody-threshold.html</loc>
+    <loc>https://lotroguides.com/instances/amd-n-dammul-the-bloody-threshold</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/arboretum.html</loc>
+    <loc>https://lotroguides.com/instances/arboretum</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ashun-g-the-fane-of-the-accursed.html</loc>
+    <loc>https://lotroguides.com/instances/ashun-g-the-fane-of-the-accursed</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ask-d-mazal-the-chamber-of-shadows.html</loc>
+    <loc>https://lotroguides.com/instances/ask-d-mazal-the-chamber-of-shadows</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/assault-on-dh-rstrok.html</loc>
+    <loc>https://lotroguides.com/instances/assault-on-dh-rstrok</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/b-r-n-rnaeth-the-houses-of-lamentation.html</loc>
+    <loc>https://lotroguides.com/instances/b-r-n-rnaeth-the-houses-of-lamentation</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/barad-g-laran.html</loc>
+    <loc>https://lotroguides.com/instances/barad-g-laran</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/barad-guldur.html</loc>
+    <loc>https://lotroguides.com/instances/barad-guldur</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/barrows.html</loc>
+    <loc>https://lotroguides.com/instances/barrows</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/blood-of-the-black-serpent.html</loc>
+    <loc>https://lotroguides.com/instances/blood-of-the-black-serpent</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/boss-from-the-vaults-naruhel-the-red-maid.html</loc>
+    <loc>https://lotroguides.com/instances/boss-from-the-vaults-naruhel-the-red-maid</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/boss-from-the-vaults-storv-g-n.html</loc>
+    <loc>https://lotroguides.com/instances/boss-from-the-vaults-storv-g-n</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/boss-from-the-vaults-thr-ng.html</loc>
+    <loc>https://lotroguides.com/instances/boss-from-the-vaults-thr-ng</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/carn-d-m.html</loc>
+    <loc>https://lotroguides.com/instances/carn-d-m</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/caverns-of-thrumfall.html</loc>
+    <loc>https://lotroguides.com/instances/caverns-of-thrumfall</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dah-l-huliz-the-arena.html</loc>
+    <loc>https://lotroguides.com/instances/dah-l-huliz-the-arena</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/d-r-narbugud.html</loc>
+    <loc>https://lotroguides.com/instances/d-r-narbugud</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dargn-kh-unleashed.html</loc>
+    <loc>https://lotroguides.com/instances/dargn-kh-unleashed</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dark-delvings.html</loc>
+    <loc>https://lotroguides.com/instances/dark-delvings</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/den-of-pughlak.html</loc>
+    <loc>https://lotroguides.com/instances/den-of-pughlak</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/depths-of-m-khda-khorbo.html</loc>
+    <loc>https://lotroguides.com/instances/depths-of-m-khda-khorbo</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dragon-wing.html</loc>
+    <loc>https://lotroguides.com/instances/dragon-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/draigochs-lair.html</loc>
+    <loc>https://lotroguides.com/instances/draigochs-lair</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/drake-wing.html</loc>
+    <loc>https://lotroguides.com/instances/drake-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dun-sh-ma-the-kings-fortress.html</loc>
+    <loc>https://lotroguides.com/instances/dun-sh-ma-the-kings-fortress</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/dungeons-of-dol-guldur.html</loc>
+    <loc>https://lotroguides.com/instances/dungeons-of-dol-guldur</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/eithel-gwaur-the-filth-well.html</loc>
+    <loc>https://lotroguides.com/instances/eithel-gwaur-the-filth-well</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ekal-n-bi-the-fallen-palace.html</loc>
+    <loc>https://lotroguides.com/instances/ekal-n-bi-the-fallen-palace</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/fangorns-edge.html</loc>
+    <loc>https://lotroguides.com/instances/fangorns-edge</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/fil-gashan.html</loc>
+    <loc>https://lotroguides.com/instances/fil-gashan</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/filikul.html</loc>
+    <loc>https://lotroguides.com/instances/filikul</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/flight-to-the-lonely-mountain.html</loc>
+    <loc>https://lotroguides.com/instances/flight-to-the-lonely-mountain</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/fortress.html</loc>
+    <loc>https://lotroguides.com/instances/fortress</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/gath-daeroval-the-shadow-roost.html</loc>
+    <loc>https://lotroguides.com/instances/gath-daeroval-the-shadow-roost</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ghashan-k-tot-the-halls-of-black-lore.html</loc>
+    <loc>https://lotroguides.com/instances/ghashan-k-tot-the-halls-of-black-lore</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/giant-wing.html</loc>
+    <loc>https://lotroguides.com/instances/giant-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/glimmerdeep.html</loc>
+    <loc>https://lotroguides.com/instances/glimmerdeep</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/glinghant.html</loc>
+    <loc>https://lotroguides.com/instances/glinghant</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/goblin-town-throne-room.html</loc>
+    <loc>https://lotroguides.com/instances/goblin-town-throne-room</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/gorthad-n-r-the-deep-barrow.html</loc>
+    <loc>https://lotroguides.com/instances/gorthad-n-r-the-deep-barrow</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/gwathrenost-the-witch-kings-citadel.html</loc>
+    <loc>https://lotroguides.com/instances/gwathrenost-the-witch-kings-citadel</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/halls-of-crafting.html</loc>
+    <loc>https://lotroguides.com/instances/halls-of-crafting</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/halls-of-night.html</loc>
+    <loc>https://lotroguides.com/instances/halls-of-night</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/haudh-valandil.html</loc>
+    <loc>https://lotroguides.com/instances/haudh-valandil</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/inn-of-the-forsaken.html</loc>
+    <loc>https://lotroguides.com/instances/inn-of-the-forsaken</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/iorbars-peak.html</loc>
+    <loc>https://lotroguides.com/instances/iorbars-peak</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/k-th-rau-the-wailing-hold.html</loc>
+    <loc>https://lotroguides.com/instances/k-th-rau-the-wailing-hold</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/library-at-tham-m-rdain.html</loc>
+    <loc>https://lotroguides.com/instances/library-at-tham-m-rdain</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/lost-temple.html</loc>
+    <loc>https://lotroguides.com/instances/lost-temple</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/nirgamb-r-the-restless-tomb.html</loc>
+    <loc>https://lotroguides.com/instances/nirgamb-r-the-restless-tomb</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ost-dunhoth-disease-and-poison-wing.html</loc>
+    <loc>https://lotroguides.com/instances/ost-dunhoth-disease-and-poison-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ost-dunhoth-gortheron-wing.html</loc>
+    <loc>https://lotroguides.com/instances/ost-dunhoth-gortheron-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ost-dunhoth-wound-and-fear-wing.html</loc>
+    <loc>https://lotroguides.com/instances/ost-dunhoth-wound-and-fear-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/ost-elendil.html</loc>
+    <loc>https://lotroguides.com/instances/ost-elendil</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/pits-of-isengard.html</loc>
+    <loc>https://lotroguides.com/instances/pits-of-isengard</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/remmorchant-the-net-of-darkness.html</loc>
+    <loc>https://lotroguides.com/instances/remmorchant-the-net-of-darkness</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/roots-of-fangorn.html</loc>
+    <loc>https://lotroguides.com/instances/roots-of-fangorn</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sagroth-lair-of-vermin.html</loc>
+    <loc>https://lotroguides.com/instances/sagroth-lair-of-vermin</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sambrog.html</loc>
+    <loc>https://lotroguides.com/instances/sambrog</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sammath-g-l.html</loc>
+    <loc>https://lotroguides.com/instances/sammath-g-l</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sant-lhoer-the-poison-gardens.html</loc>
+    <loc>https://lotroguides.com/instances/sant-lhoer-the-poison-gardens</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sarch-vorn-the-black-grave.html</loc>
+    <loc>https://lotroguides.com/instances/sarch-vorn-the-black-grave</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/s-ri-surma.html</loc>
+    <loc>https://lotroguides.com/instances/s-ri-surma</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/school-at-tham-m-rdain.html</loc>
+    <loc>https://lotroguides.com/instances/school-at-tham-m-rdain</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/seat-of-the-great-goblin.html</loc>
+    <loc>https://lotroguides.com/instances/seat-of-the-great-goblin</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/shakalush-the-stair-battle.html</loc>
+    <loc>https://lotroguides.com/instances/shakalush-the-stair-battle</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sk-mfil.html</loc>
+    <loc>https://lotroguides.com/instances/sk-mfil</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/spider-wing.html</loc>
+    <loc>https://lotroguides.com/instances/spider-wing</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/stoneheight.html</loc>
+    <loc>https://lotroguides.com/instances/stoneheight</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sunken-labyrinth.html</loc>
+    <loc>https://lotroguides.com/instances/sunken-labyrinth</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/sword-hall-of-dol-guldur.html</loc>
+    <loc>https://lotroguides.com/instances/sword-hall-of-dol-guldur</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/thad-r.html</loc>
+    <loc>https://lotroguides.com/instances/thad-r</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/thaurisgar-the-vile-apothecary.html</loc>
+    <loc>https://lotroguides.com/instances/thaurisgar-the-vile-apothecary</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-abyss-of-mordath.html</loc>
+    <loc>https://lotroguides.com/instances/the-abyss-of-mordath</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-anvil-of-winterstith.html</loc>
+    <loc>https://lotroguides.com/instances/the-anvil-of-winterstith</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-battle-for-erebor.html</loc>
+    <loc>https://lotroguides.com/instances/the-battle-for-erebor</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-bells-of-dale.html</loc>
+    <loc>https://lotroguides.com/instances/the-bells-of-dale</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-court-of-seregost.html</loc>
+    <loc>https://lotroguides.com/instances/the-court-of-seregost</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-depths-of-kidzul-k-lah.html</loc>
+    <loc>https://lotroguides.com/instances/the-depths-of-kidzul-k-lah</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-dome-of-stars.html</loc>
+    <loc>https://lotroguides.com/instances/the-dome-of-stars</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-dragon-and-the-storm.html</loc>
+    <loc>https://lotroguides.com/instances/the-dragon-and-the-storm</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-dungeons-of-naerband.html</loc>
+    <loc>https://lotroguides.com/instances/the-dungeons-of-naerband</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-fall-of-khazad-d-m.html</loc>
+    <loc>https://lotroguides.com/instances/the-fall-of-khazad-d-m</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-fallen-kings.html</loc>
+    <loc>https://lotroguides.com/instances/the-fallen-kings</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-fires-of-smaug.html</loc>
+    <loc>https://lotroguides.com/instances/the-fires-of-smaug</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-folly-of-nagakh-di.html</loc>
+    <loc>https://lotroguides.com/instances/the-folly-of-nagakh-di</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-forges-of-khazad-d-m.html</loc>
+    <loc>https://lotroguides.com/instances/the-forges-of-khazad-d-m</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-forgotten-treasury.html</loc>
+    <loc>https://lotroguides.com/instances/the-forgotten-treasury</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-foundry.html</loc>
+    <loc>https://lotroguides.com/instances/the-foundry</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-grand-stair.html</loc>
+    <loc>https://lotroguides.com/instances/the-grand-stair</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-harrowing-of-morgul.html</loc>
+    <loc>https://lotroguides.com/instances/the-harrowing-of-morgul</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-hiddenhoard-of-abnank-ra.html</loc>
+    <loc>https://lotroguides.com/instances/the-hiddenhoard-of-abnank-ra</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-isle-of-storms.html</loc>
+    <loc>https://lotroguides.com/instances/the-isle-of-storms</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-maze.html</loc>
+    <loc>https://lotroguides.com/instances/the-maze</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-mirror-halls-of-lumul-nar.html</loc>
+    <loc>https://lotroguides.com/instances/the-mirror-halls-of-lumul-nar</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-northcotton-farm.html</loc>
+    <loc>https://lotroguides.com/instances/the-northcotton-farm</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-quays-of-the-harlond.html</loc>
+    <loc>https://lotroguides.com/instances/the-quays-of-the-harlond</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-rift-of-n-rz-gh-shu.html</loc>
+    <loc>https://lotroguides.com/instances/the-rift-of-n-rz-gh-shu</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-ruined-city.html</loc>
+    <loc>https://lotroguides.com/instances/the-ruined-city</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-silent-street.html</loc>
+    <loc>https://lotroguides.com/instances/the-silent-street</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-sixteenth-hall.html</loc>
+    <loc>https://lotroguides.com/instances/the-sixteenth-hall</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-streets-of-r-hal-bakh.html</loc>
+    <loc>https://lotroguides.com/instances/the-streets-of-r-hal-bakh</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-1-dh-rgruth.html</loc>
+    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-1-dh-rgruth</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-2-th-r-hin.html</loc>
+    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-2-th-r-hin</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-3-inner-sanctum.html</loc>
+    <loc>https://lotroguides.com/instances/the-temple-of-utug-b-r-3-inner-sanctum</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-tower-of-orthanc.html</loc>
+    <loc>https://lotroguides.com/instances/the-tower-of-orthanc</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-treasure-caves-of-hurum-k-na.html</loc>
+    <loc>https://lotroguides.com/instances/the-treasure-caves-of-hurum-k-na</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-vile-maw.html</loc>
+    <loc>https://lotroguides.com/instances/the-vile-maw</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/the-water-wheels-nal-d-m.html</loc>
+    <loc>https://lotroguides.com/instances/the-water-wheels-nal-d-m</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/thikil-gundu.html</loc>
+    <loc>https://lotroguides.com/instances/thikil-gundu</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/throne-of-the-dread-terror.html</loc>
+    <loc>https://lotroguides.com/instances/throne-of-the-dread-terror</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/t-l-zakana-the-well-of-forgetting.html</loc>
+    <loc>https://lotroguides.com/instances/t-l-zakana-the-well-of-forgetting</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/urugarth.html</loc>
+    <loc>https://lotroguides.com/instances/urugarth</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/warg-pens-of-dol-guldur.html</loc>
+    <loc>https://lotroguides.com/instances/warg-pens-of-dol-guldur</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/webs-of-the-scuttledells.html</loc>
+    <loc>https://lotroguides.com/instances/webs-of-the-scuttledells</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/woe-of-the-willow.html</loc>
+    <loc>https://lotroguides.com/instances/woe-of-the-willow</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/wraith-of-earth.html</loc>
+    <loc>https://lotroguides.com/instances/wraith-of-earth</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/wraith-of-fire.html</loc>
+    <loc>https://lotroguides.com/instances/wraith-of-fire</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/wraith-of-shadow.html</loc>
+    <loc>https://lotroguides.com/instances/wraith-of-shadow</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lotroguides.com/instances/wraith-of-water.html</loc>
+    <loc>https://lotroguides.com/instances/wraith-of-water</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

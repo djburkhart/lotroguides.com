@@ -27,7 +27,7 @@
   // ── Render cells ─────────────────────────────────────────────────────────
   function renderName(data, type, row) {
     if (type !== 'display') return data;
-    return '<a href="instances/' + row.slug + '.html" class="lotro-instance-link">' + data + '</a>';
+    return '<a href="instances/' + row.slug + '" class="lotro-instance-link">' + data + '</a>';
   }
 
   function renderGroup(data, type) {

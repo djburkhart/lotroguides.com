@@ -29,7 +29,7 @@ const COMPANION_DATA = path.join(
   'LotRO Companion', 'app', 'data', 'lore'
 );
 
-const OUTPUT = path.join(__dirname, 'content', 'instances', 'loot-reference.json');
+const OUTPUT = path.join(__dirname, '..', 'content', 'instances', 'loot-reference.json');
 
 // Map of guide slug → { meta, chestPatterns (regex matching chest name → boss + tier) }
 const INSTANCE_CONFIG = {

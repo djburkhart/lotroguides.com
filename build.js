@@ -308,7 +308,7 @@ function buildLootAccordionHtml(slug) {
     // Resolve boss name to mob link if available
     const bossEntry = itemIndex[bossName];
     const bossLabel = bossEntry && bossEntry.type === 'mob'
-      ? `<a href="../mobs.html?id=${bossEntry.id}" class="lotro-mob">${bossName}</a>`
+      ? `<a href="../mobs?id=${bossEntry.id}" class="lotro-mob">${bossName}</a>`
       : bossName;
 
     lines.push(`<details class="lotro-loot-boss">`);
@@ -366,7 +366,7 @@ function buildLootAccordionHtml(slug) {
           : '';
 
         const itemHtml = dbItem
-          ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
+          ? `<a href="../items?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
           : (tooltipAttr ? `<span class="lotro-item"${tooltipAttr}>${itemName}</span>` : itemName);
 
         const dropChance = String(lootItem.drop || '').trim();
@@ -552,7 +552,7 @@ function resolveMapEmbeds(html, siteRoot) {
     const id = firstPair.slice(eqIdx + 1).trim();
     const height = opts.height || '450';
     const param = encodeURIComponent(id);
-    let src = `${siteRoot}map.html?${type}=${param}&embed=1`;
+    let src = `${siteRoot}map?${type}=${param}&embed=1`;
     if (opts.lng) src += `&lng=${encodeURIComponent(opts.lng)}`;
     if (opts.lat) src += `&lat=${encodeURIComponent(opts.lat)}`;
     return `<div class="lotro-map-embed" style="height:${height}px">`
@@ -728,7 +728,7 @@ function autoLinkItems(html) {
     if (match) {
       const entry = itemIndex[name];
       // Link to our own items database page (articles live in subdir)
-      const itemUrl = `../items.html?id=${entry.id}`;
+      const itemUrl = `../items?id=${entry.id}`;
       const qualityClass = entry.quality ? ` lotro-${entry.quality}` : '';
       const typeLabel = entry.type === 'consumable' ? entry.subtype || 'consumable' : entry.type;
 
@@ -785,7 +785,7 @@ function autoLinkMobs(html) {
 
     if (match) {
       const entry = itemIndex[name];
-      const mobUrl = `../mobs.html?id=${entry.id}`;
+      const mobUrl = `../mobs?id=${entry.id}`;
       const genusInfo = entry.genus ? ` data-mob-genus="${entry.genus}"` : '';
       const speciesInfo = entry.species ? ` data-mob-species="${entry.species}"` : '';
       const replacement = protectedAnchors.protect(`<a href="${mobUrl}" class="lotro-mob" data-mob-id="${entry.id}"${genusInfo}${speciesInfo}>${match[0]}</a>`);
@@ -823,7 +823,7 @@ function autoLinkSets(html) {
 
     if (match) {
       const entry = itemIndex[name];
-      const setUrl = `../sets.html?id=${entry.id}`;
+      const setUrl = `../sets?id=${entry.id}`;
       const replacement = protectedAnchors.protect(`<a href="${setUrl}" class="lotro-set" data-set-id="${entry.id}">${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
@@ -859,7 +859,7 @@ function autoLinkDeeds(html) {
 
     if (match) {
       const entry = itemIndex[name];
-      const deedUrl = `../deeds.html?id=${entry.id}`;
+      const deedUrl = `../deeds?id=${entry.id}`;
       const replacement = protectedAnchors.protect(`<a href="${deedUrl}" class="lotro-deed" data-deed-type="${entry.deedType || ''}">${match[0]}</a>`);
 
       html = html.replace(match[0], replacement);
@@ -906,7 +906,7 @@ function autoLinkQuests(html) {
 
     if (match) {
       const entry = questIndex[name];
-      const questUrl = `../quests.html?id=${entry.id}`;
+      const questUrl = `../quests?id=${entry.id}`;
       const levelInfo = entry.lv ? ` data-quest-level="${entry.lv}"` : '';
       const catInfo = entry.cat ? ` data-quest-category="${String(entry.cat).replace(/"/g, '&quot;')}"` : '';
       const replacement = protectedAnchors.protect(`<a href="${questUrl}" class="lotro-quest"${levelInfo}${catInfo}>${match[0]}</a>`);
@@ -1054,12 +1054,24 @@ function render(template, data) {
   });
 }
 
+/**
+ * Strip .html from internal URLs for clean URLs on the live site.
+ * index.html → '' (or '../' for subdirectory pages)
+ * page.html  → page
+ * page.html?q=1 → page?q=1
+ * page.html#frag → page#frag
+ */
+function cleanUrl(url) {
+  if (!url) return url;
+  return url.replace(/index\.html\b/, '').replace(/\.html\b/, '');
+}
+
 function resolveNavUrl(siteRoot, url) {
   if (!url) return '#';
   if (/^(https?:)?\/\//i.test(url) || url.startsWith('#') || url.startsWith('mailto:')) {
     return url;
   }
-  return `./${siteRoot}${url}`;
+  return cleanUrl(`./${siteRoot}${url}`);
 }
 
 function loadNavigationConfig() {
@@ -1232,7 +1244,7 @@ function loadContent(subdir) {
       date: data.date || '2026-01-01',
       formattedDate: formatDate(data.date || '2026-01-01'),
       category: subdir,
-      url: `${subdir}/${slug}.html`,
+      url: `${subdir}/${slug}`,
       image,
       tags: data.tags || [],
     };
@@ -1284,7 +1296,7 @@ function loadLegacyHtml(subdir) {
         date: dateStr,
         formattedDate: dateStr,
         category: subdir,
-        url: `${subdir}/${slug}.html`,
+        url: `${subdir}/${slug}`,
         image,
         tags: [],
         author: authorMatch ? authorMatch[1].trim() : 'LOTRO.com',
@@ -1298,7 +1310,7 @@ function loadLegacyHtml(subdir) {
 
 function buildNavItems(posts, siteRoot, limit) {
   return posts.slice(0, limit).map(p =>
-    `<li><a href="./${siteRoot}${p.url}">${p.title}</a></li>`
+    `<li><a href="${cleanUrl('./' + siteRoot + p.url)}">${p.title}</a></li>`
   ).join('\n                      ');
 }
 
@@ -1316,7 +1328,7 @@ function classifyGuide(post) {
 }
 
 function buildGuideQuickNavLinks(siteRoot) {
-  const root = `./${siteRoot}guides.html`;
+  const root = cleanUrl(`./${siteRoot}guides.html`);
   const links = [
     { key: 'raid', label: 'Raid Guides' },
     { key: 'class', label: 'Class Guides' },
@@ -1406,12 +1418,12 @@ function buildListing(posts, category, navData) {
   if (category === 'guides') {
     quickNav = `
         <div class="m-b-20" id="guides-quick-nav">
-          <a class="btn btn-sm btn-default" href="guides.html">All Guides</a>
-          <a class="btn btn-sm btn-default" href="guides.html?filter=raid">Raid Guides</a>
-          <a class="btn btn-sm btn-default" href="guides.html?filter=class">Class Guides</a>
-          <a class="btn btn-sm btn-default" href="guides.html?filter=leveling">Leveling Guides</a>
-          <a class="btn btn-sm btn-default" href="guides.html?filter=systems">Systems Guides</a>
-          <a class="btn btn-sm btn-default" href="guides.html?filter=general">General Guides</a>
+          <a class="btn btn-sm btn-default" href="guides">All Guides</a>
+          <a class="btn btn-sm btn-default" href="guides?filter=raid">Raid Guides</a>
+          <a class="btn btn-sm btn-default" href="guides?filter=class">Class Guides</a>
+          <a class="btn btn-sm btn-default" href="guides?filter=leveling">Leveling Guides</a>
+          <a class="btn btn-sm btn-default" href="guides?filter=systems">Systems Guides</a>
+          <a class="btn btn-sm btn-default" href="guides?filter=general">General Guides</a>
         </div>`;
   }
 
@@ -1500,7 +1512,7 @@ function buildArticle(post, relatedPosts, navData) {
     content: expandLootAccordionPlaceholders(autoLinkQuests(autoLinkDeeds(autoLinkSets(autoLinkMobs(autoLinkItems(post.content)))))),
     tags: tagsHtml,
     category: post.category === 'guides' ? 'Guides' : 'News',
-    categoryUrl: post.category === 'guides' ? '../guides.html' : '../news.html',
+    categoryUrl: post.category === 'guides' ? '../guides' : '../news',
     relatedPosts: relatedHtml,
     assets: articleAssets,
     articleUrl,
@@ -2197,7 +2209,7 @@ function buildInstancesPage(navData, subDirNavData) {
       mobCount: inst.mobCount,
     };
     if (hasLoot) {
-      obj.lootUrl = `instances/${inst.slug}.html#loot`;
+      obj.lootUrl = `instances/${inst.slug}#loot`;
     }
     return obj;
   });
@@ -2246,11 +2258,11 @@ function buildInstancesPage(navData, subDirNavData) {
 
   // Map of known guide slugs for cross-linking
   const guideLinks = {
-    'the-abyss-of-mordath': { url: '../guides/abyss-of-mordath-raid-guide.html', label: 'Abyss of Mordath Raid Guide' },
-    'the-court-of-seregost': { url: '../guides/court-of-seregost-guide.html', label: 'Court of Seregost Guide' },
-    'the-dungeons-of-naerband': { url: '../guides/dungeons-of-naerband-guide.html', label: 'Dungeons of Naerband Guide' },
-    'ost-dunhoth-disease-and-poison-wing': { url: '../guides/ost-dunhoth-disease-wing-guide.html', label: 'Ost Dunhoth Disease Wing Guide' },
-    'the-tower-of-orthanc': { url: '../guides/tower-of-orthanc-fire-ice-guide.html', label: 'Tower of Orthanc Fire & Ice Guide' },
+    'the-abyss-of-mordath': { url: '../guides/abyss-of-mordath-raid-guide', label: 'Abyss of Mordath Raid Guide' },
+    'the-court-of-seregost': { url: '../guides/court-of-seregost-guide', label: 'Court of Seregost Guide' },
+    'the-dungeons-of-naerband': { url: '../guides/dungeons-of-naerband-guide', label: 'Dungeons of Naerband Guide' },
+    'ost-dunhoth-disease-and-poison-wing': { url: '../guides/ost-dunhoth-disease-wing-guide', label: 'Ost Dunhoth Disease Wing Guide' },
+    'the-tower-of-orthanc': { url: '../guides/tower-of-orthanc-fire-ice-guide', label: 'Tower of Orthanc Fire & Ice Guide' },
   };
 
   instances.forEach(inst => {
@@ -2334,7 +2346,7 @@ function buildInstancesPage(navData, subDirNavData) {
       relatedLinks.push(`<a href="${guide.url}" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> ${guide.label}</a>`);
     }
     // Link to mobs database
-    relatedLinks.push(`<a href="../mobs.html" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database</a>`);
+    relatedLinks.push(`<a href="../mobs" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database</a>`);
 
     const relatedContent = relatedLinks.length
       ? `<div class="row m-b-30"><div class="col-md-8 col-md-offset-2"><h3 class="instance-section-title"><i class="fa fa-link"></i> Related Content</h3><div class="instance-related-links">${relatedLinks.join('\n')}</div></div></div>`
@@ -2394,7 +2406,7 @@ function buildInstancesPage(navData, subDirNavData) {
               : '';
 
             const itemHtml = dbItem
-              ? `<a href="../items.html?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
+              ? `<a href="../items?id=${dbItem.id}" class="lotro-item${qualityClass}" data-item-type="${dbItem.type || 'item'}"${tooltipAttr}>${lootIconHtml}<span class="lotro-item-text">${itemName}</span></a>`
               : (tooltipAttr ? `<span class="lotro-item"${tooltipAttr}>${itemName}</span>` : itemName);
 
             const dropChance = lootItem.drop || '';
@@ -2857,17 +2869,17 @@ function buildSitemap(allPosts) {
   // Static pages with their priorities and change frequencies
   const staticPages = [
     { loc: '',              changefreq: 'daily',   priority: '1.0' },
-    { loc: 'guides.html',  changefreq: 'weekly',  priority: '0.9' },
-    { loc: 'news.html',    changefreq: 'daily',   priority: '0.9' },
-    { loc: 'deeds.html',   changefreq: 'weekly',  priority: '0.8' },
-    { loc: 'quests.html',  changefreq: 'weekly',  priority: '0.8' },
-    { loc: 'items.html',   changefreq: 'weekly',  priority: '0.7' },
-    { loc: 'mobs.html',    changefreq: 'weekly',  priority: '0.7' },
-    { loc: 'virtues.html', changefreq: 'monthly', priority: '0.7' },
-    { loc: 'sets.html',    changefreq: 'monthly', priority: '0.7' },
-    { loc: 'instances.html', changefreq: 'weekly', priority: '0.7' },
-    { loc: 'map.html',     changefreq: 'weekly',  priority: '0.8' },
-    { loc: 'about.html',   changefreq: 'monthly', priority: '0.5' },
+    { loc: 'guides',  changefreq: 'weekly',  priority: '0.9' },
+    { loc: 'news',    changefreq: 'daily',   priority: '0.9' },
+    { loc: 'deeds',   changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'quests',  changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'items',   changefreq: 'weekly',  priority: '0.7' },
+    { loc: 'mobs',    changefreq: 'weekly',  priority: '0.7' },
+    { loc: 'virtues', changefreq: 'monthly', priority: '0.7' },
+    { loc: 'sets',    changefreq: 'monthly', priority: '0.7' },
+    { loc: 'instances', changefreq: 'weekly', priority: '0.7' },
+    { loc: 'map',     changefreq: 'weekly',  priority: '0.8' },
+    { loc: 'about',   changefreq: 'monthly', priority: '0.5' },
   ];
 
   const urlEntries = staticPages.map(p => {
@@ -2890,7 +2902,7 @@ function buildSitemap(allPosts) {
     const instances = JSON.parse(fs.readFileSync(instanceDbPath, 'utf8'));
     for (const inst of instances) {
       urlEntries.push(
-        `  <url>\n    <loc>${SITE_BASE_URL}/instances/${inst.slug}.html</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`
+        `  <url>\n    <loc>${SITE_BASE_URL}/instances/${inst.slug}</loc>\n    <lastmod>${now}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`
       );
     }
   }
@@ -2901,7 +2913,7 @@ function buildSitemap(allPosts) {
 }
 
 function buildRobotsTxt() {
-  const content = `User-agent: *\nAllow: /\nDisallow: /editor.html\n\nSitemap: ${SITE_BASE_URL}/sitemap.xml\n`;
+  const content = `User-agent: *\nAllow: /\nDisallow: /editor\n\nSitemap: ${SITE_BASE_URL}/sitemap.xml\n`;
   fs.writeFileSync(path.join(OUTPUT_DIR, 'robots.txt'), content, 'utf8');
   console.log('   ✓ robots.txt');
 }

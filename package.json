@@ -1,6 +1,6 @@
 {
   "name": "lotro-fansite",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Lord of the Rings Online fansite - Markdown-powered static site generator",
   "engines": {
     "node": "22.x"
@@ -12,15 +12,14 @@
     "build": "node build.js",
     "heroku-postbuild": "node scripts/scrape-news.js || true && node build.js",
     "watch": "node build.js --watch",
-    "scrape": "node scripts/scrape-news.js",
-    "scrape:build": "node scripts/scrape-news.js && node build.js",
-    "import:loot": "node scripts/import-lotro-companion-loot.js",
-    "enrich:skills": "node scripts/enrich-instance-skills.js",
-    "extract:lore": "node scripts/extract-lore.js",
-    "extract:icons": "node scripts/extract-icons.js",
-    "extract:all": "node scripts/extract-lore.js && node scripts/extract-icons.js",
-    "sync:cdn": "node scripts/sync-cdn.js",
-    "fetch:videos": "node scripts/fetch-youtube-videos.js"
+    "update:news": "node scripts/scrape-news.js",
+    "update:loot": "node scripts/import-lotro-companion-loot.js",
+    "update:skills": "node scripts/enrich-instance-skills.js",
+    "update:lore": "node scripts/extract-lore.js",
+    "update:icons": "node scripts/extract-icons.js",
+    "update:videos": "node scripts/fetch-youtube-videos.js",
+    "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:lore && npm run update:icons && npm run update:videos",
+    "sync": "node scripts/sync-cdn.js"
   },
   "dependencies": {
     "chokidar": "^3.6.0",

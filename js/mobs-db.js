@@ -40,7 +40,7 @@
   // ── Render name cell ────────────────────────────────────────────────────
   function renderName(data, type, row) {
     if (type !== 'display') return data;
-    return '<a href="mobs.html?id=' + row.id + '" class="lotro-mob-link" data-mob-id="' + row.id + '">' + data + '</a>';
+    return '<a href="mobs?id=' + row.id + '" class="lotro-mob-link" data-mob-id="' + row.id + '">' + data + '</a>';
   }
 
   // ── Render genus cell ───────────────────────────────────────────────────
@@ -59,7 +59,7 @@
     if (type !== 'display') return '';
     var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[row.id];
     if (!overlay || !overlay.map) return '<span class="text-muted">-</span>';
-    return '<a href="map.html?mob=' + row.id + '" class="btn btn-xs btn-info" target="_blank">' +
+    return '<a href="map?mob=' + row.id + '" class="btn btn-xs btn-info" target="_blank">' +
       '<i class="fa fa-map-marker"></i> Spawn</a>';
   }
 
@@ -140,7 +140,7 @@
 
     var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[id];
     if (overlay && overlay.map) {
-      html += '<p><a href="map.html?mob=' + id + '" class="btn btn-sm btn-info" target="_blank">';
+      html += '<p><a href="map?mob=' + id + '" class="btn btn-sm btn-info" target="_blank">';
       html += '<i class="fa fa-map-o"></i> View Spawn on Map</a></p>';
     }
 
@@ -149,7 +149,7 @@
     $('#mob-modal-body').html(html);
 
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'mobs.html?id=' + id);
+      window.history.replaceState(null, '', 'mobs?id=' + id);
     }
 
     $('#mob-modal').modal('show');
@@ -180,7 +180,7 @@
 
   $(document).on('hidden.bs.modal', '#mob-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'mobs.html');
+      window.history.replaceState(null, '', 'mobs');
     }
   });
 

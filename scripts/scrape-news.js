@@ -5,7 +5,7 @@ const https = require('https');
 // ─── Configuration ──────────────────────────────────────────────────────────
 const LOTRO_HOME_URL = 'https://www.lotro.com/home';
 const LOTRO_BASE_URL = 'https://www.lotro.com';
-const NEWS_DIR = path.join(__dirname, 'content', 'news');
+const NEWS_DIR = path.join(__dirname, '..', 'content', 'news');
 const TRACKING_FILE = path.join(NEWS_DIR, '.scraped.json');
 
 // ─── HTTP Helpers ───────────────────────────────────────────────────────────
@@ -13,7 +13,7 @@ function fetchPage(url) {
   return new Promise((resolve, reject) => {
     const request = https.get(url, {
       headers: {
-        'User-Agent': 'LOTRO-Fansite-Scraper/1.0',
+        'User-Agent': 'LOTRO-Guides-Scraper/1.0',
         'Accept': 'text/html,application/xhtml+xml',
       },
     }, (res) => {

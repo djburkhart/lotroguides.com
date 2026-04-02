@@ -63,7 +63,7 @@
       return parts.join(' ');
     }
     if (type !== 'display') return data;
-    return '<a href="deeds.html?id=' + row.id + '" class="lotro-deed-link" data-deed-id="' + row.id + '">' + data + '</a>';
+    return '<a href="deeds?id=' + row.id + '" class="lotro-deed-link" data-deed-id="' + row.id + '">' + data + '</a>';
   }
 
   function renderType(data, type) {
@@ -185,7 +185,7 @@
     var hasMapData = window.LOTRO_DEED_OVERLAY && window.LOTRO_DEED_OVERLAY[id];
     if (hasMapData) {
       html += '<div style="margin: 15px 0;">';
-      html += '<a href="map.html?deed=' + id + '" class="btn btn-sm btn-primary" id="deed-map-link" target="_blank">';
+      html += '<a href="map?deed=' + id + '" class="btn btn-sm btn-primary" id="deed-map-link" target="_blank">';
       html += '<i class="fa fa-map-o"></i> View on Map</a>';
       html += '</div>';
     }
@@ -203,7 +203,7 @@
     $('#deed-modal-body').html(html);
 
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'deeds.html?id=' + id);
+      window.history.replaceState(null, '', 'deeds?id=' + id);
     }
     $('#deed-modal').modal('show');
   }
@@ -212,7 +212,7 @@
     switch (o.t) {
       case 'kill':
         if (o.mn) {
-          var link = '<a href="mobs.html?q=' + encodeURIComponent(o.mn) + '">' + escHtml(o.mn) + '</a>';
+          var link = '<a href="mobs?q=' + encodeURIComponent(o.mn) + '">' + escHtml(o.mn) + '</a>';
           return '<i class="fa fa-crosshairs text-danger"></i> Defeat ' + link + (o.z ? ' <span class="text-muted">(' + escHtml(o.z) + ')</span>' : '');
         }
         var text = 'Defeat ' + (o.c || '') + ' creatures';
@@ -220,8 +220,8 @@
         return '<i class="fa fa-crosshairs text-danger"></i> ' + text;
       case 'complete':
         if (o.an) {
-          if (o.aq) return '<i class="fa fa-check-circle text-info"></i> Complete quest: <a href="quests.html?id=' + o.aid + '">' + escHtml(o.an) + '</a>';
-          if (o.ad) return '<i class="fa fa-bookmark text-warning"></i> Complete deed: <a href="deeds.html?id=' + o.aid + '" class="lotro-deed-link" data-deed-id="' + o.aid + '">' + escHtml(o.an) + '</a>';
+          if (o.aq) return '<i class="fa fa-check-circle text-info"></i> Complete quest: <a href="quests?id=' + o.aid + '">' + escHtml(o.an) + '</a>';
+          if (o.ad) return '<i class="fa fa-bookmark text-warning"></i> Complete deed: <a href="deeds?id=' + o.aid + '" class="lotro-deed-link" data-deed-id="' + o.aid + '">' + escHtml(o.an) + '</a>';
         }
         return '<i class="fa fa-check-circle text-info"></i> Complete prerequisite #' + o.aid;
       case 'qc':
@@ -229,7 +229,7 @@
       case 'lm':
         return '<i class="fa fa-map-marker text-success"></i> Discover: ' + escHtml(o.n);
       case 'item':
-        return '<i class="fa fa-cube text-primary"></i> Collect: ' + gameIcon(o.i) + '<a href="items.html?q=' + encodeURIComponent(o.n) + '">' + escHtml(o.n) + '</a>';
+        return '<i class="fa fa-cube text-primary"></i> Collect: ' + gameIcon(o.i) + '<a href="items?q=' + encodeURIComponent(o.n) + '">' + escHtml(o.n) + '</a>';
       case 'use':
         return '<i class="fa fa-hand-pointer-o text-primary"></i> Use: ' + gameIcon(o.i) + escHtml(o.n);
       case 'npc':
@@ -291,7 +291,7 @@
 
   $(document).on('hidden.bs.modal', '#deed-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'deeds.html');
+      window.history.replaceState(null, '', 'deeds');
     }
   });
 

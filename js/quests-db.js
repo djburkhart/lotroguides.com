@@ -30,7 +30,7 @@
 
   function renderName(data, type, row) {
     if (type !== 'display') return data || '';
-    var html = '<a href="quests.html?id=' + row.id + '" class="lotro-quest-link" data-quest-id="' + row.id + '">';
+    var html = '<a href="quests?id=' + row.id + '" class="lotro-quest-link" data-quest-id="' + row.id + '">';
     html += escapeHtml(data);
     if (row.grp) html += ' <span class="quest-group-badge">' + escapeHtml(row.grp) + '</span>';
     if (row.rep) html += ' <span class="quest-repeat-badge"><i class="fa fa-refresh"></i></span>';
@@ -178,13 +178,13 @@
       if (q.pre) {
         html += '<p><strong>Prerequisites:</strong> ';
         html += q.pre.map(function (p) {
-          return '<a href="quests.html?id=' + p.id + '" class="lotro-quest-link" data-quest-id="' + p.id + '">' + escapeHtml(p.n) + '</a>';
+          return '<a href="quests?id=' + p.id + '" class="lotro-quest-link" data-quest-id="' + p.id + '">' + escapeHtml(p.n) + '</a>';
         }).join(', ');
         html += '</p>';
       }
       if (q.nxt) {
         html += '<p><strong>Next Quest:</strong> ';
-        html += '<a href="quests.html?id=' + q.nxt.id + '" class="lotro-quest-link" data-quest-id="' + q.nxt.id + '">' + escapeHtml(q.nxt.n) + '</a>';
+        html += '<a href="quests?id=' + q.nxt.id + '" class="lotro-quest-link" data-quest-id="' + q.nxt.id + '">' + escapeHtml(q.nxt.n) + '</a>';
         html += '</p>';
       }
       html += '</div>';
@@ -199,7 +199,7 @@
       if (q.rw.m) html += '<li><strong>Money:</strong> ' + escapeHtml(q.rw.m) + '</li>';
       if (q.rw.it) {
         for (var i = 0; i < q.rw.it.length; i++) {
-          html += '<li><strong>Item:</strong> ' + gameIcon(q.rw.it[i].id) + '<a href="items.html?q=' + encodeURIComponent(q.rw.it[i].n) + '">' + escapeHtml(q.rw.it[i].n) + '</a></li>';
+          html += '<li><strong>Item:</strong> ' + gameIcon(q.rw.it[i].id) + '<a href="items?q=' + encodeURIComponent(q.rw.it[i].n) + '">' + escapeHtml(q.rw.it[i].n) + '</a></li>';
         }
       }
       html += '</ul>';
@@ -211,13 +211,13 @@
     // Show on Map link — check overlay data for plottable objectives
     var hasOverlay = window.LOTRO_QUEST_OVERLAY && window.LOTRO_QUEST_OVERLAY[id];
     if (hasOverlay) {
-      $('#quest-map-link').attr('href', 'map.html?quest=' + id).show();
+      $('#quest-map-link').attr('href', 'map?quest=' + id).show();
     } else {
       $('#quest-map-link').hide();
     }
 
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'quests.html?id=' + id);
+      window.history.replaceState(null, '', 'quests?id=' + id);
     }
     $('#quest-modal').modal('show');
   }
@@ -244,7 +244,7 @@
 
   $(document).on('hidden.bs.modal', '#quest-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'quests.html');
+      window.history.replaceState(null, '', 'quests');
     }
   });
 

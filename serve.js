@@ -20,6 +20,8 @@ const MIME_TYPES = {
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf',
   '.eot': 'application/vnd.ms-fontobject',
+  '.xml': 'application/xml',
+  '.txt': 'text/plain',
 };
 
 // Minimal multipart/form-data parser (dev-only helper)
@@ -111,9 +113,14 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Serve index.html for directory requests
+  // Serve index.html for directory requests, or fall back to .html file with same name
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    filePath = path.join(filePath, 'index.html');
+    const indexPath = path.join(filePath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      filePath = indexPath;
+    } else if (fs.existsSync(filePath + '.html')) {
+      filePath = filePath + '.html';
+    }
   }
 
   // Try adding .html extension for clean URLs

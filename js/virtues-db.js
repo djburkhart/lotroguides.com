@@ -30,7 +30,7 @@
   function renderName(data, type, row) {
     if (type !== 'display') return data;
     var icon = gameIcon(row.ic);
-    return '<a href="virtues.html?id=' + row.id + '" class="lotro-virtue-link" data-virtue-id="' + row.id + '">' + icon + escapeHtml(data) + '</a>';
+    return '<a href="virtues?id=' + row.id + '" class="lotro-virtue-link" data-virtue-id="' + row.id + '">' + icon + escapeHtml(data) + '</a>';
   }
 
   function renderStats(data, type) {
@@ -97,7 +97,7 @@
     $('#virtue-modal-body').html(html);
 
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'virtues.html?id=' + id);
+      window.history.replaceState(null, '', 'virtues?id=' + id);
     }
     $('#virtue-modal').modal('show');
   }
@@ -120,7 +120,7 @@
 
   $(document).on('hidden.bs.modal', '#virtue-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'virtues.html');
+      window.history.replaceState(null, '', 'virtues');
     }
   });
 

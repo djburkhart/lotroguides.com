@@ -57,7 +57,7 @@
     }
     if (type !== 'display') return data;
     var icon = setIcon(row);
-    return '<a href="sets.html?id=' + row.id + '" class="lotro-set-link" data-set-id="' + row.id + '">' + icon + (icon ? ' ' : '') + escapeHtml(data) + '</a>';
+    return '<a href="sets?id=' + row.id + '" class="lotro-set-link" data-set-id="' + row.id + '">' + icon + (icon ? ' ' : '') + escapeHtml(data) + '</a>';
   }
 
   function renderLevel(data, type, row) {
@@ -164,7 +164,7 @@
     for (var i = 0; i < s.pc.length; i++) {
       var p = s.pc[i];
       var pIcon = p.ic ? gameIcon(p.ic) + ' ' : '';
-      html += '<li>' + pIcon + '<a href="items.html?q=' + encodeURIComponent(p.n) + '" class="lotro-item-link">' + escapeHtml(p.n) + '</a></li>';
+      html += '<li>' + pIcon + '<a href="items?q=' + encodeURIComponent(p.n) + '" class="lotro-item-link">' + escapeHtml(p.n) + '</a></li>';
     }
     html += '</ul>';
 
@@ -184,7 +184,7 @@
     $('#set-modal-body').html(html);
 
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'sets.html?id=' + id);
+      window.history.replaceState(null, '', 'sets?id=' + id);
     }
     $('#set-modal').modal('show');
   }
@@ -207,7 +207,7 @@
 
   $(document).on('hidden.bs.modal', '#set-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'sets.html');
+      window.history.replaceState(null, '', 'sets');
     }
   });
 

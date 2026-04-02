@@ -97,9 +97,9 @@
     if (type === 'display') {
       var cls = row.q ? ' lotro-' + row.q : '';
       var icon = row.ic ? gameIcon(row.ic) + ' ' : (row.t === 'deed' ? deedIcon(row.dt) + ' ' : (typeIcons[row.t] || ''));
-      var link = '<a href="items.html?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
+      var link = '<a href="items?id=' + row.id + '" class="lotro-item-link' + cls + '" data-item-id="' + row.id + '">' + icon + data + '</a>';
       if (row.sid) {
-        link += ' <a href="sets.html?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
+        link += ' <a href="sets?id=' + row.sid + '" class="item-set-badge" title="Part of: ' + (row.sn || 'Set').replace(/"/g, '&quot;') + '"><i class="fa fa-cubes"></i></a>';
       }
       return link;
     }
@@ -273,19 +273,19 @@
 
     // Cross-links to other database pages
     if (item.sid) {
-      html += '<p><strong>Set:</strong> <a href="sets.html?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a></p>';
+      html += '<p><strong>Set:</strong> <a href="sets?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a></p>';
     }
     if (item.t === 'deed') {
-      html += '<p><a href="deeds.html?id=' + item.id + '" class="item-crosslink item-crosslink-deed">' + deedIcon(item.dt, 14) + ' View in Deed Database</a></p>';
+      html += '<p><a href="deeds?id=' + item.id + '" class="item-crosslink item-crosslink-deed">' + deedIcon(item.dt, 14) + ' View in Deed Database</a></p>';
     }
     if (item.t === 'set') {
-      html += '<p><a href="sets.html?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a></p>';
+      html += '<p><a href="sets?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a></p>';
     }
     if (item.t === 'virtue') {
-      html += '<p><a href="virtues.html?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a></p>';
+      html += '<p><a href="virtues?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a></p>';
     }
     if (item.t === 'quest-reward') {
-      html += '<p><a href="quests.html?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests for this Reward</a></p>';
+      html += '<p><a href="quests?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests for this Reward</a></p>';
     }
     html += '</div>';
     html += '<h5>Stats</h5>';
@@ -295,7 +295,7 @@
 
     // Update URL with item id for sharing
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'items.html?id=' + id);
+      window.history.replaceState(null, '', 'items?id=' + id);
     }
 
     $('#item-modal').modal('show');
@@ -346,7 +346,7 @@
   // Clear URL param when modal closes
   $(document).on('hidden.bs.modal', '#item-modal', function () {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', 'items.html');
+      window.history.replaceState(null, '', 'items');
     }
   });
 

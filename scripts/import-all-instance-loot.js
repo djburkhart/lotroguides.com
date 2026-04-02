@@ -28,8 +28,8 @@ const COMPANION_DATA = path.join(
   'LotRO Companion', 'app', 'data', 'lore'
 );
 
-const INSTANCES_DB = path.join(__dirname, 'data', 'instances-db.json');
-const OUTPUT = path.join(__dirname, 'data', 'instance-loot.json');
+const INSTANCES_DB = path.join(__dirname, '..', 'data', 'instances-db.json');
+const OUTPUT = path.join(__dirname, '..', 'data', 'instance-loot.json');
 
 // Stat label mappings (reused from import-lotro-companion-loot.js)
 const STAT_LABELS = {
