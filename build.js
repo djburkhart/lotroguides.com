@@ -1819,8 +1819,8 @@ function buildItemsPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
-    '<script src="./js/items-db.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
+    '<script src="./js/items-db.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -1904,7 +1904,7 @@ function buildMobsPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -1967,7 +1967,7 @@ function buildVirtuesPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -2044,7 +2044,7 @@ function buildSetsPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -2227,7 +2227,7 @@ function buildDeedsPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -2325,7 +2325,7 @@ function buildQuestsPage(navData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -2415,7 +2415,7 @@ function buildInstancesPage(navData, subDirNavData) {
   html = html.replace('</head>', `    ${dtCss}\n  </head>`);
 
   const dtScripts = [
-    '<script src="./plugins/datatables/datatables.min.js"></script>',
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
