@@ -14,6 +14,7 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 - **Media** — YouTube video library with category filtering
 - **News** — Aggregated and original LOTRO news articles
 - **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot), image upload, dirty tracking, and auto-draft
+- **Comments** — Cusdis-powered comment widget on article and instance pages, gated behind reCAPTCHA Enterprise
 - **Browser Extension** — Chrome extension for exporting in-game data via the LOTRO Bridge plugin
 - **Clean URLs** — All internal links are extensionless
 - **CDN Integration** — DigitalOcean Spaces for images and data with versioning support
@@ -78,6 +79,14 @@ npm run update:videos   # Fetch YouTube video metadata
 npm run sync
 ```
 
+**Deploy serverless functions to DigitalOcean:**
+
+```bash
+npm run deploy:functions              # deploy all functions
+npm run deploy:functions recaptcha    # deploy only recaptcha
+npm run deploy:functions cdn github   # deploy specific packages
+```
+
 ## Deployment
 
 This site is configured for [DigitalOcean App Platform](https://docs.digitalocean.com/products/app-platform/) using the Node.js buildpack.
@@ -118,6 +127,10 @@ instances/            Built instance detail pages (HTML output)
 news/                 Built news pages (HTML output)
 packages/
   cdn/                Serverless CDN upload function with versioning
+  github/             Serverless GitHub OAuth + Device Flow function
+  recaptcha/          Serverless reCAPTCHA Enterprise assessment function
+  quests/             Serverless quest search/lookup function
+  cusdis/             Serverless Cusdis webhook function
 extension/            Chrome browser extension for LOTRO data export
 plugins/              Third-party libraries (Bootstrap, Font Awesome, etc.)
 ```

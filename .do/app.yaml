@@ -51,3 +51,9 @@ functions:
         type: SECRET
       - key: GITHUB_CLIENT_SECRET
         type: SECRET
+      - key: RECAPTCHA_SECRET_KEY
+        type: SECRET
+      - key: RECAPTCHA_SITE_KEY
+        type: SECRET
+      - key: GOOGLE_CLOUD_PROJECT
+        type: SECRET

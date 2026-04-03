@@ -56,7 +56,7 @@ async function authenticate(args) {
 function isAllowedKey(key) {
   if (key.indexOf('..') !== -1) return false;
   if (key.startsWith('/')) return false;
-  return key.startsWith('content/') || key.startsWith('data/');
+  return key.startsWith('content/') || key.startsWith('data/') || key.startsWith('img/');
 }
 
 let s3Client = null;

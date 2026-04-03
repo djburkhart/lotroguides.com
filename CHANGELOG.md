@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-04-03
+
+### Added
+
+- **Favicon ICO generation** — Build step generates a multi-size `favicon.ico` (16×16, 32×32, 48×48) from `img/favicon.png` using sharp, fixing missing favicon in browsers that only check `/favicon.ico`
+- **SVG favicon support** — `<link rel="icon" type="image/svg+xml">` added to base template alongside ICO and PNG declarations
+- **reCAPTCHA Enterprise assessments** — DO Function (`packages/recaptcha/verify`) now fully wired into App Platform with correct `/api/recaptcha/verify` routing and required env vars (`RECAPTCHA_SECRET_KEY`, `RECAPTCHA_SITE_KEY`, `GOOGLE_CLOUD_PROJECT`) in `app.yaml`
+- **Quest lookup serverless function** — New `packages/quests/lookup` function fetches quest-index from CDN and provides search/lookup API with in-memory caching
+- **Cusdis comments webhook** — New `packages/cusdis/webhook` serverless function for comment notifications
+
+### Changed
+
+- Comment widget verification endpoint updated from `/api/verify-recaptcha` to `/api/recaptcha/verify` to match DO Functions routing conventions
+- Local dev server (`serve.js`) updated to match the new reCAPTCHA endpoint path
+
+## [2.1.0] - 2026-04-02
+
+### Added
+
+- **Cusdis comments** — Comment widget on guide, news, and instance pages with reCAPTCHA Enterprise gating and graceful fallback
+- **GitHub Device Flow authentication** — Editor now uses GitHub Device Flow for OAuth, gated behind Google ID token verification with allowed-email list
+- **CDN preconnect hints** — `<link rel="preconnect">` for Google Fonts and CDN origin added to base template
+- **GitHub auth serverless function** — `packages/github/auth` expanded with `device-code` and `device-poll` actions, Google ID token verification, and CORS support
+- **GitHub Device Flow modal** — Full modal UI with copy-to-clipboard user code, auto-polling, and status feedback
+
+### Changed
+
+- **Deferred script loading** — jQuery, Bootstrap, and theme scripts now use `defer` attribute to unblock rendering
+- **Font loading optimized** — Google Fonts loaded with `display=swap` for faster text paint
+- Removed Facebook SDK integration (unused)
+- Removed `animate.min.css` dependency (unused)
+
 ## [2.0.0] - 2026-04-02
 
 ### Added

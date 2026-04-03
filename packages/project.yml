@@ -2,25 +2,25 @@ packages:
   - name: github
     functions:
       - name: auth
-        runtime: nodejs:20
+        runtime: nodejs:22
         web: true
   - name: cdn
     functions:
       - name: upload
-        runtime: nodejs:20
+        runtime: nodejs:22
         web: true
   - name: quests
     functions:
       - name: lookup
-        runtime: nodejs:20
+        runtime: nodejs:22
         web: true
   - name: recaptcha
     functions:
       - name: verify
-        runtime: nodejs:20
+        runtime: nodejs:22
         web: true
   - name: cusdis
     functions:
       - name: webhook
-        runtime: nodejs:20
+        runtime: nodejs:22
         web: true

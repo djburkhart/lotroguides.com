@@ -861,81 +861,186 @@ function parseRepoConfig() {
 }
 
 function connectGitHub() {
-  var cfg = window.LOTRO_EDITOR_CONFIG || {};
-  var clientId = cfg.githubClientId;
-  if (!clientId) {
-    alert('GitHub OAuth is not configured for this site.');
+  if (!googleIdToken) {
+    showSaveToast('Sign in with Google first', true);
     return;
   }
-  // Redirect to GitHub OAuth authorize endpoint
-  var redirectUri = window.location.origin + window.location.pathname;
-  var url = 'https://github.com/login/oauth/authorize'
-    + '?client_id=' + encodeURIComponent(clientId)
-    + '&redirect_uri=' + encodeURIComponent(redirectUri)
-    + '&scope=repo';
-  window.location.href = url;
-}
+  var cfg = window.LOTRO_EDITOR_CONFIG || {};
+  if (!cfg.githubClientId) {
+    showSaveToast('GitHub OAuth is not configured for this site.', true);
+    return;
+  }
 
-function handleOAuthCallback() {
-  var params = new URLSearchParams(window.location.search);
-  var code = params.get('code');
-  if (!code) return;
-
-  // Clean the URL immediately so a reload won't re-exchange
-  var cleanUrl = window.location.origin + window.location.pathname;
-  window.history.replaceState(null, '', cleanUrl);
-
-  githubRepo = parseRepoConfig();
-  if (!githubRepo) return;
-
-  // Exchange code for token via DO Function
+  // Step 1: Request device + user verification codes via DO Function
   fetch('/api/github/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code: code })
+    body: JSON.stringify({ action: 'device-code', idToken: googleIdToken })
   })
   .then(function (r) { return r.json(); })
   .then(function (data) {
     if (data.error) throw new Error(data.error);
-    githubToken = data.access_token;
-    sessionStorage.setItem('gh_token', githubToken);
-    return ghApi('/repos/' + githubRepo.owner + '/' + githubRepo.name);
-  })
-  .then(function (repo) {
-    githubBranch = repo.default_branch || 'main';
-    updateConnectionStatus();
-    showSaveToast('Connected to ' + githubRepo.owner + '/' + githubRepo.name);
+    showDeviceFlowModal(data);
   })
   .catch(function (err) {
-    githubToken = null;
-    githubRepo = null;
-    showSaveToast('GitHub login failed: ' + err.message, true);
+    showSaveToast('GitHub device code request failed: ' + err.message, true);
   });
+}
+
+function showDeviceFlowModal(deviceData) {
+  // Remove any existing modal
+  var existing = document.getElementById('gh-device-modal');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'gh-device-modal';
+  overlay.className = 'gh-device-overlay';
+  overlay.innerHTML =
+    '<div class="gh-device-dialog">' +
+      '<h4><i class="fa fa-github"></i> Connect GitHub</h4>' +
+      '<p>Enter this code on GitHub:</p>' +
+      '<div class="gh-device-code" id="gh-user-code">' + esc(deviceData.user_code) + '</div>' +
+      '<button class="btn btn-sm btn-default" id="gh-copy-code"><i class="fa fa-clipboard"></i> Copy Code</button>' +
+      ' <a class="btn btn-sm btn-primary" href="' + esc(deviceData.verification_uri) + '" target="_blank" rel="noopener" id="gh-open-github">' +
+        '<i class="fa fa-external-link"></i> Open GitHub</a>' +
+      '<p class="gh-device-status" id="gh-device-status"><i class="fa fa-spinner fa-spin"></i> Waiting for authorization...</p>' +
+      '<button class="btn btn-sm btn-link" id="gh-device-cancel">Cancel</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  var cancelled = false;
+  var pollInterval = (deviceData.interval || 5) * 1000;
+  var expiresAt = Date.now() + (deviceData.expires_in || 900) * 1000;
+
+  document.getElementById('gh-copy-code').addEventListener('click', function () {
+    navigator.clipboard.writeText(deviceData.user_code).then(function () {
+      showSaveToast('Code copied to clipboard');
+    });
+  });
+
+  document.getElementById('gh-device-cancel').addEventListener('click', function () {
+    cancelled = true;
+    overlay.remove();
+  });
+
+  // Step 3: Poll for access token
+  function poll() {
+    if (cancelled) return;
+    if (Date.now() > expiresAt) {
+      document.getElementById('gh-device-status').innerHTML = '<i class="fa fa-times-circle"></i> Code expired. Please try again.';
+      setTimeout(function () { overlay.remove(); }, 3000);
+      return;
+    }
+
+    fetch('/api/github/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'device-poll', device_code: deviceData.device_code, idToken: googleIdToken })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (cancelled) return;
+
+      if (data.access_token) {
+        // Success — store token and connect
+        githubToken = data.access_token;
+        githubRepo = parseRepoConfig();
+        persistGitHubToken();
+
+        return ghApi('/repos/' + githubRepo.owner + '/' + githubRepo.name)
+          .then(function (repo) {
+            githubBranch = repo.default_branch || 'main';
+            updateConnectionStatus();
+            document.getElementById('gh-device-status').innerHTML = '<i class="fa fa-check-circle"></i> Connected!';
+            setTimeout(function () { overlay.remove(); }, 1500);
+            showSaveToast('Connected to ' + githubRepo.owner + '/' + githubRepo.name);
+          });
+      }
+
+      if (data.error === 'authorization_pending') {
+        // Not yet — keep polling
+        setTimeout(poll, pollInterval);
+        return;
+      }
+
+      if (data.error === 'slow_down') {
+        // Back off
+        pollInterval = (data.interval || (pollInterval / 1000 + 5)) * 1000;
+        setTimeout(poll, pollInterval);
+        return;
+      }
+
+      if (data.error === 'access_denied') {
+        document.getElementById('gh-device-status').innerHTML = '<i class="fa fa-times-circle"></i> Authorization denied by user.';
+        setTimeout(function () { overlay.remove(); }, 3000);
+        return;
+      }
+
+      // Other error
+      throw new Error(data.error_description || data.error || 'Unknown error');
+    })
+    .catch(function (err) {
+      if (!cancelled) {
+        document.getElementById('gh-device-status').innerHTML = '<i class="fa fa-exclamation-triangle"></i> ' + esc(err.message);
+        setTimeout(function () { overlay.remove(); }, 4000);
+      }
+    });
+  }
+
+  // Start polling after the interval
+  setTimeout(poll, pollInterval);
+}
+
+/* ─── GitHub Token Persistence (synced with Google session) ──────── */
+var GITHUB_SESSION_KEY = 'github_session';
+
+function persistGitHubToken() {
+  if (!githubToken) return;
+  try {
+    localStorage.setItem(GITHUB_SESSION_KEY, JSON.stringify({
+      token: githubToken,
+      savedAt: Date.now()
+    }));
+  } catch (e) { /* storage full or blocked */ }
+}
+
+function restoreGitHubSession() {
+  // Only restore if Google is already logged in
+  if (!googleIdToken) return;
+  try {
+    var raw = localStorage.getItem(GITHUB_SESSION_KEY);
+    if (!raw) return;
+    var session = JSON.parse(raw);
+    // Expire after 30 days (same as Google session)
+    if (Date.now() - session.savedAt > GOOGLE_SESSION_MAX_AGE) {
+      localStorage.removeItem(GITHUB_SESSION_KEY);
+      return;
+    }
+    githubRepo = parseRepoConfig();
+    if (!githubRepo) return;
+    githubToken = session.token;
+    // Validate token still works
+    ghApi('/repos/' + githubRepo.owner + '/' + githubRepo.name)
+      .then(function (repo) {
+        githubBranch = repo.default_branch || 'main';
+        updateConnectionStatus();
+      })
+      .catch(function () {
+        githubToken = null;
+        githubRepo = null;
+        localStorage.removeItem(GITHUB_SESSION_KEY);
+        updateConnectionStatus();
+      });
+  } catch (e) {
+    localStorage.removeItem(GITHUB_SESSION_KEY);
+  }
 }
 
 function disconnectGitHub() {
   githubToken = null;
   githubRepo = null;
-  sessionStorage.removeItem('gh_token');
+  localStorage.removeItem(GITHUB_SESSION_KEY);
   updateConnectionStatus();
-}
-
-function restoreGitHubSession() {
-  var saved = sessionStorage.getItem('gh_token');
-  if (!saved) return;
-  githubRepo = parseRepoConfig();
-  if (!githubRepo) return;
-  githubToken = saved;
-  ghApi('/repos/' + githubRepo.owner + '/' + githubRepo.name)
-    .then(function (repo) {
-      githubBranch = repo.default_branch || 'main';
-      updateConnectionStatus();
-    })
-    .catch(function () {
-      githubToken = null;
-      githubRepo = null;
-      sessionStorage.removeItem('gh_token');
-    });
 }
 
 function ghGetFile(filePath) {
@@ -1391,6 +1496,10 @@ window.handleSignOut = function () {
   currentUser = null;
   googleIdToken = null;
   localStorage.removeItem(GOOGLE_SESSION_KEY);
+  // Disconnect GitHub when Google signs out
+  githubToken = null;
+  githubRepo = null;
+  localStorage.removeItem(GITHUB_SESSION_KEY);
   if (window.google && google.accounts && google.accounts.id) {
     google.accounts.id.disableAutoSelect();
   }
@@ -1471,18 +1580,11 @@ function saveMarkdown() {
     if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
   }
 
-  if (isGitHubConnected()) {
-    // GitHub saves as .md with frontmatter for compatibility with the build pipeline
+  if (isCdnConfigured()) {
     var fm = buildFrontmatter();
     var full = fm + '\n' + article.markdown + '\n';
-    var ghPath = 'content/' + category + '/' + slug + '.md';
-    ghSaveFile(ghPath, full, 'Update ' + category + '/' + slug + '.md')
-      .then(function () { afterSave(); showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
-      .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (isCdnConfigured()) {
-    var cdnKey = 'content/' + category + '/' + slug + '.json';
-    var payload = JSON.stringify(article);
-    cdnUploadFile(cdnKey, payload, 'application/json; charset=utf-8')
+    var cdnKey = 'content/' + category + '/' + slug + '.md';
+    cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
       .then(function (res) {
         afterSave();
         var msg = 'Uploaded ' + cdnKey + ' to CDN';
@@ -1490,6 +1592,13 @@ function saveMarkdown() {
         showSaveToast(msg);
       })
       .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
+  } else if (isGitHubConnected()) {
+    var fm = buildFrontmatter();
+    var full = fm + '\n' + article.markdown + '\n';
+    var ghPath = 'content/' + category + '/' + slug + '.md';
+    ghSaveFile(ghPath, full, 'Update ' + category + '/' + slug + '.md')
+      .then(function () { afterSave(); showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
+      .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
   } else {
     // Fallback: download as .md with frontmatter
     var fm = buildFrontmatter();
@@ -2111,7 +2220,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (btnGhDisconnect) btnGhDisconnect.addEventListener('click', disconnectGitHub);
 
   restoreGoogleSession();
-  handleOAuthCallback();
   restoreGitHubSession();
   updateConnectionStatus();
 

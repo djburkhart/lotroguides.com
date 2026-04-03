@@ -126,7 +126,7 @@ const server = http.createServer((req, res) => {
   }
 
   // ── reCAPTCHA Enterprise verification endpoint ──────────────────
-  if (req.method === 'POST' && req.url === '/api/verify-recaptcha') {
+  if (req.method === 'POST' && req.url === '/api/recaptcha/verify') {
     const chunks = [];
     req.on('data', c => chunks.push(c));
     req.on('end', () => {

@@ -172,13 +172,12 @@
           }catch(ex){}
           window.dataLayer=window.dataLayer||[];
           window.dataLayer.push({
-            event:'cusdis_comment_submit',
-            cusdis_action:isReply?'reply':'comment',
-            cusdis_nickname:nickname,
-            cusdis_email:email,
-            cusdis_comment_length:comment.length,
-            cusdis_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
-            cusdis_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+            event:'comment_submit',
+            comment_action:isReply?'reply':'comment',
+            comment_nickname:nickname,
+            comment_length:comment.length,
+            comment_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
+            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
           });
         });
       }catch(e){}
@@ -222,7 +221,7 @@
       if(thread)thread.style.display='none';
       grecaptcha.enterprise.ready(function(){
         grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
-          fetch('/api/verify-recaptcha',{
+          fetch('/api/recaptcha/verify',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({token:token,action:'comment'})

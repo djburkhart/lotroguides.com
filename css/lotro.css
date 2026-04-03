@@ -3476,6 +3476,54 @@ body.lotro-map-embed-mode {
 }
 
 /* Effects column */
+
+/* ── GitHub Device Flow Modal ───────────────────────── */
+.gh-device-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gh-device-dialog {
+  background: #2b2b2b;
+  color: #e8e8e8;
+  border-radius: 8px;
+  padding: 28px 32px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.gh-device-dialog h4 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: #fff;
+}
+.gh-device-dialog h4 .fa { margin-right: 6px; }
+.gh-device-code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  background: #1a1a1a;
+  border: 2px solid #444;
+  border-radius: 6px;
+  padding: 12px 20px;
+  margin: 16px 0;
+  color: #fff;
+  user-select: all;
+}
+.gh-device-status {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #aaa;
+}
+.gh-device-status .fa-check-circle { color: #3c763d; }
+.gh-device-status .fa-times-circle { color: #a94442; }
+.gh-device-status .fa-exclamation-triangle { color: #c09853; }
 .skill-detail-cell {
   width: auto;
 }

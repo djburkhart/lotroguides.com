@@ -1032,6 +1032,47 @@ function truncate(text, maxLen) {
 
 // ─── Image Optimization ────────────────────────────────────────────────────
 
+// ─── Favicon ICO Generation ─────────────────────────────────────────────────
+/**
+ * Generate favicon.ico from img/favicon.png using sharp.
+ * Produces a multi-size ICO (16×16, 32×32, 48×48) with embedded PNGs.
+ */
+async function generateFaviconIco() {
+  const srcPath = path.join(OUTPUT_DIR, 'img', 'favicon.png');
+  const outPath = path.join(OUTPUT_DIR, 'favicon.ico');
+  if (!fs.existsSync(srcPath)) {
+    console.log('   ⚠ img/favicon.png not found — skipping favicon.ico');
+    return;
+  }
+  const sizes = [16, 32, 48];
+  const pngBuffers = await Promise.all(
+    sizes.map(s => sharp(srcPath).resize(s, s).png().toBuffer())
+  );
+  // Build ICO file: header (6 bytes) + directory entries (16 bytes each) + PNG data
+  const headerSize = 6 + sizes.length * 16;
+  let dataOffset = headerSize;
+  const dirEntries = [];
+  for (let i = 0; i < sizes.length; i++) {
+    const s = sizes[i];
+    const buf = Buffer.alloc(16);
+    buf.writeUInt8(s < 256 ? s : 0, 0);   // width  (0 = 256)
+    buf.writeUInt8(s < 256 ? s : 0, 1);   // height (0 = 256)
+    buf.writeUInt8(0, 2);                  // color palette
+    buf.writeUInt8(0, 3);                  // reserved
+    buf.writeUInt16LE(1, 4);               // color planes
+    buf.writeUInt16LE(32, 6);              // bits per pixel
+    buf.writeUInt32LE(pngBuffers[i].length, 8);  // image size
+    buf.writeUInt32LE(dataOffset, 12);            // data offset
+    dirEntries.push(buf);
+    dataOffset += pngBuffers[i].length;
+  }
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);              // reserved
+  header.writeUInt16LE(1, 2);              // type = ICO
+  header.writeUInt16LE(sizes.length, 4);   // image count
+  fs.writeFileSync(outPath, Buffer.concat([header, ...dirEntries, ...pngBuffers]));
+}
+
 // Cache of image dimensions: { 'img/guides/foo.jpg': { width: 800, height: 450 } }
 const imageMeta = {};
 
@@ -1303,6 +1344,9 @@ function buildPage(bodyContent, pageData) {
       : '',
     cdnScript: CDN_URL
       ? `<script>window.LOTRO_CDN='${CDN_URL}';</script>`
+      : '',
+    cdnPreconnect: CDN_URL
+      ? `<link rel="preconnect" href="${new URL(CDN_URL).origin}" crossorigin>`
       : '',
   });
 }
@@ -2238,17 +2282,14 @@ function buildQuestsPage(navData) {
   }
   console.log(`   → data/lore/quests/ (${questOverlayKeys.length} per-quest files)`);
 
-  // Build lightweight quest search index for the DO Function (id + name + level only).
-  // This file is committed to git so the function has it at deploy time.
-  // Re-run npm run build and commit packages/quests/lookup/quest-index.json after LOTRO updates.
+  // Build lightweight quest search index (id + name + level only).
+  // Written to data/ so it gets synced to CDN. The DO Function fetches it at runtime.
   const questSearchIndex = questOverlayKeys.map(id => {
     const q = questOverlay[id];
     return { id, n: q.n || '', lv: q.lv || 0 };
   });
-  const funcDir = path.join(__dirname, 'packages', 'quests', 'lookup');
-  if (!fs.existsSync(funcDir)) fs.mkdirSync(funcDir, { recursive: true });
-  fs.writeFileSync(path.join(funcDir, 'quest-index.json'), JSON.stringify(questSearchIndex));
-  console.log(`   → packages/quests/lookup/quest-index.json (${questSearchIndex.length} entries)`);
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'quest-index.json'), JSON.stringify(questSearchIndex));
+  console.log(`   → data/quest-index.json (${questSearchIndex.length} entries)`);
 
   // Copy POI cross-reference files for map enrichment
   const poiFiles = ['quest-poi.json', 'map-quests.json', 'npcs.json'];
@@ -2903,6 +2944,10 @@ async function build() {
   // Convert images to WebP and collect dimensions metadata
   console.log('   📸 Converting images to WebP...');
   await convertImagesToWebp();
+
+  // Generate favicon.ico from PNG source
+  console.log('   🔖 Generating favicon.ico...');
+  await generateFaviconIco();
 
   // Load lore item index for auto-linking
   loadItemIndex();

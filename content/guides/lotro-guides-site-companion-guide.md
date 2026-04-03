@@ -136,20 +136,6 @@ The [Media](/media) page collects official LOTRO videos in an embedded gallery. 
 
 ---
 
-## Browser Extension — LOTRO Character Bridge
-
-For players who want to connect their in-game data directly, the **LOTRO Character Bridge** browser extension bridges your LOTRO client with lotroguides.com.
-
-- **Automatic detection** — the extension detects your running LOTRO client
-- **Zero-config setup** — auto-installs the companion Lua plugin into your game directory
-- **Character data export** — pulls your stats (Might, Agility, Vitality, Will, Fate), equipped gear, skills, virtues, and inventory
-- **Cloud sync** — character data syncs via Google Drive for access on any device
-- Works on **Chrome and Edge** (Manifest V3)
-
-This is useful for comparing your current stats against the raid preparation guide's targets or checking your gear against set database bonuses.
-
----
-
 ## Tips for Getting the Most Out of the Site
 
 1. **Bookmark the map** — when questing in a new region, keep the interactive map open in a second tab to track objectives spatially

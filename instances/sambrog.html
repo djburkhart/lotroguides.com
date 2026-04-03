@@ -34,16 +34,19 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script async src="https://fundingchoicesmessages.google.com/i/pub-2480071878965715?ers=1"></script>
 <script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){var i=document.createElement('iframe');i.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';i.style.display='none';i.name='googlefcPresent';document.body.appendChild(i);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>
     
+    <!-- preconnect for external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://lotroguides.atl1.cdn.digitaloceanspaces.com" crossorigin>
     <!-- stylesheet -->
-    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link href="./../plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="./../plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="./../plugins/animate/animate.min.css" rel="stylesheet">
     <!-- theme stylesheet -->
     <link href="./../css/theme.min.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
-    
+    <script>window.LOTRO_CDN='https://lotroguides.atl1.cdn.digitaloceanspaces.com';</script>
     <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
   </head>
   <body class="fixed-header">
@@ -1903,13 +1906,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           }catch(ex){}
           window.dataLayer=window.dataLayer||[];
           window.dataLayer.push({
-            event:'cusdis_comment_submit',
-            cusdis_action:isReply?'reply':'comment',
-            cusdis_nickname:nickname,
-            cusdis_email:email,
-            cusdis_comment_length:comment.length,
-            cusdis_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
-            cusdis_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+            event:'comment_submit',
+            comment_action:isReply?'reply':'comment',
+            comment_nickname:nickname,
+            comment_length:comment.length,
+            comment_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
+            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
           });
         });
       }catch(e){}
@@ -2043,19 +2045,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
       </div>
     </footer>
-    <!-- Facebook SDK for JavaScript -->
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v22.0";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));</script>
-    <!-- scripts -->
-    <script src="./../plugins/jquery/jquery-3.1.0.min.js"></script>
-    <script src="./../plugins/bootstrap/js/bootstrap.min.js"></script>
-    <script src="./../js/theme.min.js"></script>
+    <!-- scripts (deferred to unblock rendering) -->
+    <script src="./../plugins/jquery/jquery-3.1.0.min.js" defer></script>
+    <script src="./../plugins/bootstrap/js/bootstrap.min.js" defer></script>
+    <script src="./../js/theme.min.js" defer></script>
     <script>
     /* GA4 search event — navbar item search */
     (function(){
