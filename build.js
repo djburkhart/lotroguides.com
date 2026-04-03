@@ -1822,6 +1822,7 @@ function buildItemsPage(navData) {
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script src="./js/items-db.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  // Progressive chunked loading',
     '  $.getJSON(_cdn + "data/items-db-manifest.json", function(manifest) {',
@@ -1842,6 +1843,7 @@ function buildItemsPage(navData) {
     '      }',
     '    });',
     '  });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -1904,6 +1906,7 @@ function buildMobsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  // Load mobs data + map overlay, then init',
     '  $.when($.getJSON(_cdn + "data/mobs-db.json"), $.getJSON(_cdn + "data/mob-overlay.json"))',
@@ -1914,6 +1917,7 @@ function buildMobsPage(navData) {
     '        if (window.LOTRO_MOBS_INIT) window.LOTRO_MOBS_INIT();',
     '      });',
     '    });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -1965,6 +1969,7 @@ function buildVirtuesPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.getJSON(_cdn + "data/virtues-db.json", function(data) {',
     '    window.LOTRO_VIRTUES_DB = data;',
@@ -1972,6 +1977,7 @@ function buildVirtuesPage(navData) {
     '      if (window.LOTRO_VIRTUES_INIT) window.LOTRO_VIRTUES_INIT();',
     '    });',
     '  });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -2040,6 +2046,7 @@ function buildSetsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.getJSON(_cdn + "data/sets-db.json", function(data) {',
     '    window.LOTRO_SETS_DB = data;',
@@ -2047,6 +2054,7 @@ function buildSetsPage(navData) {
     '      if (window.LOTRO_SETS_INIT) window.LOTRO_SETS_INIT();',
     '    });',
     '  });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -2221,6 +2229,7 @@ function buildDeedsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.when($.getJSON(_cdn + "data/deeds-db.json"), $.getJSON(_cdn + "data/deed-overlay.json"), $.getJSON(_cdn + "data/icon-map.json"))',
     '    .done(function(deedsRes, overlayRes, iconRes) {',
@@ -2231,6 +2240,7 @@ function buildDeedsPage(navData) {
     '        if (window.LOTRO_DEEDS_INIT) window.LOTRO_DEEDS_INIT();',
     '      });',
     '    });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -2317,6 +2327,7 @@ function buildQuestsPage(navData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.when(',
     '    $.getJSON(_cdn + "data/quests-db.json"),',
@@ -2330,6 +2341,7 @@ function buildQuestsPage(navData) {
     '      if (window.LOTRO_QUESTS_INIT) window.LOTRO_QUESTS_INIT();',
     '    });',
     '  });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
@@ -2405,6 +2417,7 @@ function buildInstancesPage(navData, subDirNavData) {
   const dtScripts = [
     '<script src="./plugins/datatables/datatables.min.js"></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.getJSON(_cdn + "data/instances-db-listing.json")',
     '    .done(function(data) {',
@@ -2413,6 +2426,7 @@ function buildInstancesPage(navData, subDirNavData) {
     '        if (window.LOTRO_INSTANCES_INIT) window.LOTRO_INSTANCES_INIT();',
     '      });',
     '    });',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${dtScripts}\n  </body>`);

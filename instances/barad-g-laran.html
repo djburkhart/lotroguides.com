@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Barad Gúlaran — Instance Details - LOTRO Guides</title>
-    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" href="/img/favicon.png" sizes="64x64">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
     <meta name="description" content="Detailed mob and ability data for Barad Gúlaran (6-Player). 15 mobs documented.">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com" />
@@ -37,7 +39,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- preconnect for external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://lotroguides.atl1.cdn.digitaloceanspaces.com" crossorigin>
+    
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -46,7 +48,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- theme stylesheet -->
     <link href="./../css/theme.min.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
-    <script>window.LOTRO_CDN='https://lotroguides.atl1.cdn.digitaloceanspaces.com';</script>
+    
     <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
   </head>
   <body class="fixed-header">
@@ -184,7 +186,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <tr><td>Key to the Summoning Chamber</td><td><span class="lotro-drop-chance lotro-drop-guaranteed">Guaranteed</span></td></tr>
 <tr><td>Withered Parchment</td><td><span class="lotro-drop-chance lotro-drop-guaranteed">Guaranteed</span></td></tr>
 <tr><td><span class="lotro-item" data-item-stats="Main Hand · iLvl 50 · Critical Rating: 100 · Will: 18 · Out-of-Combat Power Regen: 8">Castellan's Great Axe</span></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
-<tr><td><a href="../items?id=1879089557" class="lotro-item" data-item-type="consumable" data-item-stats="Chest · iLvl 50 · Vitality: 13 · Will: 16 · Tactical Mastery: 68 · Armour: 132"><img src="https://lotroguides.atl1.cdn.digitaloceanspaces.com/img/icons/items/1090527522.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'"><span class="lotro-item-text">Castellan's Robe</span></a></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
+<tr><td><a href="../items?id=1879089557" class="lotro-item" data-item-type="consumable" data-item-stats="Chest · iLvl 50 · Vitality: 13 · Will: 16 · Tactical Mastery: 68 · Armour: 132"><img src="../img/icons/items/1090527522.png" width="12" height="12" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'"><span class="lotro-item-text">Castellan's Robe</span></a></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
 <tr><td><span class="lotro-item" data-item-stats="Hand · iLvl 50 · Agility: 18 · Morale: 72 · In-Combat Morale Regen: 1 · Armour: 81">Gauntlets of the Shamed</span></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
 <tr><td><span class="lotro-item" data-item-stats="Legs · iLvl 50 · Might: 16 · Vitality: 11 · CRITICAL_DEFENCE: 107 · In-Combat Morale Regen: 1 · Armour: 165">Leggings of the Survivor</span></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
 <tr><td><span class="lotro-item" data-item-stats="Off Hand · iLvl 50 · Incoming Healing: 27 · Fate: 10 · Will: 9 · Power: 8 · Armour: 128">Wisdán's Shield</span></td><td><span class="lotro-drop-chance lotro-drop-common">Common</span></td></tr>
@@ -1689,7 +1691,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if(thread)thread.style.display='none';
       grecaptcha.enterprise.ready(function(){
         grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
-          fetch('/api/verify-recaptcha',{
+          fetch('/api/recaptcha/verify',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({token:token,action:'comment'})

@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Curator is back! Available through September 1st. - LOTRO Guides</title>
-    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="icon" href="/favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" href="/img/favicon.png" sizes="64x64">
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
     <meta name="description" content="The Curator has returned! Find The Curator in Bree, The Twenty-first Hall, Galtrev and other locations throughout the game. Items being added to The Curator’s rewards include Heartwood and Carn Dûm Alchemist cosmetics in addition to an assortment of housing decorations and cosmetic pets!">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com/news/lotro-bonus-082125-en" />
@@ -37,7 +39,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- preconnect for external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://lotroguides.atl1.cdn.digitaloceanspaces.com" crossorigin>
+    
     <!-- stylesheet -->
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -46,7 +48,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <!-- theme stylesheet -->
     <link href="./../css/theme.min.css" rel="stylesheet">
     <link href="./../css/lotro.css" rel="stylesheet">
-    <script>window.LOTRO_CDN='https://lotroguides.atl1.cdn.digitaloceanspaces.com';</script>
+    
     <script>if(/[?&]embed=1/.test(location.search))document.documentElement.className+=' lotro-map-embed-mode';</script>
   </head>
   <body class="fixed-header">
@@ -504,7 +506,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       if(thread)thread.style.display='none';
       grecaptcha.enterprise.ready(function(){
         grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
-          fetch('/api/verify-recaptcha',{
+          fetch('/api/recaptcha/verify',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({token:token,action:'comment'})
