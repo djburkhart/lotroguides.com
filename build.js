@@ -2727,11 +2727,13 @@ function buildMapPage(navData) {
 
   // Inject Leaflet JS + MarkerCluster + map JS before </body>
   const mapScripts = [
-    '<script src="./plugins/leaflet/leaflet.js"></script>',
-    '<script src="./plugins/leaflet/leaflet.markercluster.js"></script>',
-    '<script src="./js/lotro-map.js"></script>',
+    '<script src="./plugins/leaflet/leaflet.js" defer></script>',
+    '<script src="./plugins/leaflet/leaflet.markercluster.js" defer></script>',
+    '<script src="./js/lotro-map.js" defer></script>',
     '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
     '  if (window.LOTRO_MAP_INIT) window.LOTRO_MAP_INIT();',
+    '});',
     '</script>',
   ].join('\n    ');
   html = html.replace('</body>', `    ${mapScripts}\n  </body>`);
