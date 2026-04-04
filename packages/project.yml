@@ -19,6 +19,11 @@ packages:
       - name: verify
         runtime: nodejs:22
         web: true
+  - name: builds
+    functions:
+      - name: save
+        runtime: nodejs:22
+        web: true
   - name: cusdis
     functions:
       - name: webhook

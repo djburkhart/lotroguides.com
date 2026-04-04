@@ -591,10 +591,26 @@ function saveBuildsList(builds) {
   try { localStorage.setItem('lotro_saved_builds', JSON.stringify(builds)); } catch(e) { /* quota */ }
 }
 function getLikedBuilds() {
-  try { return JSON.parse(localStorage.getItem('lotro_build_likes') || '{}'); } catch(e) { return {}; }
+  try {
+    var match = document.cookie.match('(?:^|; )lotro_build_likes=([^;]*)');
+    if (match) return JSON.parse(decodeURIComponent(match[1]));
+    // Migrate from localStorage on first access
+    var ls = localStorage.getItem('lotro_build_likes');
+    if (ls) {
+      var data = JSON.parse(ls);
+      saveLikedBuilds(data);
+      localStorage.removeItem('lotro_build_likes');
+      return data;
+    }
+    return {};
+  } catch(e) { return {}; }
 }
 function saveLikedBuilds(likes) {
-  try { localStorage.setItem('lotro_build_likes', JSON.stringify(likes)); } catch(e) { /* quota */ }
+  try {
+    var maxAge = 365 * 24 * 60 * 60; // 1 year
+    document.cookie = 'lotro_build_likes=' + encodeURIComponent(JSON.stringify(likes)) +
+      '; path=/; max-age=' + maxAge + '; SameSite=Lax';
+  } catch(e) { /* cookie error */ }
 }
 
 function getGuideBuildsForClass(classKey) {
@@ -681,33 +697,78 @@ function saveBuildToLibrary() {
 // ── Like / unlike a build ─────────────────────────────────────────────────
 function toggleLike(buildId) {
   var liked = getLikedBuilds();
-  var isGuide = buildId.indexOf('guide_') === 0;
+  var wasLiked = !!liked[buildId];
+  var apiAction = wasLiked ? 'unlike' : 'like';
 
-  if (isGuide) {
-    // Guide builds: only track like state in localStorage, no persistent like count
-    if (liked[buildId]) {
-      delete liked[buildId];
-    } else {
-      liked[buildId] = true;
-    }
-    saveLikedBuilds(liked);
+  // Optimistic UI update
+  if (wasLiked) {
+    delete liked[buildId];
   } else {
+    liked[buildId] = true;
+  }
+  saveLikedBuilds(liked);
+
+  // Update local build data for immediate counter display
+  var isGuide = buildId.indexOf('guide_') === 0;
+  if (!isGuide) {
     var builds = getSavedBuilds();
     var build = builds.find(function(b) { return b.id === buildId; });
-    if (!build) return;
-
-    if (liked[buildId]) {
-      delete liked[buildId];
-      build.likes = Math.max(0, (build.likes || 1) - 1);
-    } else {
-      liked[buildId] = true;
-      build.likes = (build.likes || 0) + 1;
+    if (build) {
+      if (wasLiked) {
+        build.likes = Math.max(0, (build.likes || 1) - 1);
+      } else {
+        build.likes = (build.likes || 0) + 1;
+      }
+      saveBuildsList(builds);
     }
-
-    saveBuildsList(builds);
-    saveLikedBuilds(liked);
   }
+
+  // Update all like count elements in the DOM for this build
+  var allCountEls = document.querySelectorAll('.like-btn[onclick*="' + buildId + '"] .like-count');
+  allCountEls.forEach(function(el) {
+    var current = parseInt(el.textContent, 10) || 0;
+    el.textContent = wasLiked ? Math.max(0, current - 1) : current + 1;
+  });
+
+  // Update all like button states
+  var allBtns = document.querySelectorAll('.like-btn[onclick*="' + buildId + '"]');
+  allBtns.forEach(function(btn) {
+    if (wasLiked) { btn.classList.remove('liked'); } else { btn.classList.add('liked'); }
+  });
+
+  // Call the API for server-side persistence
+  var apiUrl = (window.LOTRO_BUILDS_API || '/api/builds/save');
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: apiAction, id: buildId })
+  }).then(function(res) { return res.json(); }).then(function(data) {
+    if (data && typeof data.likes === 'number') {
+      // Sync the authoritative like count from the server
+      allCountEls = document.querySelectorAll('.like-btn[onclick*="' + buildId + '"] .like-count');
+      allCountEls.forEach(function(el) { el.textContent = data.likes; });
+
+      // Also update the in-planner vote count if this build is loaded
+      if (currentLoadedBuildId === buildId) {
+        var voteCount = document.querySelector('.ltp-vote-count');
+        if (voteCount) voteCount.textContent = data.likes > 0 ? data.likes : '';
+      }
+
+      // Update local storage with server value
+      if (!isGuide) {
+        var updatedBuilds = getSavedBuilds();
+        var updatedBuild = updatedBuilds.find(function(b) { return b.id === buildId; });
+        if (updatedBuild) {
+          updatedBuild.likes = data.likes;
+          saveBuildsList(updatedBuilds);
+        }
+      }
+    }
+  }).catch(function() { /* API unavailable — optimistic update stands */ });
+
+  // Re-render the build list and sync the planner vote button
   renderBuilds();
+  syncVoteButton();
 }
 
 // ── Delete a build ────────────────────────────────────────────────────────
@@ -994,7 +1055,6 @@ function syncVoteButton() {
 
   newBtn.addEventListener('click', function() {
     toggleLike(currentLoadedBuildId);
-    syncVoteButton();
   });
 }
 

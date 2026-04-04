@@ -256,6 +256,32 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── User Builds save / like / get / list endpoint ───────────────
+  if (req.url.startsWith('/api/builds/save')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+    if (req.method !== 'POST') { res.writeHead(405); res.end('Method not allowed'); return; }
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
+      catch (e) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid JSON' })); return; }
+      // Proxy to the DO function or mock locally
+      const fn = require('./packages/builds/save/index.js');
+      fn.main(Object.assign({ __ow_method: 'post' }, body)).then(result => {
+        res.writeHead(result.statusCode, result.headers);
+        res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
+      }).catch(err => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      });
+    });
+    return;
+  }
+
   // Normalize URL and prevent directory traversal
   const url = new URL(req.url, `http://localhost:${PORT}`);
   let filePath = path.join(ROOT, path.normalize(url.pathname));
