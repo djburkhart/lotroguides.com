@@ -22,6 +22,19 @@ const CDN_URL = (process.env.DO_CDN_URL || '').replace(/\/$/, '');
 const FILES = [
   'data/instances-db.json',
   'data/instance-loot.json',
+  // Class build definitions (used at build time by Skills page + editor trait planner)
+  'data/builds/beorning.json',
+  'data/builds/brawler.json',
+  'data/builds/burglar.json',
+  'data/builds/captain.json',
+  'data/builds/champion.json',
+  'data/builds/guardian.json',
+  'data/builds/hunter.json',
+  'data/builds/lore-master.json',
+  'data/builds/mariner.json',
+  'data/builds/minstrel.json',
+  'data/builds/rune-keeper.json',
+  'data/builds/warden.json',
 ];
 
 function download(url) {
