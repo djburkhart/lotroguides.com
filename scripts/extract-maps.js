@@ -209,7 +209,11 @@ function buildAreaToMapLookup() {
 
   const xml = fs.readFileSync(fp, 'utf8');
   const areaToMap = {};
-  const mapRe = /<parchmentMap id="(\d+)"[^>]*>([\s\S]*?)<\/parchmentMap>/g;
+  // Match only parchmentMap elements with opening+closing tags (not self-closing "/>" ones).
+  // Self-closing entries (e.g. overview maps like Eriador, Rhovanion) have no child areas,
+  // but the old regex would consume the next sibling's </parchmentMap> as its closing tag,
+  // misattributing areas from the following map to the self-closing parent.
+  const mapRe = /<parchmentMap id="(\d+)"[^>]*[^/]>([\s\S]*?)<\/parchmentMap>/g;
   let m;
 
   while ((m = mapRe.exec(xml)) !== null) {
@@ -498,6 +502,16 @@ function main() {
   const maps = extractMaps();
   const categories = extractCategories();
   const links = extractLinks();
+
+  // Inject synthetic links for underground/interior regions not linked from overviews.
+  // Moria is accessed via the Gates/Walls of Moria but has no direct link from Eriador.
+  const ERIADOR_ID = '268437557';
+  const MORIA_ID = '268442355';
+  if (!links.some(l => l.from === ERIADOR_ID && l.to === MORIA_ID)) {
+    links.push({ from: ERIADOR_ID, to: MORIA_ID, label: 'To: Moria', lng: 938, lat: -468 });
+    console.log('  ➕ Injected synthetic link: Eriador → Moria');
+  }
+
   const areaToMap = buildAreaToMapLookup();
   const { standard: markers, heavy: heavyMarkers } = extractMarkers();
   const mapMarkers = assignMarkersToMaps(maps, markers, areaToMap);

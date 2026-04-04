@@ -7,8 +7,26 @@
 
   /* ── Game constants ────────────────────────────────────────────────────── */
   var MILESTONE_THRESHOLDS = [0, 5, 10, 15, 20, 25, 30, 35];
-  var MAX_TREE_POINTS = 35;   // Maximum points in single tree
   var DEFAULT_LEVEL = 160;    // Default character level
+  var TIER_RANKS_REQUIRED = 5; // Ranks needed in a tier to unlock next tier
+  var MIN_TRAIT_LEVEL = 2;     // Minimum level to access trait tree
+  var OFF_SPEC_COST = 2;       // Points per rank outside specialization
+  var IN_SPEC_COST = 1;        // Points per rank inside specialization
+
+  /**
+   * Auxiliary trees that cannot be chosen as specialization.
+   * Traits in these trees cost 1 point per rank (same as in-spec) regardless
+   * of the player's specialization. Some trees have variable per-trait costs
+   * (1-2 or 1-3) in-game, but we default to 1 as the base rate.
+   *
+   * Format: { 'class': { 'treeId': defaultCost } }
+   */
+  var AUXILIARY_TREES = {
+    'brawler':  { 'yellow': 1 },   // The Fundament: always 1 pt
+    'guardian': { 'blue': 1 },      // Defender of the Free: 1-2 pts
+    'minstrel': { 'yellow': 1 },   // Protector of Song: 1-3 pts
+    'warden':   { 'yellow': 1 }    // Assailment: 1-2 pts
+  };
   
   /* ── Available classes ─────────────────────────────────────────────────── */
   var LOTRO_CLASSES = {
@@ -91,8 +109,110 @@
   var currentBuild = null;
   var currentBuildKey = null;
   var currentLevel = DEFAULT_LEVEL;  // Character level for trait point calculation
+  var currentSpecialization = null;  // Tree id (blue/red/yellow) chosen as specialization
   var classDataCache = {};  // Cache loaded class JSON to avoid re-fetching
-  
+
+  /* ── Compact build URL encoding ──────────────────────────────────────── */
+  var CLASS_CODES = {
+    'beorning':'be','brawler':'bw','burglar':'bu','captain':'ca','champion':'ch',
+    'guardian':'gu','hunter':'hu','lore-master':'lm','mariner':'ma','minstrel':'mi',
+    'rune-keeper':'rk','warden':'wa'
+  };
+  var CLASS_DECODE = {};
+  Object.keys(CLASS_CODES).forEach(function (k) { CLASS_DECODE[CLASS_CODES[k]] = k; });
+
+  var VIRTUE_CODES = {
+    'Charity':'Cha','Compassion':'Com','Confidence':'Con','Determination':'Det',
+    'Discipline':'Dis','Empathy':'Emp','Fidelity':'Fid','Fortitude':'For',
+    'Honesty':'Hon','Honour':'Hno','Idealism':'Ide','Innocence':'Inn',
+    'Justice':'Jus','Loyalty':'Loy','Mercy':'Mer','Patience':'Pat',
+    'Tolerance':'Tol','Valour':'Val','Wisdom':'Wis','Wit':'Wit','Zeal':'Zea'
+  };
+  var VIRTUE_DECODE = {};
+  Object.keys(VIRTUE_CODES).forEach(function (k) { VIRTUE_DECODE[VIRTUE_CODES[k]] = k; });
+
+  /**
+   * Encode a build into a compact string: CLASS.SPEC.POINTS.VIRTUES
+   * Points: each trait as 4 chars — tree letter + row digit + col digit + rank digit
+   * Example: r115 = red tree, row 1, col 1, rank 5
+   */
+  function encodeBuildCompact(build) {
+    var cls = CLASS_CODES[build.class] || build.class;
+    var spec = build.specialization ? build.specialization[0] : '_';
+    var pts = '';
+    if (build.points) {
+      Object.keys(build.points).forEach(function (k) {
+        var v = build.points[k];
+        if (v > 0) {
+          var parts = k.split('-');
+          pts += parts[0] + parts[1] + parts[2] + v;
+        }
+      });
+    }
+    var virt = '';
+    if (build.virtues && build.virtues.length) {
+      virt = build.virtues.map(function (v) {
+        return VIRTUE_CODES[v] || v.substring(0, 3);
+      }).join('-');
+    }
+    return cls + '.' + spec + '.' + pts + (virt ? '.' + virt : '');
+  }
+
+  /**
+   * Decode a compact build string back to a build object.
+   * Returns null on invalid input.
+   */
+  function decodeBuildCompact(str) {
+    if (!str || str.indexOf('.') === -1) return null;
+    var parts = str.split('.');
+    if (parts.length < 3) return null;
+
+    var cls = CLASS_DECODE[parts[0]] || parts[0];
+    var specChar = parts[1];
+    var specMap = { r: 'red', b: 'blue', y: 'yellow', _: null };
+    var specialization = specMap[specChar] !== undefined ? specMap[specChar] : null;
+
+    var pointsStr = parts[2];
+    var points = {};
+    // Parse 4-char chunks: tree(1) + row(1) + col(1) + rank(1+)
+    var i = 0;
+    while (i < pointsStr.length) {
+      var tree = pointsStr[i];
+      if (!/[rby]/.test(tree)) return null;
+      i++;
+      var row = pointsStr[i]; i++;
+      var col = pointsStr[i]; i++;
+      // Rank may be multiple digits (for maxRank > 9, future-proof)
+      var rankStr = '';
+      while (i < pointsStr.length && /[0-9]/.test(pointsStr[i])) {
+        rankStr += pointsStr[i]; i++;
+      }
+      if (!rankStr) return null;
+      var rank = parseInt(rankStr, 10);
+      points[tree + '-' + row + '-' + col] = rank;
+    }
+
+    var virtues = [];
+    if (parts[3]) {
+      virtues = parts[3].split('-').map(function (code) {
+        return VIRTUE_DECODE[code] || code;
+      }).filter(Boolean);
+    }
+
+    return {
+      class: cls,
+      specialization: specialization,
+      points: points,
+      virtues: virtues
+    };
+  }
+
+  // Expose for skills.html and other consumers
+  window.LOTRO_BUILD_CODEC = {
+    encode: encodeBuildCompact,
+    decode: decodeBuildCompact
+  };
+
   function getMilestoneThreshold(row) {
     return MILESTONE_THRESHOLDS[row] || 0;
   }
@@ -100,40 +220,161 @@
   function getMaxTotalPoints() {
     return getTraitPointsAtLevel(currentLevel);
   }
-  
+
+  /**
+   * Check if a tree is an auxiliary tree (cannot be chosen as specialization).
+   */
+  function isAuxiliaryTree(treeId) {
+    if (!currentData) return false;
+    var classKey = currentData.class;
+    return !!(AUXILIARY_TREES[classKey] && AUXILIARY_TREES[classKey][treeId] !== undefined);
+  }
+
+  /**
+   * Get the point cost per rank for a trait in a given tree.
+   * - Specialization tree: 1 point/rank
+   * - Auxiliary tree (Brawler/Guardian/Minstrel/Warden): uses AUXILIARY_TREES cost
+   * - Other off-spec tree: 2 points/rank
+   */
+  function getTraitCost(treeId) {
+    if (!currentData) return IN_SPEC_COST;
+    var classKey = currentData.class;
+
+    // In-spec tree costs 1
+    if (treeId === currentSpecialization) return IN_SPEC_COST;
+
+    // Auxiliary tree uses its configured cost
+    if (AUXILIARY_TREES[classKey] && AUXILIARY_TREES[classKey][treeId] !== undefined) {
+      return AUXILIARY_TREES[classKey][treeId];
+    }
+
+    // Off-spec costs 2
+    return OFF_SPEC_COST;
+  }
+
+  /**
+   * Get total points spent across all trees (accounting for spec/off-spec costs).
+   */
   function getTotalSpentPoints() {
     if (!currentBuild) return 0;
     var total = 0;
     if (currentData && currentData.trees && currentBuild.points) {
       currentData.trees.forEach(function (tree) {
+        var cost = getTraitCost(tree.id);
         tree.traits.forEach(function (trait) {
           if (!trait.milestone) {
-            total += (currentBuild.points[trait.id] || 0);
+            total += (currentBuild.points[trait.id] || 0) * cost;
           }
         });
       });
     }
     return total;
   }
-  
-  function getTreeSpentPoints(treeId) {
+
+  /**
+   * Get ranks (not points) earned in a specific tree.
+   * Ranks determine tier unlocking and set bonus progress.
+   */
+  function getTreeSpentRanks(treeId) {
     if (!currentBuild || !currentData || !currentBuild.points) return 0;
-    var spent = 0;
+    var ranks = 0;
     var tree = currentData.trees.find(function (t) { return t.id === treeId; });
     if (tree) {
       tree.traits.forEach(function (trait) {
         if (!trait.milestone) {
-          spent += (currentBuild.points[trait.id] || 0);
+          ranks += (currentBuild.points[trait.id] || 0);
         }
       });
     }
-    return spent;
+    return ranks;
   }
-  
+
+  /**
+   * Alias for backward compatibility — returns ranks earned in a tree.
+   */
+  function getTreeSpentPoints(treeId) {
+    return getTreeSpentRanks(treeId);
+  }
+
+  /**
+   * Get the maximum possible ranks in a tree (sum of all non-milestone trait maxRanks).
+   */
+  function getTreeMaxRanks(treeId) {
+    if (!currentData) return 0;
+    var tree = currentData.trees.find(function (t) { return t.id === treeId; });
+    if (!tree) return 0;
+    var total = 0;
+    tree.traits.forEach(function (trait) {
+      if (!trait.milestone) total += trait.maxRank;
+    });
+    return total;
+  }
+
+  /**
+   * Get the total ranks earned in a specific tier (row) of a tree.
+   */
+  function getTreeTierRanks(treeId, tier) {
+    if (!currentBuild || !currentData || !currentBuild.points) return 0;
+    var ranks = 0;
+    var tree = currentData.trees.find(function (t) { return t.id === treeId; });
+    if (tree) {
+      tree.traits.forEach(function (trait) {
+        if (!trait.milestone && trait.row === tier) {
+          ranks += (currentBuild.points[trait.id] || 0);
+        }
+      });
+    }
+    return ranks;
+  }
+
+  /**
+   * Get total ranks earned across all tiers up to (and including) the given tier.
+   * Used to determine if a tier is unlocked (every 5 cumulative ranks unlocks next tier).
+   */
+  function getTreeRanksUpToTier(treeId, tier) {
+    if (!currentBuild || !currentData || !currentBuild.points) return 0;
+    var ranks = 0;
+    var tree = currentData.trees.find(function (t) { return t.id === treeId; });
+    if (tree) {
+      tree.traits.forEach(function (trait) {
+        if (!trait.milestone && trait.row <= tier) {
+          ranks += (currentBuild.points[trait.id] || 0);
+        }
+      });
+    }
+    return ranks;
+  }
+
+  /**
+   * Check if a tier is unlocked in a tree.
+   * Tier 1 is always unlocked. Each subsequent tier requires
+   * 5 cumulative ranks per tier level (tier 2 needs 5, tier 3 needs 10, etc.)
+   */
+  function isTierUnlocked(treeId, tier) {
+    if (tier <= 1) return true;
+    var ranksNeeded = (tier - 1) * TIER_RANKS_REQUIRED;
+    var ranksEarned = getTreeRanksUpToTier(treeId, tier - 1);
+    return ranksEarned >= ranksNeeded;
+  }
+
+  /**
+   * Get the trees that can be chosen as a specialization.
+   * Auxiliary trees cannot be chosen.
+   */
+  function getSpecializableTrees() {
+    if (!currentData) return [];
+    return currentData.trees.filter(function (tree) {
+      return !isAuxiliaryTree(tree.id);
+    });
+  }
+
   function canAllocatePoint(traitId) {
     if (!currentBuild || !currentData) return false;
-    
-    // Find the trait
+
+    // Level 2 minimum for trait tree access
+    if (currentLevel < MIN_TRAIT_LEVEL) return false;
+
+    // Find the trait and its tree
     var trait = null;
     var treeId = null;
     for (var i = 0; i < currentData.trees.length; i++) {
@@ -144,25 +385,70 @@
         break;
       }
     }
-    
+
     if (!trait || trait.milestone) return false;
-    
+
     var currentRank = (currentBuild.points && currentBuild.points[traitId]) || 0;
-    var totalSpent = getTotalSpentPoints();
-    var treeSpent = getTreeSpentPoints(treeId);
-    
+    var treeRanks = getTreeSpentRanks(treeId);
+    var cost = getTraitCost(treeId);
+
     // Check constraints
-    if (currentRank >= trait.maxRank) return false;  // Already maxed
-    if (totalSpent >= getMaxTotalPoints()) return false; // Level-based total cap reached
-    if (treeSpent >= MAX_TREE_POINTS) return false;   // Tree cap reached
-    
+    if (currentRank >= trait.maxRank) return false;           // Already maxed
+    if (getTotalSpentPoints() + cost > getMaxTotalPoints()) return false; // Would exceed point cap
+    if (!isTierUnlocked(treeId, trait.row)) return false;     // Tier not unlocked yet
+
     return true;
   }
   
   function canDeallocatePoint(traitId) {
     if (!currentBuild || !currentBuild.points) return false;
     var currentRank = currentBuild.points[traitId] || 0;
-    return currentRank > 0;
+    if (currentRank <= 0) return false;
+
+    // Find the trait and its tree to check tier dependencies
+    var trait = null;
+    var treeId = null;
+    for (var i = 0; i < currentData.trees.length; i++) {
+      var tree = currentData.trees[i];
+      trait = tree.traits.find(function (t) { return t.id === traitId; });
+      if (trait) {
+        treeId = tree.id;
+        break;
+      }
+    }
+    if (!trait) return false;
+
+    // Simulate removing 1 rank and check if higher tiers would still be valid
+    var simRanks = {};
+    var tree = currentData.trees.find(function (t) { return t.id === treeId; });
+    if (tree) {
+      tree.traits.forEach(function (t) {
+        if (!t.milestone && currentBuild.points[t.id]) {
+          if (!simRanks[t.row]) simRanks[t.row] = 0;
+          simRanks[t.row] += currentBuild.points[t.id];
+        }
+      });
+    }
+    // Subtract the rank being removed
+    if (!simRanks[trait.row]) simRanks[trait.row] = 0;
+    simRanks[trait.row] -= 1;
+
+    // Check if any higher tiers with allocated points would become invalid
+    var maxRow = Math.max.apply(null, Object.keys(simRanks).map(Number));
+    for (var tier = 2; tier <= maxRow; tier++) {
+      var ranksInTier = simRanks[tier] || 0;
+      if (ranksInTier > 0) {
+        // Check cumulative ranks below this tier
+        var cumRanks = 0;
+        for (var r = 1; r < tier; r++) {
+          cumRanks += (simRanks[r] || 0);
+        }
+        var neededRanks = (tier - 1) * TIER_RANKS_REQUIRED;
+        if (cumRanks < neededRanks) return false; // Would invalidate a higher tier
+      }
+    }
+
+    return true;
   }
   
   function allocatePoint(traitId) {
@@ -225,8 +511,12 @@
       if (!t.milestone) spent += pts;
     });
 
+    var isSpec = tree.id === currentSpecialization;
+    var isAux = isAuxiliaryTree(tree.id);
+    var cost = getTraitCost(tree.id);
+
     var panel = document.createElement('div');
-    panel.className = 'ltp-tree' + (isMainSpec ? ' ltp-tree-main' : '');
+    panel.className = 'ltp-tree' + (isSpec ? ' ltp-tree-main' : '') + (isAux ? ' ltp-tree-auxiliary' : '');
     panel.style.borderTopColor = tree.color;
     panel.setAttribute('data-tree-id', tree.id);
 
@@ -235,10 +525,13 @@
     header.className = 'ltp-tree-header';
     
     var treeSpent = getTreeSpentPoints(tree.id);
+    var costLabel = isSpec ? '' : (isAux ? ' <span class="ltp-cost-label ltp-cost-aux">' + cost + 'pt/rank</span>' : ' <span class="ltp-cost-label ltp-cost-offspec">' + cost + 'pt/rank</span>');
+    var specLabel = isSpec ? ' <span class="ltp-spec-badge">★ Specialization</span>' : (isAux ? ' <span class="ltp-aux-badge">Auxiliary</span>' : '');
     
     header.innerHTML = '<span class="ltp-tree-name" style="color:' + tree.color + '">' + tree.name + '</span>'
+      + specLabel + costLabel
       + '<span class="ltp-tree-role">' + tree.role + '</span>'
-      + '<span class="ltp-tree-counter" data-tree="' + tree.id + '">Ranks earned: ' + treeSpent + '/' + MAX_TREE_POINTS + '</span>';
+      + '<span class="ltp-tree-counter" data-tree="' + tree.id + '">Ranks earned: ' + treeSpent + '/' + getTreeMaxRanks(tree.id) + '</span>';
     panel.appendChild(header);
 
     /* Progression milestones */
@@ -309,8 +602,15 @@
 
     for (var r = 1; r <= maxRows; r++) {
       var rowTraits = tree.traits.filter(function (t) { return t.row === r; });
+      var tierLocked = !isTierUnlocked(tree.id, r);
+      var ranksNeeded = (r - 1) * TIER_RANKS_REQUIRED;
+      var ranksHave = r > 1 ? getTreeRanksUpToTier(tree.id, r - 1) : 0;
       var rowEl = document.createElement('div');
-      rowEl.className = 'ltp-row';
+      rowEl.className = 'ltp-row' + (tierLocked ? ' ltp-row-locked' : '');
+      if (tierLocked) {
+        rowEl.setAttribute('data-tier-locked', 'true');
+        rowEl.title = 'Tier ' + r + ' locked — need ' + ranksNeeded + ' ranks (have ' + ranksHave + ')';
+      }
 
       /* Create cells array based on actual column range */
       var cells = new Array(colCount).fill(null);
@@ -655,6 +955,7 @@
         class: currentData.class,
         build: currentBuildKey,
         level: currentLevel,
+        specialization: currentSpecialization,
         points: Object.assign({}, currentBuild.points || {}),
         virtues: currentBuild.virtues.slice()
       },
@@ -683,11 +984,49 @@
     
     // Update tree-specific counters
     currentData.trees.forEach(function (tree) {
-      var treeSpent = getTreeSpentPoints(tree.id);
+      var treeRanks = getTreeSpentRanks(tree.id);
       var treeCounters = document.querySelectorAll('.ltp-tree-counter[data-tree="' + tree.id + '"]');
       treeCounters.forEach(function (el) {
-        el.textContent = 'Ranks earned: ' + treeSpent + '/' + MAX_TREE_POINTS;
+        el.textContent = 'Ranks earned: ' + treeRanks + '/' + getTreeMaxRanks(tree.id);
       });
+    });
+
+    // Update tier lock states on rows
+    currentData.trees.forEach(function (tree) {
+      var treePanel = document.querySelector('.ltp-tree[data-tree-id="' + tree.id + '"]');
+      if (!treePanel) return;
+      var rows = treePanel.querySelectorAll('.ltp-row');
+      rows.forEach(function (rowEl, idx) {
+        var tier = idx + 1;
+        var locked = !isTierUnlocked(tree.id, tier);
+        var ranksNeeded = (tier - 1) * TIER_RANKS_REQUIRED;
+        var ranksHave = tier > 1 ? getTreeRanksUpToTier(tree.id, tier - 1) : 0;
+        if (locked) {
+          rowEl.classList.add('ltp-row-locked');
+          rowEl.setAttribute('data-tier-locked', 'true');
+          rowEl.title = 'Tier ' + tier + ' locked — need ' + ranksNeeded + ' ranks (have ' + ranksHave + ')';
+        } else {
+          rowEl.classList.remove('ltp-row-locked');
+          rowEl.removeAttribute('data-tier-locked');
+          rowEl.title = '';
+        }
+      });
+
+      // Update milestone/progression states
+      var milestoneEls = treePanel.querySelectorAll('.ltp-milestone');
+      var treeRanks = getTreeSpentRanks(tree.id);
+      if (tree.progression) {
+        tree.progression.forEach(function (milestone, i) {
+          if (milestoneEls[i]) {
+            var unlocked = treeRanks >= milestone.points;
+            if (unlocked) {
+              milestoneEls[i].classList.add('ltp-milestone-active');
+            } else {
+              milestoneEls[i].classList.remove('ltp-milestone-active');
+            }
+          }
+        });
+      }
     });
     
     // Update trait badges and states
@@ -711,14 +1050,15 @@
           
           if (isMilestone) {
             cell.classList.add('ltp-cell-milestone');
-            var treeSpent = getTreeSpentPoints(tree.id);
-            var milestoneUnlocked = treeSpent >= getMilestoneThreshold(trait.row);
+            var treeRanks = getTreeSpentRanks(tree.id);
+            var milestoneUnlocked = treeRanks >= getMilestoneThreshold(trait.row);
             if (milestoneUnlocked) {
               cell.classList.add('ltp-cell-active');
             }
           } else {
             var isMaxed = currentPoints >= trait.maxRank;
             var hasPoints = currentPoints > 0;
+            var tierLocked = !isTierUnlocked(tree.id, trait.row);
             
             if (hasPoints) {
               cell.classList.add('ltp-cell-active');
@@ -729,30 +1069,42 @@
             if (!hasPoints) {
               cell.classList.add('ltp-cell-empty-trait');
             }
+            if (tierLocked) {
+              cell.classList.add('ltp-cell-locked');
+            }
             
             // Update interactivity attributes
             cell.setAttribute('data-can-allocate', canAllocatePoint(trait.id) ? 'true' : 'false');
             
             // Update tooltip
+            var cost = getTraitCost(tree.id);
             var tooltipText = trait.name;
             var rankText = currentPoints + '/' + trait.maxRank;
-            var statusText = isMaxed ? ' (Maxed)' : (hasPoints ? ' (Active)' : ' (Available)');
+            var statusText = isMaxed ? ' (Maxed)' : (hasPoints ? ' (Active)' : (tierLocked ? ' (Locked)' : ' (Available)'));
             
             tooltipText = trait.name + ' ' + rankText + statusText;
-            if (trait.maxRank > 1) {
-              tooltipText += '\n\nRank: ' + currentPoints + ' of ' + trait.maxRank;
-              if (currentPoints > 0 && currentPoints < trait.maxRank) {
-                tooltipText += '\nNext rank available at this tier';
-              } else if (isMaxed) {
-                tooltipText += '\nFully trained';
+            if (cost > 1) {
+              tooltipText += '\nCost: ' + cost + ' points per rank';
+            }
+            if (tierLocked) {
+              var ranksNeeded = (trait.row - 1) * TIER_RANKS_REQUIRED;
+              tooltipText += '\n\nTier ' + trait.row + ' locked — need ' + ranksNeeded + ' ranks in this tree';
+            } else {
+              if (trait.maxRank > 1) {
+                tooltipText += '\n\nRank: ' + currentPoints + ' of ' + trait.maxRank;
+                if (currentPoints > 0 && currentPoints < trait.maxRank) {
+                  tooltipText += '\nNext rank available at this tier';
+                } else if (isMaxed) {
+                  tooltipText += '\nFully trained';
+                }
               }
-            }
-            
-            if (!isMaxed && canAllocatePoint(trait.id)) {
-              tooltipText += '\n\nClick to allocate point';
-            }
-            if (currentPoints > 0) {
-              tooltipText += '\nRight-click or Shift+click to remove point';
+              
+              if (!isMaxed && canAllocatePoint(trait.id)) {
+                tooltipText += '\n\nClick to allocate point';
+              }
+              if (currentPoints > 0) {
+                tooltipText += '\nRight-click or Shift+click to remove point';
+              }
             }
             
             cell.title = tooltipText;
@@ -767,6 +1119,7 @@
         class: currentData.class,
         build: currentBuildKey,
         level: currentLevel,
+        specialization: currentSpecialization,
         points: Object.assign({}, currentBuild.points || {}),
         virtues: currentBuild.virtues ? currentBuild.virtues.slice() : []
       },
@@ -811,6 +1164,9 @@
   }
   
   function loadClassData(container, className, buildKey, level, cdnBase) {
+    // Reset specialization when switching classes
+    currentSpecialization = null;
+
     // Use cached data if available for instant switching
     if (classDataCache[className]) {
       var data = JSON.parse(JSON.stringify(classDataCache[className])); // deep copy
@@ -873,6 +1229,26 @@
     currentData = data;
     currentBuild = build;
     currentBuildKey = buildKey;
+
+    // Initialize specialization from build data, or auto-detect from points
+    if (build.specialization && !isAuxiliaryTree(build.specialization)) {
+      currentSpecialization = build.specialization;
+    } else {
+      // Auto-detect: pick spec-eligible tree with most ranks
+      var specTrees = getSpecializableTrees();
+      var treeRankMap = {};
+      data.trees.forEach(function (tree) {
+        var s = 0;
+        tree.traits.forEach(function (t) {
+          if (!t.milestone) s += (build.points[t.id] || 0);
+        });
+        treeRankMap[tree.id] = s;
+      });
+      var bestTree = specTrees.reduce(function (a, b) {
+        return (treeRankMap[a.id] || 0) >= (treeRankMap[b.id] || 0) ? a : b;
+      });
+      currentSpecialization = bestTree ? bestTree.id : data.trees[0].id;
+    }
     
     /* Main controls header */
     var totalSpent = getTotalSpentPoints();
@@ -967,13 +1343,15 @@
         // Update build name
         currentBuild.name = buildName;
         
-        // Generate shareable URL
-        var shareUrl = window.location.href.split('?')[0] + '?build=' + encodeURIComponent(JSON.stringify({
+        // Generate shareable URL (compact encoding)
+        var shareUrl = window.location.href.split('?')[0] + '?b=' + encodeBuildCompact({
           class: data.class,
-          name: buildName,  
+          name: buildName,
+          specialization: currentSpecialization,
           points: currentBuild.points,
           virtues: currentBuild.virtues
-        }));
+        });
+        if (buildName) shareUrl += '&n=' + encodeURIComponent(buildName);
         
         // Show share dialog
         var permalink = prompt('Build saved! Share this URL:', shareUrl);
@@ -1023,18 +1401,50 @@
       });
     }
 
-    /* Determine main spec — tree with most points spent */
-    var treeSpent = {};
+    /* ── Specialization picker bar ─────────────────────────────────────── */
+    // Specialization picker bar
+    var specBar = document.createElement('div');
+    specBar.className = 'ltp-spec-bar';
+    specBar.innerHTML = '<span class="ltp-spec-bar-label">Specialization:</span>';
+
     data.trees.forEach(function (tree) {
-      var s = 0;
-      tree.traits.forEach(function (t) {
-        if (!t.milestone) s += (build.points[t.id] || 0);
-      });
-      treeSpent[tree.id] = s;
+      var isAux = isAuxiliaryTree(tree.id);
+      var isSelected = tree.id === currentSpecialization;
+      var btn = document.createElement('button');
+      btn.className = 'ltp-spec-btn' + (isSelected ? ' ltp-spec-btn-active' : '') + (isAux ? ' ltp-spec-btn-aux' : '');
+      btn.style.borderColor = tree.color;
+      if (isSelected) btn.style.backgroundColor = tree.color;
+      btn.setAttribute('data-tree-id', tree.id);
+      btn.textContent = tree.name;
+
+      if (isAux) {
+        btn.title = tree.name + ' — Auxiliary tree (cannot be specialization)';
+        btn.disabled = true;
+      } else {
+        btn.title = 'Specialize in ' + tree.name + ' (' + tree.role + ') — traits cost 1 point/rank';
+        (function (tId) {
+          btn.addEventListener('click', function () {
+            if (currentSpecialization === tId) return;
+            // Re-specialize: refund all points and persist choice on build object
+            currentBuild.points = {};
+            currentBuild.specialization = tId;
+            currentSpecialization = tId;
+            renderPlanner(container, data, buildKey, cdnBase);
+          });
+        })(tree.id);
+      }
+
+      specBar.appendChild(btn);
     });
-    var mainTreeId = Object.keys(treeSpent).reduce(function (a, b) {
-      return treeSpent[a] > treeSpent[b] ? a : b;
-    });
+    container.appendChild(specBar);
+
+    /* Recalculate points after spec is set */
+    var totalSpentAfterSpec = getTotalSpentPoints();
+    var pointsAvailableAfterSpec = maxPoints - totalSpentAfterSpec;
+    var availableEl = controlsHeader.querySelector('.ltp-points-available');
+    var spentEl = controlsHeader.querySelector('.ltp-points-spent');
+    if (availableEl) availableEl.textContent = pointsAvailableAfterSpec;
+    if (spentEl) spentEl.textContent = totalSpentAfterSpec;
 
     /* Trees container */
     var treesWrap = document.createElement('div');
@@ -1047,7 +1457,7 @@
     });
 
     sorted.forEach(function (tree) {
-      treesWrap.appendChild(renderTree(tree, build.points || {}, tree.id === mainTreeId, cdnBase));
+      treesWrap.appendChild(renderTree(tree, build.points || {}, tree.id === currentSpecialization, cdnBase));
     });
 
     container.appendChild(treesWrap);
@@ -1172,6 +1582,7 @@
     reset: function() { resetAllPoints(); },
     getCurrentClass: function() { return currentData ? currentData.class : null; },
     getCurrentLevel: function() { return currentLevel; },
+    getSpecialization: function() { return currentSpecialization; },
     getBuildName: function() {
       var input = document.querySelector('.ltp-build-name');
       return input ? input.value.trim() : '';

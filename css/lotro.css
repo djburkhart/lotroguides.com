@@ -4776,6 +4776,108 @@ body.lotro-map-embed-mode {
 .ltp-credit a { color: #888; text-decoration: none; }
 .ltp-credit a:hover { color: #c9aa58; text-decoration: underline; }
 
+/* Specialization bar */
+.ltp-spec-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ltp-spec-bar-label {
+  font-size: 12px;
+  color: #aaa;
+  font-weight: 600;
+  margin-right: 4px;
+}
+.ltp-spec-btn {
+  padding: 5px 14px;
+  background: #252525;
+  border: 2px solid #555;
+  border-radius: 4px;
+  color: #ccc;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.ltp-spec-btn:hover:not(:disabled) {
+  background: #333;
+  color: #fff;
+}
+.ltp-spec-btn-active {
+  color: #fff;
+  font-weight: 700;
+  border-width: 2px;
+}
+.ltp-spec-btn-aux {
+  opacity: 0.5;
+  cursor: not-allowed;
+  font-style: italic;
+}
+
+/* Specialization and cost labels in tree header */
+.ltp-spec-badge {
+  font-size: 10px;
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  font-weight: 700;
+}
+.ltp-aux-badge {
+  font-size: 10px;
+  color: #8ab4f8;
+  background: rgba(138, 180, 248, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(138, 180, 248, 0.25);
+}
+.ltp-cost-label {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.ltp-cost-offspec {
+  color: #ff8a80;
+  background: rgba(255, 138, 128, 0.1);
+  border: 1px solid rgba(255, 138, 128, 0.25);
+}
+.ltp-cost-aux {
+  color: #8ab4f8;
+  background: rgba(138, 180, 248, 0.1);
+  border: 1px solid rgba(138, 180, 248, 0.2);
+}
+
+/* Tier locking */
+.ltp-row-locked {
+  opacity: 0.35;
+  pointer-events: none;
+  position: relative;
+}
+.ltp-row-locked::before {
+  content: '🔒';
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  z-index: 1;
+}
+.ltp-cell-locked {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+}
+
+/* Auxiliary tree styling */
+.ltp-tree-auxiliary {
+  border-style: dashed;
+}
+
 /* Responsive: stack trees vertically on mobile */
 @media (max-width: 768px) {
   .ltp-trees { flex-direction: column; }
