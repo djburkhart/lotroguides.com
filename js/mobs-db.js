@@ -157,6 +157,30 @@
     $('#mob-modal').modal('show');
   }
 
+  // ── Instance filter ──────────────────────────────────────────────────────
+  function applyInstanceFilter(slug) {
+    $.getJSON('data/instances-db.json', function (instances) {
+      var inst = null;
+      for (var i = 0; i < instances.length; i++) {
+        if (instances[i].slug === slug) { inst = instances[i]; break; }
+      }
+      if (!inst || !inst.mobs || !inst.mobs.length) return;
+      var mobIds = {};
+      for (var j = 0; j < inst.mobs.length; j++) {
+        mobIds[inst.mobs[j].id] = true;
+      }
+      $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
+        return !!mobIds[rowData.id];
+      });
+      table.draw();
+      // Show instance name as active filter
+      var $info = $('<div class="alert alert-info m-t-10 m-b-0" id="instance-filter-info">' +
+        '<i class="fa fa-filter"></i> Showing mobs from <strong>' + inst.name + '</strong> ' +
+        '<a href="mobs" class="btn btn-xs btn-default m-l-10"><i class="fa fa-times"></i> Clear filter</a></div>');
+      $('#mobs-table_wrapper').before($info);
+    });
+  }
+
   // ── URL parameter handling ──────────────────────────────────────────────
   function checkUrlParams() {
     var params = new URLSearchParams(window.location.search);
@@ -165,6 +189,11 @@
     if (q && table) {
       table.search(q).draw();
       $('div.dataTables_filter input').val(q);
+    }
+
+    var instance = params.get('instance');
+    if (instance && table) {
+      applyInstanceFilter(instance);
     }
 
     var id = params.get('id');

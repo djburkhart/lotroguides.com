@@ -157,6 +157,8 @@ async function main() {
     const loreFiles = scanDir(loreDir);
     for (const f of loreFiles) {
       const key = path.relative(path.join(root, 'data'), f).replace(/\\/g, '/');
+      // Skip heavy marker files – they're lazy-loaded individually, not bundled
+      if (key.startsWith('lore/map-markers-heavy/')) continue;
       bundle[key] = fs.readFileSync(f, 'utf8');
     }
     const json = JSON.stringify(bundle);

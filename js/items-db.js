@@ -44,20 +44,26 @@
     return '<span class="item-subtype-badge">' + label + '</span>';
   }
 
+  var fmtStat = window.LOTRO_FORMAT_STAT || function (s) { return s; };
+
   function formatStats(stats) {
     if (!stats || !stats.length) return '<span class="text-muted">—</span>';
     return stats.filter(function (s) { return s.v !== 0; }).slice(0, 4).map(function (s) {
-      return '<span class="item-stat">' + s.s + ': <strong>' + s.v.toLocaleString() + '</strong></span>';
+      return '<span class="item-stat">' + fmtStat(s.s) + ': <strong>' + s.v.toLocaleString() + '</strong></span>';
     }).join(' ');
   }
 
   function formatStatsFull(stats) {
-    if (!stats || !stats.length) return '<p class="text-muted">No stat data available.</p>';
-    return '<table class="table table-condensed item-stat-table">' +
+    if (!stats || !stats.length) return '<div class="tt-stats-empty">No stat data available.</div>';
+    return '<div class="tt-stats">' +
       stats.filter(function (s) { return s.v !== 0; }).map(function (s) {
-        return '<tr><td>' + s.s + '</td><td class="text-right"><strong>' + s.v.toLocaleString() + '</strong></td></tr>';
+        var prefix = s.v > 0 ? '+' : '';
+        var isPercent = s.s.indexOf('%') !== -1 || s.s.indexOf('Chance') !== -1 ||
+                        s.s.indexOf('Damage') !== -1 && s.s !== 'Physical Mastery' && s.s !== 'Tactical Mastery';
+        var display = isPercent ? prefix + s.v.toLocaleString() + '%' : prefix + s.v.toLocaleString();
+        return '<div class="tt-stat-row">' + display + ' ' + fmtStat(s.s) + '</div>';
       }).join('') +
-      '</table>';
+      '</div>';
   }
 
   // ── Type icons for cross-linked entries ─────────────────────────────────
@@ -255,42 +261,82 @@
     table.draw();
   }
 
+  // ── Slot labels ─────────────────────────────────────────────────────────
+  var slotLabels = {
+    'back': 'Back', 'main hand': 'Main Hand', 'off hand': 'Off Hand',
+    'either hand': 'One-hand', 'ranged item': 'Ranged', 'head': 'Head',
+    'shoulder': 'Shoulder', 'chest': 'Chest', 'hand': 'Hands', 'legs': 'Legs',
+    'feet': 'Feet', 'wrist': 'Wrist', 'finger': 'Finger', 'ear': 'Ear',
+    'neck': 'Necklace', 'pocket': 'Pocket', 'class slot': 'Class Slot',
+    'bridle': 'Bridle', 'right finger': 'Finger', 'left finger': 'Finger',
+    'right ear': 'Ear', 'left ear': 'Ear', 'right wrist': 'Wrist', 'left wrist': 'Wrist'
+  };
+
   // ── Modal ───────────────────────────────────────────────────────────────
   function showItemModal(id) {
     var item = itemById[id];
     if (!item) return;
 
-    var cls = item.q ? ' lotro-' + item.q : '';
-    var modalIcon = item.ic ? gameIcon(item.ic, 16) + ' ' : (item.t === 'deed' ? deedIcon(item.dt, 16) + ' ' : '');
-    $('#item-modal-title').html(modalIcon + '<span class="' + cls.trim() + '">' + item.n + '</span>');
+    var qClass = item.q || '';
+    // Apply quality accent on the modal wrapper
+    var modal = document.getElementById('item-modal');
+    modal.setAttribute('data-quality', qClass);
 
-    var html = '<div class="item-modal-meta">';
-    html += '<p><strong>Type:</strong> ' + item.t + '</p>';
-    if (item.st) html += '<p><strong>Subtype:</strong> ' + (subtypeLabels[item.st] || item.st) + '</p>';
-    if (item.q) html += '<p><strong>Quality:</strong> ' + qualityBadge(item.q) + '</p>';
-    if (item.lv) html += '<p><strong>Item Level:</strong> ' + item.lv + '</p>';
-    if (item.sl) html += '<p><strong>Slot:</strong> ' + item.sl + '</p>';
+    // ── Build tooltip-style body ──
+    var html = '<div class="tt">';
 
-    // Cross-links to other database pages
-    if (item.sid) {
-      html += '<p><strong>Set:</strong> <a href="sets?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a></p>';
-    }
-    if (item.t === 'deed') {
-      html += '<p><a href="deeds?id=' + item.id + '" class="item-crosslink item-crosslink-deed">' + deedIcon(item.dt, 14) + ' View in Deed Database</a></p>';
-    }
-    if (item.t === 'set') {
-      html += '<p><a href="sets?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a></p>';
-    }
-    if (item.t === 'virtue') {
-      html += '<p><a href="virtues?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a></p>';
-    }
-    if (item.t === 'quest-reward') {
-      html += '<p><a href="quests?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests for this Reward</a></p>';
-    }
+    // Header: icon + name
+    html += '<div class="tt-header">';
+    if (item.ic) html += '<div class="tt-icon">' + gameIcon(item.ic, 40) + '</div>';
+    html += '<div class="tt-name' + (qClass ? ' lotro-' + qClass : '') + '">' + item.n + '</div>';
     html += '</div>';
-    html += '<h5>Stats</h5>';
+
+    // Binding / quality line
+    if (item.q) {
+      html += '<div class="tt-line tt-binding">' + item.q.charAt(0).toUpperCase() + item.q.slice(1) + '</div>';
+    }
+
+    // Item level
+    if (item.lv) {
+      html += '<div class="tt-line tt-ilvl">Item Level: ' + item.lv + '</div>';
+    }
+
+    // Slot / type meta
+    if (item.sl) {
+      html += '<div class="tt-line tt-slot">' + (slotLabels[item.sl] || item.sl) + '</div>';
+    } else if (item.t === 'consumable' && item.st) {
+      html += '<div class="tt-line tt-slot">' + (subtypeLabels[item.st] || item.st) + '</div>';
+    }
+
+    // ── Stats ──
     html += formatStatsFull(item.stats);
 
+    // ── Divider before cross-links ──
+    var hasLinks = item.sid || item.t === 'deed' || item.t === 'set' || item.t === 'virtue' || item.t === 'quest-reward';
+    if (hasLinks) {
+      html += '<div class="tt-divider"></div>';
+      html += '<div class="tt-links">';
+      if (item.sid) {
+        html += '<a href="sets?id=' + item.sid + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> ' + (item.sn || 'View Set') + '</a>';
+      }
+      if (item.t === 'deed') {
+        html += '<a href="deeds?id=' + item.id + '" class="item-crosslink item-crosslink-deed">' + deedIcon(item.dt, 14) + ' View in Deed Database</a>';
+      }
+      if (item.t === 'set') {
+        html += '<a href="sets?id=' + item.id + '" class="item-crosslink item-crosslink-set"><i class="fa fa-cubes"></i> View in Set Database</a>';
+      }
+      if (item.t === 'virtue') {
+        html += '<a href="virtues?id=' + item.id + '" class="item-crosslink item-crosslink-virtue"><i class="fa fa-shield"></i> View in Virtue Database</a>';
+      }
+      if (item.t === 'quest-reward') {
+        html += '<a href="quests?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests</a>';
+      }
+      html += '</div>';
+    }
+
+    html += '</div>'; // .tt
+
+    $('#item-modal-title').empty();
     $('#item-modal-body').html(html);
 
     // Update URL with item id for sharing

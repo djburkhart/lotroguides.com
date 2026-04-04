@@ -54,6 +54,39 @@ var schema = new Schema({
       parseDOM: [{ tag: 'div.pm-widget-instance-loot', getAttrs: function (dom) {
         return { token: dom.getAttribute('data-token') || '{{instanceLootReference}}' };
       }}]
+    })
+    .addToEnd('quest_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{quest:}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-quest', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-quest', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{quest:}}' };
+      }}]
+    })
+    .addToEnd('deed_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{deed:}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-deed', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-deed', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{deed:}}' };
+      }}]
+    })
+    .addToEnd('trait_planner_widget', {
+      group: 'block',
+      atom: true,
+      attrs: { token: { default: '{{traitPlanner:class=hunter,build=endgame}}' } },
+      toDOM: function (node) {
+        return ['div', { class: 'pm-widget pm-widget-trait-planner', 'data-token': node.attrs.token }];
+      },
+      parseDOM: [{ tag: 'div.pm-widget-trait-planner', getAttrs: function (dom) {
+        return { token: dom.getAttribute('data-token') || '{{traitPlanner:class=hunter,build=endgame}}' };
+      }}]
     }),
   marks: mdSchema.spec.marks
 });
@@ -76,6 +109,18 @@ var mdSerializer = new MarkdownSerializer(
       state.closeBlock(node);
     },
     instance_loot_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    quest_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    deed_widget: function (state, node) {
+      state.write(node.attrs.token);
+      state.closeBlock(node);
+    },
+    trait_planner_widget: function (state, node) {
       state.write(node.attrs.token);
       state.closeBlock(node);
     }
@@ -125,6 +170,9 @@ function replaceWidgetTokens(doc) {
   var mapRe = /^\{\{map:[^}]+\}\}$/;
   var consumableRe = /^\{\{consumableTable(?::[^}]*)?\}\}$/;
   var instanceLootRe = /^\{\{instanceLootReference\}\}$/;
+  var questRe = /^\{\{quest:[^}]+\}\}$/;
+  var deedRe = /^\{\{deed:[^}]+\}\}$/;
+  var traitPlannerRe = /^\{\{traitPlanner:[^}]+\}\}$/;
   var changed = false;
   var newContent = [];
   doc.forEach(function (node) {
@@ -147,6 +195,21 @@ function replaceWidgetTokens(doc) {
       }
       if (instanceLootRe.test(text)) {
         newContent.push(schema.nodes.instance_loot_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (questRe.test(text)) {
+        newContent.push(schema.nodes.quest_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (deedRe.test(text)) {
+        newContent.push(schema.nodes.deed_widget.create({ token: text }));
+        changed = true;
+        return;
+      }
+      if (traitPlannerRe.test(text)) {
+        newContent.push(schema.nodes.trait_planner_widget.create({ token: text }));
         changed = true;
         return;
       }
@@ -294,6 +357,69 @@ InstanceLootWidgetView.prototype.render = function () {
 };
 InstanceLootWidgetView.prototype.stopEvent = function () { return false; };
 InstanceLootWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function QuestWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-quest';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+QuestWidgetView.prototype.render = function () {
+  var m = this.node.attrs.token.match(/^\{\{quest:([^}]+)\}\}$/);
+  var ref = m ? m[1] : '?';
+  this.dom.innerHTML = '<div class="pm-widget-badge"><i class="fa fa-exclamation-circle"></i> Quest Card</div>'
+    + '<div class="pm-widget-info">' + ref + '</div>';
+};
+QuestWidgetView.prototype.stopEvent = function () { return false; };
+QuestWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function DeedWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-deed';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+DeedWidgetView.prototype.render = function () {
+  var m = this.node.attrs.token.match(/^\{\{deed:([^}]+)\}\}$/);
+  var ref = m ? m[1] : '?';
+  this.dom.innerHTML = '<div class="pm-widget-badge"><i class="fa fa-bookmark"></i> Deed Card</div>'
+    + '<div class="pm-widget-info">' + ref + '</div>';
+};
+DeedWidgetView.prototype.stopEvent = function () { return false; };
+DeedWidgetView.prototype.ignoreMutation = function () { return true; };
+
+function parseTraitPlannerToken(token) {
+  var m = token.match(/^\{\{traitPlanner:([^}]+)\}\}$/);
+  if (!m) return {};
+  var opts = {};
+  m[1].split(',').forEach(function (pair) {
+    var eq = pair.indexOf('=');
+    if (eq === -1) return;
+    opts[pair.slice(0, eq).trim()] = pair.slice(eq + 1).trim();
+  });
+  return opts;
+}
+
+function TraitPlannerWidgetView(node) {
+  this.node = node;
+  this.dom = document.createElement('div');
+  this.dom.className = 'pm-widget pm-widget-trait-planner';
+  this.dom.setAttribute('contenteditable', 'false');
+  this.render();
+}
+TraitPlannerWidgetView.prototype.render = function () {
+  var opts = parseTraitPlannerToken(this.node.attrs.token);
+  var cls = opts['class'] || '?';
+  var build = opts.build || '?';
+  var level = opts.level || '160';
+  var html = '<div class="pm-widget-badge"><i class="fa fa-sitemap"></i> Trait Planner</div>'
+    + '<div class="pm-widget-info">' + cls.charAt(0).toUpperCase() + cls.slice(1) + ' &middot; ' + build + ' &middot; Level ' + level + '</div>';
+  this.dom.innerHTML = html;
+};
+TraitPlannerWidgetView.prototype.stopEvent = function () { return false; };
+TraitPlannerWidgetView.prototype.ignoreMutation = function () { return true; };
 
 function insertWidgetNode(nodeType, attrs) {
   if (!editorView) return;
@@ -1256,6 +1382,9 @@ function createEditor(markdown) {
       map_widget: function (node, view, getPos) { return new MapWidgetView(node); },
       consumable_widget: function (node, view, getPos) { return new ConsumableWidgetView(node); },
       instance_loot_widget: function (node, view, getPos) { return new InstanceLootWidgetView(node); },
+      quest_widget: function (node, view, getPos) { return new QuestWidgetView(node); },
+      deed_widget: function (node, view, getPos) { return new DeedWidgetView(node); },
+      trait_planner_widget: function (node, view, getPos) { return new TraitPlannerWidgetView(node); },
     },
   });
 
@@ -1916,6 +2045,245 @@ function insertDpsWidget() {
   closeDpsModal();
 }
 
+/* ─── Quest / Deed Search Modals ─────────────────────────────────── */
+var questCache = null;
+var deedCache = null;
+var selectedQuest = null;
+var selectedDeed = null;
+var questSearchTimer = null;
+var deedSearchTimer = null;
+
+function loadLookupData(type) {
+  var cache = type === 'quest' ? questCache : deedCache;
+  if (cache) return Promise.resolve(cache);
+  var file = type === 'quest' ? 'data/quests-db.json' : 'data/deeds-db.json';
+  return fetch('./' + file)
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (data) {
+      if (type === 'quest') { questCache = data; return data; }
+      deedCache = data; return data;
+    });
+}
+
+function searchLookup(items, query, limit) {
+  var q = query.toLowerCase();
+  var results = [];
+  for (var i = 0; i < items.length && results.length < (limit || 30); i++) {
+    if ((items[i].n || '').toLowerCase().indexOf(q) !== -1) results.push(items[i]);
+  }
+  return results;
+}
+
+function renderLookupResults(containerId, results, type) {
+  var container = document.getElementById(containerId);
+  if (!results.length) {
+    container.innerHTML = '<div class="text-muted" style="padding:8px 0">No results found.</div>';
+    return;
+  }
+  var html = '';
+  results.forEach(function (item) {
+    var meta = [];
+    if (item.lv) meta.push('Lv ' + item.lv);
+    if (type === 'quest' && item.cat) meta.push(item.cat);
+    if (type === 'deed' && item.tp) meta.push(item.tp);
+    html += '<div class="lookup-result" data-id="' + esc(item.id) + '" data-name="' + esc(item.n) + '">'
+      + '<span class="lookup-result-name">' + esc(item.n) + '</span>'
+      + (meta.length ? '<span class="lookup-result-meta">' + esc(meta.join(' · ')) + '</span>' : '')
+      + '</div>';
+  });
+  container.innerHTML = html;
+
+  // Bind click handlers
+  container.querySelectorAll('.lookup-result').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var id = el.getAttribute('data-id');
+      var name = el.getAttribute('data-name');
+      selectLookupResult(type, id, name, el);
+    });
+  });
+}
+
+function selectLookupResult(type, id, name, el) {
+  var prefix = type === 'quest' ? 'quest' : 'deed';
+  if (type === 'quest') selectedQuest = { id: id, n: name };
+  else selectedDeed = { id: id, n: name };
+
+  // Highlight selected row
+  var container = document.getElementById(prefix + '-search-results');
+  container.querySelectorAll('.lookup-result').forEach(function (r) { r.classList.remove('active'); });
+  if (el) el.classList.add('active');
+
+  // Show selected item
+  document.getElementById(prefix + '-selected').style.display = '';
+  document.getElementById(prefix + '-selected-name').textContent = name;
+  document.getElementById(prefix + '-selected-meta').textContent = ' (ID: ' + id + ')';
+  document.getElementById('btn-' + prefix + '-insert').disabled = false;
+}
+
+function openQuestSearchModal() {
+  selectedQuest = null;
+  var modal = document.getElementById('quest-search-modal');
+  modal.style.display = '';
+  document.getElementById('quest-search-input').value = '';
+  document.getElementById('quest-search-results').innerHTML = '';
+  document.getElementById('quest-selected').style.display = 'none';
+  document.getElementById('btn-quest-insert').disabled = true;
+
+  var status = document.getElementById('quest-search-status');
+  if (!questCache) {
+    status.textContent = 'Loading quest database...';
+    loadLookupData('quest').then(function (data) {
+      status.textContent = data.length.toLocaleString() + ' quests loaded. Start typing to search.';
+    }).catch(function () {
+      status.textContent = 'Failed to load quest data.';
+    });
+  } else {
+    status.textContent = questCache.length.toLocaleString() + ' quests loaded. Start typing to search.';
+  }
+
+  document.getElementById('quest-search-input').focus();
+}
+
+function closeQuestSearchModal() {
+  document.getElementById('quest-search-modal').style.display = 'none';
+}
+
+function insertQuestWidget() {
+  if (!selectedQuest) return;
+  insertWidgetNode(schema.nodes.quest_widget, { token: '{{quest:' + selectedQuest.id + '}}' });
+  closeQuestSearchModal();
+}
+
+function openDeedSearchModal() {
+  selectedDeed = null;
+  var modal = document.getElementById('deed-search-modal');
+  modal.style.display = '';
+  document.getElementById('deed-search-input').value = '';
+  document.getElementById('deed-search-results').innerHTML = '';
+  document.getElementById('deed-selected').style.display = 'none';
+  document.getElementById('btn-deed-insert').disabled = true;
+
+  var status = document.getElementById('deed-search-status');
+  if (!deedCache) {
+    status.textContent = 'Loading deed database...';
+    loadLookupData('deed').then(function (data) {
+      status.textContent = data.length.toLocaleString() + ' deeds loaded. Start typing to search.';
+    }).catch(function () {
+      status.textContent = 'Failed to load deed data.';
+    });
+  } else {
+    status.textContent = deedCache.length.toLocaleString() + ' deeds loaded. Start typing to search.';
+  }
+
+  document.getElementById('deed-search-input').focus();
+}
+
+function closeDeedSearchModal() {
+  document.getElementById('deed-search-modal').style.display = 'none';
+}
+
+function insertDeedWidget() {
+  if (!selectedDeed) return;
+  insertWidgetNode(schema.nodes.deed_widget, { token: '{{deed:' + selectedDeed.id + '}}' });
+  closeDeedSearchModal();
+}
+
+/* ─── Trait Planner Widget Modal ─────────────────────────────────── */
+var traitPlannerBuildsCache = null;
+
+function loadTraitPlannerBuilds() {
+  if (traitPlannerBuildsCache) return Promise.resolve(traitPlannerBuildsCache);
+  return fetch('./data/builds/')
+    .then(function () {
+      // Fetch the build manifest by loading known class files
+      var classes = ['beorning','brawler','burglar','captain','champion','guardian','hunter','lore-master','mariner','minstrel','rune-keeper','warden'];
+      return Promise.all(classes.map(function (cls) {
+        return fetch('./data/builds/' + cls + '.json')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) { return data ? { class: cls, builds: data.builds } : null; })
+          .catch(function () { return null; });
+      }));
+    })
+    .then(function (results) {
+      traitPlannerBuildsCache = results.filter(Boolean);
+      return traitPlannerBuildsCache;
+    });
+}
+
+function openTraitPlannerModal() {
+  var modal = document.getElementById('trait-planner-modal');
+  if (!modal) return;
+  modal.style.display = '';
+
+  var classSelect = document.getElementById('tp-class');
+  var buildSelect = document.getElementById('tp-build');
+  var levelInput = document.getElementById('tp-level');
+  var btnInsert = document.getElementById('btn-tp-insert');
+  var status = document.getElementById('tp-status');
+
+  levelInput.value = '160';
+  btnInsert.disabled = true;
+
+  if (traitPlannerBuildsCache) {
+    populateTraitPlannerSelects(traitPlannerBuildsCache, classSelect, buildSelect, btnInsert);
+    status.textContent = '';
+  } else {
+    status.textContent = 'Loading class data...';
+    classSelect.innerHTML = '<option value="">Loading...</option>';
+    buildSelect.innerHTML = '<option value="">--</option>';
+    loadTraitPlannerBuilds().then(function (data) {
+      populateTraitPlannerSelects(data, classSelect, buildSelect, btnInsert);
+      status.textContent = '';
+    }).catch(function () {
+      status.textContent = 'Failed to load class data.';
+    });
+  }
+}
+
+function populateTraitPlannerSelects(data, classSelect, buildSelect, btnInsert) {
+  classSelect.innerHTML = '<option value="">Select class...</option>';
+  data.forEach(function (entry) {
+    var opt = document.createElement('option');
+    opt.value = entry.class;
+    opt.textContent = entry.class.charAt(0).toUpperCase() + entry.class.slice(1).replace(/-/g, ' ');
+    classSelect.appendChild(opt);
+  });
+
+  classSelect.onchange = function () {
+    var cls = classSelect.value;
+    buildSelect.innerHTML = '<option value="">Select build...</option>';
+    btnInsert.disabled = true;
+    if (!cls) return;
+    var entry = data.find(function (e) { return e.class === cls; });
+    if (!entry || !entry.builds) return;
+    Object.keys(entry.builds).forEach(function (key) {
+      var opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = entry.builds[key].name || key;
+      buildSelect.appendChild(opt);
+    });
+  };
+
+  buildSelect.onchange = function () {
+    btnInsert.disabled = !classSelect.value || !buildSelect.value;
+  };
+}
+
+function closeTraitPlannerModal() {
+  var modal = document.getElementById('trait-planner-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function insertTraitPlannerWidget() {
+  var cls = document.getElementById('tp-class').value;
+  var build = document.getElementById('tp-build').value;
+  var level = document.getElementById('tp-level').value || '160';
+  if (!cls || !build) return;
+  var token = '{{traitPlanner:class=' + cls + ',build=' + build + ',level=' + level + '}}';
+  insertWidgetNode(schema.nodes.trait_planner_widget, { token: token });
+  closeTraitPlannerModal();
+}
+
 /* ─── Insert Image ───────────────────────────────────────────────── */
 function openImageModal() {
   var modal = document.getElementById('image-insert-modal');
@@ -2282,6 +2650,18 @@ document.addEventListener('DOMContentLoaded', function () {
       widgetMenu.classList.remove('open');
       insertWidgetNode(schema.nodes.instance_loot_widget, { token: '{{instanceLootReference}}' });
     });
+    widgetMenu.querySelector('[data-widget="questCard"]').addEventListener('click', function () {
+      widgetMenu.classList.remove('open');
+      openQuestSearchModal();
+    });
+    widgetMenu.querySelector('[data-widget="deedCard"]').addEventListener('click', function () {
+      widgetMenu.classList.remove('open');
+      openDeedSearchModal();
+    });
+    widgetMenu.querySelector('[data-widget="traitPlanner"]').addEventListener('click', function () {
+      widgetMenu.classList.remove('open');
+      openTraitPlannerModal();
+    });
   }
 
   // DPS modal buttons
@@ -2307,6 +2687,66 @@ document.addEventListener('DOMContentLoaded', function () {
       if (e.target === dpsOverlay) closeDpsModal();
     });
   }
+
+  // Quest search modal
+  var btnQuestClose = document.getElementById('btn-quest-modal-close');
+  var btnQuestInsert = document.getElementById('btn-quest-insert');
+  var questSearchInput = document.getElementById('quest-search-input');
+  if (btnQuestClose) btnQuestClose.addEventListener('click', closeQuestSearchModal);
+  if (btnQuestInsert) btnQuestInsert.addEventListener('click', insertQuestWidget);
+  if (questSearchInput) questSearchInput.addEventListener('input', function () {
+    clearTimeout(questSearchTimer);
+    questSearchTimer = setTimeout(function () {
+      var q = questSearchInput.value.trim();
+      if (q.length < 2) {
+        document.getElementById('quest-search-results').innerHTML = '';
+        return;
+      }
+      if (!questCache) {
+        loadLookupData('quest').then(function (data) {
+          renderLookupResults('quest-search-results', searchLookup(data, q), 'quest');
+        });
+      } else {
+        renderLookupResults('quest-search-results', searchLookup(questCache, q), 'quest');
+      }
+    }, 200);
+  });
+  var questOverlay = document.getElementById('quest-search-modal');
+  if (questOverlay) questOverlay.addEventListener('click', function (e) { if (e.target === questOverlay) closeQuestSearchModal(); });
+
+  // Deed search modal
+  var btnDeedClose = document.getElementById('btn-deed-modal-close');
+  var btnDeedInsert = document.getElementById('btn-deed-insert');
+  var deedSearchInput = document.getElementById('deed-search-input');
+  if (btnDeedClose) btnDeedClose.addEventListener('click', closeDeedSearchModal);
+  if (btnDeedInsert) btnDeedInsert.addEventListener('click', insertDeedWidget);
+  if (deedSearchInput) deedSearchInput.addEventListener('input', function () {
+    clearTimeout(deedSearchTimer);
+    deedSearchTimer = setTimeout(function () {
+      var q = deedSearchInput.value.trim();
+      if (q.length < 2) {
+        document.getElementById('deed-search-results').innerHTML = '';
+        return;
+      }
+      if (!deedCache) {
+        loadLookupData('deed').then(function (data) {
+          renderLookupResults('deed-search-results', searchLookup(data, q), 'deed');
+        });
+      } else {
+        renderLookupResults('deed-search-results', searchLookup(deedCache, q), 'deed');
+      }
+    }, 200);
+  });
+  var deedOverlay = document.getElementById('deed-search-modal');
+  if (deedOverlay) deedOverlay.addEventListener('click', function (e) { if (e.target === deedOverlay) closeDeedSearchModal(); });
+
+  // Trait planner modal
+  var btnTpClose = document.getElementById('btn-tp-modal-close');
+  var btnTpInsert = document.getElementById('btn-tp-insert');
+  if (btnTpClose) btnTpClose.addEventListener('click', closeTraitPlannerModal);
+  if (btnTpInsert) btnTpInsert.addEventListener('click', insertTraitPlannerWidget);
+  var tpOverlay = document.getElementById('trait-planner-modal');
+  if (tpOverlay) tpOverlay.addEventListener('click', function (e) { if (e.target === tpOverlay) closeTraitPlannerModal(); });
 
   // Image insert modal
   var btnImgClose = document.getElementById('btn-image-modal-close');

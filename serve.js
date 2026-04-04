@@ -107,7 +107,7 @@ const server = http.createServer((req, res) => {
   }
 
   // ── Cusdis webhook dev endpoint ────────────────────────────────
-  if (req.method === 'POST' && req.url.startsWith('/api/cusdis-webhook')) {
+  if (req.method === 'POST' && req.url.startsWith('/api/cusdis/webhook')) {
     const chunks = [];
     req.on('data', c => chunks.push(c));
     req.on('end', () => {
@@ -125,6 +125,63 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── GitHub Device Flow auth dev endpoint ────────────────────────
+  if (req.method === 'POST' && req.url === '/api/github/auth') {
+    const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
+    const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
+    const chunks = [];
+    req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      let body;
+      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
+      catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid JSON' }));
+        return;
+      }
+
+      if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'GitHub OAuth not configured — set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env' }));
+        return;
+      }
+
+      const ghPayload = JSON.stringify(
+        body.action === 'device-code'
+          ? { client_id: GITHUB_CLIENT_ID, scope: 'repo' }
+          : { client_id: GITHUB_CLIENT_ID, device_code: body.device_code, grant_type: 'urn:ietf:params:oauth:grant-type:device_code' }
+      );
+      const ghPath = body.action === 'device-code'
+        ? '/login/device/code'
+        : '/login/oauth/access_token';
+
+      const ghReq = https.request({
+        hostname: 'github.com',
+        path: ghPath,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Content-Length': Buffer.byteLength(ghPayload),
+        },
+      }, (ghRes) => {
+        let data = '';
+        ghRes.on('data', d => data += d);
+        ghRes.on('end', () => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(data);
+        });
+      });
+      ghReq.on('error', () => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'GitHub request failed' }));
+      });
+      ghReq.write(ghPayload);
+      ghReq.end();
+    });
+    return;
+  }
+
   // ── reCAPTCHA Enterprise verification endpoint ──────────────────
   if (req.method === 'POST' && req.url === '/api/recaptcha/verify') {
     const chunks = [];
@@ -133,7 +190,7 @@ const server = http.createServer((req, res) => {
       if (!RECAPTCHA_SECRET_KEY) {
         // No key configured — pass through for local dev
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, score: 1.0 }));
+        res.end(JSON.stringify({ success: true, score: 1.0, reasons: [], valid: true, action: 'comment', assessmentName: '' }));
         return;
       }
       let body;
@@ -168,11 +225,21 @@ const server = http.createServer((req, res) => {
         verifyRes.on('end', () => {
           try {
             const result = JSON.parse(data);
-            const score = result.riskAnalysis ? result.riskAnalysis.score : 0;
-            const valid = result.tokenProperties && result.tokenProperties.valid;
-            const actionMatch = result.tokenProperties && result.tokenProperties.action === (action || 'comment');
+            const tp = result.tokenProperties || {};
+            const ra = result.riskAnalysis || {};
+            const score = typeof ra.score === 'number' ? ra.score : 0;
+            const valid = !!tp.valid;
+            const actionMatch = tp.action === (action || 'comment');
+            const reasons = Array.isArray(ra.reasons) ? ra.reasons : [];
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: !!(valid && actionMatch), score }));
+            res.end(JSON.stringify({
+              success: valid && actionMatch,
+              score,
+              reasons,
+              valid,
+              action: tp.action || '',
+              assessmentName: result.name || '',
+            }));
           } catch (e) {
             res.writeHead(502, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ success: false, error: 'Invalid upstream response' }));

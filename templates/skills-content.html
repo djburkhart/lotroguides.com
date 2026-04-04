@@ -1,0 +1,1177 @@
+<!--- Skills Page Content Template --->
+<div class="skills-header">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <h1 class="skills-title">Skills & Trait Builder</h1>
+        <p class="skills-subtitle">Interactive trait planner for all LOTRO classes with save and share functionality</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-12">
+
+      <!-- Class Selector -->
+      <div class="community-scorecard" id="communityScorecard">
+        <h3><i class="fa fa-shield"></i> Choose Your Class</h3>
+        <p class="scorecard-desc">Select a class to view or create trait builds.</p>
+        <div class="class-grid" id="classGrid"></div>
+      </div>
+
+      <!-- Share Controls -->
+      <div class="share-controls" id="shareControls" style="display:none;">
+        <h3><i class="fa fa-share-alt"></i> Share Your Build</h3>
+
+        <div class="quick-actions">
+          <button class="quick-action-btn" onclick="saveBuildToLibrary()">
+            <i class="fa fa-floppy-o"></i> Save Build
+          </button>
+          <button class="quick-action-btn" onclick="generateShareableLink()">
+            <i class="fa fa-link"></i> Generate Link
+          </button>
+          <button class="quick-action-btn" onclick="generateEmbedCode()">
+            <i class="fa fa-code"></i> Generate Embed Code
+          </button>
+          <button class="quick-action-btn" onclick="loadBuildFromUrl()">
+            <i class="fa fa-upload"></i> Load from URL
+          </button>
+          <button class="quick-action-btn" onclick="resetBuild()">
+            <i class="fa fa-refresh"></i> Reset Build
+          </button>
+          <button class="quick-action-btn" onclick="showScorecard()">
+            <i class="fa fa-arrow-left"></i> Back to Classes
+          </button>
+        </div>
+
+        <div class="share-input-group">
+          <input type="text" id="shareableLink" class="share-input" placeholder="Click 'Generate Link' to create a shareable URL..." readonly>
+          <button class="share-btn" onclick="copyToClipboard('shareableLink')" id="copyLinkBtn" disabled>
+            <i class="fa fa-copy"></i> Copy
+          </button>
+          <span class="copy-feedback" id="linkFeedback">Copied!</span>
+        </div>
+
+        <div class="share-input-group">
+          <input type="text" id="embedCode" class="share-input" placeholder="Click 'Generate Embed Code' to create guide shortcode..." readonly>
+          <button class="share-btn" onclick="copyToClipboard('embedCode')" id="copyEmbedBtn" disabled>
+            <i class="fa fa-copy"></i> Copy
+          </button>
+          <span class="copy-feedback" id="embedFeedback">Copied!</span>
+        </div>
+
+        <p class="text-muted" style="font-size: 13px; margin-bottom: 0;">
+          <strong>Shareable Link:</strong> Direct URL to view this build<br>
+          <strong>Embed Code:</strong> Shortcode for guides ({{traitPlanner:...}})
+        </p>
+      </div>
+
+      <!-- Trait Planner Container -->
+      <div class="skill-builder-container" id="skillBuilderContainer" style="display:none;">
+        <div id="trait-planner" class="lotro-trait-planner" data-class="hunter" data-build="endgame" data-level="160"></div>
+      </div>
+
+      <!-- Saved Builds Listing -->
+      <div class="shared-builds-section" id="sharedBuildsSection" style="display:none;">
+        <h3><i class="fa fa-bookmark"></i> Saved Builds &mdash; <span id="sharedBuildsClassName"></span></h3>
+        <p class="scorecard-desc" id="sharedBuildsEmpty" style="display:none;">No saved builds for this class yet. Create a build above and click <strong>Save Build</strong>.</p>
+        <div id="sharedBuildsList"></div>
+        <div class="builds-pagination" id="buildsPagination"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Load URL Modal -->
+<div class="modal fade" id="loadBuildModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h4 class="modal-title">Load Build from URL</h4>
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="buildUrl">Build URL or Embed Code:</label>
+          <textarea id="buildUrl" class="form-control" rows="3" placeholder="Paste a shareable link or {{traitPlanner:...}} code here"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="loadBuildFromInput()">Load Build</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Skills Page Specific Styles */
+body.fixed-header {
+  background: url('{{assets}}/img/site-bg.webp') no-repeat center top fixed;
+  background-size: cover;
+}
+
+.skills-header {
+  background: linear-gradient(135deg, rgba(26,26,46,0.85) 0%, rgba(22,33,62,0.85) 100%), url('{{assets}}/img/site-bg.webp') center/cover no-repeat;
+  color: var(--lotro-gold);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.skills-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-image: linear-gradient(to bottom, #f3f1ae 35%, #dab44f 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: var(--lotro-gold) !important;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+  margin-bottom: 0.5rem;
+}
+
+.skills-subtitle {
+  color: var(--lotro-parchment);
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+/* Class Selector */
+.community-scorecard {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.community-scorecard h3 {
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.scorecard-desc {
+  color: #aaa;
+  font-size: 14px;
+  margin-bottom: 1.5rem;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.class-card {
+  background: rgba(26,26,46,0.6);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.class-card:hover {
+  border-color: var(--lotro-gold);
+  background: rgba(201,168,76,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.class-card.active {
+  border-color: var(--lotro-gold);
+  box-shadow: 0 0 12px rgba(201,168,76,0.3);
+}
+
+.class-card-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.class-card-name {
+  font-family: 'Cinzel', serif;
+  color: var(--lotro-gold);
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.class-card-roles {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.class-card-builds {
+  font-size: 11px;
+  color: #888;
+}
+
+/* Share Controls */
+.share-controls {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.share-controls h3 {
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.share-input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.share-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #fff;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+}
+
+.share-btn {
+  background: var(--lotro-gold);
+  color: #1a1a1a;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-btn:hover {
+  background: var(--lotro-gold-light);
+  transform: translateY(-1px);
+}
+
+.share-btn:disabled {
+  background: #666;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.copy-feedback {
+  font-size: 12px;
+  color: #52b788;
+  margin-left: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.copy-feedback.show {
+  opacity: 1;
+}
+
+.skill-builder-container {
+  min-height: 600px;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.quick-action-btn {
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid var(--lotro-gold);
+  color: var(--lotro-gold);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  background: rgba(201, 168, 76, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Saved Builds Section */
+.shared-builds-section {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.shared-builds-section h3 {
+  color: var(--lotro-gold);
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.build-card {
+  background: rgba(26,26,46,0.5);
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+
+.build-card:hover {
+  border-color: #666;
+}
+
+.build-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.build-card-name {
+  font-family: 'Cinzel', serif;
+  color: #eee;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.build-card-meta {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 3px;
+}
+
+.build-card-trees {
+  font-size: 12px;
+  color: #aaa;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tree-tag {
+  padding: 1px 8px;
+  border-radius: 3px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.tree-tag-blue { background: rgba(64,128,192,0.25); color: #7db8e8; }
+.tree-tag-red { background: rgba(192,64,64,0.25); color: #e87d7d; }
+.tree-tag-yellow { background: rgba(192,168,64,0.25); color: #e8d87d; }
+
+.build-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.like-btn {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.like-btn:hover {
+  border-color: #e87d7d;
+  color: #e87d7d;
+}
+
+.like-btn.liked {
+  background: rgba(232,125,125,0.15);
+  border-color: #e87d7d;
+  color: #e87d7d;
+}
+
+.like-count {
+  font-weight: 600;
+  min-width: 12px;
+  text-align: center;
+}
+
+.load-build-btn {
+  background: rgba(201,168,76,0.15);
+  border: 1px solid var(--lotro-gold);
+  color: var(--lotro-gold);
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-build-btn:hover {
+  background: rgba(201,168,76,0.3);
+}
+
+.delete-build-btn {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #888;
+}
+
+.delete-build-btn:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+/* Guide build badges and styling */
+.build-card-guide {
+  border-color: rgba(201,168,76,0.3);
+}
+
+.guide-badge {
+  display: inline-block;
+  background: rgba(201,168,76,0.2);
+  color: var(--lotro-gold);
+  font-size: 10px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 7px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.build-card-desc {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+.build-card-virtues {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+.build-card-virtue-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid #555;
+}
+
+/* Pagination */
+.builds-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  background: rgba(26,26,46,0.5);
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #ccc;
+  transition: all 0.2s;
+}
+
+.page-btn:hover {
+  border-color: var(--lotro-gold);
+  color: var(--lotro-gold);
+}
+
+.page-btn.active {
+  background: rgba(201,168,76,0.2);
+  border-color: var(--lotro-gold);
+  color: var(--lotro-gold);
+  font-weight: 600;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767px) {
+  .class-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .class-card { padding: 12px 8px; }
+  .class-card-icon { width: 36px; height: 36px; }
+  .class-card-name { font-size: 13px; }
+  .build-card { flex-direction: column; align-items: stretch; gap: 10px; }
+  .build-card-actions { justify-content: flex-end; }
+}
+</style>
+
+<script src="{{assets}}/js/lotro-trait-planner.js"></script>
+<script>
+// Skills Page JavaScript
+var currentBuildData = null;
+var currentClass = 'hunter';
+var currentBuild = 'endgame';
+var currentLevel = 160;
+var currentLoadedBuildId = null;
+var plannerInitialized = false;
+var buildsCurrentPage = 1;
+var BUILDS_PER_PAGE = 25;
+
+// Guide builds injected at build time from data/builds/*.json
+var GUIDE_BUILDS = {{guideBuilds}};
+
+// Class metadata
+var CLASS_META = {
+  'beorning':    { name: 'Beorning',     roles: 'Tank, DPS, Heal/Support' },
+  'brawler':     { name: 'Brawler',      roles: 'Support, DPS, Tank' },
+  'burglar':     { name: 'Burglar',      roles: 'Support/Debuff, DPS, CC' },
+  'captain':     { name: 'Captain',      roles: 'Heal/Support, DPS, Tank' },
+  'champion':    { name: 'Champion',     roles: 'Single-target DPS, AoE DPS' },
+  'guardian':    { name: 'Guardian',     roles: 'Tank, DPS, Off-tank' },
+  'hunter':      { name: 'Hunter',       roles: 'Mobile DPS, Ranged DPS, CC' },
+  'lore-master': { name: 'Lore-master',  roles: 'Pet/Support, DPS, CC/Debuff' },
+  'mariner':     { name: 'Mariner',      roles: 'Support, DPS, Tank/Utility' },
+  'minstrel':    { name: 'Minstrel',     roles: 'Heal, DPS, Support/Heal' },
+  'rune-keeper': { name: 'Rune-keeper',  roles: 'Heal, DPS' },
+  'warden':      { name: 'Warden',       roles: 'Tank, DPS, Ranged DPS' }
+};
+
+// ── Build library storage (localStorage) ──────────────────────────────────
+function getSavedBuilds() {
+  try { return JSON.parse(localStorage.getItem('lotro_saved_builds') || '[]'); } catch(e) { return []; }
+}
+function saveBuildsList(builds) {
+  try { localStorage.setItem('lotro_saved_builds', JSON.stringify(builds)); } catch(e) { /* quota */ }
+}
+function getLikedBuilds() {
+  try { return JSON.parse(localStorage.getItem('lotro_build_likes') || '{}'); } catch(e) { return {}; }
+}
+function saveLikedBuilds(likes) {
+  try { localStorage.setItem('lotro_build_likes', JSON.stringify(likes)); } catch(e) { /* quota */ }
+}
+
+function getGuideBuildsForClass(classKey) {
+  return GUIDE_BUILDS.filter(function(b) { return b.class === classKey; });
+}
+
+function getBuildsForClass(classKey) {
+  var guide = getGuideBuildsForClass(classKey);
+  var user = getSavedBuilds().filter(function(b) { return b.class === classKey; });
+  return guide.concat(user);
+}
+
+function countBuildsPerClass() {
+  var counts = {};
+  GUIDE_BUILDS.forEach(function(b) {
+    counts[b.class] = (counts[b.class] || 0) + 1;
+  });
+  getSavedBuilds().forEach(function(b) {
+    counts[b.class] = (counts[b.class] || 0) + 1;
+  });
+  return counts;
+}
+
+function getPointsSummary(points) {
+  if (!points) return { blue: 0, red: 0, yellow: 0, total: 0 };
+  var blue = 0, red = 0, yellow = 0;
+  Object.keys(points).forEach(function(key) {
+    var val = points[key] || 0;
+    if (key.indexOf('b-') === 0) blue += val;
+    else if (key.indexOf('r-') === 0) red += val;
+    else if (key.indexOf('y-') === 0) yellow += val;
+  });
+  return { blue: blue, red: red, yellow: yellow, total: blue + red + yellow };
+}
+
+// ── Save a build to the library ───────────────────────────────────────────
+function saveBuildToLibrary() {
+  var api = window.LOTRO_TRAIT_PLANNER_API;
+  if (!api) { alert('Trait planner not loaded yet.'); return; }
+
+  var points = api.getPoints();
+  if (!points || Object.keys(points).length === 0) {
+    alert('Please allocate some trait points before saving.');
+    return;
+  }
+
+  var name = api.getBuildName();
+  if (!name) {
+    name = prompt('Enter a name for this build:');
+    if (!name || !name.trim()) return;
+    name = name.trim();
+    api.setBuildName(name);
+  }
+
+  // Sanitize build name to prevent XSS
+  var div = document.createElement('div');
+  div.textContent = name;
+  name = div.innerHTML;
+
+  var build = {
+    id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+    name: name,
+    class: currentClass,
+    build: currentBuild,
+    level: currentLevel,
+    points: points,
+    virtues: api.getVirtues ? api.getVirtues() : [],
+    likes: 0,
+    createdAt: Date.now()
+  };
+
+  var builds = getSavedBuilds();
+  builds.unshift(build);
+  saveBuildsList(builds);
+
+  currentLoadedBuildId = build.id;
+  buildsCurrentPage = 1;
+  renderBuilds();
+  renderScorecard();
+  syncVoteButton();
+  alert('Build "' + name + '" saved!');
+}
+
+// ── Like / unlike a build ─────────────────────────────────────────────────
+function toggleLike(buildId) {
+  var liked = getLikedBuilds();
+  var isGuide = buildId.indexOf('guide_') === 0;
+
+  if (isGuide) {
+    // Guide builds: only track like state in localStorage, no persistent like count
+    if (liked[buildId]) {
+      delete liked[buildId];
+    } else {
+      liked[buildId] = true;
+    }
+    saveLikedBuilds(liked);
+  } else {
+    var builds = getSavedBuilds();
+    var build = builds.find(function(b) { return b.id === buildId; });
+    if (!build) return;
+
+    if (liked[buildId]) {
+      delete liked[buildId];
+      build.likes = Math.max(0, (build.likes || 1) - 1);
+    } else {
+      liked[buildId] = true;
+      build.likes = (build.likes || 0) + 1;
+    }
+
+    saveBuildsList(builds);
+    saveLikedBuilds(liked);
+  }
+  renderBuilds();
+}
+
+// ── Delete a build ────────────────────────────────────────────────────────
+function deleteBuild(buildId) {
+  if (!confirm('Delete this saved build?')) return;
+  var builds = getSavedBuilds().filter(function(b) { return b.id !== buildId; });
+  saveBuildsList(builds);
+
+  // Clean up like
+  var liked = getLikedBuilds();
+  delete liked[buildId];
+  saveLikedBuilds(liked);
+
+  // Adjust page if needed
+  var classBuilds = builds.filter(function(b) { return b.class === currentClass; });
+  var totalPages = Math.max(1, Math.ceil(classBuilds.length / BUILDS_PER_PAGE));
+  if (buildsCurrentPage > totalPages) buildsCurrentPage = totalPages;
+
+  renderBuilds();
+  renderScorecard();
+}
+
+// ── Load a saved build into the planner ───────────────────────────────────
+function loadSavedBuild(buildId) {
+  var build = GUIDE_BUILDS.find(function(b) { return b.id === buildId; })
+    || getSavedBuilds().find(function(b) { return b.id === buildId; });
+  if (!build) return;
+
+  currentLoadedBuildId = buildId;
+  currentClass = build.class;
+  currentBuild = build.build || 'endgame';
+  currentLevel = build.level || 160;
+
+  var planner = document.getElementById('trait-planner');
+  planner.setAttribute('data-class', currentClass);
+  planner.setAttribute('data-build', currentBuild);
+  planner.setAttribute('data-level', currentLevel.toString());
+
+  if (window.LOTRO_TRAIT_PLANNER_INIT) {
+    window.LOTRO_TRAIT_PLANNER_INIT();
+    plannerInitialized = true;
+  }
+
+  // Apply saved points after planner loads
+  setTimeout(function() {
+    var api = window.LOTRO_TRAIT_PLANNER_API;
+    if (api && build.points) {
+      api.setPoints(build.points);
+      api.setBuildName(build.name || '');
+      if (api.setVirtues && build.virtues) {
+        api.setVirtues(build.virtues);
+      }
+    }
+    syncVoteButton();
+  }, 800);
+
+  document.getElementById('shareControls').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Render builds listing with pagination ─────────────────────────────────
+function renderBuilds() {
+  var section = document.getElementById('sharedBuildsSection');
+  var list = document.getElementById('sharedBuildsList');
+  var pagination = document.getElementById('buildsPagination');
+  var emptyMsg = document.getElementById('sharedBuildsEmpty');
+  var className = document.getElementById('sharedBuildsClassName');
+
+  if (!section || !list) return;
+
+  className.textContent = CLASS_META[currentClass] ? CLASS_META[currentClass].name : currentClass;
+
+  var classBuilds = getBuildsForClass(currentClass);
+  // Sort: guide builds first, then by likes desc, then newest first
+  classBuilds.sort(function(a, b) {
+    var aGuide = a.guide ? 1 : 0;
+    var bGuide = b.guide ? 1 : 0;
+    if (bGuide !== aGuide) return bGuide - aGuide;
+    if ((b.likes || 0) !== (a.likes || 0)) return (b.likes || 0) - (a.likes || 0);
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+
+  if (classBuilds.length === 0) {
+    emptyMsg.style.display = '';
+    list.innerHTML = '';
+    pagination.innerHTML = '';
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  var totalPages = Math.ceil(classBuilds.length / BUILDS_PER_PAGE);
+  if (buildsCurrentPage > totalPages) buildsCurrentPage = totalPages;
+  if (buildsCurrentPage < 1) buildsCurrentPage = 1;
+
+  var start = (buildsCurrentPage - 1) * BUILDS_PER_PAGE;
+  var pageBuilds = classBuilds.slice(start, start + BUILDS_PER_PAGE);
+  var liked = getLikedBuilds();
+
+  list.innerHTML = pageBuilds.map(function(build) {
+    var summary = getPointsSummary(build.points);
+    var isLiked = liked[build.id] ? ' liked' : '';
+    var date = build.createdAt ? new Date(build.createdAt).toLocaleDateString() : '';
+
+    var isGuide = build.guide;
+    var guideBadge = isGuide ? '<span class="guide-badge"><i class="fa fa-book"></i> Guide</span> ' : '';
+    var descHtml = isGuide && build.desc ? '<div class="build-card-desc">' + build.desc + '</div>' : '';
+    var deleteBtn = isGuide ? '' :
+        '<button class="delete-build-btn" onclick="deleteBuild(\'' + build.id + '\')" title="Delete this build">' +
+          '<i class="fa fa-trash"></i>' +
+        '</button>';
+
+    var virtueIcons = '';
+    if (build.virtues && build.virtues.length) {
+      var cdn = window.LOTRO_CDN || '.';
+      virtueIcons = '<div class="build-card-virtues">' +
+        build.virtues.filter(Boolean).map(function(v) {
+          return '<img class="build-card-virtue-icon" src="' + cdn + '/img/icons/virtues/' + v.toLowerCase() + '.webp" alt="' + v + '" title="' + v + '">';
+        }).join('') +
+      '</div>';
+    }
+
+    return '<div class="build-card' + (isGuide ? ' build-card-guide' : '') + '">' +
+      '<div class="build-card-info">' +
+        '<div class="build-card-name">' + guideBadge + build.name + '</div>' +
+        descHtml +
+        '<div class="build-card-meta">Level ' + (build.level || 160) + (date ? ' &middot; Saved ' + date : '') + '</div>' +
+        '<div class="build-card-trees">' +
+          (summary.blue ? '<span class="tree-tag tree-tag-blue">Blue: ' + summary.blue + '</span>' : '') +
+          (summary.red ? '<span class="tree-tag tree-tag-red">Red: ' + summary.red + '</span>' : '') +
+          (summary.yellow ? '<span class="tree-tag tree-tag-yellow">Yellow: ' + summary.yellow + '</span>' : '') +
+        '</div>' +
+        virtueIcons +
+      '</div>' +
+      '<div class="build-card-actions">' +
+        '<button class="like-btn' + isLiked + '" onclick="toggleLike(\'' + build.id + '\')" title="Like this build">' +
+          '<i class="fa fa-heart"></i> <span class="like-count">' + (build.likes || 0) + '</span>' +
+        '</button>' +
+        '<button class="load-build-btn" onclick="loadSavedBuild(\'' + build.id + '\')" title="Load this build">' +
+          '<i class="fa fa-play"></i> Load' +
+        '</button>' +
+        deleteBtn +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Pagination
+  if (totalPages <= 1) {
+    pagination.innerHTML = '';
+    return;
+  }
+
+  var paginationHtml = '';
+  paginationHtml += '<button class="page-btn" onclick="goToBuildsPage(' + (buildsCurrentPage - 1) + ')"' + (buildsCurrentPage <= 1 ? ' disabled' : '') + '>&laquo;</button>';
+
+  for (var p = 1; p <= totalPages; p++) {
+    paginationHtml += '<button class="page-btn' + (p === buildsCurrentPage ? ' active' : '') + '" onclick="goToBuildsPage(' + p + ')">' + p + '</button>';
+  }
+
+  paginationHtml += '<button class="page-btn" onclick="goToBuildsPage(' + (buildsCurrentPage + 1) + ')"' + (buildsCurrentPage >= totalPages ? ' disabled' : '') + '>&raquo;</button>';
+  pagination.innerHTML = paginationHtml;
+}
+
+function goToBuildsPage(page) {
+  buildsCurrentPage = page;
+  renderBuilds();
+  document.getElementById('sharedBuildsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Scorecard rendering ───────────────────────────────────────────────────
+function renderScorecard() {
+  var grid = document.getElementById('classGrid');
+  if (!grid) return;
+  var buildCounts = countBuildsPerClass();
+
+  grid.innerHTML = Object.keys(CLASS_META).map(function(key) {
+    var meta = CLASS_META[key];
+    var count = buildCounts[key] || 0;
+    var buildsLabel = count === 1 ? '1 saved build' : count + ' saved builds';
+    return '<div class="class-card" onclick="selectClass(\'' + key + '\')">' +
+      '<img class="class-card-icon" src="{{assets}}/img/icons/classes/' + key + '.png" alt="' + meta.name + '">' +
+      '<div class="class-card-name">' + meta.name + '</div>' +
+      '<div class="class-card-roles">' + meta.roles + '</div>' +
+      (count > 0 ? '<div class="class-card-builds"><i class="fa fa-bookmark"></i> ' + buildsLabel + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+// ── Class selection ───────────────────────────────────────────────────────
+function selectClass(classKey) {
+  currentClass = classKey;
+  currentBuild = 'endgame';
+  currentLevel = 160;
+  currentBuildData = null;
+  currentLoadedBuildId = null;
+  buildsCurrentPage = 1;
+  showPlanner();
+}
+
+function showPlanner() {
+  document.getElementById('communityScorecard').style.display = 'none';
+  document.getElementById('shareControls').style.display = '';
+  document.getElementById('skillBuilderContainer').style.display = '';
+  document.getElementById('sharedBuildsSection').style.display = '';
+
+  var planner = document.getElementById('trait-planner');
+  planner.setAttribute('data-class', currentClass);
+  planner.setAttribute('data-build', currentBuild);
+  planner.setAttribute('data-level', currentLevel.toString());
+
+  if (window.LOTRO_TRAIT_PLANNER_INIT) {
+    window.LOTRO_TRAIT_PLANNER_INIT();
+    plannerInitialized = true;
+  }
+
+  renderBuilds();
+  updateShareControls();
+  document.getElementById('shareControls').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showScorecard() {
+  document.getElementById('communityScorecard').style.display = '';
+  document.getElementById('shareControls').style.display = 'none';
+  document.getElementById('skillBuilderContainer').style.display = 'none';
+  document.getElementById('sharedBuildsSection').style.display = 'none';
+  renderScorecard();
+  document.getElementById('communityScorecard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Process URL parameters immediately before trait planner initializes
+function processUrlParameters() {
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('class') || urlParams.has('build') || urlParams.has('level') || urlParams.has('points')) {
+    var newClass = urlParams.get('class') || 'hunter';
+    var newBuild = urlParams.get('build') || 'endgame';
+    var newLevel = parseInt(urlParams.get('level')) || 160;
+
+    currentClass = newClass;
+    currentBuild = newBuild;
+    currentLevel = newLevel;
+
+    var planner = document.getElementById('trait-planner');
+    if (planner) {
+      planner.setAttribute('data-class', newClass);
+      planner.setAttribute('data-build', newBuild);
+      planner.setAttribute('data-level', newLevel.toString());
+    }
+
+    return { urlParams: urlParams, pointsData: urlParams.get('points') };
+  }
+  return null;
+}
+
+var urlProcessResult = processUrlParameters();
+
+// ── Sync the in-planner vote button with the like system ──────────────────
+function syncVoteButton() {
+  var btn = document.querySelector('.ltp-vote-btn');
+  var countEl = document.querySelector('.ltp-vote-count');
+  if (!btn || !countEl) return;
+
+  // Remove old listener by replacing node
+  var newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+
+  if (!currentLoadedBuildId) {
+    newBtn.textContent = '👍 Vote';
+    newBtn.classList.remove('liked');
+    newBtn.title = 'Save or load a build first to vote';
+    newBtn.style.opacity = '0.5';
+    countEl.textContent = '';
+    return;
+  }
+
+  var liked = getLikedBuilds();
+  var isLiked = !!liked[currentLoadedBuildId];
+  var build = GUIDE_BUILDS.find(function(b) { return b.id === currentLoadedBuildId; })
+    || getSavedBuilds().find(function(b) { return b.id === currentLoadedBuildId; });
+  var likeCount = build ? (build.likes || 0) : 0;
+
+  newBtn.textContent = isLiked ? '❤️ Liked' : '👍 Vote';
+  newBtn.classList.toggle('liked', isLiked);
+  newBtn.title = '';
+  newBtn.style.opacity = '';
+  countEl.textContent = likeCount > 0 ? likeCount : '';
+
+  newBtn.addEventListener('click', function() {
+    toggleLike(currentLoadedBuildId);
+    syncVoteButton();
+  });
+}
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+  if (urlProcessResult) {
+    showPlanner();
+  } else {
+    renderScorecard();
+  }
+
+  document.addEventListener('traitPlannerChanged', function(e) {
+    currentBuildData = e.detail;
+    updateShareControls();
+    syncVoteButton();
+  });
+
+  document.addEventListener('traitPlannerClassChanged', function(e) {
+    currentClass = e.detail.class;
+    currentBuild = e.detail.build;
+    buildsCurrentPage = 1;
+    renderBuilds();
+    updateShareControls();
+  });
+
+  document.addEventListener('traitPlannerLevelChanged', function(e) {
+    currentLevel = e.detail.level;
+    updateShareControls();
+  });
+
+  // Apply points if URL had point data
+  if (urlProcessResult && urlProcessResult.pointsData) {
+    setTimeout(function() {
+      if (window.LOTRO_TRAIT_PLANNER_API) {
+        try {
+          var points = JSON.parse(decodeURIComponent(urlProcessResult.pointsData));
+          window.LOTRO_TRAIT_PLANNER_API.setPoints(points);
+        } catch (e) {
+          console.warn('Failed to parse points data:', e);
+        }
+      }
+    }, 1000);
+  }
+});
+
+function generateShareableLink() {
+  var api = window.LOTRO_TRAIT_PLANNER_API;
+  var points = api ? api.getPoints() : (currentBuildData ? currentBuildData.points : null);
+
+  if (!points || Object.keys(points).length === 0) {
+    alert('Please allocate some trait points first.');
+    return;
+  }
+
+  var baseUrl = window.location.origin + window.location.pathname;
+  var params = new URLSearchParams();
+  params.set('class', currentClass);
+  params.set('build', currentBuild);
+  params.set('level', currentLevel);
+  params.set('points', encodeURIComponent(JSON.stringify(points)));
+
+  var shareUrl = baseUrl + '?' + params.toString();
+  document.getElementById('shareableLink').value = shareUrl;
+  document.getElementById('copyLinkBtn').disabled = false;
+}
+
+function generateEmbedCode() {
+  var api = window.LOTRO_TRAIT_PLANNER_API;
+  var points = api ? api.getPoints() : (currentBuildData ? currentBuildData.points : null);
+
+  if (!points || Object.keys(points).length === 0) {
+    alert('Please allocate some trait points first.');
+    return;
+  }
+
+  var embedCode = '{{traitPlanner:class=' + currentClass + ',build=' + currentBuild;
+  if (currentLevel !== 160) embedCode += ',level=' + currentLevel;
+  embedCode += ',points=' + encodeURIComponent(JSON.stringify(points));
+  embedCode += '}}';
+
+  document.getElementById('embedCode').value = embedCode;
+  document.getElementById('copyEmbedBtn').disabled = false;
+}
+
+function copyToClipboard(inputId) {
+  var input = document.getElementById(inputId);
+  input.select();
+  input.setSelectionRange(0, 99999);
+
+  try {
+    document.execCommand('copy');
+    var feedbackId = inputId.indexOf('Link') >= 0 ? 'linkFeedback' : 'embedFeedback';
+    showCopyFeedback(feedbackId);
+  } catch (err) {
+    alert('Failed to copy to clipboard. Please copy manually.');
+  }
+}
+
+function showCopyFeedback(feedbackId) {
+  var feedback = document.getElementById(feedbackId);
+  feedback.classList.add('show');
+  setTimeout(function() { feedback.classList.remove('show'); }, 2000);
+}
+
+function loadBuildFromUrl() {
+  $('#loadBuildModal').modal('show');
+}
+
+function loadBuildFromInput() {
+  var input = document.getElementById('buildUrl').value.trim();
+  if (!input) return;
+
+  try {
+    if (input.indexOf('{{traitPlanner:') === 0 && input.indexOf('}}') === input.length - 2) {
+      var params = parseEmbedCode(input);
+      applyBuildParams(params);
+    } else if (input.indexOf('?') >= 0) {
+      var url = new URL(input);
+      var urlParams = new URLSearchParams(url.search);
+      loadBuildFromUrlParams(urlParams);
+    } else {
+      alert('Invalid URL or embed code format.');
+      return;
+    }
+    $('#loadBuildModal').modal('hide');
+    document.getElementById('buildUrl').value = '';
+  } catch (e) {
+    alert('Failed to parse the provided URL or embed code.');
+  }
+}
+
+function parseEmbedCode(embedCode) {
+  var match = embedCode.match(/\{\{traitPlanner:([^}]+)\}\}/);
+  if (!match) throw new Error('Invalid embed code');
+  var params = {};
+  match[1].split(',').forEach(function(pair) {
+    var parts = pair.split('=', 2);
+    if (parts[0] && parts[1]) params[parts[0].trim()] = parts[1].trim();
+  });
+  return params;
+}
+
+function loadBuildFromUrlParams(params) {
+  currentClass = params.get('class') || 'hunter';
+  currentBuild = params.get('build') || 'endgame';
+  currentLevel = parseInt(params.get('level')) || 160;
+  var pointsData = params.get('points');
+
+  showPlanner();
+
+  if (pointsData) {
+    setTimeout(function() {
+      try {
+        var points = JSON.parse(decodeURIComponent(pointsData));
+        if (window.LOTRO_TRAIT_PLANNER_API) window.LOTRO_TRAIT_PLANNER_API.setPoints(points);
+      } catch (e) { console.warn('Failed to parse points data:', e); }
+    }, 1000);
+  }
+}
+
+function applyBuildParams(params) {
+  var urlParams = new URLSearchParams();
+  Object.keys(params).forEach(function(key) { urlParams.set(key, params[key]); });
+  loadBuildFromUrlParams(urlParams);
+}
+
+function resetBuild() {
+  if (confirm('Are you sure you want to reset the current build? This will clear all trait allocations.')) {
+    if (window.LOTRO_TRAIT_PLANNER_API) window.LOTRO_TRAIT_PLANNER_API.reset();
+    updateShareControls();
+  }
+}
+
+function updateShareControls() {
+  document.getElementById('shareableLink').value = '';
+  document.getElementById('embedCode').value = '';
+  document.getElementById('copyLinkBtn').disabled = true;
+  document.getElementById('copyEmbedBtn').disabled = true;
+}
+</script>

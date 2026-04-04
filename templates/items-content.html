@@ -84,15 +84,12 @@
 
     <!-- Item Detail Modal -->
     <div class="modal fade" id="item-modal" tabindex="-1" role="dialog">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content item-modal-content">
-          <div class="modal-header item-modal-header">
-            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-            <h4 class="modal-title" id="item-modal-title"></h4>
-          </div>
+          <button type="button" class="close tt-close" data-dismiss="modal"><span>&times;</span></button>
           <div class="modal-body" id="item-modal-body"></div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal">Close</button>
+          <div class="modal-header item-modal-header" style="display:none">
+            <h4 class="modal-title" id="item-modal-title"></h4>
           </div>
         </div>
       </div>

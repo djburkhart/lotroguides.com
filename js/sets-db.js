@@ -77,12 +77,14 @@
     return (icons ? icons + ' ' : '') + '<span class="set-piece-count">' + data.length + ' pieces</span>';
   }
 
+  var fmtStat = window.LOTRO_FORMAT_STAT || function (s) { return s; };
+
   function renderBonuses(data, type) {
     if (type !== 'display') return '';
     if (!data || !data.length) return '<span class="text-muted">—</span>';
     return data.map(function (b) {
       var statNames = b.st.map(function (s) {
-        return escapeHtml(s.s) + (s.v !== null ? ': ' + s.v : '');
+        return escapeHtml(fmtStat(s.s)) + (s.v !== null ? ': ' + s.v : '');
       }).join(', ');
       return '<span class="set-bonus-badge">' + b.c + 'pc: ' + statNames + '</span>';
     }).join(' ');
@@ -174,7 +176,7 @@
       for (var j = 0; j < s.bn.length; j++) {
         var b = s.bn[j];
         var stats = b.st.map(function (st) {
-          return escapeHtml(st.s) + (st.v !== null ? ': <strong>' + st.v + '</strong>' : '');
+          return escapeHtml(fmtStat(st.s)) + (st.v !== null ? ': <strong>' + st.v + '</strong>' : '');
         }).join(', ');
         html += '<tr><td><span class="set-bonus-badge">' + b.c + '-piece</span></td><td>' + stats + '</td></tr>';
       }

@@ -45,6 +45,41 @@ const STAT_LABELS = {
   Resist_Additional_Resistance_Disease: 'Disease Resistance %',
   Resist_Additional_Resistance_Fear: 'Fear Resistance %',
   Resist_Additional_Resistance_Wound: 'Wound Resistance %',
+  MELEE_DAMAGE_PERCENTAGE: 'Melee Damage',
+  RANGED_DAMAGE_PERCENTAGE: 'Ranged Damage',
+  TACTICAL_DAMAGE_PERCENTAGE: 'Tactical Damage',
+  CRITICAL_MELEE_PERCENTAGE: 'Melee Critical Chance',
+  CRITICAL_RANGED_PERCENTAGE: 'Ranged Critical Chance',
+  CRITICAL_TACTICAL_PERCENTAGE: 'Tactical Critical Chance',
+  OUTGOING_HEALING: 'Outgoing Healing Rating',
+  OUTGOING_HEALING_PERCENTAGE: 'Outgoing Healing %',
+  INCOMING_HEALING: 'Incoming Healing Rating',
+  INCOMING_HEALING_PERCENTAGE: 'Incoming Healing %',
+  MELEE_DEFENCE: 'Melee Defence',
+  RANGED_DEFENCE: 'Ranged Defence',
+  TACTICAL_DEFENCE: 'Tactical Defence',
+  CRITICAL_DEFENCE: 'Critical Defence',
+  CRITICAL_DEFENCE_PERCENTAGE: 'Critical Defence %',
+  BLOCK: 'Block Rating',
+  PARRY: 'Parry Rating',
+  EVADE: 'Evade Rating',
+  BLOCK_PERCENTAGE: 'Block %',
+  PARRY_PERCENTAGE: 'Parry %',
+  EVADE_PERCENTAGE: 'Evade %',
+  STEALTH_LEVEL: 'Stealth Level',
+  STEALTH_DETECTION: 'Stealth Detection',
+  DEVASTATE_MELEE_PERCENTAGE: 'Devastate Chance (melee)',
+  DEVASTATE_RANGED_PERCENTAGE: 'Devastate Chance (ranged)',
+  DEVASTATE_TACTICAL_PERCENTAGE: 'Devastate Chance (tactical)',
+  CRIT_DEVASTATE_MAGNITUDE_MELEE_PERCENTAGE: 'Crit/Dev Magnitude (melee)',
+  CRIT_DEVASTATE_MAGNITUDE_RANGED_PERCENTAGE: 'Crit/Dev Magnitude (ranged)',
+  CRIT_DEVASTATE_MAGNITUDE_TACTICAL_PERCENTAGE: 'Crit/Dev Magnitude (tactical)',
+  FINESSE_PERCENTAGE: 'Finesse %',
+  RESISTANCE_PERCENTAGE: 'Resistance %',
+  MELEE_CRITICAL_DEFENCE: 'Melee Critical Defence',
+  RANGED_CRITICAL_DEFENCE: 'Ranged Critical Defence',
+  TACTICAL_CRITICAL_DEFENCE: 'Tactical Critical Defence',
+  AUDACITY: 'Audacity',
 };
 
 function ensureDir(dir) {
@@ -72,6 +107,74 @@ function formatStat(name, value) {
   const label = STAT_LABELS[name] || name.replace(/_/g, ' ');
   const num = Math.round(parseFloat(value));
   return { stat: label, value: num };
+}
+
+// ─── Stat Progressions (resolve scaling → actual values) ────────────────────
+let progressionMap = null;
+
+function loadProgressions() {
+  if (progressionMap) return progressionMap;
+  console.log('  📈 Loading progressions...');
+  const xml = readXml('progressions.xml');
+  if (!xml) { progressionMap = {}; return progressionMap; }
+  progressionMap = {};
+
+  // Linear interpolation progressions: explicit (x, y) points
+  const linRe = /<linearInterpolationProgression identifier="(\d+)" nbPoints="\d+">(.*?)<\/linearInterpolationProgression>/gs;
+  let lm;
+  while ((lm = linRe.exec(xml)) !== null) {
+    const id = lm[1];
+    const body = lm[2];
+    const points = [];
+    const pr = /x="([^"]+)" y="([^"]+)"/g;
+    let p;
+    while ((p = pr.exec(body)) !== null) {
+      points.push({ x: parseFloat(p[1]), y: parseFloat(p[2]) });
+    }
+    if (points.length) progressionMap[id] = { type: 'linear', points };
+  }
+
+  // Array progressions: sequential y values starting at level 1
+  const arrRe = /<arrayProgression identifier="(\d+)" nbPoints="\d+">(.*?)<\/arrayProgression>/gs;
+  let am;
+  while ((am = arrRe.exec(xml)) !== null) {
+    const id = am[1];
+    const body = am[2];
+    const values = [];
+    const vr = /y="([^"]+)"/g;
+    let v;
+    while ((v = vr.exec(body)) !== null) {
+      values.push(parseFloat(v[1]));
+    }
+    if (values.length) progressionMap[id] = { type: 'array', values };
+  }
+
+  console.log(`    Loaded ${Object.keys(progressionMap).length} progressions`);
+  return progressionMap;
+}
+
+function resolveProgression(scalingId, level) {
+  const prog = loadProgressions()[scalingId];
+  if (!prog || !level) return null;
+
+  if (prog.type === 'array') {
+    // Index 0 = level 1
+    const idx = Math.min(Math.max(level - 1, 0), prog.values.length - 1);
+    return prog.values[idx];
+  }
+
+  if (prog.type === 'linear') {
+    const pts = prog.points;
+    if (level <= pts[0].x) return pts[0].y;
+    if (level >= pts[pts.length - 1].x) return pts[pts.length - 1].y;
+    for (let i = 0; i < pts.length - 1; i++) {
+      if (level >= pts[i].x && level <= pts[i + 1].x) {
+        const t = (level - pts[i].x) / (pts[i + 1].x - pts[i].x);
+        return pts[i].y + t * (pts[i + 1].y - pts[i].y);
+      }
+    }
+  }
+  return null;
 }
 
 // ─── Consumables ────────────────────────────────────────────────────────────
@@ -203,10 +306,21 @@ function extractItems() {
 
     const body = m[4];
     const stats = [];
-    const sr = /<stat name="([^"]*)"(?:[^/]*?(?:value|constant)="([^"]*)")?/g;
+    const sr = /<stat name="([^"]*)"([^/]*?)\//g;
     let s;
     while ((s = sr.exec(body)) !== null) {
-      if (s[2]) stats.push(formatStat(s[1], s[2]));
+      const statName = s[1];
+      const attrStr = s[2];
+      const constMatch = attrStr.match(/(?:value|constant)="([^"]+)"/);
+      const scalingMatch = attrStr.match(/scaling="([^"]+)"/);
+      if (constMatch) {
+        stats.push(formatStat(statName, constMatch[1]));
+      } else if (scalingMatch) {
+        const resolved = resolveProgression(scalingMatch[1], level);
+        if (resolved !== null && Math.round(resolved) !== 0) {
+          stats.push(formatStat(statName, resolved));
+        }
+      }
     }
 
     const item = {
@@ -403,10 +517,40 @@ function extractSets() {
 }
 
 // ─── Deeds ──────────────────────────────────────────────────────────────────
+function loadEnumLabels(enumName) {
+  const fp = path.join(LORE_DIR, 'labels', 'en', `enum-${enumName}.xml`);
+  if (!fs.existsSync(fp)) return {};
+  const xml = fs.readFileSync(fp, 'utf8');
+  const map = {};
+  const re = /<label key="([^"]*)" value="([^"]*)"/g;
+  let m;
+  while ((m = re.exec(xml)) !== null) map[m[1]] = m[2];
+  return map;
+}
+
+function loadDeedCategoryMap() {
+  // Build code → label from enum definition + English labels
+  const enumFp = path.join(LORE_DIR, 'enums', 'DeedCategory.xml');
+  if (!fs.existsSync(enumFp)) return {};
+  const enumXml = fs.readFileSync(enumFp, 'utf8');
+  const labels = loadEnumLabels('DeedCategory');
+  const map = {};
+  const re = /<entry code="(\d+)" name="([^"]*)"/g;
+  let m;
+  while ((m = re.exec(enumXml)) !== null) {
+    const code = m[1], key = m[2];
+    map[code] = labels[key] || key;
+  }
+  return map;
+}
+
 function extractDeeds() {
   console.log('  📦 Extracting deeds...');
   const xml = readXml('deeds.xml');
   if (!xml) return [];
+
+  const deedCategoryMap = loadDeedCategoryMap();
+  console.log(`    Loaded ${Object.keys(deedCategoryMap).length} deed category labels`);
 
   const re = /<deed id="(\d+)"([^>]*)>([\s\S]*?)<\/deed>/g;
   const deeds = [];
@@ -422,9 +566,11 @@ function extractDeeds() {
     const minLevelMatch = attrs.match(/minLevel="(\d+)"/);
     const levelMatch = attrs.match(/level="(\d+)"/);
     const classMatch = attrs.match(/requiredClass="([^"]*)"/);
+    const catMatch = attrs.match(/category="(\d+)"/);
 
     const name = nameMatch ? cleanGameText(nameMatch[1]) : '';
     const type = typeMatch ? typeMatch[1] : '';
+    const region = catMatch ? (deedCategoryMap[catMatch[1]] || '') : '';
     if (!name) continue;
 
     // Categorize deed type into friendly labels
@@ -546,6 +692,7 @@ function extractDeeds() {
       level: levelMatch ? parseInt(levelMatch[1]) : (minLevelMatch ? parseInt(minLevelMatch[1]) : 0),
       rewards,
     };
+    if (region) deed.region = region;
     if (classMatch) deed.requiredClass = classMatch[1];
     if (objectives.length) deed.objectives = objectives;
 

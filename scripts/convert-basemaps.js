@@ -22,7 +22,7 @@ const MARKERS_DIR = path.join(PROJECT_ROOT, 'data', 'lore', 'map-markers');
 const INDEX_FILE = path.join(PROJECT_ROOT, 'data', 'lore', 'maps-index.json');
 
 // WebP quality settings
-const WEBP_QUALITY = 75;
+const WEBP_QUALITY = 90;
 const CONCURRENCY = 8;
 
 function parseArgs() {

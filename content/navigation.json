@@ -64,6 +64,11 @@
       "activeOn": ["map"]
     },
     {
+      "label": "Skills",
+      "url": "skills.html",
+      "activeOn": ["skills"]
+    },
+    {
       "label": "Media",
       "url": "media.html",
       "activeOn": ["media"]

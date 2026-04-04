@@ -58,14 +58,27 @@ async function main(args) {
     });
     const result = await res.json();
 
-    const valid = result.tokenProperties && result.tokenProperties.valid;
-    const actionMatch = result.tokenProperties && result.tokenProperties.action === action;
-    const score = result.riskAnalysis ? result.riskAnalysis.score : 0;
+    /* Interpret assessment per
+       https://cloud.google.com/recaptcha/docs/interpret-assessment-website */
+    const tp = result.tokenProperties || {};
+    const ra = result.riskAnalysis || {};
+
+    const valid = !!tp.valid;
+    const actionMatch = tp.action === action;
+    const score = typeof ra.score === 'number' ? ra.score : 0;
+    const reasons = Array.isArray(ra.reasons) ? ra.reasons : [];
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ success: !!(valid && actionMatch), score }),
+      body: JSON.stringify({
+        success: valid && actionMatch,
+        score,
+        reasons,
+        valid,
+        action: tp.action || '',
+        assessmentName: result.name || '',
+      }),
     };
   } catch (err) {
     return {

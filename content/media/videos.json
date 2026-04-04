@@ -26,5 +26,19 @@
     "description": "Broadcasted live on Twitch -- Watch live at https://www.twitch.tv/lotrostream.",
     "publishedAt": "2017-10-15T23:06:26Z",
     "thumbnail": "https://i.ytimg.com/vi/Yqj8sinay5Q/hqdefault.jpg"
+  },
+  {
+    "title": "The Warg Talks with Spilo (Last Stream for Awhile!)",
+    "youtubeId": "B5aKsujzYzU",
+    "description": "Our intrepid adventurer provides plenty of expert advice regarding Player vs. Monster Player combat and end game content.",
+    "publishedAt": "2017-08-01T02:02:11Z",
+    "thumbnail": "https://i.ytimg.com/vi/B5aKsujzYzU/hqdefault.jpg"
+  },
+  {
+    "title": "Isengard Developer Diary - FR",
+    "youtubeId": "PBFurJJMONM",
+    "description": "",
+    "publishedAt": "2011-09-20T16:10:50Z",
+    "thumbnail": "https://i.ytimg.com/vi/PBFurJJMONM/hqdefault.jpg"
   }
 ]

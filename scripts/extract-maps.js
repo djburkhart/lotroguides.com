@@ -15,6 +15,8 @@ const { execSync } = require('child_process');
 // ─── Configuration ──────────────────────────────────────────────────────────
 const COMPANION_ROOT = process.env.LOTRO_COMPANION_PATH ||
   'C:/Users/me/OneDrive/Documents/The Lord of the Rings Online/LotRO Companion/app';
+const BASEMAPS_DIR = process.env.LOTRO_BASEMAPS_PATH ||
+  path.resolve(__dirname, '..', '..', 'lotro-maps-db', 'maps');
 const MAPS_DIR = path.join(COMPANION_ROOT, 'data', 'lore', 'maps');
 const LORE_DIR = path.join(COMPANION_ROOT, 'data', 'lore');
 const LIB_DIR = path.join(COMPANION_ROOT, 'lib');
@@ -22,16 +24,14 @@ const OUT_DIR = path.join(__dirname, '..', 'data', 'lore');
 const IMG_OUT = path.join(__dirname, '..', 'img', 'maps', 'categories');
 const AREA_ICONS_OUT = path.join(__dirname, '..', 'img', 'maps', 'areas');
 
-// Categories to EXCLUDE (high-volume landscape noise)
-const EXCLUDED_CATEGORIES = new Set([
-  2,   // Quest (too many, overwhelming)
-  39,  // No Icon
-  50,  // Crafting Resource
-  71,  // Monster
-  72,  // Container
-  73,  // Item
-  77,  // Crop
-  78,  // Critter
+// High-volume categories extracted to separate per-map files (lazy-loaded in frontend).
+// These each contain 50K–1.8M markers and would bloat the default marker payload.
+const HEAVY_CATEGORIES = new Set([
+  50,  // Crafting Resource (~635K markers)
+  71,  // Monster (~1.8M markers)
+  72,  // Container (~238K markers)
+  77,  // Crop (~773K markers)
+  78,  // Critter (~756K markers)
 ]);
 
 function ensureDir(dir) {
@@ -111,6 +111,31 @@ function extractCategories() {
 }
 
 // ─── Parse links.xml ────────────────────────────────────────────────────────
+
+// ─── Read basemap image dimensions from PNG headers ─────────────────────────
+function enrichWithImageDimensions(maps) {
+  if (!fs.existsSync(BASEMAPS_DIR)) {
+    console.log('  ⚠ Basemaps directory not found, skipping image dimensions');
+    return;
+  }
+  console.log('  📐 Reading basemap image dimensions...');
+  let found = 0;
+  for (const map of maps) {
+    const png = path.join(BASEMAPS_DIR, `${map.id}.png`);
+    if (!fs.existsSync(png)) continue;
+    // PNG IHDR: width at bytes 16-19, height at bytes 20-23 (big-endian uint32)
+    const buf = Buffer.alloc(24);
+    const fd = fs.openSync(png, 'r');
+    fs.readSync(fd, buf, 0, 24, 0);
+    fs.closeSync(fd);
+    map.w = buf.readUInt32BE(16);
+    map.h = buf.readUInt32BE(20);
+    found++;
+  }
+  console.log(`    ${found}/${maps.length} maps have basemap dimensions`);
+}
+
+// ─── Parse links.xml ────────────────────────────────────────────────────────
 function extractLinks() {
   console.log('  🔗 Extracting links...');
   const fp = path.join(MAPS_DIR, 'links.xml');
@@ -145,6 +170,7 @@ function extractMarkers() {
   const files = fs.readdirSync(markersDir).filter(f => f.endsWith('.xml'));
   let totalMarkers = 0;
   const allMarkers = [];
+  const heavyMarkers = [];
 
   for (const file of files) {
     const xml = fs.readFileSync(path.join(markersDir, file), 'utf8');
@@ -153,8 +179,7 @@ function extractMarkers() {
 
     while ((m = re.exec(xml)) !== null) {
       const cat = parseInt(m[3]);
-      if (EXCLUDED_CATEGORIES.has(cat)) continue;
-      allMarkers.push({
+      const marker = {
         id: m[1],
         l: cleanGameText(m[2]), // label
         c: cat,              // category code
@@ -162,17 +187,46 @@ function extractMarkers() {
         z: m[5],             // parentZoneId
         lng: parseFloat(m[6]),
         lat: parseFloat(m[7]),
-      });
+      };
+      if (HEAVY_CATEGORIES.has(cat)) {
+        heavyMarkers.push(marker);
+      } else {
+        allMarkers.push(marker);
+      }
       totalMarkers++;
     }
   }
 
-  console.log(`    Found ${totalMarkers} markers from ${files.length} files`);
-  return allMarkers;
+  console.log(`    Found ${totalMarkers} markers (${allMarkers.length} standard, ${heavyMarkers.length} heavy) from ${files.length} files`);
+  return { standard: allMarkers, heavy: heavyMarkers };
 }
 
-// ─── Assign markers to maps by bounding box ─────────────────────────────────
-function assignMarkersToMaps(maps, markers) {
+// ─── Parse parchmentMaps.xml to build area → map lookup ─────────────────────
+function buildAreaToMapLookup() {
+  console.log('  📋 Building area → map lookup from parchmentMaps.xml...');
+  const fp = path.join(LORE_DIR, 'parchmentMaps.xml');
+  if (!fs.existsSync(fp)) { console.warn('  ⚠ parchmentMaps.xml not found'); return {}; }
+
+  const xml = fs.readFileSync(fp, 'utf8');
+  const areaToMap = {};
+  const mapRe = /<parchmentMap id="(\d+)"[^>]*>([\s\S]*?)<\/parchmentMap>/g;
+  let m;
+
+  while ((m = mapRe.exec(xml)) !== null) {
+    const mapId = m[1];
+    const body = m[2];
+    const areas = [...body.matchAll(/<area id="(\d+)"/g)];
+    for (const a of areas) {
+      areaToMap[a[1]] = mapId;
+    }
+  }
+
+  console.log(`    ${Object.keys(areaToMap).length} areas mapped to parchment maps`);
+  return areaToMap;
+}
+
+// ─── Assign markers to maps using authoritative zone/area lookup ─────────────
+function assignMarkersToMaps(maps, markers, areaToMap) {
   console.log('  🔄 Assigning markers to maps...');
 
   const mapById = Object.fromEntries(maps.map(m => [m.id, m]));
@@ -180,93 +234,98 @@ function assignMarkersToMaps(maps, markers) {
   // Build a bounding box index from maps — sorted by factor (highest first = most specific)
   const sortedMaps = [...maps].sort((a, b) => b.factor - a.factor);
 
-  // Region-level maps (factor ≤ 65) should aggregate markers from children.
-  // Overview maps (factor ≤ 2) are excluded — they show navigation links only.
-  const REGION_MAX_FACTOR = 65;
-  const OVERVIEW_MAX_FACTOR = 2;
-
-  // Pass 1: assign each marker to its most specific map (highest factor)
   const mapMarkers = {}; // mapId → Set of marker indices
+
+  let directMatch = 0, areaMatch = 0, bboxFallback = 0, unassigned = 0;
 
   for (let i = 0; i < markers.length; i++) {
     const mk = markers[i];
 
-    // Prefer explicit parent zone mapping from source data.
-    // This is the authoritative layer for most POIs and prevents overlap
-    // between similarly bounded sibling/parent maps.
+    // 1. Direct map match — parentZoneId IS a map (inner/instance maps)
     if (mk.z && mapById[mk.z]) {
       if (!mapMarkers[mk.z]) mapMarkers[mk.z] = new Set();
       mapMarkers[mk.z].add(i);
+      directMatch++;
       continue;
     }
 
+    // 2. Area→map lookup — parentZoneId is an area within a parchment map
+    if (mk.z && areaToMap[mk.z]) {
+      const targetMap = areaToMap[mk.z];
+      if (!mapMarkers[targetMap]) mapMarkers[targetMap] = new Set();
+      mapMarkers[targetMap].add(i);
+      areaMatch++;
+      continue;
+    }
+
+    // 3. Bounding box fallback — for markers with no zone/area mapping
+    let found = false;
     for (const map of sortedMaps) {
+      if (map.factor <= 2) continue; // skip overview maps
       if (mk.lng >= map.min.lng && mk.lng <= map.max.lng &&
           mk.lat >= map.min.lat && mk.lat <= map.max.lat) {
         if (!mapMarkers[map.id]) mapMarkers[map.id] = new Set();
         mapMarkers[map.id].add(i);
-        break; // most specific map only for pass 1
+        bboxFallback++;
+        found = true;
+        break;
       }
+    }
+    if (!found) unassigned++;
+  }
+
+  console.log(`    Direct map match: ${directMatch}, Area→map: ${areaMatch}, BBox fallback: ${bboxFallback}, Unassigned: ${unassigned}`);
+
+  // Pass 2: for region maps (low factor), aggregate markers from child maps.
+  // parchmentMaps.xml defines parent→child hierarchy via parentMapId.
+  // Use that to bubble markers from child maps up to their parent region.
+  const REGION_MAX_FACTOR = 65;
+  const OVERVIEW_MAX_FACTOR = 2;
+  const regionMaps = maps.filter(m => m.factor > OVERVIEW_MAX_FACTOR && m.factor <= REGION_MAX_FACTOR);
+
+  // Build parchment parent→children hierarchy
+  const pmFp = path.join(LORE_DIR, 'parchmentMaps.xml');
+  const pmChildren = {}; // parentMapId → [childMapId, ...]
+  if (fs.existsSync(pmFp)) {
+    const pmXml = fs.readFileSync(pmFp, 'utf8');
+    const childRe = /<parchmentMap id="(\d+)"[^>]*parentMapId="(\d+)"/g;
+    let cm;
+    while ((cm = childRe.exec(pmXml)) !== null) {
+      const childId = cm[1], parentId = cm[2];
+      if (!pmChildren[parentId]) pmChildren[parentId] = [];
+      pmChildren[parentId].push(childId);
     }
   }
 
-  // Pass 2: for region maps, aggregate markers from contained child maps.
-  // This keeps whole-zone views (e.g. Evendim/Bree-land) representative even
-  // when the region has some native POIs of its own.
-  const regionMaps = maps.filter(m => m.factor > OVERVIEW_MAX_FACTOR && m.factor <= REGION_MAX_FACTOR);
-
-  // Pre-compute: for each non-region map (factor > REGION_MAX_FACTOR), find its single
-  // "owner region" — the region whose CENTER is closest to the child's center (among all
-  // regions whose bounds fully contain the child). This prevents instances from bleeding
-  // into multiple overlapping large-bounding-box regions and assigns each instance to its
-  // geographically nearest parent region.
-  const instanceOwner = {}; // childId → ownerRegionId
-  for (const child of sortedMaps) {
-    if (child.factor <= REGION_MAX_FACTOR) continue;
-    const childCx = (child.min.lng + child.max.lng) / 2;
-    const childCy = (child.min.lat + child.max.lat) / 2;
-
-    let bestRegion = null, bestDist = Infinity;
-    for (const region of regionMaps) {
-      if (child.min.lng < region.min.lng || child.max.lng > region.max.lng ||
-          child.min.lat < region.min.lat || child.max.lat > region.max.lat) continue;
-      const dx = childCx - (region.min.lng + region.max.lng) / 2;
-      const dy = childCy - (region.min.lat + region.max.lat) / 2;
-      const dist = dx * dx + dy * dy; // squared distance is fine for comparison
-      if (dist < bestDist) { bestDist = dist; bestRegion = region.id; }
+  // Recursively collect all descendant map IDs
+  function getDescendants(mapId) {
+    const result = [];
+    const children = pmChildren[mapId] || [];
+    for (const child of children) {
+      result.push(child);
+      result.push(...getDescendants(child));
     }
-    if (bestRegion) instanceOwner[child.id] = bestRegion;
+    return result;
   }
 
   for (const region of regionMaps) {
-    // Find all higher-factor maps that are spatially contained within this region.
-    // This lets parent area maps (e.g. Bree-land) surface POIs from their children.
+    const descendants = getDescendants(region.id);
+    if (descendants.length === 0) continue;
+
     const collected = mapMarkers[region.id] ? new Set(mapMarkers[region.id]) : new Set();
-    for (const child of sortedMaps) {
-      if (child.factor <= region.factor) continue; // only look at more specific maps
-
-      // If this child belongs to a different owner region, skip it entirely.
-      // This prevents instances from being aggregated into multiple overlapping regions
-      // (e.g. Meduseld should only appear in West Rohan: Kingstead, not Western Gondor).
-      if (instanceOwner[child.id] && instanceOwner[child.id] !== region.id) continue;
-
-      if (child.min.lng >= region.min.lng && child.max.lng <= region.max.lng &&
-          child.min.lat >= region.min.lat && child.max.lat <= region.max.lat) {
-        const childMarkers = mapMarkers[child.id];
-        if (childMarkers) {
-          for (const idx of childMarkers) {
-            const mk = markers[idx];
-            if (!mk) continue;
-            if (mk.lng < region.min.lng || mk.lng > region.max.lng ||
-                mk.lat < region.min.lat || mk.lat > region.max.lat) {
-              continue;
-            }
-            collected.add(idx);
-          }
+    for (const descId of descendants) {
+      const childMarkers = mapMarkers[descId];
+      if (!childMarkers) continue;
+      for (const idx of childMarkers) {
+        const mk = markers[idx];
+        if (!mk) continue;
+        // Only include markers that fall within region bounds
+        if (mk.lng >= region.min.lng && mk.lng <= region.max.lng &&
+            mk.lat >= region.min.lat && mk.lat <= region.max.lat) {
+          collected.add(idx);
         }
       }
     }
-
     if (collected.size > 0) mapMarkers[region.id] = collected;
   }
 
@@ -317,10 +376,16 @@ function copyCategoryIcons(categories) {
   console.log('  🎨 Copying category icons...');
   ensureDir(IMG_OUT);
 
+  // Prefer repo categories directory, fall back to Companion
+  const repoCatDir = path.join(BASEMAPS_DIR, '..', 'categories');
+  const companionCatDir = path.join(MAPS_DIR, 'categories');
+
   let copied = 0;
   for (const cat of categories) {
-    const src = path.join(MAPS_DIR, 'categories', `${cat.icon}.png`);
     const dest = path.join(IMG_OUT, `${cat.icon}.png`);
+    const repoSrc = path.join(repoCatDir, `${cat.icon}.png`);
+    const compSrc = path.join(companionCatDir, `${cat.icon}.png`);
+    const src = fs.existsSync(repoSrc) ? repoSrc : compSrc;
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, dest);
       copied++;
@@ -433,8 +498,10 @@ function main() {
   const maps = extractMaps();
   const categories = extractCategories();
   const links = extractLinks();
-  const markers = extractMarkers();
-  const mapMarkers = assignMarkersToMaps(maps, markers);
+  const areaToMap = buildAreaToMapLookup();
+  const { standard: markers, heavy: heavyMarkers } = extractMarkers();
+  const mapMarkers = assignMarkersToMaps(maps, markers, areaToMap);
+  const heavyMapMarkers = assignMarkersToMaps(maps, heavyMarkers, areaToMap);
   const mapById = Object.fromEntries(maps.map(m => [m.id, m]));
   const majorMapIds = getMajorMaps(maps, mapMarkers, links);
 
@@ -443,6 +510,9 @@ function main() {
 
   // Extract area icons and build mapId → iconId lookup
   const mapIconMap = extractAreaIcons(maps);
+
+  // Enrich maps with basemap image dimensions (w, h)
+  enrichWithImageDimensions(maps);
 
   // Write maps data (all maps with geo info)
   fs.writeFileSync(
@@ -479,43 +549,66 @@ function main() {
     }
   }
 
-  let writtenMaps = 0;
-  let totalDeduped = 0;
-  let totalOutOfBoundsFiltered = 0;
-  for (const [mapId, indices] of Object.entries(mapMarkers)) {
-    const mapDef = mapById[mapId];
-    const raw = indices
-      .map(i => markers[i])
-      .filter(m => m && (!mapDef || (
-        m.lng >= mapDef.min.lng && m.lng <= mapDef.max.lng &&
-        m.lat >= mapDef.min.lat && m.lat <= mapDef.max.lat
-      )));
-    totalOutOfBoundsFiltered += indices.length - raw.length;
-    // Deduplicate exact duplicate POIs emitted under different marker ids.
-    const seen = new Set();
-    const deduped = [];
-    for (const m of raw) {
-      const normLabel = (m.l || '').trim().toLowerCase();
-      const key = m.c + '|' + normLabel + '|' + m.lng.toFixed(2) + '|' + m.lat.toFixed(2);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      deduped.push(m);
+  // Helper: dedupe and write markers for a given assignment map.
+  // maxPerMap: skip maps that exceed this marker count after dedup (0 = no limit).
+  function writeMarkerFiles(outDir, assignment, markerArray, maxPerMap) {
+    ensureDir(outDir);
+    // Clean stale files
+    for (const file of fs.readdirSync(outDir)) {
+      if (file.endsWith('.json')) fs.unlinkSync(path.join(outDir, file));
     }
-    totalDeduped += raw.length - deduped.length;
-    fs.writeFileSync(
-      path.join(markerOutDir, `${mapId}.json`),
-      JSON.stringify(deduped)
-    );
-    writtenMaps++;
+    let written = 0, deduped = 0, oob = 0, capped = 0;
+    for (const [mapId, indices] of Object.entries(assignment)) {
+      const mapDef = mapById[mapId];
+      const raw = indices
+        .map(i => markerArray[i])
+        .filter(m => m && (!mapDef || (
+          m.lng >= mapDef.min.lng && m.lng <= mapDef.max.lng &&
+          m.lat >= mapDef.min.lat && m.lat <= mapDef.max.lat
+        )));
+      oob += indices.length - raw.length;
+      const seen = new Set();
+      const unique = [];
+      for (const m of raw) {
+        const normLabel = (m.l || '').trim().toLowerCase();
+        const key = m.c + '|' + normLabel + '|' + m.lng.toFixed(2) + '|' + m.lat.toFixed(2);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        unique.push(m);
+      }
+      deduped += raw.length - unique.length;
+      if (maxPerMap && unique.length > maxPerMap) {
+        capped++;
+        continue;
+      }
+      if (unique.length > 0) {
+        fs.writeFileSync(path.join(outDir, `${mapId}.json`), JSON.stringify(unique));
+        written++;
+      }
+    }
+    return { written, deduped, oob, capped };
   }
+
+  // Standard markers (loaded with the map)
+  const stdResult = writeMarkerFiles(markerOutDir, mapMarkers, markers, 0);
+
+  // Heavy-category markers (lazy-loaded on demand).
+  // Cap at 5000 markers per map to keep file sizes practical for web delivery.
+  // Maps exceeding the cap (large open-world zones with millions of monster/crop/critter
+  // spawns) are omitted — these are only practically viewable in desktop LotRO Companion.
+  const HEAVY_CAP = 5000;
+  const heavyOutDir = path.join(OUT_DIR, 'map-markers-heavy');
+  const heavyResult = writeMarkerFiles(heavyOutDir, heavyMapMarkers, heavyMarkers, HEAVY_CAP);
 
   // Write a manifest with summary info
   const manifest = {
     totalMaps: maps.length,
-    totalMarkers: markers.length,
+    totalMarkers: markers.length + heavyMarkers.length,
     totalCategories: categories.length,
     totalLinks: links.length,
-    mapsWithMarkers: writtenMaps,
+    mapsWithMarkers: stdResult.written,
+    mapsWithHeavyMarkers: heavyResult.written,
+    heavyCategories: [...HEAVY_CATEGORIES],
     majorMapIds: [...majorMapIds],
   };
   fs.writeFileSync(
@@ -531,10 +624,9 @@ function main() {
 
   console.log(`\n✅ Map extraction complete`);
   console.log(`   Output: ${OUT_DIR}`);
-  console.log(`   Maps: ${maps.length}, Markers: ${markers.length}, Links: ${links.length}`);
-  console.log(`   Per-map marker files: ${writtenMaps}`);
-  console.log(`   Duplicate markers removed: ${totalDeduped}`);
-  console.log(`   Out-of-bounds markers filtered: ${totalOutOfBoundsFiltered}`);
+  console.log(`   Maps: ${maps.length}, Markers: ${markers.length + heavyMarkers.length}, Links: ${links.length}`);
+  console.log(`   Standard marker files: ${stdResult.written} (deduped: ${stdResult.deduped}, OOB: ${stdResult.oob})`);
+  console.log(`   Heavy marker files: ${heavyResult.written} (deduped: ${heavyResult.deduped}, OOB: ${heavyResult.oob}, capped: ${heavyResult.capped})`);
   console.log(`   Major maps: ${majorMapIds.size}`);
   console.log(`   Core data size: ${totalSize.toFixed(0)} KB`);
 }

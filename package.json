@@ -1,12 +1,11 @@
 {
   "name": "lotroguides.com",
-  "version": "2.2.0",
+  "version": "2.5.1",
   "description": "Lord of the Rings Online fansite - Markdown-powered static site generator",
   "author": {
     "name": "Daniel Burkhart",
     "email": "me@danielburkhart.com"
   },
-  
   "homepage": "https://lotroguides.com",
   "engines": {
     "node": "22.x"
@@ -23,8 +22,9 @@
     "update:skills": "node scripts/enrich-instance-skills.js",
     "update:lore": "node scripts/extract-lore.js",
     "update:icons": "node scripts/extract-icons.js",
-    "update:videos": "node scripts/fetch-youtube-videos.js",
-    "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:lore && npm run update:icons && npm run update:videos",
+    "update:videos": "node scripts/fetch-youtube-videos.js && node scripts/fetch-instance-videos.js",
+    "update:maps": "node scripts/sync-maps.js",
+    "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:maps && npm run update:lore && npm run update:icons && npm run update:videos",
     "sync": "node scripts/sync-cdn.js",
     "deploy:functions": "node scripts/deploy-functions.js"
   },

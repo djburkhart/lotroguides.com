@@ -150,15 +150,8 @@
       try{
         var doc=iframe.contentDocument;
         if(!doc)return;
-        /* Cusdis uses button.font-bold or button.bg-gray-200 for submit */
-        doc.addEventListener('click',function(e){
-          var btn=e.target.closest('button');
-          if(!btn)return;
-          var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
-          /* Also match reply submit buttons */
-          var isReply=btn.textContent.trim().toLowerCase()==='reply';
-          if(!isSub&&!isReply)return;
-          /* Read form field values from the iframe */
+
+        function getFormValues(){
           var nickname='',email='',comment='';
           try{
             var inputs=doc.querySelectorAll('input,textarea');
@@ -170,16 +163,95 @@
               else if(el.type==='text')nickname=v;
             });
           }catch(ex){}
+          return {nickname:nickname,email:email,comment:comment};
+        }
+
+        function pushTrackingEvent(isReply,vals,score){
           window.dataLayer=window.dataLayer||[];
           window.dataLayer.push({
             event:'comment_submit',
             comment_action:isReply?'reply':'comment',
-            comment_nickname:nickname,
-            comment_length:comment.length,
+            comment_nickname:vals.nickname,
+            comment_length:vals.comment.length,
             comment_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
-            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||'',
+            recaptcha_score:typeof score==='number'?score:-1
           });
-        });
+        }
+
+        function showRecaptchaError(btn){
+          var existing=doc.querySelector('[data-rc-error]');
+          if(existing)existing.remove();
+          var msg=doc.createElement('div');
+          msg.setAttribute('data-rc-error','1');
+          msg.style.cssText='color:#cc4444;font-size:.85rem;margin:8px 0;padding:8px 12px;background:rgba(204,68,68,.08);border:1px solid rgba(204,68,68,.2);border-radius:6px;';
+          msg.textContent='Unable to verify you are human \u2014 please try again.';
+          btn.parentElement.insertBefore(msg,btn.nextSibling);
+          setTimeout(function(){if(msg.parentNode)msg.remove();},6000);
+        }
+
+        if(siteKey){
+          /* reCAPTCHA Enterprise: intercept submit in capture phase,
+             create assessment via DO Function, interpret score per
+             https://cloud.google.com/recaptcha/docs/interpret-assessment-website
+             and only allow the comment through when score >= 0.5 */
+          doc.addEventListener('click',function(e){
+            var btn=e.target.closest('button');
+            if(!btn)return;
+            var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+            var isReply=btn.textContent.trim().toLowerCase()==='reply';
+            if(!isSub&&!isReply)return;
+            /* Allow the verified re-click through to Cusdis */
+            if(btn.dataset.rcVerified==='1'){
+              delete btn.dataset.rcVerified;
+              return;
+            }
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            var origText=btn.textContent;
+            btn.textContent='Verifying\u2026';
+            btn.disabled=true;
+            var vals=getFormValues();
+            var isReplyAction=isReply;
+            grecaptcha.enterprise.ready(function(){
+              grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
+                return fetch('/api/recaptcha/verify',{
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({token:token,action:'comment'})
+                }).then(function(r){return r.json();});
+              }).then(function(data){
+                btn.textContent=origText;
+                btn.disabled=false;
+                /* Interpret assessment: verify action match + score threshold */
+                if(data.success&&data.score>=0.5){
+                  pushTrackingEvent(isReplyAction,vals,data.score);
+                  btn.dataset.rcVerified='1';
+                  btn.click();
+                }else{
+                  showRecaptchaError(btn);
+                }
+              }).catch(function(){
+                /* Graceful degradation — allow on verification failure */
+                btn.textContent=origText;
+                btn.disabled=false;
+                pushTrackingEvent(isReplyAction,vals,-1);
+                btn.dataset.rcVerified='1';
+                btn.click();
+              });
+            });
+          },true);/* capture phase */
+        }else{
+          /* No reCAPTCHA configured — just track submissions */
+          doc.addEventListener('click',function(e){
+            var btn=e.target.closest('button');
+            if(!btn)return;
+            var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+            var isReply=btn.textContent.trim().toLowerCase()==='reply';
+            if(!isSub&&!isReply)return;
+            pushTrackingEvent(isReply,getFormValues(),-1);
+          });
+        }
       }catch(e){}
     }
 
@@ -215,36 +287,9 @@
     }
 
     var siteKey='{{recaptchaSiteKey}}';
-    if(siteKey){
-      /* reCAPTCHA Enterprise: hide widget until verified */
-      var thread=document.getElementById('cusdis_thread');
-      if(thread)thread.style.display='none';
-      grecaptcha.enterprise.ready(function(){
-        grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
-          fetch('/api/recaptcha/verify',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({token:token,action:'comment'})
-          }).then(function(r){return r.json()}).then(function(data){
-            if(data.success&&data.score>=0.5){
-              if(thread)thread.style.display='';
-              initWidget();
-            }else{
-              var p=document.createElement('p');
-              p.className='text-muted';
-              p.textContent='Unable to load comments. Please refresh and try again.';
-              thread.parentNode.insertBefore(p,thread);
-            }
-          }).catch(function(){
-            /* On verify failure, show widget anyway (graceful degradation) */
-            if(thread)thread.style.display='';
-            initWidget();
-          });
-        });
-      });
-    }else{
-      initWidget();
-    }
+    /* reCAPTCHA verification now happens at submit time inside
+       trackCusdisSubmit — always show the widget immediately */
+    initWidget();
   })();
   </script>
 </div>

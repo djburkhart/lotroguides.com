@@ -44,6 +44,8 @@ let questIndex = {};
 let mapMarkerIndexCache = null;
 let dpsReferenceCache = null;
 let instanceLootReferenceCache = null;
+let questDbCache = null;   // keyed by id
+let deedDbCache = null;    // keyed by id
 
 function loadInstanceLootReferenceConfig() {
   if (instanceLootReferenceCache) return instanceLootReferenceCache;
@@ -485,8 +487,8 @@ function normalizeGuideDpsTableContent(markdown, fileName) {
   const headingMatch = headingRegex.exec(markdown);
   if (!headingMatch) return markdown;
 
-  // Already using preferred token format.
-  if (markdown.includes(token)) return markdown;
+  // Already using preferred token format (with or without options).
+  if (markdown.includes('{{dpsStatTable}}') || markdown.includes('{{dpsStatTable:')) return markdown;
 
   const sectionStart = headingMatch.index + headingMatch[0].length;
   const rest = markdown.slice(sectionStart);
@@ -642,6 +644,142 @@ function resolveMapEmbeds(html, siteRoot) {
   });
 }
 
+// ─── Quest & Deed Card Embeds ───────────────────────────────────────────────
+
+function loadQuestDb() {
+  if (questDbCache) return questDbCache;
+  const dbPath = path.join(OUTPUT_DIR, 'data', 'quests-db.json');
+  if (!fs.existsSync(dbPath)) { questDbCache = {}; return questDbCache; }
+  const arr = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+  questDbCache = {};
+  for (const q of arr) questDbCache[q.id] = q;
+  return questDbCache;
+}
+
+function loadDeedDb() {
+  if (deedDbCache) return deedDbCache;
+  const dbPath = path.join(OUTPUT_DIR, 'data', 'deeds-db.json');
+  if (!fs.existsSync(dbPath)) { deedDbCache = {}; return deedDbCache; }
+  const arr = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+  deedDbCache = {};
+  for (const d of arr) deedDbCache[d.id] = d;
+  return deedDbCache;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildQuestCardHtml(quest) {
+  if (!quest) return '<div class="lotro-card lotro-card-quest lotro-card-missing"><i class="fa fa-exclamation-triangle"></i> Quest not found</div>';
+  const name = escHtml(quest.n || '');
+  const level = quest.lv ? `<span class="lotro-card-level">Lv ${quest.lv}</span>` : '';
+  const cat = quest.cat ? `<span class="lotro-card-zone"><i class="fa fa-map-marker"></i> ${escHtml(quest.cat)}</span>` : '';
+  const arc = quest.arc ? `<span class="lotro-card-arc"><i class="fa fa-link"></i> ${escHtml(quest.arc)}</span>` : '';
+  const bestower = quest.b ? `<div class="lotro-card-bestower"><strong>Bestower:</strong> ${escHtml(quest.b)}</div>` : '';
+  const desc = quest.desc ? `<div class="lotro-card-desc">${escHtml(quest.desc)}</div>` : '';
+
+  let rewardsHtml = '';
+  if (quest.rw) {
+    const parts = [];
+    if (quest.rw.xp) parts.push(`<span class="lotro-card-rw-xp"><i class="fa fa-star"></i> ${quest.rw.xp} XP</span>`);
+    if (quest.rw.m) parts.push(`<span class="lotro-card-rw-money"><i class="fa fa-money"></i> ${escHtml(quest.rw.m)}</span>`);
+    if (quest.rw.it && quest.rw.it.length) {
+      for (const it of quest.rw.it) {
+        const iconSrc = it.id && iconMap[it.id] ? `${CDN_URL ? CDN_URL + '/img/icons/items/' : 'img/icons/items/'}${iconMap[it.id]}.png` : '';
+        const icon = iconSrc ? `<img src="${iconSrc}" width="16" height="16" class="lotro-game-icon" alt="" loading="lazy" onerror="this.style.display='none'"> ` : '';
+        parts.push(`<span class="lotro-card-rw-item">${icon}${escHtml(it.n)}</span>`);
+      }
+    }
+    if (parts.length) rewardsHtml = `<div class="lotro-card-rewards"><strong>Rewards:</strong> ${parts.join(' ')}</div>`;
+  }
+
+  const link = `quests?id=${encodeURIComponent(quest.id)}`;
+  return `<div class="lotro-card lotro-card-quest">`
+    + `<div class="lotro-card-header"><i class="fa fa-bookmark"></i> <a href="${link}">${name}</a> ${level}</div>`
+    + `<div class="lotro-card-meta">${cat}${arc}</div>`
+    + desc + bestower + rewardsHtml
+    + `</div>`;
+}
+
+function formatDeedObjective(obj) {
+  if (!obj) return '';
+  switch (obj.t) {
+    case 'kill': return `Defeat ${escHtml(obj.mn || 'enemies')}${obj.c ? ' ×' + obj.c : ''}${obj.z ? ' in ' + escHtml(obj.z) : ''}`;
+    case 'complete': return `Complete: ${escHtml(obj.an || '')}`;
+    case 'qc': return `Complete ${obj.c || '?'} quests`;
+    case 'explore': return `Explore: ${escHtml(obj.n || '')}`;
+    case 'item': return `Collect: ${escHtml(obj.n || '')}`;
+    case 'npc': return `Talk to ${escHtml(obj.n || '')}`;
+    case 'use': return `Use: ${escHtml(obj.n || '')}`;
+    case 'skill': return `Use skill: ${escHtml(obj.n || '')}`;
+    case 'emote': return `Emote: ${escHtml(obj.n || '')}`;
+    case 'lm': return escHtml(obj.n || obj.t);
+    case 'fac': return `Reach reputation: ${escHtml(obj.n || '')}`;
+    default: return escHtml(obj.n || obj.t || '');
+  }
+}
+
+function buildDeedCardHtml(deed) {
+  if (!deed) return '<div class="lotro-card lotro-card-deed lotro-card-missing"><i class="fa fa-exclamation-triangle"></i> Deed not found</div>';
+  const name = escHtml(deed.n || '');
+  const level = deed.lv ? `<span class="lotro-card-level">Lv ${deed.lv}</span>` : '';
+  const typeBadge = deed.tp ? `<span class="lotro-card-deed-type lotro-card-deed-type-${escHtml(deed.tp.toLowerCase())}">${escHtml(deed.tp)}</span>` : '';
+  const classReq = deed.cl ? `<span class="lotro-card-class"><i class="fa fa-shield"></i> ${escHtml(deed.cl)}</span>` : '';
+
+  let objectivesHtml = '';
+  if (deed.obj && deed.obj.length) {
+    const items = deed.obj.slice(0, 5).map(o => `<li>${formatDeedObjective(o)}</li>`).join('');
+    const more = deed.obj.length > 5 ? `<li class="lotro-card-more">+${deed.obj.length - 5} more…</li>` : '';
+    objectivesHtml = `<div class="lotro-card-objectives"><strong>Objectives:</strong><ul>${items}${more}</ul></div>`;
+  }
+
+  let rewardsHtml = '';
+  if (deed.rw && deed.rw.length) {
+    const parts = deed.rw.map(r => {
+      if (r.t === 'LP') return `<span class="lotro-card-rw-lp"><i class="fa fa-star"></i> ${r.v} LP</span>`;
+      if (r.t === 'Title') return `<span class="lotro-card-rw-title"><i class="fa fa-certificate"></i> ${escHtml(r.v)}</span>`;
+      if (r.t === 'Virtue' || r.t === 'VirtueXP') return `<span class="lotro-card-rw-virtue"><i class="fa fa-heart"></i> ${escHtml(r.v)}${r.t === 'VirtueXP' ? ' VXP' : ''}</span>`;
+      if (r.t === 'Reputation') return `<span class="lotro-card-rw-rep"><i class="fa fa-flag"></i> ${escHtml(r.v)}</span>`;
+      if (r.t === 'XP') return `<span class="lotro-card-rw-xp"><i class="fa fa-star"></i> ${escHtml(r.v)} XP</span>`;
+      if (r.t === 'Item') return `<span class="lotro-card-rw-item">${escHtml(r.v)}</span>`;
+      return `<span>${escHtml(r.v || r.t)}</span>`;
+    });
+    rewardsHtml = `<div class="lotro-card-rewards"><strong>Rewards:</strong> ${parts.join(' ')}</div>`;
+  }
+
+  const link = `deeds?id=${encodeURIComponent(deed.id)}`;
+  return `<div class="lotro-card lotro-card-deed">`
+    + `<div class="lotro-card-header"><i class="fa fa-shield"></i> <a href="${link}">${name}</a> ${level} ${typeBadge}</div>`
+    + `<div class="lotro-card-meta">${classReq}</div>`
+    + objectivesHtml + rewardsHtml
+    + `</div>`;
+}
+
+/**
+ * Replace {{quest:id_or_name}} and {{deed:id_or_name}} tokens with rendered cards.
+ * Looks up by numeric ID first, then falls back to name match.
+ */
+function resolveCardEmbeds(html) {
+  html = html.replace(/<p>\s*(\{\{(?:quest|deed):[^}]+\}\})\s*<\/p>/gi, '$1');
+
+  html = html.replace(/\{\{quest:([^}]+)\}\}/g, function (_, ref) {
+    const db = loadQuestDb();
+    const trimmed = ref.trim();
+    const quest = db[trimmed] || Object.values(db).find(q => q.n === trimmed);
+    return buildQuestCardHtml(quest);
+  });
+
+  html = html.replace(/\{\{deed:([^}]+)\}\}/g, function (_, ref) {
+    const db = loadDeedDb();
+    const trimmed = ref.trim();
+    const deed = db[trimmed] || Object.values(db).find(d => d.n === trimmed);
+    return buildDeedCardHtml(deed);
+  });
+
+  return html;
+}
+
 /**
  * Replace {{dpsStatTable}} or {{dpsStatTable:opt=val,...}} tokens in HTML.
  * Supported options: levelCap, heading (used as section heading above the table).
@@ -668,6 +806,125 @@ function resolveDpsTokens(html) {
 
     return buildDpsTableHtml(dpsRef, overrides);
   });
+}
+
+// ─── Trait Planner Embeds ────────────────────────────────────────────────
+
+const TRAIT_PLANNER_CLASSES = [
+  'beorning', 'brawler', 'burglar', 'captain', 'champion',
+  'guardian', 'hunter', 'loremaster', 'mariner', 'minstrel',
+  'runekeeper', 'warden',
+];
+
+function resolveTraitPlannerTokens(html) {
+  // Strip <p> wrapper around tokens
+  html = html.replace(/<p>\s*(\{\{traitPlanner:[^}]+\}\})\s*<\/p>/gi, '$1');
+
+  html = html.replace(/\{\{traitPlanner:([^}]+)\}\}/g, function (_, optStr) {
+    const opts = {};
+    optStr.split(',').forEach(function (pair) {
+      const eq = pair.indexOf('=');
+      if (eq === -1) return;
+      const key = pair.slice(0, eq).trim();
+      let val = pair.slice(eq + 1).trim();
+      // Strip surrounding quotes
+      if ((val.startsWith("'") && val.endsWith("'")) || (val.startsWith('"') && val.endsWith('"'))) {
+        val = val.slice(1, -1);
+      }
+      opts[key] = val;
+    });
+
+    const cls = (opts['class'] || '').toLowerCase();
+    if (!TRAIT_PLANNER_CLASSES.includes(cls)) {
+      console.warn(`   ⚠ Unknown trait planner class: "${cls}"`);
+      return `<!-- unknown traitPlanner class: ${cls} -->`;
+    }
+
+    const buildKey = opts.build || '';
+    if (!buildKey) {
+      console.warn(`   ⚠ traitPlanner token missing build key for class "${cls}"`);
+      return `<!-- traitPlanner missing build key -->`;
+    }
+
+    const level = opts.level || '160';
+
+    // Resolve points: use explicit points param, or load from build JSON
+    let pointsData = opts.points || null;
+    let buildName = opts.title || '';
+    let buildDesc = '';
+    if (!pointsData) {
+      try {
+        const buildFile = path.join(__dirname, 'data', 'builds', cls + '.json');
+        if (fs.existsSync(buildFile)) {
+          const buildJson = JSON.parse(fs.readFileSync(buildFile, 'utf8'));
+          const buildDef = buildJson.builds && buildJson.builds[buildKey];
+          if (buildDef && buildDef.points && Object.keys(buildDef.points).length > 0) {
+            pointsData = JSON.stringify(buildDef.points);
+            if (!buildName) buildName = buildDef.name || '';
+            buildDesc = buildDef.desc || buildDef.description || '';
+          }
+        }
+      } catch (e) {
+        console.warn(`   ⚠ Failed to load build data for ${cls}/${buildKey}: ${e.message}`);
+      }
+    }
+
+    if (!buildName) {
+      buildName = `${capitalizeFirst(cls)} ${buildKey.split('-').map(capitalizeFirst).join(' ')} Build`;
+    }
+
+    // Build URL to skills page
+    const urlParams = new URLSearchParams({ class: cls, build: buildKey, level: level });
+    if (pointsData) {
+      urlParams.set('points', encodeURIComponent(pointsData));
+    }
+
+    const skillsUrl = `../skills.html?${urlParams.toString()}`;
+
+    // Compute tree point summary from points data
+    let blue = 0, red = 0, yellow = 0;
+    if (pointsData) {
+      try {
+        const pts = typeof pointsData === 'string' ? JSON.parse(pointsData) : pointsData;
+        Object.keys(pts).forEach(function (k) {
+          const v = pts[k] || 0;
+          if (k.indexOf('b-') === 0) blue += v;
+          else if (k.indexOf('r-') === 0) red += v;
+          else if (k.indexOf('y-') === 0) yellow += v;
+        });
+      } catch (_e) { /* ignore parse errors */ }
+    }
+    const total = blue + red + yellow;
+
+    // Build styled link card
+    const treeTags = [
+      blue ? `<span style="padding:2px 8px;border-radius:3px;font-weight:600;font-size:11px;background:rgba(64,128,192,0.25);color:#7db8e8;">Blue: ${blue}</span>` : '',
+      red ? `<span style="padding:2px 8px;border-radius:3px;font-weight:600;font-size:11px;background:rgba(192,64,64,0.25);color:#e87d7d;">Red: ${red}</span>` : '',
+      yellow ? `<span style="padding:2px 8px;border-radius:3px;font-weight:600;font-size:11px;background:rgba(192,168,64,0.25);color:#e8d87d;">Yellow: ${yellow}</span>` : ''
+    ].filter(Boolean).join(' ');
+
+    return `<div class="trait-planner-embed" style="background:rgba(26,26,46,1);border:1px solid #444;border-radius:8px;padding:18px 22px;margin:1.5rem 0;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <i class="fa fa-bookmark" style="color:var(--lotro-gold);font-size:18px;"></i>
+        <span style="font-family:'Cinzel',serif;color:#eee;font-size:16px;font-weight:600;">${buildName}</span>
+      </div>
+      ${buildDesc ? `<p style="color:#aaa;font-size:13px;margin:0 0 10px 0;">${buildDesc}</p>` : ''}
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        ${treeTags}
+        ${total ? `<span style="color:#888;font-size:12px;">Total: ${total} points &middot; Level ${level}</span>` : ''}
+      </div>
+      <a href="${skillsUrl}" style="display:inline-block;background:rgba(201,168,76,0.15);border:1px solid var(--lotro-gold);color:var(--lotro-gold);padding:8px 20px;border-radius:4px;font-size:14px;font-weight:500;text-decoration:none;transition:all 0.2s;">
+        <i class="fa fa-play"></i> Open in Trait Builder
+      </a>
+    </div>`;
+  });
+
+  return html;
+}
+
+// Helper function for capitalizing first letter
+function capitalizeFirst(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function loadItemIndex() {
@@ -1130,7 +1387,7 @@ async function convertImagesToWebp() {
  * - Preserves existing alt text
  */
 function optimizeImages(html) {
-  return html.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
+  let result = html.replace(/<img\b([^>]*)>/gi, (match, attrs) => {
     // Skip game icons — they have explicit sizing that must be preserved
     if (attrs.includes('lotro-game-icon')) return match;
 
@@ -1166,6 +1423,14 @@ function optimizeImages(html) {
       `<img src="${src}" alt="${alt}"${cls}${style}${dims} loading="lazy" decoding="async">` +
       `</picture>`;
   });
+
+  // Upgrade CSS background-image url() references from jpg/png to webp
+  result = result.replace(/url\(['"]?([^'"\)]+\.(jpe?g|png))['"]?\)/gi, (match, src) => {
+    const webpSrc = src.replace(/\.(jpe?g|png)$/i, '.webp');
+    return `url('${webpSrc}')`;
+  });
+
+  return result;
 }
 
 // ─── Template Engine ────────────────────────────────────────────────────────
@@ -1372,7 +1637,7 @@ function loadContent(subdir) {
     }
 
     const siteRoot = (subdir === 'guides' || subdir === 'news') ? '../' : '';
-    const htmlContent = resolveConsumableTokens(resolveDpsTokens(resolveMapEmbeds(marked(resolvedContent), siteRoot)));
+    const htmlContent = resolveTraitPlannerTokens(resolveCardEmbeds(resolveConsumableTokens(resolveDpsTokens(resolveMapEmbeds(marked(resolvedContent), siteRoot)))));
     const slug = path.basename(file, '.md');
 
     // Normalize image path to be relative to lotro/ root
@@ -1933,14 +2198,41 @@ function buildVirtuesPage(navData) {
 
   const virtues = JSON.parse(fs.readFileSync(virtuesPath, 'utf8'));
 
-  // Compact format: {id, n, st:[], mr, ic}
+  // Rank 100 stat values overlay — authoritative game data
+  const virtueR100 = {
+    'Charity':       { sv: [{ s: 'Resistance', v: 30212 }, { s: 'Physical Mitigation', v: 6670 }, { s: 'Vitality', v: 893 }], passive: 'Morale' },
+    'Compassion':    { sv: [{ s: 'Physical Mitigation', v: 13357 }, { s: 'Tactical Mitigation', v: 6670 }, { s: 'Armour', v: 2163 }], passive: 'Morale' },
+    'Confidence':    { sv: [{ s: 'Critical Rating', v: 16804 }, { s: 'Finesse', v: 11086 }, { s: 'Evade Rating', v: 6993 }], passive: 'Mastery' },
+    'Determination': { sv: [{ s: 'Agility', v: 3088 }, { s: 'Physical Mastery', v: 6940 }, { s: 'Critical Rating', v: 5024 }], passive: 'Mastery' },
+    'Discipline':    { sv: [{ s: 'Resistance', v: 30212 }, { s: 'Incoming Healing Rating', v: 11086 }, { s: 'Physical Mitigation', v: 4007 }], passive: 'Morale' },
+    'Empathy':       { sv: [{ s: 'Armour', v: 7206 }, { s: 'Critical Defence', v: 11086 }, { s: 'Resistance', v: 9051 }], passive: 'Morale' },
+    'Fidelity':      { sv: [{ s: 'Tactical Mitigation', v: 13357 }, { s: 'Vitality', v: 1493 }, { s: 'Physical Mitigation', v: 4007 }], passive: 'Morale' },
+    'Fortitude':     { sv: [{ s: 'Morale', v: 12765 }, { s: 'Critical Defence', v: 11086 }, { s: 'Resistance', v: 9051 }], passive: 'Morale' },
+    'Honesty':       { sv: [{ s: 'Tactical Mastery', v: 13933 }, { s: 'Will', v: 1549 }, { s: 'Critical Rating', v: 5024 }], passive: 'Mastery' },
+    'Honour':        { sv: [{ s: 'Morale', v: 12765 }, { s: 'Tactical Mitigation', v: 6670 }, { s: 'Critical Defence', v: 6651 }], passive: 'Morale' },
+    'Idealism':      { sv: [{ s: 'Fate', v: 2508 }, { s: 'Incoming Healing Rating', v: 11086 }, { s: 'Morale', v: 3830 }], passive: 'Morale' },
+    'Innocence':     { sv: [{ s: 'Physical Mitigation', v: 13357 }, { s: 'Resistance', v: 15106 }, { s: 'Tactical Mitigation', v: 4007 }], passive: 'Morale' },
+    'Justice':       { sv: [{ s: 'In-Combat Morale Regen', v: 255.306 }, { s: 'Morale', v: 6383 }, { s: 'Tactical Mitigation', v: 4007 }], passive: 'Morale' },
+    'Loyalty':       { sv: [{ s: 'Vitality', v: 2978 }, { s: 'Armour', v: 3603 }, { s: 'Incoming Healing Rating', v: 6651 }], passive: 'Morale' },
+    'Mercy':         { sv: [{ s: 'Evade Rating', v: 23333 }, { s: 'Fate', v: 1254 }, { s: 'Vitality', v: 893 }], passive: 'Morale' },
+    'Patience':      { sv: [{ s: 'Power', v: 2006.531 }, { s: 'Evade Rating', v: 11710 }, { s: 'Critical Rating', v: 5024 }], passive: 'Morale' },
+    'Tolerance':     { sv: [{ s: 'Tactical Mitigation', v: 13357 }, { s: 'Resistance', v: 15106 }, { s: 'Physical Mitigation', v: 4007 }], passive: 'Morale' },
+    'Valour':        { sv: [{ s: 'Physical Mastery', v: 13933 }, { s: 'Finesse', v: 11086 }, { s: 'Critical Rating', v: 5024 }], passive: 'Mastery' },
+    'Wisdom':        { sv: [{ s: 'Will', v: 3088 }, { s: 'Tactical Mastery', v: 6940 }, { s: 'Finesse', v: 6651 }], passive: 'Mastery' },
+    'Wit':           { sv: [{ s: 'Finesse', v: 22171 }, { s: 'Critical Rating', v: 8376 }, { s: 'Physical Mastery', v: 4171 }, { s: 'Tactical Mastery', v: 4171 }], passive: 'Mastery' },
+    'Zeal':          { sv: [{ s: 'Might', v: 3088 }, { s: 'Physical Mastery', v: 6940 }, { s: 'Critical Rating', v: 5024 }], passive: 'Mastery' },
+  };
+
+  // Compact format: {id, n, sv:[{s,v}], mr, ic, passive?}
   const clientVirtues = virtues.map(v => {
+    const overlay = virtueR100[v.name];
     const row = {
       id: v.id,
       n: v.name,
-      st: v.stats || [],
-      mr: v.maxTier || 0,
+      sv: overlay ? overlay.sv : (v.stats || []).map(s => ({ s, v: 0 })),
+      mr: 100,  // Current in-game max virtue rank
     };
+    if (overlay && overlay.passive) row.passive = overlay.passive;
     if (v.iconId) row.ic = v.iconId;
     return row;
   });
@@ -2085,6 +2377,7 @@ function buildDeedsPage(navData) {
   const clientDeeds = deeds.map(d => {
     const row = { id: d.id, n: d.name, tp: d.type || 'Other' };
     if (d.level) row.lv = d.level;
+    if (d.region) row.rg = d.region;
     if (d.rewards && d.rewards.length) {
       row.rw = d.rewards.map(r => {
         const cr = { t: r.type, v: r.value };
@@ -2197,6 +2490,14 @@ function buildDeedsPage(navData) {
 
   const count = clientDeeds.length;
 
+  // Collect unique regions for the filter dropdown
+  const regionSet = new Set();
+  for (const d of clientDeeds) {
+    if (d.rg) regionSet.add(d.rg);
+  }
+  const regions = [...regionSet].sort();
+  const regionOptions = regions.map(r => `              <option value="${r}">${r}</option>`).join('\n');
+
   ensureDir(path.join(OUTPUT_DIR, 'data'));
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'deeds-db.json'),
@@ -2214,7 +2515,7 @@ function buildDeedsPage(navData) {
   }
 
   const template = readTemplate('deeds-content.html');
-  const body = render(template, { deedCount: count.toLocaleString() });
+  const body = render(template, { deedCount: count.toLocaleString(), regionOptions });
 
   let html = buildPage(body, {
     title: 'Deed Database - LOTRO Guides',
@@ -2351,7 +2652,7 @@ function buildQuestsPage(navData) {
 
 // ─── Instances Database Page ────────────────────────────────────────────────
 
-function buildInstancesPage(navData, subDirNavData) {
+function buildInstancesPage(navData, subDirNavData, allGuides) {
   const dbPath = path.join(OUTPUT_DIR, 'data', 'instances-db.json');
   if (!fs.existsSync(dbPath)) {
     console.log('   ℹ No instances data found — run: node import-instances.js');
@@ -2447,6 +2748,54 @@ function buildInstancesPage(navData, subDirNavData) {
     'the-tower-of-orthanc': { url: '../guides/tower-of-orthanc-fire-ice-guide', label: 'Tower of Orthanc Fire & Ice Guide' },
   };
 
+  // Load cached YouTube videos for instances
+  const instanceVideosPath = path.join(__dirname, 'data', 'instance-videos.json');
+  let instanceVideos = {};
+  if (fs.existsSync(instanceVideosPath)) {
+    try { instanceVideos = JSON.parse(fs.readFileSync(instanceVideosPath, 'utf8')); } catch (e) { /* ignore */ }
+  }
+
+  // Build guide match index: tokenize instance names for fuzzy matching
+  function findRelatedGuides(inst) {
+    if (!allGuides || !allGuides.length) return [];
+    const slug = inst.slug || '';
+    const nameLower = (inst.name || '').toLowerCase();
+    // Extract meaningful words from instance name (drop articles/prepositions)
+    const stopWords = new Set(['the', 'of', 'and', 'a', 'an', 'in', 'at', 'to', 'from']);
+    const nameWords = nameLower.split(/[\s,\-–—]+/).filter(w => w.length > 2 && !stopWords.has(w));
+
+    const scored = [];
+    for (const guide of allGuides) {
+      let score = 0;
+      const gTags = (guide.tags || []).map(t => t.toLowerCase());
+      const gSlug = (guide.slug || '').toLowerCase();
+      const gTitle = (guide.title || '').toLowerCase();
+
+      // Check if any guide tag matches the instance slug tokens
+      const slugTokens = slug.split('-').filter(w => w.length > 2 && !stopWords.has(w));
+      for (const token of slugTokens) {
+        if (gTags.some(t => t.includes(token))) score += 3;
+        if (gSlug.includes(token)) score += 2;
+        if (gTitle.includes(token)) score += 1;
+      }
+      // Check if instance name words appear in guide tags/title
+      for (const word of nameWords) {
+        if (gTags.some(t => t.includes(word))) score += 2;
+        if (gTitle.includes(word)) score += 1;
+      }
+      // Must be an instance/raid-related guide to count
+      const isInstanceGuide = gTags.some(t => ['instance', 'instances', 'raid', 'raids', 'dungeon'].includes(t));
+      if (score > 0 && isInstanceGuide) score += 2;
+
+      if (score >= 4) scored.push({ guide, score });
+    }
+
+    return scored
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(s => s.guide);
+  }
+
   instances.forEach(inst => {
     // Build mob accordion HTML using <details>/<summary> (consistent with loot tables)
     const mobAccordions = inst.mobs.map((mob, idx) => {
@@ -2521,18 +2870,37 @@ function buildInstancesPage(navData, subDirNavData) {
       </details>`;
     }).join('\n');
 
-    // Build related content links
-    const relatedLinks = [];
-    const guide = guideLinks[inst.slug];
-    if (guide) {
-      relatedLinks.push(`<a href="${guide.url}" class="btn btn-sm btn-primary"><i class="fa fa-book"></i> ${guide.label}</a>`);
-    }
-    // Link to mobs database
-    relatedLinks.push(`<a href="../mobs" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database</a>`);
+    // Build related content: guides, YouTube videos, links
+    const matchedGuides = findRelatedGuides(inst);
+    const videos = instanceVideos[inst.slug] || [];
 
-    const relatedContent = relatedLinks.length
-      ? `<div class="row m-b-30"><div class="col-md-8 col-md-offset-2"><h3 class="instance-section-title"><i class="fa fa-link"></i> Related Content</h3><div class="instance-related-links">${relatedLinks.join('\n')}</div></div></div>`
-      : '';
+    let guidesHtml = '';
+    if (matchedGuides.length) {
+      const guideCards = matchedGuides.map(g => {
+        const imgSrc = g.image ? (g.image.startsWith('http') ? g.image : `../${g.image}`) : '';
+        const img = imgSrc ? `<img src="${imgSrc}" alt="${escapeHtml(g.title)}" class="rc-card-img" loading="lazy">` : '';
+        const excerpt = g.excerpt ? `<p class="rc-card-excerpt">${escapeHtml(g.excerpt)}</p>` : '';
+        return `<a href="../guides/${g.slug}.html" class="rc-card rc-guide-card">${img}<div class="rc-card-body"><h4 class="rc-card-title">${escapeHtml(g.title)}</h4>${excerpt}</div></a>`;
+      }).join('\n');
+      guidesHtml = `<div class="rc-section"><h4 class="rc-section-title"><i class="fa fa-book"></i> Strategy Guides</h4><div class="rc-grid">${guideCards}</div></div>`;
+    }
+
+    let videosHtml = '';
+    if (videos.length) {
+      const videoCards = videos.map(v => {
+        const thumb = v.thumbnail || `https://img.youtube.com/vi/${v.id}/mqdefault.jpg`;
+        return `<a href="https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}" target="_blank" rel="noopener" class="rc-card rc-video-card"><div class="rc-thumb-wrap"><img src="${thumb}" alt="${escapeHtml(v.title)}" class="rc-card-img" loading="lazy"><span class="rc-play-btn"><i class="fa fa-play"></i></span></div><div class="rc-card-body"><h4 class="rc-card-title">${escapeHtml(v.title)}</h4><span class="rc-card-channel">${escapeHtml(v.channel || '')}</span></div></a>`;
+      }).join('\n');
+      videosHtml = `<div class="rc-section"><h4 class="rc-section-title"><i class="fa fa-youtube-play"></i> Video Guides</h4><div class="rc-grid">${videoCards}</div></div>`;
+    }
+
+    const mobLink = inst.mobs && inst.mobs.length
+      ? `<a href="../mobs?instance=${encodeURIComponent(inst.slug)}" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database (${inst.mobs.length})</a>`
+      : `<a href="../mobs" class="btn btn-sm btn-default"><i class="fa fa-crosshairs"></i> Mob Database</a>`;
+    const hasRelated = guidesHtml || videosHtml;
+    const relatedContent = hasRelated
+      ? `<div class="row m-b-30"><div class="col-md-10 col-md-offset-1"><h3 class="instance-section-title"><i class="fa fa-link"></i> Related Content</h3>${guidesHtml}${videosHtml}<div class="instance-related-links m-t-15">${mobLink}</div></div></div>`
+      : `<div class="row m-b-30"><div class="col-md-8 col-md-offset-2"><h3 class="instance-section-title"><i class="fa fa-link"></i> Related Content</h3><div class="instance-related-links">${mobLink}</div></div></div>`;
 
     // Build loot section from comprehensive instance-loot.json or fallback to loot-reference
     let lootSection = '';
@@ -2951,6 +3319,65 @@ function buildEditorPage(allPosts, navData) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'editor.html'), html);
 }
 
+// ─── Skills Page ────────────────────────────────────────────────────────────
+
+function buildSkillsPage(navData) {
+  const template = readTemplate('skills-content.html');
+
+  // Extract guide builds from data/builds/*.json
+  const buildsDir = path.join(__dirname, 'data', 'builds');
+  const guideBuilds = [];
+  if (fs.existsSync(buildsDir)) {
+    fs.readdirSync(buildsDir).filter(f => f.endsWith('.json')).forEach(file => {
+      try {
+        const data = JSON.parse(fs.readFileSync(path.join(buildsDir, file), 'utf8'));
+        const cls = data.class || file.replace('.json', '');
+        if (data.builds) {
+          Object.keys(data.builds).forEach(key => {
+            const b = data.builds[key];
+            if (b.points && Object.keys(b.points).length > 0) {
+              guideBuilds.push({
+                id: 'guide_' + cls + '_' + key,
+                name: b.name || key,
+                class: cls,
+                build: key,
+                level: b.level || 160,
+                points: b.points,
+                desc: b.desc || b.description || '',
+                guide: true,
+                likes: 0,
+                createdAt: 0
+              });
+            }
+          });
+        }
+      } catch (e) { /* skip malformed files */ }
+    });
+  }
+
+  const body = render(template, {
+    assets: '.',
+    guideBuilds: JSON.stringify(guideBuilds),
+  });
+
+  let html = buildPage(body, {
+    title: 'Skills & Trait Builder - LOTRO Guides',
+    metaDescription: 'Interactive trait planner for all LOTRO classes with save and share functionality.',
+    currentPage: 'skills',
+    ...navData,
+  });
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'skills.html'), optimizeImages(html));
+}
+
+// ─── Embedded Trait Planner ─────────────────────────────────────────────────
+
+function buildEmbeddedTraitPlanner() {
+  const template = readTemplate('partials/embedded-trait-planner.html');
+  const html = render(template, { assets: '.' });
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'embedded-trait-planner.html'), optimizeImages(html));
+}
+
 // ─── Main Build ─────────────────────────────────────────────────────────────
 
 async function build() {
@@ -3044,7 +3471,7 @@ async function build() {
   console.log('   ✓ quests.html');
 
   // Build instances database page + individual instance pages
-  buildInstancesPage({ guideNavItems: guideNav, newsNavItems: newsNav }, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle });
+  buildInstancesPage({ guideNavItems: guideNav, newsNavItems: newsNav }, { guideNavItems: guideNavArticle, newsNavItems: newsNavArticle }, allGuides);
   console.log('   ✓ instances.html');
 
   // Build interactive map page
@@ -3054,6 +3481,14 @@ async function build() {
   // Build editor page
   buildEditorPage(allPosts, { guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ editor.html');
+
+  // Build skills page
+  buildSkillsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ skills.html');
+
+  // Build embedded trait planner
+  buildEmbeddedTraitPlanner();
+  console.log('   ✓ embedded-trait-planner.html');
 
   // Build individual articles (only from markdown — legacy HTML already exists)
   guides.forEach(post => {

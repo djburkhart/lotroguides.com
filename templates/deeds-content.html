@@ -17,6 +17,13 @@
         <!-- Filters -->
         <div class="row m-b-30">
           <div class="col-sm-6 col-md-3 m-b-15">
+            <label class="item-filter-label">Region</label>
+            <select id="filter-region" class="form-control item-filter-select">
+              <option value="">All Regions</option>
+{{regionOptions}}
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-2 m-b-15">
             <label class="item-filter-label">Type</label>
             <select id="filter-type" class="form-control item-filter-select">
               <option value="">All Types</option>
@@ -28,7 +35,7 @@
               <option value="Event">Event</option>
             </select>
           </div>
-          <div class="col-sm-6 col-md-3 m-b-15">
+          <div class="col-sm-6 col-md-2 m-b-15">
             <label class="item-filter-label">Reward</label>
             <select id="filter-reward" class="form-control item-filter-select">
               <option value="">All Rewards</option>
@@ -56,7 +63,7 @@
               <option value="Warden">Warden</option>
             </select>
           </div>
-          <div class="col-sm-6 col-md-3 m-b-15">
+          <div class="col-sm-6 col-md-2 m-b-15">
             <label class="item-filter-label">&nbsp;</label>
             <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
           </div>
@@ -68,6 +75,7 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Region</th>
                 <th>Type</th>
                 <th>Level</th>
                 <th>Rewards</th>

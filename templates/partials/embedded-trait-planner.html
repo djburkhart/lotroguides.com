@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOTRO Trait Planner - Embedded Viewer</title>
+    <link rel="stylesheet" href="{{assets}}/css/theme.css">
+    <link rel="stylesheet" href="{{assets}}/css/lotro.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        body {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Embedded viewer specific styles */
+        .embedded-trait-viewer {
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #252525 100%);
+            overflow: hidden;
+            max-width: 100%;
+        }
+        
+        .embedded-header {
+            background: linear-gradient(135deg, #c9aa58 0%, #b8994a 100%);
+            color: #1a1a1a;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .embedded-content {
+            padding: 15px;
+        }
+        
+        /* Hide interactive elements in embedded view */
+        .ltp-class-selector,
+        .ltp-level-controls,
+        .ltp-controls,
+        .ltp-build-controls,
+        .ltp-save-btn,
+        .ltp-reset-btn,
+        .ltp-vote-section,
+        .ltp-permalink,
+        .ltp-save-notice {
+            display: none !important;
+        }
+        
+        /* Compact points display for embedded view */
+        .ltp-points-display {
+            font-size: 12px;
+            text-align: center;
+            padding: 8px;
+            background: #000000;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        /* Compact tree headers */
+        .ltp-tree-header {
+            padding: 8px 12px;
+        }
+        
+        .ltp-tree-name {
+            font-size: 14px;
+        }
+        
+        .ltp-tree-role {
+            font-size: 11px;
+        }
+        
+        /* Disable hover effects and click cursors */
+        .ltp-cell {
+            cursor: default !important;
+        }
+        
+        .ltp-cell:hover {
+            background: inherit !important;
+            box-shadow: none !important;
+        }
+        
+        /* Compact virtue display */
+        .ltp-virtues {
+            margin-top: 10px;
+        }
+        
+        .ltp-virtue {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .ltp-virtue-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .ltp-virtue-name {
+            font-size: 10px;
+        }
+        
+        /* Error styling */
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        /* Loading styling */
+        .loading-message {
+            color: #c9aa58;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="embedded-trait-viewer">
+        <div class="embedded-header">
+            <i class="fa fa-sitemap"></i>
+            <span id="build-title">Loading Trait Build...</span>
+        </div>
+        <div class="embedded-content">
+            <div id="trait-planner-container" class="lotro-trait-planner"></div>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters for embedded configuration
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                class: params.get('class') || 'hunter',
+                build: params.get('build') || 'endgame',
+                level: parseInt(params.get('level')) || 160,
+                points: params.get('points') || null,
+                title: params.get('title') || null
+            };
+        }
+        
+        // Configure embedded viewer
+        function configureEmbeddedViewer() {
+            const params = getUrlParams();
+            const container = document.getElementById('trait-planner-container');
+            const titleElement = document.getElementById('build-title');
+            
+            // Set container attributes for trait planner
+            container.setAttribute('data-class', params.class);
+            container.setAttribute('data-build', params.build);
+            container.setAttribute('data-level', params.level.toString());
+            
+            // Update title
+            if (params.title) {
+                titleElement.textContent = params.title;
+            } else {
+                titleElement.textContent = `${capitalizeFirst(params.class)} ${capitalizeFirst(params.build)} Build (Level ${params.level})`;
+            }
+            
+            return params;
+        }
+        
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        // Apply embedded-specific modifications after planner loads
+        function applyEmbeddedModifications(params) {
+            // If specific points were provided, apply them
+            if (params.points && window.LOTRO_TRAIT_PLANNER_API) {
+                try {
+                    const pointsData = JSON.parse(decodeURIComponent(params.points));
+                    window.LOTRO_TRAIT_PLANNER_API.setPoints(pointsData);
+                } catch (e) {
+                    console.warn('Failed to parse points data:', e);
+                }
+            }
+            
+            // Disable all interactive elements
+            disableInteractivity();
+        }
+        
+        function disableInteractivity() {
+            // Remove event listeners from trait cells
+            const traitCells = document.querySelectorAll('.ltp-cell[data-trait-id]');
+            traitCells.forEach(cell => {
+                // Clone node to remove all event listeners
+                const newCell = cell.cloneNode(true);
+                cell.parentNode.replaceChild(newCell, cell);
+                
+                // Ensure no pointer cursor
+                newCell.style.cursor = 'default';
+            });
+            
+            // Hide any remaining interactive elements
+            const interactiveElements = document.querySelectorAll('.ltp-class-selector, .ltp-level-controls, .ltp-controls, .ltp-build-controls');
+            interactiveElements.forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+        
+        // Initialize embedded viewer
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = configureEmbeddedViewer();
+            
+            // Wait for trait planner to automatically load, then apply modifications
+            const checkForPlanner = setInterval(() => {
+                const container = document.getElementById('trait-planner-container');
+                // Check if the trait planner has already loaded content
+                if (container && container.innerHTML.trim() && container.innerHTML !== 'Loading Trait Build...') {
+                    clearInterval(checkForPlanner);
+                    
+                    // Apply embedded modifications after a short delay to ensure DOM is ready
+                    setTimeout(() => {
+                        applyEmbeddedModifications(params);
+                    }, 200);
+                }
+            }, 100);
+            
+            // Fallback timeout
+            setTimeout(() => {
+                clearInterval(checkForPlanner);
+                const container = document.getElementById('trait-planner-container');
+                if (!container.innerHTML.trim() || container.innerHTML === 'Loading Trait Build...') {
+                    container.innerHTML = '<div class="error-message"><i class="fa fa-exclamation-triangle"></i> Failed to load trait planner data</div>';
+                }
+            }, 5000);
+        });
+    </script>
+
+    <script src="{{assets}}/js/lotro-trait-planner.js"></script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+/**
+ * LOTRO Stat Name Formatter
+ * Maps internal/raw stat names to standard LOTRO game UI names.
+ * Exposes window.LOTRO_FORMAT_STAT(rawName) → display string
+ */
+(function () {
+  var map = {
+    // ── Primary Stats ─────────────────────────────────────────────
+    'Agility': 'Agility',
+    'Fate': 'Fate',
+    'Might': 'Might',
+    'Vitality': 'Vitality',
+    'Will': 'Will',
+    'Morale': 'Morale',
+    'Power': 'Power',
+    'HOPE': 'Hope',
+
+    // ── Offensive Ratings ─────────────────────────────────────────
+    'Physical Mastery': 'Physical Mastery',
+    'Tactical Mastery': 'Tactical Mastery',
+    'Critical Rating': 'Critical Rating',
+    'Finesse': 'Finesse',
+    'STEALTH LEVEL': 'Stealth Level',
+    'PERCEIVED THREAT': 'Perceived Threat',
+
+    // ── Defensive Ratings ─────────────────────────────────────────
+    'Physical Mitigation': 'Physical Mitigation',
+    'Physical Mitigation %': 'Physical Mitigation %',
+    'Tactical Mitigation': 'Tactical Mitigation',
+    'Tactical Mitigation %': 'Tactical Mitigation %',
+    'Resistance': 'Resistance',
+    'CRITICAL DEFENCE': 'Critical Defence',
+    'CRITICAL DEFENCE PERCENTAGE': 'Critical Defence %',
+
+    // ── Avoidance ─────────────────────────────────────────────────
+    'BLOCK': 'Block Rating',
+    'BLOCK PERCENTAGE': 'Block %',
+    'PARTIAL BLOCK PERCENTAGE': 'Partial Block %',
+    'PARRY': 'Parry Rating',
+    'PARRY PERCENTAGE': 'Parry %',
+    'PARTIAL PARRY PERCENTAGE': 'Partial Parry %',
+    'EVADE': 'Evade Rating',
+    'EVADE PERCENTAGE': 'Evade %',
+
+    // ── Mitigation Types ──────────────────────────────────────────
+    'FIRE MITIGATION': 'Fire Mitigation',
+    'FIRE MITIGATION PERCENTAGE': 'Fire Mitigation %',
+    'FROST MITIGATION': 'Frost Mitigation',
+    'FROST MITIGATION PERCENTAGE': 'Frost Mitigation %',
+    'ACID MITIGATION': 'Acid Mitigation',
+    'SHADOW MITIGATION': 'Shadow Mitigation',
+    'SHADOW MITIGATION PERCENTAGE': 'Shadow Mitigation %',
+    'LIGHTNING MITIGATION': 'Lightning Mitigation',
+    'OCFW MITIGATION': 'Orc-craft/Fell-wrought Mitigation',
+
+    // ── Offence % ─────────────────────────────────────────────────
+    'MELEE DAMAGE PERCENTAGE': 'Melee Damage %',
+    'RANGED DAMAGE PERCENTAGE': 'Ranged Damage %',
+    'TACTICAL DAMAGE PERCENTAGE': 'Tactical Damage %',
+    'CRITICAL MELEE PERCENTAGE': 'Melee Critical %',
+    'CRITICAL RANGED PERCENTAGE': 'Ranged Critical %',
+    'CRITICAL TACTICAL PERCENTAGE': 'Tactical Critical %',
+    'DEVASTATE MAGNITUDE PERCENTAGE': 'Devastate Magnitude %',
+    'ATTACK DURATION PERCENTAGE': 'Attack Duration %',
+    'ALL SKILL INDUCTION': 'Induction Time',
+
+    // ── Defence % ─────────────────────────────────────────────────
+    'MELEE DEFENCE PERCENTAGE': 'Melee Defence %',
+    'RANGED DEFENCE PERCENTAGE': 'Ranged Defence %',
+    'TACTICAL DEFENCE PERCENTAGE': 'Tactical Defence %',
+
+    // ── Healing ───────────────────────────────────────────────────
+    'OUTGOING HEALING': 'Outgoing Healing Rating',
+    'OUTGOING HEALING PERCENTAGE': 'Outgoing Healing %',
+    'INCOMING HEALING': 'Incoming Healing Rating',
+    'INCOMING HEALING PERCENTAGE': 'Incoming Healing %',
+
+    // ── Regen ─────────────────────────────────────────────────────
+    'In-Combat Morale Regen': 'In-Combat Morale Regen',
+    'In-Combat Power Regen': 'In-Combat Power Regen',
+    'Out-of-Combat Morale Regen': 'Non-Combat Morale Regen',
+    'Out-of-Combat Power Regen': 'Non-Combat Power Regen',
+
+    // ── Resistances ───────────────────────────────────────────────
+    'Disease Resistance %': 'Disease Resistance %',
+    'Fear Resistance %': 'Fear Resistance %',
+    'Poison Resistance %': 'Poison Resistance %',
+    'Wound Resistance %': 'Wound Resistance %',
+    'Resist AdditionalPoints Resistance Fear': 'Fear Resistance',
+    'Resist AdditionalPoints Resistance Poison': 'Poison Resistance',
+    'Resist AdditionalPoints Resistance Wound': 'Wound Resistance',
+    'Resist Additional Resistance Magic': 'Magical Resistance',
+    'Resist Additional Resistance Physical': 'Physical Resistance',
+
+    // ── XP / Bonus Multipliers ────────────────────────────────────
+    'XP AwardMultiplier': 'XP Bonus',
+    'XP QuestAwardMultiplier': 'Quest XP Bonus',
+    'ItemAdvancement XP AwardMultiplier': 'Item XP Bonus',
+    'Glory AwardMultiplier': 'Glory Bonus',
+    'Mount SteedXP Multiplier': 'Steed XP Bonus',
+    'PVPPoints AwardMultiplier': 'PvMP Points Bonus',
+    'Craft Recipe CraftXP Acceleration': 'Crafting XP Bonus',
+    'Relic Success Rate': 'Relic Forge Success Rate',
+    'Reputation Faction Increase Mod Defeat': 'Reputation Bonus (Defeat)',
+    'LandscapeDifficulty CurrencyChance MultMod': 'Landscape Difficulty Currency Bonus',
+
+    // ── Crafting ──────────────────────────────────────────────────
+    'COOK CRIT CHANCE PERCENTAGE': 'Cook Critical Chance %',
+    'JEWELLER CRIT CHANCE PERCENTAGE': 'Jeweller Critical Chance %',
+    'METALSMITH CRIT CHANCE PERCENTAGE': 'Metalsmith Critical Chance %',
+    'SCHOLAR CRIT CHANCE PERCENTAGE': 'Scholar Critical Chance %',
+    'TAILOR CRIT CHANCE PERCENTAGE': 'Tailor Critical Chance %',
+    'WEAPONSMITH CRIT CHANCE PERCENTAGE': 'Weaponsmith Critical Chance %',
+    'WOODWORKER CRIT CHANCE PERCENTAGE': 'Woodworker Critical Chance %',
+    'Craft ExecutionTime Override': 'Crafting Time',
+    'Craft Farmer CriticalChanceAddModifier': 'Farmer Critical Chance',
+    'Craft Forester CriticalChanceAddModifier': 'Forester Critical Chance',
+    'Craft Prospector CriticalChanceAddModifier': 'Prospector Critical Chance',
+
+    // ── Item Wear ─────────────────────────────────────────────────
+    'ITEM WEAR CHANCE ON HIT': 'Item Wear Chance',
+    'ItemWear ChanceMod CombatBlock': 'Item Wear on Block',
+    'ItemWear ChanceMod CombatParry': 'Item Wear on Parry',
+    'ItemWear ChanceMod CraftItem': 'Item Wear on Craft',
+    'ItemWear ChanceMod HarvestItem': 'Item Wear on Harvest',
+    'ItemWear ChanceMod SkillUse': 'Item Wear on Skill Use',
+    'ItemWear Modifier Death': 'Item Wear on Defeat',
+    'ItemWear Modifier Resurrected': 'Item Wear on Resurrect',
+
+    // ── Movement ──────────────────────────────────────────────────
+    'ForwardSource Movement SpeedMultiplier': 'Run Speed',
+    'ForwardSource Movement MountSpeedMultiplier': 'Mount Speed',
+    'Movement OutOfCombat Speed AddMod': 'Non-Combat Run Speed',
+
+    // ── Combat Modifiers ──────────────────────────────────────────
+    'Combat Agent Armor Value Float': 'Armour Value',
+    'Combat ArmorDefense PointsModifier Lightning': 'Lightning Defence',
+    'Combat BaseMissRate': 'Miss Chance',
+    'Combat CriticalPoints Modifier Melee': 'Melee Critical Rating',
+    'Combat SuperCritical PercentAddMod': 'Devastate Chance',
+    'Combat SkillDamageMultiplier Fire': 'Fire Skill Damage',
+    'Combat SkillDamageMultiplier Frost': 'Frost Skill Damage',
+    'Combat SkillDamageMultiplier Light': 'Light Skill Damage',
+    'Combat SkillDamageMultiplier Lightning': 'Lightning Skill Damage',
+
+    // ── Skill/Threat ──────────────────────────────────────────────
+    'ThreatInputModifier Healing': 'Healing Threat',
+    'Skill PowerCost AllSkills': 'Skill Power Cost',
+    'Skill AreaEffect Damage': 'Area Effect Damage',
+    'Skill AreaEffect Damage CritChance': 'Area Effect Critical Chance',
+    'Skill AreaEffect Healing': 'Area Effect Healing',
+    'Skill HealingMultiplier Item': 'Healing',
+    'Skill HealMultiplier Conviction': 'Conviction Healing',
+    'Skill CritChanceMod MeleeSkills': 'Melee Critical Chance',
+    'Skill CritChanceMod TacticalSkills': 'Tactical Critical Chance',
+    'Skill BonusThreat WarCry': 'War-cry Threat',
+    'Skill DamageMitigation RangedMod': 'Ranged Damage Mitigation',
+    'Skill ChanceBlock RangedMod': 'Ranged Block Chance',
+    'Skill ChanceEvade RangedMod': 'Ranged Evade Chance',
+    'Skill VitalCost RangedMod': 'Ranged Power Cost',
+    'Skill Duration HamperingJavelin': 'Hampering Javelin Duration',
+    'Skill InductionDuration EventSkillsMod': 'Skill Induction Time',
+    'Skill AdditionalThreat Hunter AllRangeSkillsMod': 'Hunter Ranged Threat',
+
+    // ── Hobby ─────────────────────────────────────────────────────
+    'Hobby Fishing ProficiencyModifier': 'Fishing Proficiency',
+
+    // ── Skirmish ──────────────────────────────────────────────────
+    'Skirmish DirectSoldier Cooldown': 'Soldier Cooldown',
+    'Skirmish SkirmishPointAwardMultiplier': 'Skirmish Mark Bonus',
+
+    // ── Virtue Rank Traits ────────────────────────────────────────
+    'Trait Virtue Rank Charity': '+Charity',
+    'Trait Virtue Rank Compassionate': '+Compassion',
+    'Trait Virtue Rank Confidence': '+Confidence',
+    'Trait Virtue Rank Determination': '+Determination',
+    'Trait Virtue Rank Discipline': '+Discipline',
+    'Trait Virtue Rank Empathy': '+Empathy',
+    'Trait Virtue Rank Fidelity': '+Fidelity',
+    'Trait Virtue Rank Fortitude': '+Fortitude',
+    'Trait Virtue Rank Honesty': '+Honesty',
+    'Trait Virtue Rank Honour': '+Honour',
+    'Trait Virtue Rank Idealism': '+Idealism',
+    'Trait Virtue Rank Innocence': '+Innocence',
+    'Trait Virtue Rank Just': '+Justice',
+    'Trait Virtue Rank Loyalty': '+Loyalty',
+    'Trait Virtue Rank Merciful': '+Mercy',
+    'Trait Virtue Rank Patience': '+Patience',
+    'Trait Virtue Rank Tolerant': '+Tolerance',
+    'Trait Virtue Rank Valor': '+Valour',
+    'Trait Virtue Rank Wisdom': '+Wisdom',
+    'Trait Virtue Rank Zeal': '+Zeal',
+
+    // ── Cosmetic / Misc ───────────────────────────────────────────
+    'ForwardSource AC Texture Facepaint': 'Cosmetic: Face Paint',
+    'ForwardSource Discount Travel Special': 'Travel Discount',
+    'ForwardSource Entity Camera LookAt OffsetZ': 'Camera Height Offset',
+    'Item Guardian ShieldSpikes Damage': 'Shield Spike Damage',
+
+    // ── Minstrel Set/Skill Bonuses ────────────────────────────────
+    'BALLAD AND CODA DAMAGE PERCENTAGE': 'Ballad & Coda Damage %',
+    'BLADE LINE AOE POWER COST PERCENTAGE': 'Blade AoE Power Cost %',
+
+    // ── Class: Beorning ───────────────────────────────────────────
+    'Skill Beorning Bash DamageMod': 'Bash Damage',
+    'Skill Beorning BearForm DamageMod': 'Bear Form Damage',
+    'Skill Beorning Bellow Cooldown': 'Bellow Cooldown',
+    'Skill Beorning BleedDamageMod': 'Bleed Damage',
+    'Skill Beorning BloodPrize Duration': 'Blood Prize Duration',
+    'Skill Beorning DefensiveBlow CooldownMod': 'Defensive Blow Cooldown',
+    'Skill Beorning DoT Pulses': 'DoT Pulses',
+    'Skill Beorning EncouragingRoar CD': 'Encouraging Roar Cooldown',
+    'Skill Beorning EncouragingRoar Initial HealMod': 'Encouraging Roar Healing',
+    'Skill Beorning Execute CooldownMod': 'Execute Cooldown',
+    'Skill Beorning Execute DamageMod': 'Execute Damage',
+    'Skill Beorning Expose MitMod': 'Expose Mitigation Debuff',
+    'Skill Beorning Finisher DamageMod': 'Finisher Damage',
+    'Skill Beorning Hearten CooldownMod': 'Hearten Cooldown',
+    'Skill Beorning Hurricane Cooldown': 'Hurricane Cooldown',
+    'Skill Beorning Hurricane DamageMod': 'Hurricane Damage',
+    'Skill Beorning IA CalltoWild Physical Mastery': 'Call to Wild Phys. Mastery',
+    'Skill Beorning IA RelentlessMaul Damage': 'Relentless Maul Damage',
+    'Skill Beorning Itemset Counter Evade': 'Counter Evade',
+    'Skill Beorning ItemSet DownButNotOut CD': 'Down But Not Out Cooldown',
+    'Skill Beorning ItemSet NaturesBond CD': "Nature's Bond Cooldown",
+    'Skill Beorning ItemSet Wrath Max': 'Max Wrath',
+    'Skill Beorning NaturesSalve Cooldown': "Nature's Salve Cooldown",
+    'Skill Beorning QuickRecovery InitialHealMod': 'Quick Recovery Healing',
+    'Skill Beorning Recuperate PulseCount Mod': 'Recuperate Pulses',
+    'Skill Beorning Sacrifice DamageMitigationMod': 'Sacrifice Mitigation',
+    'Skill Beorning ThornedArmour DamageRedirectMod': 'Thorned Armour Redirect',
+    'Skill Beorning ToYourAid Cooldown': 'To Your Aid Cooldown',
+    'Skill Beorning ViciousClaw DamageMod': 'Vicious Claws Damage',
+    'Skill Beorning ViciousClaws CD': 'Vicious Claws Cooldown',
+    'Duration Brawler Vulnerable': 'Vulnerable Duration',
+
+    // ── Class: Brawler ────────────────────────────────────────────
+    'Skill Brawler BracingGuard Cooldown': 'Bracing Guard Cooldown',
+    'Skill Brawler Devastate Damage': 'Devastate Damage',
+    'Skill Brawler EfficientStrikes MettleMod': 'Efficient Strikes Mettle',
+    'Skill Brawler EfficientStrikes PowerCost': 'Efficient Strikes Power Cost',
+    'Skill Brawler Flex DurationMod': 'Flex Duration',
+    'Skill Brawler FlurryOfBlows DamageMod': 'Flurry of Blows Damage',
+    'Skill Brawler Itemset EfficientStrikesCDR': 'Efficient Strikes Cooldown',
+    'Skill Brawler itemset MettleCritDamage': 'Mettle Critical Damage',
+    'Skill Brawler JoyOfBattle CD': 'Joy of Battle Cooldown',
+    'Skill Brawler MettleShield Magnitude': 'Mettle Shield Amount',
+    'Skill Brawler SlipFree CD': 'Slip Free Cooldown',
+    'Skill Brawler SpenderAttack Damage': 'Spender Attack Damage',
+    'Skill Brawler Vulnerable ProbabilityMod': 'Vulnerable Chance',
+    'ForwardSource Combat Brawler SkillCombo': 'Brawler Skill Combo',
+
+    // ── Class: Burglar ────────────────────────────────────────────
+    'Skill Burglar CoupDeGrace Cooldown': 'Coup de Grâce Cooldown',
+    'Skill Burglar CritChain MitPen': 'Critical Chain Mit. Penetration',
+    'Skill Burglar DamagingGamble BleedDamage': 'Damaging Gamble Bleed',
+    'Skill Burglar EvadeChanceReduction': 'Evade Chance Reduction',
+    'Skill Burglar ExploitOpening Cooldown': 'Exploit Opening Cooldown',
+    'Skill Burglar Gamble Damage': 'Gamble Damage',
+    'Skill Burglar IA CoupdeGras CritRating': 'Coup de Grâce Crit Rating',
+    'Skill Burglar IA CunningAttack BleedDamage': 'Cunning Attack Bleed',
+    'Skill Burglar SmallSnag DamageDebuff': 'Small Snag Damage Debuff',
+    'Skill Burglar StrikeFromShadows CritDamage': 'Strike from Shadows Crit Damage',
+    'Skill Burglar TrickRemoval Healing': 'Trick Removal Healing',
+    'Burglar Skill RecoveryTime AllTricks': 'All Tricks Cooldown',
+    'Burglar Tricks Duration': 'Trick Duration',
+    'IA Burglar Defense KnivesOut': 'Knives Out Defence',
+    'IA Burglar Recovery ReadyAndAble': 'Ready and Able Cooldown',
+    'Itemset Burglar Aim DevCrit': 'Aim Devastate Critical',
+    'ForwardSource Combat Burglar SkillCombo': 'Burglar Skill Combo',
+    'EffectMod Burglar RollWithIt Potency': 'Roll with It Potency',
+    'EffectMod VOT PerIntervalChangeMult AddMod1 Trait Tricks': 'Trick DoT Potency',
+    'EpicSet ChanceAvoid BracingAttack': 'Bracing Attack Avoid Chance',
+
+    // ── Class: Captain ────────────────────────────────────────────
+    'Skill Captain Battleshout CooldownMod': 'Battle-shout Cooldown',
+    'Skill Captain CritHealing Magnitude': 'Critical Healing',
+    'Skill Captain DamageMultiplier GraveWound': 'Grave Wound Damage',
+    'Skill Captain DefensiveStrike CooldownMod': 'Defensive Strike Cooldown',
+    'Skill Captain DevastatingBlow CritChance': 'Devastating Blow Crit Chance',
+    'Skill Captain EventChain DamageMod': 'Skill Chain Damage',
+    'Skill Captain GallantDisplay DamageMod': 'Gallant Display Damage',
+    'Skill Captain GallantDisplay HealingMod': 'Gallant Display Healing',
+    'Skill Captain GallantDisplay PowerCost': 'Gallant Display Power Cost',
+    'Skill Captain IA BattleShout Damage': 'Battle-shout Damage',
+    'Skill Captain Itemset LeadtheCharge DamageBuff': 'Lead the Charge Damage',
+    'Skill Captain MeleeHealBonus': 'Melee Heal Bonus',
+    'Skill Captain RoutingCry Cooldown': 'Routing Cry Cooldown',
+    'Skill Captain SA Inspire BuffMult': 'Inspire Buff',
+    'Skill Captain ShadowsLament CD': "Shadow's Lament Cooldown",
+    'Skill Captain SoD Cooldown': 'Strength of the Draw Cooldown',
+    'Skill Captain SoD ExpireHeal AppChance': 'Strength of Draw Heal Chance',
+    'Skill Captain Songbrother IncDamage': 'Song-brother Inc. Damage',
+    'Skill Captain VocalHealBonus': 'Vocal Heal Bonus',
+    'Captain RoutingCry DamageMod': 'Routing Cry Damage',
+    'Skill Captain CleanseCorruption CooldownMod': 'Cleanse Corruption Cooldown',
+    'Skill ApplicationProb Captain HammerStrokeHeal': 'Hammer-stroke Heal Chance',
+    'IA Captain Event Duration': 'Captain Event Duration',
+    'Skill ChanceCriticalHit DevastatingBlow': 'Devastating Blow Crit Chance',
+    'Itemset Captain StandardOfValour CD': 'Standard of Valour Cooldown',
+    'Itemset Captain ValiantStrike CooldownMod': 'Valiant Strike Cooldown',
+    'Itemset Application Captain BattleShout Fear': 'Battle-shout Fear Chance',
+    'EffectMod Captain AtTheFore Duration': 'At the Fore Duration',
+    'EffectMod Captain AtTheFore Negate Potency': 'At the Fore Potency',
+    'ForwardSource Combat Captain SkillCombo': 'Captain Skill Combo',
+
+    // ── Class: Champion ───────────────────────────────────────────
+    'Skill Champion AddStrike DamageMod': 'Additional Strike Damage',
+    'Skill Champion BfC DamageBuff': 'Battle Frenzy Damage',
+    'Skill Champion BladeDamage': 'Blade Damage',
+    'Skill Champion BladesCourage ProcChance': "Blade's Courage Proc Chance",
+    'Skill Champion CriticalChance RagingBlade': 'Raging Blade Crit Chance',
+    'Skill Champion Defence Recovery': 'Defence Recovery',
+    'Skill Champion EffectMagnitude Bubble': 'Bubble Magnitude',
+    'Skill Champion FervourMod FuryBlades Damage': 'Fury of Blades Damage',
+    'Skill Champion HornChampions DamageMod': 'Horn of Champions Damage',
+    'Skill Champion Pipmod FuryofBlades': 'Fury of Blades Fervour Cost',
+    'Skill Champion RecoveryTime GreatCleave': 'Great Cleave Cooldown',
+    'Skill Champion SuddenDefence IncDam': 'Sudden Defence Inc. Damage',
+    'Skill CriticalDamageMultiplier ChampionAll': 'Champion Critical Damage',
+    'Skill DamageMultiplier BrutalStrikes': 'Brutal Strikes Damage',
+    'Skill DamageMultiplier CelebrationofSkill': 'Celebration of Skill Damage',
+    'Skill DamageMultiplier Champion BracingAttackHeal': 'Bracing Attack Healing',
+    'Skill DamageMultiplier Champion ControlledBurn': 'Controlled Burn Damage',
+    'Skill DamageMultiplier ChampionAoeMod': 'Champion AoE Damage',
+    'Skill Duration Champion Adamant': 'Adamant Duration',
+    'Skill Duration Champion AggressiveExchange': 'Aggressive Exchange Duration',
+    'Skill Duration Champion GreatCleave': 'Great Cleave Duration',
+    'Skill ChanceCriticalHit Trait EarlyEnd': 'Early End Crit Chance',
+    'Itemset Application Champion BrutalStrikes PIP Reduction': 'Brutal Strikes Fervour Reduction',
+    'Itemset Cooldown Champion ExaltedCombatant': 'Exalted Combatant Cooldown',
+    'ItemSet Champion ControlledBurn RecoveryTime': 'Controlled Burn Cooldown',
+    'Skill Champion AppChance Bladestorm Lightning TierUp': 'Bladestorm Lightning Tier Chance',
+    'ForwardSource Combat Champion SkillCombo': 'Champion Skill Combo',
+
+    // ── Class: Corsair ────────────────────────────────────────────
+    'Corsair Bleed Damage': 'Bleed Damage',
+    'Corsair Bleed Pulses': 'Bleed Pulses',
+    'Corsair Bottle CooldownMod': 'Bottle Cooldown',
+    'Corsair CausticBrew Duration': 'Caustic Brew Duration',
+    'Corsair Disengage Mitigations': 'Disengage Mitigation',
+    'Corsair DramaticFlourish Cooldown': 'Dramatic Flourish Cooldown',
+    'Corsair Jugglery AppChance': 'Jugglery Chance',
+    'Corsair Latent Fleche Pulses': 'Latent Flèche Pulses',
+    'Corsair Lunge Cooldown': 'Lunge Cooldown',
+    'Corsair MarkedFoes Cooldown': 'Marked Foes Cooldown',
+    'Corsair NorthWind FrostMit': 'North Wind Frost Mitigation',
+    'Corsair RaggedKnife Cooldown': 'Ragged Knife Cooldown',
+    'Corsair Recentre Cooldown': 'Recentre Cooldown',
+    'Corsair Riposte Debuff Potency': 'Riposte Debuff Potency',
+    'Corsair Shanty Foretoggle Cooldown': 'Shanty Cooldown',
+    'Corsair ShantyHeal Potency': 'Shanty Healing Potency',
+    'Corsair Skilldamage Finisher': 'Finisher Damage',
+    'Corsair Skilldamage Fore': 'Fore Damage',
+    'Corsair Skilldamage NorthWind': 'North Wind Damage',
+    'Corsair Skilldamage Swordplay': 'Swordplay Damage',
+    'Corsair StarGuide Cooldown': 'Star Guide Cooldown',
+    'Corsair StarGuide Duration': 'Star Guide Duration',
+    'Corsair STMez Cooldown': 'Stun/Mez Cooldown',
+    'Corsair Stupor DurationMod': 'Stupor Duration',
+    'Corsair Swordplay Defensive Duration': 'Defensive Swordplay Duration',
+    'Corsair WarofWrath Cooldown': 'War of Wrath Cooldown',
+    'Corsair Wind Shanty Cooldowns': 'Wind Shanty Cooldowns',
+    'Corsair WindEffect Duration': 'Wind Effect Duration',
+    'Skill Corsair GBtS IncDam Mod': 'Going Back to Start Inc. Damage',
+
+    // ── Class: Guardian ───────────────────────────────────────────
+    'Skill Guardian AoESkill Damage': 'AoE Skill Damage',
+    'Skill Guardian BrutalAssault BleedDamage': 'Brutal Assault Bleed',
+    'Skill Guardian Challenge Cooldown': 'Challenge Cooldown',
+    'Skill Guardian CriticalChance Overwhelm': 'Overwhelm Crit Chance',
+    'Skill Guardian ForceTaunt Duration': 'Force Taunt Duration',
+    'Skill Guardian HammerDown CD': 'Hammer Down Cooldown',
+    'Skill Guardian IA Light Damage': 'Light of Eärendil Damage',
+    'Skill Guardian IA ReactiveParry Damage': 'Reactive Parry Damage',
+    'Skill Guardian IA WarriorsHeart MaxMorale': "Warrior's Heart Max Morale",
+    'Skill Guardian Juggernaut Cooldown': 'Juggernaut Cooldown',
+    'Skill Guardian Radiate ProcChance': 'Radiate Proc Chance',
+    'Skill Guardian Shieldblow CritChance': 'Shield-blow Crit Chance',
+    'Skill Guardian Shieldwall Redirect Mod': 'Shield-wall Redirect',
+    'Skill Guardian WarriorHeart MaxMorale': "Warrior's Heart Max Morale",
+    'Item Guardian ShieldSpikes Damage': 'Shield Spike Damage',
+    'Guardian ForceOpening Debuff ApplicationChance': 'Force Opening Debuff Chance',
+    'Guardian Itemset Oath Appchance': 'Oath Application Chance',
+    'Guardian Itemset Whirlwind Appchance': 'Whirlwind Application Chance',
+    'Effect Guardian Fortifications Bonus 1': 'Fortification Bonus 1',
+    'Effect Guardian Fortifications Bonus 2': 'Fortification Bonus 2',
+    'Effect Guardian Fortifications Bonus 3': 'Fortification Bonus 3',
+    'Effect Guardian Fortifications Bonus 4': 'Fortification Bonus 4',
+    'Effect Guardian Fortifications Bonus 5': 'Fortification Bonus 5',
+    'Effect Guardian RelentlessFury BuffPotency': 'Relentless Fury Potency',
+    'EffectMod BleedCount Guardian DeepWound': 'Deep Wound Bleed Count',
+    'EffectMod BleedDamage Guardian': 'Guardian Bleed Damage',
+    'EffectMod Duration Guardian GuardiansWard': "Guardian's Ward Duration",
+    'EffectMod Duration Guardian Pledge': 'Pledge Duration',
+    'EffectMod Guardian ShieldHeal Potency': 'Shield Heal Potency',
+    'EffectMod MoraleBonus Guardian WarriorsHeart': "Warrior's Heart Morale",
+    'Itemset AdditivePulseCountModifier Guardian Bleeds': 'Guardian Bleed Pulses',
+    'Itemset Application Guardian ToTheKing ParryResponse': 'To the King Parry Response',
+    'Essence Warden ShieldMitigation': 'Shield Mitigation',
+    'ForwardSource Combat Guardian SkillCombo': 'Guardian Skill Combo',
+
+    // ── Class: Hunter ─────────────────────────────────────────────
+    'Skill ChanceCriticalHit Hunter PenetratingShot': 'Penetrating Shot Crit Chance',
+    'Skill ChanceCriticalHit Hunter Stance Precision': 'Precision Stance Crit Chance',
+    'Hunter Bleed Cashout Damage': 'Bleed Cashout Damage',
+    'Hunter ItemSet SilverArrow AppChance': 'Silver Arrow Chance',
+    'Hunter SwiftBow FocusGeneration': 'Swift Bow Focus Generation',
+    'Hunter Volley Exsanguinate BonusChance': 'Exsanguinate Bonus Chance',
+    'Itemset Bonus Hunter Fleetness PipCost': 'Fleetness Focus Cost',
+    'Itemset Bonus Hunter Fleetness PipMinMod': 'Fleetness Focus Minimum',
+    'Itemset Hunter RecoveryTime BardsArrow': "Bard's Arrow Cooldown",
+    'Itemset Application Hunter LowCut Cleanse': 'Low Cut Cleanse Chance',
+    'IA Hunter Recovery BeneathNotice': 'Beneath Notice Cooldown',
+    'IA Hunter Skill RecoveryTime DistractingShot': 'Distracting Shot Cooldown',
+    'ForwardSource Combat Hunter SkillCombo': 'Hunter Skill Combo',
+
+    // ── Class: Lore-master ────────────────────────────────────────
+    'Item Loremaster Induction PowerCost': 'Induction Power Cost',
+    'Skill LightningBurst LoreMaster PowerCost': 'Lightning Burst Power Cost',
+    'Skill Duration LoreMaster BlindingFlash': 'Blinding Flash Duration',
+    'IA Loremaster GustofWindDamage': 'Gust of Wind Damage',
+    'IA Loremaster MagicSkills Damage': 'Magic Skills Damage',
+    'IA Loremaster TestofWill Damage': 'Test of Will Damage',
+    'Itemset Loremaster CatmintCooldown': 'Catmint Cooldown',
+    'Itemset Loremaster FellowshipFriend Duration': 'Fellowship Friend Duration',
+    'Itemset Loremaster PoD EntsReset Appchance': 'Power of Decay Reset Chance',
+    'Itemset Loremaster RecoveryTime CallValar': 'Call to the Valar Cooldown',
+    'Itemset Loremaster WaterLore IncHealDuration': 'Water-lore Inc. Heal Duration',
+    'Itemset Loremaster WaterLore PulseCount': 'Water-lore Pulse Count',
+    'Itemset Application Loremaster LightningStorm Daze': 'Lightning Storm Daze Chance',
+    'Loremaster Cashout LowPressure AppChance': 'Low Pressure Cashout Chance',
+    'Loremaster Itemset Insult AM Appchance': 'Insult Application Chance',
+    'Loremaster Retribution Cooldown': 'Retribution Cooldown',
+    'Loremaster Retribution CritChance': 'Retribution Crit Chance',
+    'Loremaster Retribution CritMag': 'Retribution Crit Magnitude',
+    'Loremaster Retribution Damage': 'Retribution Damage',
+    'Loremaster Retribution Stun AppChance': 'Retribution Stun Chance',
+    'ForwardSource Combat Loremaster SkillCombo': 'Lore-master Skill Combo',
+
+    // ── Class: Minstrel ───────────────────────────────────────────
+    'Item Minstrel Induction PowerCost': 'Induction Power Cost',
+    'Item Minstrel ImprovedFellowshipHeart': 'Improved Fellowship Heart',
+    'Item Minstrel SongofSoothing HealingDebuff': 'Song of Soothing Heal Debuff',
+    'IA Minstrel BalladofWar Buff': 'Ballad of War Buff',
+    'IA Minstrel Ballads Tier1 Damage': 'Tier 1 Ballad Damage',
+    'IA Minstrel Ballads Tier3 Healing': 'Tier 3 Ballad Healing',
+    'IA Minstrel CalltoOrome Damage': 'Call to Oromë Damage',
+    'IA Minstrel InspireFellows Heal': 'Inspire Fellows Healing',
+    'IA Minstrel Motivation Healing': 'Motivation Healing',
+    'IA Duration Minstrel WarspeechTail': 'War-speech Duration',
+    'Itemset Minstrel CodaMelody Anthemreset Appchance': 'Coda Melody Anthem Reset Chance',
+    'Itemset Minstrel CoW CoF Empower Appchance': 'Call of War/Fate Empower Chance',
+    'Itemset Minstrel CriticalChance CryCall': 'Cry/Call Critical Chance',
+    'Itemset Minstrel CriticalChance Healing': 'Healing Critical Chance',
+    'Itemset Minstrel EmboldeningFinish BalladCrit T1': 'Emboldening Finish T1 Crit',
+    'Itemset Minstrel EmboldeningFinish BalladCrit T3': 'Emboldening Finish T3 Crit',
+    'Itemset Minstrel EmboldeningFinish BalladCrit T4': 'Emboldening Finish T4 Crit',
+    'Itemset Minstrel EmboldeningFinish BalladCrit T5': 'Emboldening Finish T5 Crit',
+    'Itemset Minstrel Hammerhand PowerRestore': 'Hammerhand Power Restore',
+    'Itemset Minstrel MinorBallad Buff AddedEffects Override': 'Minor Ballad Bonus Effect',
+    'EffectMod HealingMultiplier Trait MP HarshLanguage': 'Harsh Language Healing',
+
+    // ── Class: Rune-keeper ────────────────────────────────────────
+    'Item Runekeeper Induction PowerCost': 'Induction Power Cost',
+    'Item Runekeeper ImprovedWritofHealth': 'Improved Writ of Health',
+    'Skill Runekeeper EpicForAges CriticalChance': 'Epic for the Ages Crit Chance',
+    'Skill Runekeeper ScathingMockery MaxTargets': 'Scathing Mockery Max Targets',
+    'Skill Attunement Runekeeper Lightning Stun StunRate': 'Lightning Stun Rate',
+    'IA Runekeeper BigHeal Healing': 'Big Heal Healing',
+    'IA Runekeeper Shaken Chance': 'Shaken Chance',
+    'IA Runekeeper ThunderStruck Chance': 'Thunderstruck Chance',
+    'IA Runekeeper TieredDoT Damage': 'Tiered DoT Damage',
+    'Trait Runekeeper Lightning CriticalHitChance': 'Lightning Crit Chance',
+    'Trait Runekeeper NukeDot Power': 'Rune Damage Power Return',
+    'Itemset Runekeeper CeaselessArgument SlowRate': 'Ceaseless Argument Slow',
+    'Itemset Runekeeper EssenceofStorm CritChance': 'Essence of Storm Crit Chance',
+    'Itemset Runekeeper StaticSurge Proc Chance': 'Static Surge Proc Chance',
+    'Itemset Runekeeper SustainingBolt PowerReturn': 'Sustaining Bolt Power Return',
+    'Itemset Runekeeper WrathofFire PulseCount': 'Wrath of Fire Pulses',
+    'ItemSet EpicConclusion recovers SustainingBolt ApplicationChance': 'Epic Conclusion Sustaining Bolt Chance',
+    'Runekeeper Aftershock Surge Appchance': 'Aftershock Surge Chance',
+    'Runekeeper FlurryOfWords Debuff Mod': 'Flurry of Words Debuff',
+    'Runekeeper Mending Stone Secondary Appchance': 'Mending Stone Chance',
+    'Runekeeper SustainingBolt Duration': 'Sustaining Bolt Duration',
+    'Runekeeper Volcanic Summon Duration': 'Volcanic Summon Duration',
+    'Runekeeper Writ Lightning TacMitigation': 'Lightning Writ Tac. Mitigation',
+    'Runekeeper Writ LightningMitigation 05': 'Lightning Writ Mitigation 5%',
+    'Runekeeper Writ LightningMitigation 10': 'Lightning Writ Mitigation 10%',
+    'Runekeeper Writ LightningMitigation 15': 'Lightning Writ Mitigation 15%',
+    'ForwardSource Combat Runekeeper SkillCombo': 'Rune-keeper Skill Combo',
+
+    // ── Class: Warden ─────────────────────────────────────────────
+    'Item Warden VitalCost GambitBuilder': 'Gambit Builder Power Cost',
+    'Skill Warden SpearGambitDamage': 'Spear Gambit Damage',
+    'Skill VitalCost SerenadeUtilityMod': 'Serenade Power Cost',
+    'Itemset Duration Warden ShieldTactics': 'Shield Tactics Duration',
+    'Itemset Warden AdroitM Finesse': 'Adroit Manoeuvre Finesse',
+    'Itemset Application Warden BoarsRush Daze': "Boar's Rush Daze Chance",
+
+    // ── Misc Trait/Effect ─────────────────────────────────────────
+    'Trait DamageMultiplier SharpBladeSharpWit': 'Sharp Blade/Sharp Wit Damage',
+    'Trait HotMultiplier WardenShield4': 'Warden Shield HoT',
+    'Skill DamageMultiplier Trait Race Conjuction Might': 'Fellowship Manoeuvre Might Damage',
+    'Skill DamageMultiplier Trait Race Conjuction Guile': 'Fellowship Manoeuvre Guile Damage',
+    'Skill HealingMultiplier Trait Race Conjuction Conviction': 'Fellowship Manoeuvre Conviction Healing',
+    'Skill PowerMoraleMultiplier Trait Race Conjuction Tactics': 'Fellowship Manoeuvre Tactics',
+    'Skill DamageMultiplier Offhand Trait Ambidextrous': 'Off-hand Damage',
+    'Skill DamageMultiplier EpicSet Stealth Suprisestrike': 'Surprise Strike Damage',
+    'Skill DamageMultiplier Trait MasterofWar': 'Master of War Damage',
+    'Skill DamageMultiplier Trait Stealth LineBonus': 'Stealth Line Damage',
+    'Skill DamageMultiplier Bleed MightyBlow': 'Mighty Blow Bleed',
+    'Skill Duration Trait Captain TacticalProwess': 'Tactical Prowess Duration',
+    'Effect DamageMultiplier Trait CunningWound': 'Cunning Wound Damage',
+    'Effect 2H Bonus Mod': 'Two-handed Bonus',
+    'Accomplishment MonsterDied AccelerationMultiplier': 'Slayer Deed Acceleration',
+    'Accomplishment Skill AccelerationMultiplier': 'Skill Deed Acceleration',
+    'ForwardSource Combat Beorning SkillCombo': 'Beorning Skill Combo'
+  };
+
+  /**
+   * Format a raw stat name to its LOTRO game-UI equivalent.
+   * Tries the exact-match map first, then applies heuristic cleanup.
+   */
+  window.LOTRO_FORMAT_STAT = function (raw) {
+    if (!raw) return '';
+    // Exact match
+    if (map[raw] !== undefined) return map[raw];
+
+    // Heuristic: apply common transformations for unmapped names
+    var s = raw;
+
+    // Strip common prefixes
+    s = s.replace(/^(Skill |Effect |EffectMod |Itemset |ItemSet |IA |Trait |ForwardSource |Combat )+/g, '');
+
+    // CamelCase → spaced
+    s = s.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+    // Remove "Mod", "Modifier", "Multiplier" suffixes that are internal jargon
+    s = s.replace(/ ?(Mult|AddMod\d*|PercentAddMod|Modifier|Float)$/i, '');
+
+    // ALL CAPS → Title Case
+    if (s === s.toUpperCase() && s.length > 3) {
+      s = s.toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+
+    // Clean up double spaces
+    s = s.replace(/ {2,}/g, ' ').trim();
+
+    return s;
+  };
+})();

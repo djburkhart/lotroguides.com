@@ -323,46 +323,89 @@ function norm(s) {
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/&amp;/g, '&')
     .replace(/&apos;/g, "'")
+    .replace(/\s*-\s*/g, ' ')   // "Gast - Nûl" → "Gast Nûl"
+    .replace(/\s+/g, ' ')
     .toLowerCase()
     .trim();
 }
 
+// Loot container types the importer recognizes
+const LOOT_TYPES = '(?:Golden |Silver |Mithril |Hidden )?(?:Chest|Hoard|Tribute|Filth|Armaments|Spoils|Reward|(?:Tiny |Tinier )?Trinket Box)';
+const LOOT_RE = new RegExp(`^(${LOOT_TYPES})(?:\\s*-\\s*(.+))?$`, 'i');
+
+// Boss names to exclude from index (generic class/role containers, not instance bosses)
+const BOSS_BLACKLIST = new Set([
+  'hunter', 'guardian', 'captain', 'champion', 'minstrel', 'lore-master',
+  'rune-keeper', 'warden', 'burglar', 'beorning', 'brawler', 'corsair',
+  'castellan',  // generic NPC title, matched wrong in Gwathrenost
+]);
+
 /**
  * Build an index of boss-name → chest containers.
- * Extracts boss name prefix from "XXX's Chest - Tier N" patterns.
+ * Extracts boss name prefix from multiple patterns:
+ *   "Boss's Chest - Tier N"          (singular possessive)
+ *   "Boss's Personal Chest - Tier N" (extra words before type)
+ *   "Bosses' Chest - Tier N"         (plural possessive)
+ *   "Chest of Boss - Tier N"         (reversed / generic)
  * Returns Map<normalizedBossName, { displayName, chests: Map<tierLabel, containerId> }>
  */
 function buildBossChestIndex(containers) {
   const index = new Map(); // norm(bossName) → { displayName, chests: Map<tierLabel, container> }
 
-  for (const [id, container] of containers.byId) {
-    const name = container.name;
-    if (!name) continue;
-
-    // Match patterns like "Boss's Chest - Tier 1", "Boss's Silver Chest", "Boss's Chest"
-    const pm = name.match(/^(.+?)(?:'s|&apos;s)\s+((?:Golden |Silver |Mithril |Hidden )?Chest(?:\s*-\s*(.+))?)$/i);
-    if (!pm) continue;
-
-    const bossDisplay = pm[1].trim().replace(/&amp;/g, '&');
+  function addEntry(bossDisplay, chestType, tierSuffix, id, container) {
     const bossKey = norm(bossDisplay);
-    const tierSuffix = pm[3] ? pm[3].trim() : '';
-    const chestType = pm[2].replace(/\s*-\s*.*$/, '').trim(); // "Chest", "Silver Chest", etc.
-
-    // Build tier label
+    if (BOSS_BLACKLIST.has(bossKey)) return; // skip generic class/role containers
     let tierLabel;
     if (tierSuffix) {
       tierLabel = `${chestType} - ${tierSuffix}`;
     } else {
       tierLabel = chestType;
     }
-
     if (!index.has(bossKey)) {
       index.set(bossKey, { displayName: bossDisplay, chests: new Map() });
     }
     const entry = index.get(bossKey);
-    // Use the first container found for each tier label
     if (!entry.chests.has(tierLabel)) {
       entry.chests.set(tierLabel, { containerId: id, container, tierLabel });
+    }
+  }
+
+  for (const [id, container] of containers.byId) {
+    const name = container.name;
+    if (!name) continue;
+
+    // Pattern 1: "Boss's [Modifier] Chest - Tier N" (singular possessive)
+    // Also handles "Boss's Personal Chest", "Boss's Golden Chest", etc.
+    // Tier separator requires spaces around dash to avoid splitting "Pahór-korat" etc.
+    const pm1 = name.match(/^(.+?)(?:'s|&apos;s)\s+((?:\w+\s+)*?(?:Golden |Silver |Mithril |Hidden )?(?:Chest|Hoard|Tribute|Filth|Armaments|Spoils|Reward|(?:Tiny |Tinier )?Trinket Box)(?:\s+-\s+(.+))?)$/i);
+    if (pm1) {
+      const bossDisplay = pm1[1].trim().replace(/&amp;/g, '&');
+      const fullType = pm1[2];
+      const tierSuffix = pm1[3] ? pm1[3].trim() : '';
+      const chestType = fullType.replace(/\s+-\s+.*$/, '').trim();
+      addEntry(bossDisplay, chestType, tierSuffix, id, container);
+      continue;
+    }
+
+    // Pattern 2: "Bosses' Chest - Tier N" (plural possessive)
+    const pm2 = name.match(/^(.+?)s'\s+((?:Golden |Silver |Mithril |Hidden )?(?:Chest|Hoard|Tribute|Filth|Armaments|Spoils|Reward|(?:Tiny |Tinier )?Trinket Box)(?:\s+-\s+(.+))?)$/i);
+    if (pm2) {
+      const bossDisplay = pm2[1].trim().replace(/&amp;/g, '&') + 's';
+      const fullType = pm2[2];
+      const tierSuffix = pm2[3] ? pm2[3].trim() : '';
+      const chestType = fullType.replace(/\s+-\s+.*$/, '').trim();
+      addEntry(bossDisplay, chestType, tierSuffix, id, container);
+      continue;
+    }
+
+    // Pattern 3: "Chest of Boss - Tier N" (reversed/generic)
+    const pm3 = name.match(/^((?:Golden |Silver |Mithril |Hidden )?(?:Chest|Hoard|Armaments|Spoils|Reward|(?:Tiny |Tinier )?Trinket Box))\s+of\s+(?:the\s+)?(.+?)(?:\s+-\s+(.+))?$/i);
+    if (pm3) {
+      const chestType = pm3[1].trim();
+      const bossDisplay = pm3[2].trim().replace(/&amp;/g, '&');
+      const tierSuffix = pm3[3] ? pm3[3].trim() : '';
+      addEntry(bossDisplay, chestType, tierSuffix, id, container);
+      continue;
     }
   }
 
@@ -376,7 +419,12 @@ function buildBossChestIndex(containers) {
  */
 function findBossChests(mobName, bossIndex) {
   const mobNorm = norm(mobName);
-  const mobFirstWord = mobNorm.split(/[\s,]+/)[0];
+  const mobWords = mobNorm.split(/[\s,]+/);
+  const mobFirstWord = mobWords[0];
+  const mobLastWord = mobWords[mobWords.length - 1];
+
+  // Collect all candidates, then pick the best (most chests)
+  const candidates = [];
 
   // 1. Exact match
   if (bossIndex.has(mobNorm)) return bossIndex.get(mobNorm);
@@ -384,30 +432,63 @@ function findBossChests(mobName, bossIndex) {
   // 2. Mob name starts with boss prefix (e.g., "Loknashra the Dark" starts with "Loknashra")
   for (const [bossKey, entry] of bossIndex) {
     if (mobNorm.startsWith(bossKey + ' ') || mobNorm.startsWith(bossKey + ',')) {
-      return entry;
+      candidates.push(entry);
     }
   }
 
-  // 3. Boss prefix contains mob's first significant word (at least 5 chars, must be word start)
-  //    This catches "Vethúg Wintermind" → "Vethug" (accent stripping)
-  if (mobFirstWord.length >= 5) {
+  // 3. Boss key starts with mob name (e.g., mob "Loknashra" matches boss "loknashra the green")
+  //    Only when mob name is at least 5 chars and matches a full word boundary
+  if (mobNorm.length >= 5) {
     for (const [bossKey, entry] of bossIndex) {
-      // Boss key must START with the mob's first word (avoids substring false positives)
-      if (bossKey.startsWith(mobFirstWord) || bossKey === mobFirstWord) {
-        return entry;
+      if (bossKey.startsWith(mobNorm + ' ') || bossKey.startsWith(mobNorm + ',')) {
+        candidates.push(entry);
       }
     }
   }
 
-  return null;
+  // 4. Try last word of mob name for titled mobs (e.g., "Castellan Obáshurz" → "Obáshurz")
+  //    Requires exact match of boss key to the last word
+  if (mobWords.length > 1 && mobLastWord.length >= 5 && mobLastWord !== mobFirstWord) {
+    for (const [bossKey, entry] of bossIndex) {
+      if (bossKey === mobLastWord) {
+        candidates.push(entry);
+      }
+    }
+  }
+
+  if (candidates.length === 0) return null;
+  // Prefer the candidate with the most chest tiers (avoids "Castellan's Chest" over "Obáshurz's Chest")
+  candidates.sort((a, b) => b.chests.size - a.chests.size);
+  return candidates[0];
 }
 
 // ---------------------------------------------------------------------------
-// Also discover generic instance chests (e.g., "Risen Lords' Chest") not
-// matched to specific mobs. These are found via containers whose names
-// contain "Chest" but don't match any mob. We include them as "Instance Chest"
-// bosses for the instance they belong to (heuristic: if no mob matched).
+// Manual container → instance slug mappings for chests that can't be
+// auto-matched by mob name (e.g., no mob in the instance DB).
 // ---------------------------------------------------------------------------
+const MANUAL_CHEST_MAPPINGS = {
+  // Gwathrenost: Grand Cultivator Oganuin is not a mob in the DB
+  'grand cultivator oganuin': 'gwathrenost-the-witch-kings-citadel',
+  // Goblin-town: mob "Ashûrz the Great Goblin" doesn't match "Obáshurz"
+  'obashurz': 'goblin-town-throne-room',
+  // Askâd-mazal: mob is "The Shadowed King" but chest is "The King's Chest"
+  'the king': 'ask-d-mazal-the-chamber-of-shadows',
+  // Dahâl Huliz: Arena chests don't match any mob names
+  'arena champion': 'dah-l-huliz-the-arena',
+  'arena veteran': 'dah-l-huliz-the-arena',
+  'arena neophyte': 'dah-l-huliz-the-arena',
+  // Kôth Rau: "The Twins" is a boss concept, no matching mob in DB
+  'the twins': 'k-th-rau-the-wailing-hold',
+  // Tûl Zakana: Pahór-korat not listed as a mob in instances DB
+  'pahor korat': 't-l-zakana-the-well-of-forgetting',
+  // Depths of Kidzul-kâlah: "Chest of Dwarf Treasure" and "The Maid's Reward"
+  'dwarf treasure': 'the-depths-of-kidzul-k-lah',
+  'the maid': 'the-depths-of-kidzul-k-lah',
+  // Dun Shûma: mob names differ from chest names
+  'the lady of the pride': 'dun-sh-ma-the-kings-fortress',
+  'the serpent caller': 'dun-sh-ma-the-kings-fortress',
+  'the weaponmaster': 'dun-sh-ma-the-kings-fortress',
+};
 
 // ---------------------------------------------------------------------------
 // Main
@@ -451,6 +532,30 @@ function main() {
   const bossIndex = buildBossChestIndex(containers);
   console.log(`Boss chest index: ${bossIndex.size} unique boss names\n`);
 
+  // Build slug lookup for instances
+  const slugMap = new Map();
+  for (const inst of instances) slugMap.set(inst.slug, inst);
+
+  // Helper: resolve a boss entry into chests array
+  function resolveBoss(match, mobName) {
+    const chests = [];
+    for (const [tierLabel, chestInfo] of match.chests) {
+      const items = resolveChestItems(chestInfo.container, loots, itemDetails);
+      if (items.length === 0) continue;
+      chests.push({ label: tierLabel, tier: tierLabel, items });
+    }
+    if (chests.length === 0) return null;
+
+    const tierOrder = ['solo', 'tier 1', 'tier 2', 'tier 3', 'tier 4', 'tier 5', 'challenge'];
+    chests.sort((a, b) => {
+      const ai = tierOrder.findIndex(t => a.label.toLowerCase().includes(t));
+      const bi = tierOrder.findIndex(t => b.label.toLowerCase().includes(t));
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+
+    return { name: match.displayName, mobName, chests };
+  }
+
   // Process each instance
   const output = {};
   let instancesWithLoot = 0;
@@ -469,34 +574,8 @@ function main() {
       if (matchedBossKeys.has(bossKey)) continue; // Already processed this boss
       matchedBossKeys.add(bossKey);
 
-      // Resolve loot for each tier chest
-      const chests = [];
-      for (const [tierLabel, chestInfo] of match.chests) {
-        const items = resolveChestItems(chestInfo.container, loots, itemDetails);
-        if (items.length === 0) continue;
-
-        chests.push({
-          label: tierLabel,
-          tier: tierLabel,
-          items,
-        });
-      }
-
-      if (chests.length === 0) continue;
-
-      // Sort chests by tier order
-      const tierOrder = ['solo', 'tier 1', 'tier 2', 'tier 3', 'tier 4', 'tier 5', 'challenge'];
-      chests.sort((a, b) => {
-        const ai = tierOrder.findIndex(t => a.label.toLowerCase().includes(t));
-        const bi = tierOrder.findIndex(t => b.label.toLowerCase().includes(t));
-        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-      });
-
-      bosses.push({
-        name: match.displayName,
-        mobName: mob.name,
-        chests,
-      });
+      const boss = resolveBoss(match, mob.name);
+      if (boss) bosses.push(boss);
     }
 
     if (bosses.length > 0) {
@@ -511,6 +590,31 @@ function main() {
       totalItems += bossItemCount;
       console.log(`✓ ${inst.name}: ${bosses.length} bosses, ${bossItemCount} item entries`);
     }
+  }
+
+  // Process manual chest → slug mappings for chests with no matching mob
+  for (const [bossKey, slug] of Object.entries(MANUAL_CHEST_MAPPINGS)) {
+    const match = bossIndex.get(bossKey);
+    if (!match) continue;
+    const inst = slugMap.get(slug);
+    if (!inst) { console.warn(`⚠ Manual mapping: no instance "${slug}"`); continue; }
+
+    const boss = resolveBoss(match, '(manual)');
+    if (!boss) continue;
+
+    if (!output[slug]) {
+      output[slug] = { instanceName: inst.name, instanceId: inst.id, bosses: [] };
+      instancesWithLoot++;
+    }
+    // Skip if already matched by mob name
+    const existingKeys = new Set(output[slug].bosses.map(b => norm(b.name)));
+    if (existingKeys.has(bossKey)) continue;
+
+    output[slug].bosses.push(boss);
+    totalBosses++;
+    const bossItemCount = boss.chests.reduce((s, c) => s + c.items.length, 0);
+    totalItems += bossItemCount;
+    console.log(`✓ ${inst.name} (manual): +${match.displayName}, ${bossItemCount} items`);
   }
 
   // Write output

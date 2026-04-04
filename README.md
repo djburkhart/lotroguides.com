@@ -7,13 +7,14 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 ## Features
 
 - **Guides** — In-depth guides for raids, instances, crafting, leveling, legendary items, and class builds
+- **Skills & Trait Builder** — Interactive trait planner for all LOTRO classes with save, share, and embed functionality
 - **Instance Database** — 80+ instance/raid detail pages with per-boss loot tables, skill breakdowns, and strategy notes
 - **Item Database** — Searchable items database with sharded lazy loading (38,000+ items)
 - **Deed, Mob, Quest, Set & Virtue Databases** — Filterable client-side databases with dedicated pages
 - **Interactive Map** — LOTRO world map with quest POI overlays and embeddable map views
 - **Media** — YouTube video library with category filtering
 - **News** — Aggregated and original LOTRO news articles
-- **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot), image upload, dirty tracking, and auto-draft
+- **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot, quest/deed cards, trait planner), image upload, dirty tracking, and auto-draft
 - **Comments** — Cusdis-powered comment widget on article and instance pages, gated behind reCAPTCHA Enterprise
 - **Browser Extension** — Chrome extension for exporting in-game data via the LOTRO Bridge plugin
 - **Clean URLs** — All internal links are extensionless
@@ -104,7 +105,7 @@ build.js              Static site generator and esbuild bundler
 serve.js              Static file server with clean URL routing and image upload API
 src/
   editor.js           ProseMirror editor source (bundled to js/editor.bundle.js)
-templates/            HTML templates and partials
+templates/            HTML templates and partials (includes skills-content.html)
 content/
   guides/             Guide articles (Markdown or JSON)
   instances/          Instance articles and loot reference data

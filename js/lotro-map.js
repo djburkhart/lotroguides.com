@@ -26,6 +26,10 @@
   var currentMapId = null;    // Currently displayed map
   var mapHistory = [];        // Navigation history for back button
   var markerCache = {};       // mapId → marker data array
+  var heavyMarkerCache = {};  // mapId → heavy marker data array
+  var heavyLoaded = {};       // mapId → true when heavy markers have been fetched
+  // Heavy categories are lazy-loaded into separate files to keep default payloads small.
+  var HEAVY_CATS = { 50: true, 71: true, 72: true, 77: true, 78: true };
 
   // Quest enrichment data
   var questPOI = null;        // NPC DID → [{id, n, r}] quest associations
@@ -208,14 +212,15 @@
 
   // Category groups for easier toggling
   var CAT_GROUPS = {
-    'Travel': [22, 23, 24, 51, 55, 48],
+    'Travel': [22, 23, 24, 48, 51, 55],
     'Services': [29, 33, 34, 38, 40, 42, 45, 53, 54, 58, 60, 61, 63],
     'Places': [21, 30, 31, 41, 43, 57, 74, 100],
-    'NPCs': [27, 56, 70],
+    'NPCs': [2, 27, 56, 70],
+    'Landscape': [50, 71, 72, 73, 77, 78],
   };
 
   // Default-off categories (too noisy if enabled by default)
-  var DEFAULT_OFF = new Set([70, 27, 56, 100]);
+  var DEFAULT_OFF = new Set([2, 27, 39, 50, 56, 70, 71, 72, 73, 77, 78, 100]);
 
   // ─── Icon Factory ───────────────────────────────────────────────────────
   var iconCache = {};
@@ -603,6 +608,19 @@
     // Set view bounds
     var bounds = getMapBounds(mapDef);
     map.setMaxBounds(bounds.pad(0.5));
+
+    // Compute per-map maxZoom based on image resolution.
+    // At zoom 0, 1 CRS unit = 1 pixel. Bounds span ~REF_SPAN units.
+    // Native resolution zoom = log2(imageWidth / REF_SPAN).
+    // Allow 1.5 extra zoom levels beyond native for slight upscale.
+    var maxZ = 6; // absolute ceiling
+    if (mapDef.w) {
+      var nativeZoom = Math.log2(mapDef.w / REF_SPAN);
+      maxZ = Math.min(6, Math.ceil((nativeZoom + 1.5) * 2) / 2); // round to nearest 0.5
+      if (maxZ < 1) maxZ = 1; // minimum useful zoom
+    }
+    map.setMaxZoom(maxZ);
+
     map.fitBounds(bounds);
     
     // In embed mode, zoom in a bit more for better viewing
@@ -645,18 +663,55 @@
     }
 
     if (markerCache[mapId]) {
-      renderMarkers(markerCache[mapId]);
+      renderAllMarkers(mapId);
       return;
     }
 
     $.getJSON(cdnUrl('data/lore/map-markers/' + mapId + '.json'), function (data) {
       markerCache[mapId] = data;
-      renderMarkers(data);
+      renderAllMarkers(mapId);
     }).fail(function () {
       // No markers for this map
       markerCache[mapId] = [];
-      renderMarkers([]);
+      renderAllMarkers(mapId);
     });
+  }
+
+  // Check if any heavy category is currently enabled
+  function anyHeavyCatEnabled() {
+    for (var code in HEAVY_CATS) {
+      if (catEnabled[parseInt(code)]) return true;
+    }
+    return false;
+  }
+
+  // Load heavy markers for the current map (lazy, on-demand)
+  function loadHeavyMarkers(mapId, callback) {
+    if (heavyLoaded[mapId]) {
+      callback(heavyMarkerCache[mapId] || []);
+      return;
+    }
+    $.getJSON(cdnUrl('data/lore/map-markers-heavy/' + mapId + '.json'), function (data) {
+      heavyMarkerCache[mapId] = data;
+      heavyLoaded[mapId] = true;
+      callback(data);
+    }).fail(function () {
+      heavyMarkerCache[mapId] = [];
+      heavyLoaded[mapId] = true;
+      callback([]);
+    });
+  }
+
+  // Render standard markers, plus heavy markers if any heavy category is on
+  function renderAllMarkers(mapId) {
+    var standard = markerCache[mapId] || [];
+    if (anyHeavyCatEnabled()) {
+      loadHeavyMarkers(mapId, function (heavy) {
+        renderMarkers(standard.concat(heavy));
+      });
+    } else {
+      renderMarkers(standard);
+    }
   }
 
   function renderMarkers(markers) {
@@ -972,7 +1027,7 @@
       var code = parseInt($(this).data('cat'));
       catEnabled[code] = $(this).is(':checked');
       if (currentMapId && markerCache[currentMapId]) {
-        renderMarkers(markerCache[currentMapId]);
+        renderAllMarkers(currentMapId);
       }
     });
 

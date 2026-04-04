@@ -5,9 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Information on the closure of our 32-bit game worlds August 31st - LOTRO Guides</title>
-    <link rel="icon" href="/favicon.ico" sizes="48x48">
-    <link rel="icon" type="image/png" href="/img/favicon.png" sizes="64x64">
-    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <link rel="icon" href="./../favicon.ico" sizes="48x48">
+    <link rel="icon" type="image/png" href="./../img/favicon.png" sizes="64x64">
     <meta name="description" content="REMINDER that our 32-bit game worlds close after August 31st, 2025. Read more about our free transfer period and the closure of our 32-bit game worlds here.">
     <!-- Open Graph meta tags for Facebook sharing -->
     <meta property="og:url" content="https://lotroguides.com/news/lotro-32-bit-world-closure-en" />
@@ -85,9 +84,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       <li><a href="./../news">All News</a></li>
                       <li><a href="./../news/lotro-bonus-040226-en">LOTRO Bonus Days!</a></li>
                       <li><a href="./../news/lotro-sales-040226-en">Sales: April 2nd - 9th!</a></li>
+                      <li><a href="./../news/lotro-update-47-3-release-notes-en">Update 47.3 Release Notes</a></li>
                       <li><a href="./../news/spring-festival-2026">Spring Festival 2026 — Event Guide & New Rewards</a></li>
                       <li><a href="./../news/lotro-bonus-032626-en">LOTRO Bonus Days!</a></li>
-                      <li><a href="./../news/lotro-housing-livestream-4-1-en">Rivendell Housing Preview on Twitch: Wednesday, April 1st 2pm Eastern (-4 GMT)</a></li>
                     </ul>
                   </li>
                   <li class="has-dropdown"><a href="./../items">Database</a>
@@ -102,6 +101,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </ul>
                   </li>
                   <li class=""><a href="./../map">Interactive Map</a></li>
+                  <li class=""><a href="./../skills">Skills</a></li>
                   <li class=""><a href="./../media">Media</a></li>
                   <li class=""><a href="./../about">About</a></li>
                 </ul>
@@ -241,6 +241,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="col-12 col-sm-6 col-md-3">
                   <div class="card card-widget">
                     <div class="card-img">
+                      <a href="../news/lotro-update-47-3-release-notes-en">
+                        <img src="https://assets-cdn.daybreakgames.com/uploads/dcsclient/000/000/332/963.jpg?v=1.0" alt="Update 47.3 Release Notes">
+                      </a>
+                    </div>
+                    <div class="card-block">
+                      <h4 class="card-title">
+                        <a href="../news/lotro-update-47-3-release-notes-en">Update 47.3 Release Notes</a>
+                      </h4>
+                      <div class="card-meta">
+                        <span><i class="fa fa-clock-o"></i> March 30, 2026</span>
+                        <span><i class="fa fa-comment-o"></i> <span data-cusdis-count-page-id="lotro-update-47-3-release-notes-en">0</span></span>
+                      </div>
+                      <p>Here are the Release Notes for Update 47.3: Folly of Kings, Patch 3, released on Wednesday April 1st, 2026.</p>
+                      <a href="../news/lotro-update-47-3-release-notes-en" class="btn btn-primary btn-rounded btn-sm card-read-more">Read More</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-sm-6 col-md-3">
+                  <div class="card card-widget">
+                    <div class="card-img">
                       <a href="../news/spring-festival-2026">
                         <picture><source srcset="../img/news/spring-festival.webp" type="image/webp"><img src="../img/news/spring-festival.jpg" alt="Spring Festival 2026 — Event Guide & New Rewards" width="835" height="425" loading="lazy" decoding="async"></picture>
                       </a>
@@ -255,27 +276,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                       </div>
                       <p>The Spring Festival returns to Middle-earth! Here's everything you need to know about this year's new quests, cosmetics, and rewards.</p>
                       <a href="../news/spring-festival-2026" class="btn btn-primary btn-rounded btn-sm card-read-more">Read More</a>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-12 col-sm-6 col-md-3">
-                  <div class="card card-widget">
-                    <div class="card-img">
-                      <a href="../news/lotro-bonus-032626-en">
-                        <img src="https://assets-cdn.daybreakgames.com/uploads/dcsclient/000/000/300/361.jpg?v=1.0" alt="LOTRO Bonus Days!">
-                      </a>
-                    </div>
-                    <div class="card-block">
-                      <h4 class="card-title">
-                        <a href="../news/lotro-bonus-032626-en">LOTRO Bonus Days!</a>
-                      </h4>
-                      <div class="card-meta">
-                        <span><i class="fa fa-clock-o"></i> March 25, 2026</span>
-                        <span><i class="fa fa-comment-o"></i> <span data-cusdis-count-page-id="lotro-bonus-032626-en">0</span></span>
-                      </div>
-                      <p>LOTRO Bonus Days bring you +25% Skirmish Marks, now through March 29th!</p>
-                      <a href="../news/lotro-bonus-032626-en" class="btn btn-primary btn-rounded btn-sm card-read-more">Read More</a>
                     </div>
                   </div>
                 </div>
@@ -434,15 +434,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       try{
         var doc=iframe.contentDocument;
         if(!doc)return;
-        /* Cusdis uses button.font-bold or button.bg-gray-200 for submit */
-        doc.addEventListener('click',function(e){
-          var btn=e.target.closest('button');
-          if(!btn)return;
-          var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
-          /* Also match reply submit buttons */
-          var isReply=btn.textContent.trim().toLowerCase()==='reply';
-          if(!isSub&&!isReply)return;
-          /* Read form field values from the iframe */
+
+        function getFormValues(){
           var nickname='',email='',comment='';
           try{
             var inputs=doc.querySelectorAll('input,textarea');
@@ -454,16 +447,95 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               else if(el.type==='text')nickname=v;
             });
           }catch(ex){}
+          return {nickname:nickname,email:email,comment:comment};
+        }
+
+        function pushTrackingEvent(isReply,vals,score){
           window.dataLayer=window.dataLayer||[];
           window.dataLayer.push({
             event:'comment_submit',
             comment_action:isReply?'reply':'comment',
-            comment_nickname:nickname,
-            comment_length:comment.length,
+            comment_nickname:vals.nickname,
+            comment_length:vals.comment.length,
             comment_page_id:document.getElementById('cusdis_thread').getAttribute('data-page-id')||'',
-            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||''
+            comment_page_title:document.getElementById('cusdis_thread').getAttribute('data-page-title')||'',
+            recaptcha_score:typeof score==='number'?score:-1
           });
-        });
+        }
+
+        function showRecaptchaError(btn){
+          var existing=doc.querySelector('[data-rc-error]');
+          if(existing)existing.remove();
+          var msg=doc.createElement('div');
+          msg.setAttribute('data-rc-error','1');
+          msg.style.cssText='color:#cc4444;font-size:.85rem;margin:8px 0;padding:8px 12px;background:rgba(204,68,68,.08);border:1px solid rgba(204,68,68,.2);border-radius:6px;';
+          msg.textContent='Unable to verify you are human \u2014 please try again.';
+          btn.parentElement.insertBefore(msg,btn.nextSibling);
+          setTimeout(function(){if(msg.parentNode)msg.remove();},6000);
+        }
+
+        if(siteKey){
+          /* reCAPTCHA Enterprise: intercept submit in capture phase,
+             create assessment via DO Function, interpret score per
+             https://cloud.google.com/recaptcha/docs/interpret-assessment-website
+             and only allow the comment through when score >= 0.5 */
+          doc.addEventListener('click',function(e){
+            var btn=e.target.closest('button');
+            if(!btn)return;
+            var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+            var isReply=btn.textContent.trim().toLowerCase()==='reply';
+            if(!isSub&&!isReply)return;
+            /* Allow the verified re-click through to Cusdis */
+            if(btn.dataset.rcVerified==='1'){
+              delete btn.dataset.rcVerified;
+              return;
+            }
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            var origText=btn.textContent;
+            btn.textContent='Verifying\u2026';
+            btn.disabled=true;
+            var vals=getFormValues();
+            var isReplyAction=isReply;
+            grecaptcha.enterprise.ready(function(){
+              grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
+                return fetch('/api/recaptcha/verify',{
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({token:token,action:'comment'})
+                }).then(function(r){return r.json();});
+              }).then(function(data){
+                btn.textContent=origText;
+                btn.disabled=false;
+                /* Interpret assessment: verify action match + score threshold */
+                if(data.success&&data.score>=0.5){
+                  pushTrackingEvent(isReplyAction,vals,data.score);
+                  btn.dataset.rcVerified='1';
+                  btn.click();
+                }else{
+                  showRecaptchaError(btn);
+                }
+              }).catch(function(){
+                /* Graceful degradation — allow on verification failure */
+                btn.textContent=origText;
+                btn.disabled=false;
+                pushTrackingEvent(isReplyAction,vals,-1);
+                btn.dataset.rcVerified='1';
+                btn.click();
+              });
+            });
+          },true);/* capture phase */
+        }else{
+          /* No reCAPTCHA configured — just track submissions */
+          doc.addEventListener('click',function(e){
+            var btn=e.target.closest('button');
+            if(!btn)return;
+            var isSub=btn.classList.contains('font-bold')||btn.classList.contains('bg-gray-200');
+            var isReply=btn.textContent.trim().toLowerCase()==='reply';
+            if(!isSub&&!isReply)return;
+            pushTrackingEvent(isReply,getFormValues(),-1);
+          });
+        }
       }catch(e){}
     }
 
@@ -499,36 +571,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     var siteKey='6LdddaIsAAAAAF8Xea77GsTEeDdFeEOzWfNzcX17';
-    if(siteKey){
-      /* reCAPTCHA Enterprise: hide widget until verified */
-      var thread=document.getElementById('cusdis_thread');
-      if(thread)thread.style.display='none';
-      grecaptcha.enterprise.ready(function(){
-        grecaptcha.enterprise.execute(siteKey,{action:'comment'}).then(function(token){
-          fetch('/api/recaptcha/verify',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({token:token,action:'comment'})
-          }).then(function(r){return r.json()}).then(function(data){
-            if(data.success&&data.score>=0.5){
-              if(thread)thread.style.display='';
-              initWidget();
-            }else{
-              var p=document.createElement('p');
-              p.className='text-muted';
-              p.textContent='Unable to load comments. Please refresh and try again.';
-              thread.parentNode.insertBefore(p,thread);
-            }
-          }).catch(function(){
-            /* On verify failure, show widget anyway (graceful degradation) */
-            if(thread)thread.style.display='';
-            initWidget();
-          });
-        });
-      });
-    }else{
-      initWidget();
-    }
+    /* reCAPTCHA verification now happens at submit time inside
+       trackCusdisSubmit — always show the widget immediately */
+    initWidget();
   })();
   </script>
 </div>

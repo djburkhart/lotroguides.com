@@ -98,6 +98,12 @@
     return '<img src="' + cdnUrl('img/icons/virtues/' + file + '.png') + '" class="deed-reward-icon" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
   }
 
+  function renderRegion(data, type) {
+    if (type !== 'display') return data || '';
+    if (!data) return '<span class="text-muted">—</span>';
+    return '<span class="deed-region-badge">' + escHtml(data) + '</span>';
+  }
+
   function loadData() {
     if (initialized) return;
     if (typeof window.LOTRO_DEEDS_DB === 'undefined') return;
@@ -115,9 +121,10 @@
       deferRender: true,
       pageLength: 100,
       lengthMenu: [50, 100, 250, 500],
-      order: [[2, 'asc']],
+      order: [[3, 'asc']],
       columns: [
         { data: 'n', render: renderName },
+        { data: 'rg', render: renderRegion, width: '140px' },
         { data: 'tp', render: renderType, width: '120px' },
         { data: 'lv', render: renderLevel, width: '80px' },
         { data: 'rw', render: renderRewards, orderable: false, searchable: false }
@@ -133,9 +140,9 @@
   }
 
   function bindFilters() {
-    $('#filter-type, #filter-reward, #filter-class').on('change', applyFilters);
+    $('#filter-type, #filter-reward, #filter-class, #filter-region').on('change', applyFilters);
     $('#filter-reset').on('click', function () {
-      $('#filter-type, #filter-reward, #filter-class').val('');
+      $('#filter-type, #filter-reward, #filter-class, #filter-region').val('');
       applyFilters();
     });
   }
@@ -144,11 +151,13 @@
     var typeVal = $('#filter-type').val();
     var rewardVal = $('#filter-reward').val();
     var classVal = $('#filter-class').val();
+    var regionVal = $('#filter-region').val();
 
     $.fn.dataTable.ext.search = [];
     $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
       if (typeVal && rowData.tp !== typeVal) return false;
       if (classVal && rowData.cl !== classVal) return false;
+      if (regionVal && rowData.rg !== regionVal) return false;
       if (rewardVal) {
         var has = rowData.rw && rowData.rw.some(function (r) { return r.t === rewardVal; });
         if (!has) return false;
@@ -166,6 +175,7 @@
 
     var html = '<div class="item-modal-meta">';
     html += '<p><strong>Type:</strong> ' + typeBadge(d.tp) + '</p>';
+    if (d.rg) html += '<p><strong>Region:</strong> <span class="deed-region-badge">' + escHtml(d.rg) + '</span></p>';
     if (d.lv) html += '<p><strong>Level:</strong> ' + d.lv + '</p>';
     if (d.cl) html += '<p><strong>Required Class:</strong> ' + d.cl + '</p>';
     html += '</div>';
@@ -281,6 +291,11 @@
     if (q && table) {
       table.search(q).draw();
       $('div.dataTables_filter input').val(q);
+    }
+    var region = params.get('region');
+    if (region) {
+      $('#filter-region').val(region);
+      applyFilters();
     }
     var id = params.get('id');
     if (id) setTimeout(function () { showDeedModal(id); }, 200);

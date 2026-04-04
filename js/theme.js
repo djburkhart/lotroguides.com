@@ -195,6 +195,31 @@
 	});
 })(window.jQuery);
 
+// ─── Copy Link button (database modals) ─────────────────────────
+(function () {
+	document.addEventListener('click', function (e) {
+		var btn = e.target.closest('.copy-link-btn');
+		if (!btn) return;
+		var url = window.location.href;
+		if (navigator.clipboard && navigator.clipboard.writeText) {
+			navigator.clipboard.writeText(url).then(function () { showCopyToast(btn); });
+		} else {
+			var ta = document.createElement('textarea');
+			ta.value = url; ta.style.position = 'fixed'; ta.style.opacity = '0';
+			document.body.appendChild(ta); ta.select();
+			document.execCommand('copy');
+			document.body.removeChild(ta);
+			showCopyToast(btn);
+		}
+	});
+	function showCopyToast(btn) {
+		var orig = btn.innerHTML;
+		btn.innerHTML = '<i class="fa fa-check"></i> Copied!';
+		btn.classList.add('copy-link-copied');
+		setTimeout(function () { btn.innerHTML = orig; btn.classList.remove('copy-link-copied'); }, 1500);
+	}
+})();
+
 function setModalMaxHeight(element) {
 	this.$element     = $(element);
 	this.$content     = this.$element.find('.modal-content');

@@ -19,6 +19,8 @@ As a Hunter, your job is burst DPS with clean execution and high uptime. This gu
 - Priority: front-load damage windows and maintain target debuffs
 - Raid utility: corruption removal and induction interrupts on demand
 
+{{traitPlanner:class=hunter,build=red-line-endgame}}
+
 ## Desired Stat Percentages (Raid Targets)
 
 Aim for these targets when preparing for group and raid content:

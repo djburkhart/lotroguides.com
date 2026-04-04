@@ -4,10 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.5.1] - 2026-04-04
+
+### Changed
+
+- **reCAPTCHA Enterprise submit-time verification** — Moved reCAPTCHA assessment from page-load gating to comment submit time; Cusdis widget now renders immediately and a capture-phase click handler intercepts Post/Reply, executes `grecaptcha.enterprise.execute()`, and interprets the assessment (action match + score ≥ 0.5) per [Google docs](https://cloud.google.com/recaptcha/docs/interpret-assessment-website) before allowing the comment through
+- **Enriched assessment response** — DO Function (`packages/recaptcha/verify`) and local dev server now return `reasons`, `assessmentName`, `valid`, and `action` fields from the Enterprise API for downstream logging and annotation
+- **reCAPTCHA score in dataLayer** — `comment_submit` GTM event now includes `recaptcha_score` for analytics
+
+## [2.5.0] - 2026-04-04
+
+### Added
+
+- **Trait Planner editor widget** — Full ProseMirror widget for `{{traitPlanner:class=X,build=Y,level=Z}}` tokens with schema node, NodeView, markdown serializer, toolbar menu item, and modal with class/build/level selects that load from `data/builds/*.json`
+- **Embedded trait planner template** — `embedded-trait-planner.html` moved to `templates/partials/` and built via `buildEmbeddedTraitPlanner()` with `{{assets}}` resolution
+- **Instance mob filtering** — Mob Database links on instance pages now include `?instance=<slug>` parameter; `mobs-db.js` loads instance mob IDs from `instances-db.json` and filters the DataTable, showing an info banner with the instance name and clear-filter button
+- **CSS Celtic knotwork navbar texture** — Pure CSS pattern replacing the `nav-bg-tile.png` image, using layered radial/linear gradients on `#header` with subtle interlocking knot motif and braid lines
+- **lotro.com-style gold gradient text** — `.lotro-logo-text`, `.skills-title`, and `.lotro-hero-title` use `linear-gradient(to bottom, #f3f1ae 35%, #dab44f 60%)` with `background-clip: text` matching lotro.com's Trajan Pro styling
+- **Nav hover effect** — Blue radial gradient on nav links via `::before` pseudo-element matching lotro.com's hover style
+- **Site background** — `site-bg.webp` as fixed cover background on `body.fixed-header` for the Skills page, with semi-transparent `.skills-header` gradient overlay
+
+### Changed
+
+- **Barad Guldur loot restructured** — Loot data reorganized from flat chest-as-boss entries to properly grouped bosses (Durchest, Twins of Fire and Shadow, Lieutenant of Dol Guldur, General Loot) with chest tiers (Fancy/Fancier/Fanciest Wood Chest) under each
+- **Instance guide image paths fixed** — Guide card images in instance pages now use `../` prefix for correct resolution from the `/instances/` subdirectory
+- **Embedded trait planner background** — Removed alpha transparency from `.ltp-points-display` background (now solid `#000000`)
+- **Navbar backdrop** — `#header .navbar-backdrop` set to transparent, texture pattern applied directly to `#header`
+
 ## [2.2.0] - 2026-04-03
 
 ### Added
 
+- **Skills & Trait Builder page** — Interactive trait planner for all LOTRO classes with save and share functionality. Generates shareable URLs and embed codes for guide integration. Editor widget allows inserting trait builds into articles.
 - **Favicon ICO generation** — Build step generates a multi-size `favicon.ico` (16×16, 32×32, 48×48) from `img/favicon.png` using sharp, fixing missing favicon in browsers that only check `/favicon.ico`
 - **SVG favicon support** — `<link rel="icon" type="image/svg+xml">` added to base template alongside ICO and PNG declarations
 - **reCAPTCHA Enterprise assessments** — DO Function (`packages/recaptcha/verify`) now fully wired into App Platform with correct `/api/recaptcha/verify` routing and required env vars (`RECAPTCHA_SECRET_KEY`, `RECAPTCHA_SITE_KEY`, `GOOGLE_CLOUD_PROJECT`) in `app.yaml`

@@ -33,11 +33,19 @@
     return '<a href="virtues?id=' + row.id + '" class="lotro-virtue-link" data-virtue-id="' + row.id + '">' + icon + escapeHtml(data) + '</a>';
   }
 
+  var fmtStat = window.LOTRO_FORMAT_STAT || function (s) { return s; };
+
+  function fmtVal(v) {
+    if (v == null) return '';
+    if (v === Math.floor(v)) return v.toLocaleString();
+    return v.toLocaleString(undefined, { maximumFractionDigits: 1 });
+  }
+
   function renderStats(data, type) {
-    if (type !== 'display') return (data || []).join(', ');
+    if (type !== 'display') return (data || []).map(function (e) { return e.s; }).join(', ');
     if (!data || !data.length) return '<span class="text-muted">—</span>';
-    return data.map(function (s) {
-      return '<span class="virtue-stat-badge">' + s + '</span>';
+    return data.map(function (e) {
+      return '<span class="virtue-stat-badge">+' + fmtVal(e.v) + ' ' + fmtStat(e.s) + '</span>';
     }).join(' ');
   }
 
@@ -64,7 +72,8 @@
       order: [[0, 'asc']],
       columns: [
         { data: 'n', render: renderName },
-        { data: 'st', render: renderStats },
+        { data: 'sv', render: renderStats },
+        { data: 'passive', render: function (d, t) { return t !== 'display' ? (d || '') : (d ? '<span class="virtue-passive-badge">' + escapeHtml(d) + '</span>' : '<span class="text-muted">—</span>'); }, width: '90px' },
         { data: 'mr', render: renderRank, width: '100px' }
       ],
       language: {
@@ -86,10 +95,12 @@
 
     var html = '<div class="item-modal-meta">';
     html += '<p><strong>Max Rank:</strong> ' + v.mr + '</p>';
-    html += '<p><strong>Active Stats:</strong></p>';
+    if (v.passive) html += '<p><strong>Passive:</strong> ' + escapeHtml(v.passive) + '</p>';
+    html += '<p><strong>Stats at Rank ' + v.mr + ':</strong></p>';
     html += '<ul class="virtue-stat-list">';
-    for (var i = 0; i < v.st.length; i++) {
-      html += '<li>' + escapeHtml(v.st[i]) + '</li>';
+    var sv = v.sv || [];
+    for (var i = 0; i < sv.length; i++) {
+      html += '<li><strong>+' + fmtVal(sv[i].v) + '</strong> ' + escapeHtml(fmtStat(sv[i].s)) + '</li>';
     }
     html += '</ul>';
     html += '</div>';
