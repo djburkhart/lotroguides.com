@@ -2499,10 +2499,72 @@ function buildDeedsPage(navData) {
   const regionOptions = regions.map(r => `              <option value="${r}">${r}</option>`).join('\n');
 
   ensureDir(path.join(OUTPUT_DIR, 'data'));
+
+  // ── Deed index for DO Function (id, name, type, level, region, class, rewards) ──
+  const deedSearchIndex = clientDeeds.map(d => {
+    const entry = { id: d.id, n: d.n };
+    if (d.tp) entry.tp = d.tp;
+    if (d.lv) entry.lv = d.lv;
+    if (d.rg) entry.rg = d.rg;
+    if (d.cl) entry.cl = d.cl;
+    if (d.rw && d.rw.length) entry.rw = d.rw;
+    return entry;
+  });
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'deed-index.json'),
+    JSON.stringify(deedSearchIndex)
+  );
+  console.log(`   → data/deed-index.json (${deedSearchIndex.length} entries)`);
+
+  // ── Per-deed detail files for lazy modal loading ──
+  const deedsOutDir = path.join(OUTPUT_DIR, 'data', 'lore', 'deeds');
+  if (!fs.existsSync(deedsOutDir)) fs.mkdirSync(deedsOutDir, { recursive: true });
+  // Remove stale deed files first
+  for (const f of fs.readdirSync(deedsOutDir)) {
+    if (f.endsWith('.json')) fs.unlinkSync(path.join(deedsOutDir, f));
+  }
+  let deedDetailCount = 0;
+  for (const d of clientDeeds) {
+    // Per-deed file: objectives, full rewards, overlay data
+    const detail = {};
+    if (d.obj && d.obj.length) detail.obj = d.obj;
+    if (d.rw && d.rw.length) detail.rw = d.rw;
+    if (d.cl) detail.cl = d.cl;
+    if (deedOverlay[d.id]) detail.overlay = deedOverlay[d.id];
+    // Only write a file if there's meaningful detail
+    if (Object.keys(detail).length) {
+      fs.writeFileSync(path.join(deedsOutDir, `${d.id}.json`), JSON.stringify(detail));
+      deedDetailCount++;
+    }
+  }
+  console.log(`   → data/lore/deeds/ (${deedDetailCount} per-deed files)`);
+
+  // ── Deed overlay index (lightweight map of deed IDs with overlay data) ──
+  const deedOverlayIndex = {};
+  for (const deedId of Object.keys(deedOverlay)) {
+    deedOverlayIndex[deedId] = 1;
+  }
+  fs.writeFileSync(
+    path.join(OUTPUT_DIR, 'data', 'deed-overlay-index.json'),
+    JSON.stringify(deedOverlayIndex)
+  );
+  console.log(`   → data/deed-overlay-index.json (${Object.keys(deedOverlayIndex).length} entries)`);
+
+  // ── Slim deeds-db.json: strip objectives (loaded per-deed on demand) ──
+  const slimDeeds = clientDeeds.map(d => {
+    const slim = { id: d.id, n: d.n };
+    if (d.tp) slim.tp = d.tp;
+    if (d.lv) slim.lv = d.lv;
+    if (d.rg) slim.rg = d.rg;
+    if (d.cl) slim.cl = d.cl;
+    if (d.rw && d.rw.length) slim.rw = d.rw;
+    return slim;
+  });
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'deeds-db.json'),
-    JSON.stringify(clientDeeds)
+    JSON.stringify(slimDeeds)
   );
+  // Keep full deed-overlay.json for map page backward compatibility
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'deed-overlay.json'),
     JSON.stringify(deedOverlay)
@@ -2532,7 +2594,7 @@ function buildDeedsPage(navData) {
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
-    '  $.when($.getJSON(_cdn + "data/deeds-db.json"), $.getJSON(_cdn + "data/deed-overlay.json"), $.getJSON(_cdn + "data/icon-map.json"))',
+    '  $.when($.getJSON(_cdn + "data/deeds-db.json"), $.getJSON(_cdn + "data/deed-overlay-index.json"), $.getJSON(_cdn + "data/icon-map.json"))',
     '    .done(function(deedsRes, overlayRes, iconRes) {',
     '      window.LOTRO_DEEDS_DB = deedsRes[0];',
     '      window.LOTRO_DEED_OVERLAY = overlayRes[0] || {};',
@@ -2631,11 +2693,9 @@ function buildQuestsPage(navData) {
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
     '  $.when(',
-    '    $.getJSON(_cdn + "data/quests-db.json"),',
     '    $.getJSON(_cdn + "data/icon-map.json"),',
     '    $.getJSON(_cdn + "data/quest-overlay-index.json")',
-    '  ).done(function(qRes, iRes, oRes) {',
-    '    window.LOTRO_QUESTS_DB = qRes[0];',
+    '  ).done(function(iRes, oRes) {',
     '    window.LOTRO_ICON_MAP = iRes[0] || {};',
     '    window.LOTRO_QUEST_OVERLAY = oRes[0] || {};',
     '    $.getScript("./js/quests-db.js", function() {',

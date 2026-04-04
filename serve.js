@@ -256,6 +256,51 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // ── Quest lookup endpoint (proxy to DO Function — SSP + detail + meta) ─
+  if (req.url.startsWith('/api/quests/lookup')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+    if (req.method !== 'GET') { res.writeHead(405); res.end('Method not allowed'); return; }
+    const qs = new URL(req.url, `http://localhost:${PORT}`).searchParams;
+    const fnArgs = { __ow_method: 'get' };
+    for (const [k, v] of qs.entries()) fnArgs[k] = v;
+    process.env.DO_CDN_URL = `http://localhost:${PORT}`;
+    const fn = require('./packages/quests/lookup/index.js');
+    fn.main(fnArgs).then(result => {
+      res.writeHead(result.statusCode, result.headers);
+      res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
+    }).catch(err => {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    });
+    return;
+  }
+
+  // ── Deed lookup endpoint (proxy to DO Function) ─────────────────
+  if (req.url.startsWith('/api/deeds/lookup')) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+    if (req.method !== 'GET') { res.writeHead(405); res.end('Method not allowed'); return; }
+    const qs = new URL(req.url, `http://localhost:${PORT}`).searchParams;
+    const fnArgs = { __ow_method: 'get' };
+    for (const [k, v] of qs.entries()) fnArgs[k] = v;
+    // Force local CDN URL so the DO Function loads local deed-index.json (not production CDN)
+    process.env.DO_CDN_URL = `http://localhost:${PORT}`;
+    const fn = require('./packages/deeds/lookup/index.js');
+    fn.main(fnArgs).then(result => {
+      res.writeHead(result.statusCode, result.headers);
+      res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
+    }).catch(err => {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    });
+    return;
+  }
+
   // ── User Builds save / like / get / list endpoint ───────────────
   if (req.url.startsWith('/api/builds/save')) {
     res.setHeader('Access-Control-Allow-Origin', '*');

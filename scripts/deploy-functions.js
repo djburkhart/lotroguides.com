@@ -25,6 +25,7 @@ const NAMESPACES = {
   recaptcha: 'fn-7b5a7150-3649-47f5-b0ce-6752484ced31',
   // github shares the cdn namespace (add its own if created)
   github:    'fn-ee2ee76a-f0db-416f-852b-f334142df8da',
+  discord:   'fn-41039bc6-30e5-4581-a23a-f14fe5c2f748',
 };
 
 // Full project.yml entry for each package
@@ -51,6 +52,13 @@ const PACKAGE_DEFS = {
   github: {
     name: 'github',
     functions: [{ name: 'auth', runtime: 'nodejs:22', web: true }],
+  },
+  discord: {
+    name: 'discord',
+    functions: [{ name: 'interact', runtime: 'nodejs:22', web: true }],
+    environment: {
+      DO_CDN_URL: 'https://lotroguides.atl1.cdn.digitaloceanspaces.com',
+    },
   },
 };
 

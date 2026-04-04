@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Deed Database — Client-side DataTable + Filters + Modal
+   Deed Database — API-driven DataTable + Filters + Modal
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -7,10 +7,15 @@
   var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
   function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
 
+  var API_URL = window.LOTRO_DEEDS_API || '/api/deeds/lookup';
   var table;
-  var allData = [];
+  var allData = [];       // full dataset (fallback / initial)
   var deedById = {};
   var initialized = false;
+  var useApi = true;      // try the API first; fall back to client-side on failure
+  var apiAvailable = null; // null = untested, true/false after first call
+  var searchTimer = null;
+  var currentXhr = null;  // abort in-flight API requests
 
   function gameIcon(itemId, size) {
     if (!itemId) return '';
@@ -137,79 +142,168 @@
       },
       dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rtip'
     });
+
+    // Intercept DataTable search box for API-driven search
+    $('div.dataTables_filter input').off('keyup search input').on('input', function () {
+      var val = this.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(function () { applyFilters(); }, 300);
+    });
   }
 
   function bindFilters() {
     $('#filter-type, #filter-reward, #filter-class, #filter-region').on('change', applyFilters);
     $('#filter-reset').on('click', function () {
       $('#filter-type, #filter-reward, #filter-class, #filter-region').val('');
+      $('div.dataTables_filter input').val('');
       applyFilters();
     });
   }
 
-  function applyFilters() {
+  // Build API query params from current filter state
+  function getFilterParams() {
+    var params = {};
     var typeVal = $('#filter-type').val();
     var rewardVal = $('#filter-reward').val();
     var classVal = $('#filter-class').val();
     var regionVal = $('#filter-region').val();
+    var searchVal = ($('div.dataTables_filter input').val() || '').trim();
 
+    if (typeVal) params.type = typeVal;
+    if (rewardVal) params.reward = rewardVal;
+    if (classVal) params.cls = classVal;
+    if (regionVal) params.region = regionVal;
+    if (searchVal.length >= 2) params.q = searchVal;
+
+    return params;
+  }
+
+  function hasActiveFilters(params) {
+    return params.type || params.reward || params.cls || params.region || params.q;
+  }
+
+  function applyFilters() {
+    var params = getFilterParams();
+
+    // No filters active — show full local dataset
+    if (!hasActiveFilters(params)) {
+      restoreLocalData();
+      return;
+    }
+
+    // If API previously failed, fall back to client-side filtering
+    if (apiAvailable === false) {
+      applyLocalFilters(params);
+      return;
+    }
+
+    // Try API-driven filtering
+    params.limit = 500;
+    fetchFromApi(params);
+  }
+
+  function fetchFromApi(params) {
+    if (currentXhr) currentXhr.abort();
+    showTableLoading(true);
+
+    currentXhr = $.getJSON(API_URL, params)
+      .done(function (data) {
+        apiAvailable = true;
+        var results = data.results || [];
+        updateTableData(results);
+        // Index returned results for modal lookups
+        for (var i = 0; i < results.length; i++) {
+          deedById[results[i].id] = results[i];
+        }
+        showTableLoading(false);
+      })
+      .fail(function (jqXHR, textStatus) {
+        if (textStatus === 'abort') return;
+        // API unavailable — fall back to client-side filtering
+        apiAvailable = false;
+        applyLocalFilters(getFilterParams());
+        showTableLoading(false);
+      })
+      .always(function () { currentXhr = null; });
+  }
+
+  function restoreLocalData() {
+    $.fn.dataTable.ext.search = [];
+    updateTableData(allData);
+  }
+
+  function applyLocalFilters(params) {
     $.fn.dataTable.ext.search = [];
     $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
-      if (typeVal && rowData.tp !== typeVal) return false;
-      if (classVal && rowData.cl !== classVal) return false;
-      if (regionVal && rowData.rg !== regionVal) return false;
-      if (rewardVal) {
-        var has = rowData.rw && rowData.rw.some(function (r) { return r.t === rewardVal; });
+      if (params.type && rowData.tp !== params.type) return false;
+      if (params.cls && rowData.cl !== params.cls) return false;
+      if (params.region && rowData.rg !== params.region) return false;
+      if (params.reward) {
+        var has = rowData.rw && rowData.rw.some(function (r) { return r.t === params.reward; });
         if (!has) return false;
       }
       return true;
     });
-    table.draw();
+    // Restore full data so client search works
+    if (table.data().count() !== allData.length) {
+      updateTableData(allData);
+    }
+    if (params.q) {
+      table.search(params.q).draw();
+    } else {
+      table.search('').draw();
+    }
+  }
+
+  function updateTableData(data) {
+    table.clear();
+    table.rows.add(data);
+    table.search('').draw();
+  }
+
+  function showTableLoading(show) {
+    var el = document.getElementById('deed-table-loading');
+    if (el) el.style.display = show ? '' : 'none';
   }
 
   function showDeedModal(id) {
     var d = deedById[id];
-    if (!d) return;
 
+    // If deed not in local cache, try the API first
+    if (!d) {
+      $('#deed-modal-title').html('<span class="lotro-deed-name">Loading...</span>');
+      $('#deed-modal-body').html('<div class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading deed...</div>');
+      $('#deed-modal').modal('show');
+
+      $.getJSON(API_URL, { id: id })
+        .done(function (entry) {
+          deedById[entry.id] = entry;
+          renderDeedModal(entry.id, entry);
+        })
+        .fail(function () {
+          $('#deed-modal-body').html('<div class="text-muted">Deed not found.</div>');
+        });
+
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', 'deeds?id=' + id);
+      }
+      return;
+    }
+
+    renderDeedModal(id, d);
+  }
+
+  function renderDeedModal(id, d) {
     $('#deed-modal-title').html('<span class="lotro-deed-name">' + d.n + '</span>');
 
+    // Show loading state immediately with basic info from index
     var html = '<div class="item-modal-meta">';
     html += '<p><strong>Type:</strong> ' + typeBadge(d.tp) + '</p>';
     if (d.rg) html += '<p><strong>Region:</strong> <span class="deed-region-badge">' + escHtml(d.rg) + '</span></p>';
     if (d.lv) html += '<p><strong>Level:</strong> ' + d.lv + '</p>';
     if (d.cl) html += '<p><strong>Required Class:</strong> ' + d.cl + '</p>';
     html += '</div>';
-
-    // Objectives / Requirements
-    if (d.obj && d.obj.length) {
-      html += '<h5>Requirements</h5>';
-      html += '<ul class="deed-objective-list">';
-      for (var i = 0; i < d.obj.length; i++) {
-        var o = d.obj[i];
-        html += '<li>' + formatObjective(o) + '</li>';
-      }
-      html += '</ul>';
-    }
-
-    // Add map link only when we have resolved map coordinates for this deed
-    var hasMapData = window.LOTRO_DEED_OVERLAY && window.LOTRO_DEED_OVERLAY[id];
-    if (hasMapData) {
-      html += '<div style="margin: 15px 0;">';
-      html += '<a href="map?deed=' + id + '" class="btn btn-sm btn-primary" id="deed-map-link" target="_blank">';
-      html += '<i class="fa fa-map-o"></i> View on Map</a>';
-      html += '</div>';
-    }
-
-    if (d.rw && d.rw.length) {
-      html += '<h5>Rewards</h5>';
-      html += '<ul class="deed-reward-list">';
-      for (var i = 0; i < d.rw.length; i++) {
-        var r = d.rw[i];
-        html += '<li><strong>' + r.t + ':</strong> ' + gameIcon(r.i) + formatRewardValue(r) + '</li>';
-      }
-      html += '</ul>';
-    }
-
+    html += '<div id="deed-detail-loading" class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading details...</div>';
     $('#deed-modal-body').html(html);
 
     if (window.history && window.history.replaceState) {
@@ -218,6 +312,67 @@
     window.dataLayer=window.dataLayer||[];
     window.dataLayer.push({event:'select_content',content_type:'deed',content_id:id});
     $('#deed-modal').modal('show');
+
+    // Lazy-load per-deed detail (objectives, rewards, overlay)
+    $.getJSON(cdnUrl('data/lore/deeds/' + id + '.json'))
+      .done(function (detail) {
+        var detailHtml = '';
+
+        if (detail.cl && !d.cl) {
+          detailHtml += '<p><strong>Required Class:</strong> ' + detail.cl + '</p>';
+        }
+
+        if (detail.obj && detail.obj.length) {
+          detailHtml += '<h5>Requirements</h5>';
+          detailHtml += '<ul class="deed-objective-list">';
+          for (var i = 0; i < detail.obj.length; i++) {
+            detailHtml += '<li>' + formatObjective(detail.obj[i]) + '</li>';
+          }
+          detailHtml += '</ul>';
+        }
+
+        var hasMapData = window.LOTRO_DEED_OVERLAY && window.LOTRO_DEED_OVERLAY[id];
+        if (hasMapData) {
+          detailHtml += '<div style="margin: 15px 0;">';
+          detailHtml += '<a href="map?deed=' + id + '" class="btn btn-sm btn-primary" id="deed-map-link" target="_blank">';
+          detailHtml += '<i class="fa fa-map-o"></i> View on Map</a>';
+          detailHtml += '</div>';
+        }
+
+        var rw = detail.rw || d.rw;
+        if (rw && rw.length) {
+          detailHtml += '<h5>Rewards</h5>';
+          detailHtml += '<ul class="deed-reward-list">';
+          for (var i = 0; i < rw.length; i++) {
+            var r = rw[i];
+            detailHtml += '<li><strong>' + r.t + ':</strong> ' + gameIcon(r.i) + formatRewardValue(r) + '</li>';
+          }
+          detailHtml += '</ul>';
+        }
+
+        $('#deed-detail-loading').replaceWith(detailHtml);
+      })
+      .fail(function () {
+        // Fallback: show what we have from the index data
+        var fallbackHtml = '';
+        var hasMapData = window.LOTRO_DEED_OVERLAY && window.LOTRO_DEED_OVERLAY[id];
+        if (hasMapData) {
+          fallbackHtml += '<div style="margin: 15px 0;">';
+          fallbackHtml += '<a href="map?deed=' + id + '" class="btn btn-sm btn-primary" id="deed-map-link" target="_blank">';
+          fallbackHtml += '<i class="fa fa-map-o"></i> View on Map</a>';
+          fallbackHtml += '</div>';
+        }
+        if (d.rw && d.rw.length) {
+          fallbackHtml += '<h5>Rewards</h5>';
+          fallbackHtml += '<ul class="deed-reward-list">';
+          for (var i = 0; i < d.rw.length; i++) {
+            var r = d.rw[i];
+            fallbackHtml += '<li><strong>' + r.t + ':</strong> ' + gameIcon(r.i) + formatRewardValue(r) + '</li>';
+          }
+          fallbackHtml += '</ul>';
+        }
+        $('#deed-detail-loading').replaceWith(fallbackHtml || '');
+      });
   }
 
   function formatObjective(o) {
@@ -288,13 +443,15 @@
   function checkUrlParams() {
     var params = new URLSearchParams(window.location.search);
     var q = params.get('q');
-    if (q && table) {
-      table.search(q).draw();
+    if (q) {
       $('div.dataTables_filter input').val(q);
     }
     var region = params.get('region');
     if (region) {
       $('#filter-region').val(region);
+    }
+    // If there are URL params, trigger API-driven filter
+    if (q || region) {
       applyFilters();
     }
     var id = params.get('id');

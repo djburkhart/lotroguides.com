@@ -41,8 +41,10 @@
               <option value="">All Rewards</option>
               <option value="LP">LOTRO Points</option>
               <option value="Title">Title</option>
-              <option value="Virtue">Virtue</option>
+              <option value="VirtueXP">Virtue XP</option>
               <option value="Reputation">Reputation</option>
+              <option value="XP">XP</option>
+              <option value="Item">Item</option>
             </select>
           </div>
           <div class="col-sm-6 col-md-3 m-b-15">
@@ -70,6 +72,9 @@
         </div>
 
         <!-- Deeds Table -->
+        <div id="deed-table-loading" class="text-center text-muted" style="display:none; padding: 12px 0;">
+          <i class="fa fa-spinner fa-spin"></i> Loading deeds...
+        </div>
         <div class="table-responsive">
           <table id="deeds-table" class="table table-striped table-hover" style="width:100%">
             <thead>

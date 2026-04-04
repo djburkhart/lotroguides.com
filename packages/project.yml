@@ -24,6 +24,11 @@ packages:
       - name: save
         runtime: nodejs:22
         web: true
+  - name: deeds
+    functions:
+      - name: lookup
+        runtime: nodejs:22
+        web: true
   - name: cusdis
     functions:
       - name: webhook

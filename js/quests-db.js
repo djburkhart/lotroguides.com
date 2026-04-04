@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Quest Database — Client-side DataTable + Filters + Modal
+   Quest Database — Server-side DataTable + Filters + Modal
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -7,10 +7,12 @@
   var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
   function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
 
+  var API_URL = window.LOTRO_QUESTS_API || '/api/quests/lookup';
   var table;
-  var allData = [];
-  var questById = {};
+  var questById = {};       // id → quest record (populated from SSP responses + detail fetches)
   var initialized = false;
+  var serverSide = true;    // true = SSP mode; false = client-side fallback
+  var allData = null;       // only populated if SSP fails and we fall back to client-side
 
   function gameIcon(itemId, size) {
     if (!itemId) return '';
@@ -58,10 +60,17 @@
 
   // ─── Category list builder ──────────────────────────────────────────────
 
-  function buildCategoryFilter() {
+  function buildCategoryFilter(cats) {
+    var sel = $('#filter-category');
+    for (var j = 0; j < cats.length; j++) {
+      sel.append('<option value="' + escapeHtml(cats[j].name) + '">' + escapeHtml(cats[j].name) + ' (' + cats[j].count + ')</option>');
+    }
+  }
+
+  function buildCategoryFilterFromData(data) {
     var cats = {};
-    for (var i = 0; i < allData.length; i++) {
-      var c = allData[i].cat;
+    for (var i = 0; i < data.length; i++) {
+      var c = data[i].cat;
       if (c) cats[c] = (cats[c] || 0) + 1;
     }
     var sorted = Object.keys(cats).sort();
@@ -71,23 +80,125 @@
     }
   }
 
+  // ─── Column name mapping (DT column index → API sort_col) ──────────────
+
+  var COL_MAP = ['n', 'lv', 'cat', 'b'];
+
   // ─── Init ───────────────────────────────────────────────────────────────
 
   function loadData() {
     if (initialized) return;
-    if (typeof window.LOTRO_QUESTS_DB === 'undefined') return;
     initialized = true;
-    allData = window.LOTRO_QUESTS_DB;
-    for (var i = 0; i < allData.length; i++) questById[allData[i].id] = allData[i];
-    buildCategoryFilter();
-    initTable();
-    bindFilters();
-    checkUrlParams();
+
+    // Fetch category list from API, then init table
+    $.getJSON(API_URL, { meta: 'categories' })
+      .done(function (resp) {
+        buildCategoryFilter(resp.categories || []);
+        initServerSideTable();
+        bindFilters();
+        checkUrlParams();
+      })
+      .fail(function () {
+        // API unreachable — fall back to loading full dataset client-side
+        console.warn('[quests] API unavailable, falling back to client-side mode');
+        fallbackToClientSide();
+      });
   }
 
-  function initTable() {
+  function initServerSideTable() {
+    serverSide = true;
     table = $('#quests-table').DataTable({
-      data: allData,
+      serverSide: true,
+      processing: true,
+      deferRender: true,
+      pageLength: 100,
+      lengthMenu: [50, 100, 250, 500],
+      order: [[1, 'asc'], [0, 'asc']],
+      columns: [
+        { data: 'n', render: renderName },
+        { data: 'lv', render: renderLevel, width: '80px' },
+        { data: 'cat', render: renderCategory, width: '200px' },
+        { data: 'b', render: renderBestower }
+      ],
+      ajax: function (dtParams, callback, settings) {
+        // Map DataTables params to our clean API params
+        var apiParams = {
+          draw: dtParams.draw,
+          start: dtParams.start,
+          length: dtParams.length,
+          search: (dtParams.search && dtParams.search.value) || ''
+        };
+
+        // Sort: use first sort column
+        if (dtParams.order && dtParams.order.length) {
+          var colIdx = dtParams.order[0].column;
+          apiParams.sort_col = COL_MAP[colIdx] || 'lv';
+          apiParams.sort_dir = dtParams.order[0].dir || 'asc';
+        }
+
+        // Custom filters (read from DOM)
+        var catVal = $('#filter-category').val();
+        var minLv = $('#filter-min-level').val();
+        var maxLv = $('#filter-max-level').val();
+        var instVal = $('#filter-inst').val();
+        if (catVal) apiParams.cat = catVal;
+        if (minLv) apiParams.lv_min = minLv;
+        if (maxLv) apiParams.lv_max = maxLv;
+        if (instVal === '1') apiParams.inst = '1';
+
+        $.getJSON(API_URL, apiParams)
+          .done(function (resp) {
+            // Cache returned quest records for modal lookups
+            if (resp.data) {
+              for (var i = 0; i < resp.data.length; i++) {
+                questById[resp.data[i].id] = resp.data[i];
+              }
+            }
+            callback(resp);
+          })
+          .fail(function () {
+            // On API failure during SSP, switch to client-side mode
+            console.warn('[quests] SSP request failed, falling back to client-side');
+            if (table) table.destroy();
+            table = null;
+            fallbackToClientSide();
+          });
+      },
+      language: {
+        search: '<i class="fa fa-search"></i>',
+        searchPlaceholder: 'Search quests...',
+        processing: '<i class="fa fa-spinner fa-spin"></i> Loading quests...',
+        info: 'Showing _START_\u2013_END_ of _TOTAL_ quests',
+        lengthMenu: 'Show _MENU_'
+      },
+      dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rtip'
+    });
+  }
+
+  // ─── Client-side fallback ───────────────────────────────────────────────
+
+  function fallbackToClientSide() {
+    serverSide = false;
+    var _cdn = _CDN ? _CDN + '/' : './';
+    $.getJSON(_cdn + 'data/quests-db.json')
+      .done(function (data) {
+        allData = data;
+        for (var i = 0; i < data.length; i++) questById[data[i].id] = data[i];
+        if (!$('#filter-category option').length || $('#filter-category option').length <= 1) {
+          buildCategoryFilterFromData(data);
+        }
+        initClientSideTable(data);
+        bindFilters();
+        checkUrlParams();
+      })
+      .fail(function () {
+        $('#quests-table tbody').html('<tr><td colspan="4" class="text-center text-danger">Failed to load quest data.</td></tr>');
+      });
+  }
+
+  function initClientSideTable(data) {
+    table = $('#quests-table').DataTable({
+      data: data,
       deferRender: true,
       pageLength: 100,
       lengthMenu: [50, 100, 250, 500],
@@ -111,16 +222,34 @@
   // ─── Filters ────────────────────────────────────────────────────────────
 
   function bindFilters() {
-    $('#filter-category, #filter-group').on('change', applyFilters);
-    $('#filter-min-level, #filter-max-level').on('input', applyFilters);
-    $('#filter-reset').on('click', function () {
-      $('#filter-category, #filter-group').val('');
+    $('#filter-category, #filter-group, #filter-inst').off('change').on('change', applyFilters);
+    $('#filter-min-level, #filter-max-level').off('input').on('input', debounce(applyFilters, 300));
+    $('#filter-reset').off('click').on('click', function () {
+      $('#filter-category, #filter-group, #filter-inst').val('');
       $('#filter-min-level, #filter-max-level').val('');
       applyFilters();
     });
   }
 
+  function debounce(fn, ms) {
+    var timer;
+    return function () {
+      clearTimeout(timer);
+      timer = setTimeout(fn, ms);
+    };
+  }
+
   function applyFilters() {
+    if (!table) return;
+
+    if (serverSide) {
+      // In SSP mode, filters are sent as API params on the next draw.
+      // Just trigger a redraw — the ajax function reads filter values from the DOM.
+      table.draw();
+      return;
+    }
+
+    // Client-side fallback filtering
     var catVal = $('#filter-category').val();
     var grpVal = $('#filter-group').val();
     var minLv = parseInt($('#filter-min-level').val()) || 0;
@@ -144,8 +273,32 @@
 
   function showQuestModal(id) {
     var q = questById[id];
-    if (!q) return;
 
+    if (!q) {
+      // Quest not in local cache — fetch from API
+      $('#quest-modal-title').html('<span class="lotro-quest-name">Loading...</span>');
+      $('#quest-modal-body').html('<div class="text-center text-muted"><i class="fa fa-spinner fa-spin"></i> Loading quest...</div>');
+      $('#quest-modal').modal('show');
+
+      $.getJSON(API_URL, { id: id })
+        .done(function (data) {
+          questById[data.id] = data;
+          renderQuestModal(data.id, data);
+        })
+        .fail(function () {
+          $('#quest-modal-body').html('<div class="text-muted">Quest not found.</div>');
+        });
+
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', 'quests?id=' + id);
+      }
+      return;
+    }
+
+    renderQuestModal(id, q);
+  }
+
+  function renderQuestModal(id, q) {
     // Title
     var title = '<span class="lotro-quest-name">' + escapeHtml(q.n) + '</span>';
     if (q.lv) title += ' <span class="quest-level-badge">Lv ' + q.lv + '</span>';
@@ -208,7 +361,7 @@
 
     $('#quest-modal-body').html(html);
 
-    // Show on Map link — check overlay data for plottable objectives
+    // Show on Map link
     var hasOverlay = window.LOTRO_QUEST_OVERLAY && window.LOTRO_QUEST_OVERLAY[id];
     if (hasOverlay) {
       $('#quest-map-link').attr('href', 'map?quest=' + id).show();
