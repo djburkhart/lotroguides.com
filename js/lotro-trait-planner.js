@@ -262,13 +262,13 @@
           
           var img = document.createElement('img');
           img.className = 'ltp-milestone-icon-img';
-          img.src = (window.LOTRO_CDN || cdnBase) + 'img/traits/' + milestoneIconId + '.png';
+          img.src = cdnBase + 'img/traits/' + milestoneIconId + '.png';
           img.alt = milestoneName;
           img.onerror = function () {
             /* Try skills directory as fallback */
             var skillImg = document.createElement('img');
             skillImg.className = 'ltp-milestone-icon-img';
-            skillImg.src = (window.LOTRO_CDN || cdnBase) + 'img/skills/' + milestoneIconId + '.png';
+            skillImg.src = cdnBase + 'img/skills/' + milestoneIconId + '.png';
             skillImg.alt = milestoneName;
             skillImg.onerror = function () {
               /* Final fallback to abbreviation */
@@ -426,13 +426,13 @@
             
             var img = document.createElement('img');
             img.className = 'ltp-icon-img';
-            img.src = (window.LOTRO_CDN || cdnBase) + 'img/traits/' + traitIconId + '.png';
+            img.src = cdnBase + 'img/traits/' + traitIconId + '.png';
             img.alt = traitName;
             img.onerror = function () {
               /* Try skills directory as fallback */
               var skillImg = document.createElement('img');
               skillImg.className = 'ltp-icon-img';
-              skillImg.src = (window.LOTRO_CDN || cdnBase) + 'img/skills/' + traitIconId + '.png';
+              skillImg.src = cdnBase + 'img/skills/' + traitIconId + '.png';
               skillImg.alt = traitName;
               skillImg.onerror = function () {
                 /* Final fallback to abbreviation */
@@ -505,7 +505,7 @@
       if (v) {
         var icon = document.createElement('img');
         icon.className = 'ltp-virtue-icon';
-        icon.src = (window.LOTRO_CDN || cdnBase) + 'img/icons/virtues/' + v.toLowerCase() + '.webp';
+        icon.src = cdnBase + 'img/icons/virtues/' + v.toLowerCase() + '.webp';
         icon.alt = v;
         icon.onerror = function () {
           this.parentNode.innerHTML = '<span class="ltp-virtue-fallback">' + v.charAt(0) + '</span>' +
@@ -566,7 +566,7 @@
       item.title = isSelected && !isCurrent ? name + ' (already in slot ' + (selected.indexOf(name) + 1) + ')' : name;
 
       var icon = document.createElement('img');
-      icon.src = (window.LOTRO_CDN || cdnBase) + 'img/icons/virtues/' + name.toLowerCase() + '.webp';
+      icon.src = cdnBase + 'img/icons/virtues/' + name.toLowerCase() + '.webp';
       icon.alt = name;
       icon.className = 'ltp-virtue-picker-icon';
       item.appendChild(icon);
