@@ -250,6 +250,255 @@ function buildEmbed(buildData, className, buildName, likes, buildId) {
   };
 }
 
+/* ── Stat Caps ─────────────────────────────────────────────────────── */
+
+function statCapsEmbeds(result) {
+  if (!result) return [missingEmbed('Stat caps')];
+
+  var color = statCapsColor(result);
+  var embed = {
+    title: '🧮 ' + result.classLabel + ' Stat Caps',
+    color: color,
+    description: buildStatCapsDescription(result),
+    thumbnail: { url: classIconUrl(result.classKey) },
+    fields: buildStatCapsFields(result),
+    footer: {
+      text: "Powered by Giseldah's CalcStat",
+      icon_url: SITE + '/img/icons/lotro-guides-icon.png'
+    },
+  };
+
+  return [embed];
+}
+
+function statCapsEmbed(result) {
+  return statCapsEmbeds(result)[0];
+}
+
+function formatStatCapLines(stats) {
+  return stats.map(function (stat) {
+    return '• ' + escMd(stat.label) + ': **' + stat.capPercent.toFixed(1) + '%** (' + formatNumber(stat.capRating) + ')';
+  }).join('\n');
+}
+
+function formatPenetrationSuffix(penetration) {
+  var parts = [];
+  if (penetration.values.armourpen) parts.push('Armour ' + formatNumber(Math.abs(Math.round(penetration.values.armourpen + 0.00000001))));
+  if (penetration.values.bpepen) parts.push('B/P/E ' + formatNumber(Math.abs(Math.round(penetration.values.bpepen + 0.00000001))));
+  if (penetration.values.resistpen) parts.push('Resist ' + formatNumber(Math.abs(Math.round(penetration.values.resistpen + 0.00000001))));
+  if (!parts.length) return '';
+  return ' (' + parts.join(' • ') + ')';
+}
+
+function buildStatCapsDescription(result) {
+  var line = capitalize(result.armourType) + ' armour';
+  line += ' • Lv ' + result.level;
+  if (result.mitigationLevel !== result.level) {
+    line += ' vs mob Lv ' + result.mitigationLevel;
+  } else {
+    line += ' • on-level content';
+  }
+  line += ' • ' + result.penetration.label;
+  return line;
+}
+
+function buildStatCapsFields(result) {
+  var fields = [
+    { name: 'Overview', value: formatOverviewField(result), inline: true },
+    { name: 'Core Caps', value: formatCoreCapsField(result), inline: true },
+    { name: 'Penetration', value: formatPenetrationField(result.penetration), inline: true },
+  ];
+
+  if (result.sections.Offense.length) {
+    fields.push({ name: 'Offense', value: formatStatList(result.sections.Offense), inline: true });
+  }
+  if (result.sections.Defense.length) {
+    fields.push({ name: 'Defense', value: formatStatList(result.sections.Defense), inline: true });
+  }
+  var mitigationStats = filterDisplayedStats(result.sections.Mitigations);
+  if (mitigationStats.length) {
+    fields.push({ name: 'Mitigations', value: formatStatList(mitigationStats), inline: true });
+  }
+
+  fields = fields.concat(formatAvoidanceFields(result.sections.Avoidance));
+  return fields;
+}
+
+function formatOverviewField(result) {
+  return [
+    '**Armour:** ' + escMd(capitalize(result.armourType)),
+    '**Player Lv:** ' + result.level,
+    '**Mob Lv:** ' + result.mitigationLevel,
+    '**Mit Cap Lv:** ' + result.mitigationCalculationLevel,
+  ].join('\n');
+}
+
+function formatCoreCapsField(result) {
+  return [
+    formatSummaryStat(findStat(result, 'crithit')),
+    formatSummaryStat(findStat(result, 'finesse')),
+    formatCombinedSummaryStat(
+      findStat(result, 'tacdmg'),
+      findStat(result, 'phydmg'),
+      'Mastery'
+    ),
+    formatCombinedSummaryStat(
+      findStat(result, 'tacmit'),
+      findStat(result, 'phymit'),
+      'Mits'
+    ),
+  ].filter(Boolean).join('\n');
+}
+
+function formatPenetrationField(penetration) {
+  var lines = ['**Preset:** ' + escMd(penetration.label)];
+  var items = getPenetrationDisplayItems(penetration);
+
+  if (!items.length) {
+    lines.push('No penetrations');
+    return lines.join('\n');
+  }
+
+  items.forEach(function (item) {
+    lines.push('**' + item.label + ':** ' + formatPenValue(item.value));
+  });
+
+  return lines.join('\n');
+}
+
+function formatSummaryStat(stat) {
+  if (!stat) return '';
+  return '**' + escMd(displayStatLabel(stat.label)) + ':** ' + stat.capPercent.toFixed(1) + '% • ' + formatNumber(stat.capRating);
+}
+
+function formatCombinedSummaryStat(primaryStat, secondaryStat, label) {
+  if (!primaryStat && !secondaryStat) return '';
+  if (!primaryStat) return formatSummaryValue(label, secondaryStat.capPercent, secondaryStat.capRating);
+  if (!secondaryStat) return formatSummaryValue(label, primaryStat.capPercent, primaryStat.capRating);
+
+  if (primaryStat.capPercent === secondaryStat.capPercent && primaryStat.capRating === secondaryStat.capRating) {
+    return formatSummaryValue(label, primaryStat.capPercent, primaryStat.capRating);
+  }
+
+  return '**' + escMd(label) + ':** '
+    + displayStatLabel(primaryStat.label) + ' ' + primaryStat.capPercent.toFixed(1) + '% • ' + formatNumber(primaryStat.capRating)
+    + ' / '
+    + displayStatLabel(secondaryStat.label) + ' ' + secondaryStat.capPercent.toFixed(1) + '% • ' + formatNumber(secondaryStat.capRating);
+}
+
+function formatSummaryValue(label, capPercent, capRating) {
+  return '**' + escMd(label) + ':** ' + capPercent.toFixed(1) + '% • ' + formatNumber(capRating);
+}
+
+function formatStatList(stats) {
+  return stats.map(function (stat) {
+    return '• **' + escMd(displayStatLabel(stat.label)) + '**\n' + stat.capPercent.toFixed(1) + '% • ' + formatNumber(stat.capRating);
+  }).join('\n');
+}
+
+function formatPenValue(value) {
+  if (!value) return 'none';
+  return formatNumber(Math.abs(Math.round(value + 0.00000001)));
+}
+
+function getPenetrationDisplayItems(penetration) {
+  if (!penetration) return [];
+
+  switch (penetration.scope) {
+    case 'armour':
+      return [
+        { label: 'Target Mitigation', value: penetration.values.armourpen },
+      ];
+    case 'all':
+      return [
+        { label: 'B/P/E', value: penetration.values.bpepen },
+        { label: 'Resist', value: penetration.values.resistpen },
+        { label: 'Armour', value: penetration.values.armourpen },
+      ];
+    default:
+      return [];
+  }
+}
+
+function classIconUrl(classKey) {
+  return SITE + '/img/icons/classes/' + encodeURIComponent(classKey) + '.png';
+}
+
+function statCapsColor(result) {
+  switch (result.armourType) {
+    case 'light': return 0x5b9bd5;
+    case 'medium': return 0x4a6741;
+    case 'heavy': return 0xc9aa58;
+    default: return 0x7f8c3d;
+  }
+}
+
+function findStat(result, key) {
+  var sections = result.sections || {};
+  var keys = Object.keys(sections);
+  for (var i = 0; i < keys.length; i++) {
+    var stats = sections[keys[i]] || [];
+    for (var j = 0; j < stats.length; j++) {
+      if (stats[j].key === key) return stats[j];
+    }
+  }
+  return null;
+}
+
+function formatAvoidanceFields(stats) {
+  if (!stats || !stats.length) return [];
+
+  var groups = [
+    { name: 'Block', keys: ['block', 'partblock', 'partblockmit'] },
+    { name: 'Parry', keys: ['parry', 'partparry', 'partparrymit'] },
+    { name: 'Evade', keys: ['evade', 'partevade', 'partevademit'] },
+  ];
+
+  return groups.map(function (group) {
+    var groupStats = group.keys.map(function (key) {
+      return stats.find(function (stat) { return stat.key === key; });
+    }).filter(Boolean);
+
+    if (!groupStats.length) return null;
+
+    return {
+      name: group.name,
+      value: groupStats.map(function (stat) {
+        return '• **' + escMd(shortAvoidanceLabel(stat.label, group.name)) + '**\n' + stat.capPercent.toFixed(1) + '% • ' + formatNumber(stat.capRating);
+      }).join('\n'),
+      inline: true,
+    };
+  }).filter(Boolean);
+}
+
+function filterDisplayedStats(stats) {
+  return (stats || []).filter(function (stat) {
+    return stat.key !== 'ofmit';
+  });
+}
+
+function displayStatLabel(label) {
+  var labels = {
+    'Devastate Hit': 'Dev Hit',
+    'Critical Magnitude': 'Crit Mag',
+    'Physical Damage': 'Phys Mastery',
+    'Tactical Damage': 'Tact Mastery',
+    'Outgoing Healing': 'Out Healing',
+    'Critical Defence': 'Crit Def',
+    'Incoming Healing': 'Inc Healing',
+    'Physical Mitigation': 'Phys Mit',
+    'Tactical Mitigation': 'Tact Mit',
+  };
+  return labels[label] || label;
+}
+
+function shortAvoidanceLabel(label, groupName) {
+  if (label === groupName) return 'Base';
+  if (label.indexOf('Partial ') === 0 && label.indexOf('Mitigation') === -1) return 'Partial';
+  if (label.indexOf('Mitigation') !== -1) return 'Partial Mit';
+  return label;
+}
+
 /* ── Helpers ───────────────────────────────────────────────────────── */
 
 function missingEmbed(type) {
@@ -266,9 +515,15 @@ function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 }
 
+function formatNumber(n) {
+  return Number(n || 0).toLocaleString('en-US');
+}
+
 exports.questEmbed  = questEmbed;
 exports.deedEmbed   = deedEmbed;
 exports.mapEmbed    = mapEmbed;
 exports.itemEmbed   = itemEmbed;
 exports.buildEmbed  = buildEmbed;
+exports.statCapsEmbeds = statCapsEmbeds;
+exports.statCapsEmbed = statCapsEmbed;
 exports.missingEmbed = missingEmbed;

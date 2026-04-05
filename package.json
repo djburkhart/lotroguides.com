@@ -11,12 +11,13 @@
     "node": "24.x"
   },
   "scripts": {
+    "test": "node scripts/vendor-giseldah-calcstat.js && node --test --test-isolation=none test/discord-statcaps.test.js test/vendor-giseldah-calcstat.test.js",
     "start": "node serve.js",
-    "dev": "node build.js --local && node serve.js",
-    "prebuild": "node scripts/download-cdn-data.js",
+    "dev": "node scripts/vendor-giseldah-calcstat.js && node build.js --local && node serve.js",
+    "prebuild": "node scripts/vendor-giseldah-calcstat.js && node scripts/download-cdn-data.js",
     "build": "node build.js",
-    "heroku-postbuild": "node scripts/scrape-news.js || true && node build.js",
-    "watch": "node build.js --watch",
+    "heroku-postbuild": "node scripts/scrape-news.js || true && node scripts/vendor-giseldah-calcstat.js && node build.js",
+    "watch": "node scripts/vendor-giseldah-calcstat.js && node build.js --watch",
     "update:news": "node scripts/scrape-news.js",
     "update:loot": "node scripts/import-lotro-companion-loot.js && node scripts/import-loot.js",
     "update:skills": "node scripts/enrich-instance-skills.js",
@@ -26,8 +27,8 @@
     "update:maps": "node scripts/sync-maps.js",
     "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:maps && npm run update:lore && npm run update:icons && npm run update:videos",
     "sync": "node scripts/sync-cdn.js",
-    "deploy:functions": "node scripts/deploy-functions.js",
-    "deploy:discord": "node scripts/register-discord-commands.js && node scripts/deploy-functions.js discord"
+    "deploy:functions": "node scripts/vendor-giseldah-calcstat.js && node scripts/deploy-functions.js",
+    "deploy:discord": "node scripts/vendor-giseldah-calcstat.js && node scripts/register-discord-commands.js && node scripts/deploy-functions.js discord"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
