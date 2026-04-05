@@ -564,6 +564,12 @@ var plannerInitialized = false;
 var buildsCurrentPage = 1;
 var BUILDS_PER_PAGE = 25;
 
+// Community builds state (from CDN via API)
+var communityStats = {};     // { hunter: { count: 3, likes: 10 }, ... }
+var communityBuilds = {};    // { hunter: [build, ...], ... }
+var communityLoaded = {};    // tracks which classes have been fetched
+var BUILDS_API_URL = window.LOTRO_BUILDS_API || '/api/builds/save';
+
 // Guide builds injected at build time from data/builds/*.json
 var GUIDE_BUILDS = {{guideBuilds}};
 
@@ -619,19 +625,87 @@ function getGuideBuildsForClass(classKey) {
 
 function getBuildsForClass(classKey) {
   var guide = getGuideBuildsForClass(classKey);
-  var user = getSavedBuilds().filter(function(b) { return b.class === classKey; });
-  return guide.concat(user);
+  var community = communityBuilds[classKey] || [];
+  var local = getSavedBuilds().filter(function(b) { return b.class === classKey; });
+
+  // Merge and deduplicate: guide > community > local
+  var ids = {};
+  var result = [];
+
+  guide.forEach(function(b) { ids[b.id] = true; result.push(b); });
+  community.forEach(function(b) {
+    if (!ids[b.id]) { ids[b.id] = true; result.push(b); }
+  });
+  local.forEach(function(b) {
+    if (!ids[b.id]) { ids[b.id] = true; result.push(b); }
+  });
+
+  return result;
 }
 
 function countBuildsPerClass() {
   var counts = {};
+  var likes = {};
+
+  // Guide builds
   GUIDE_BUILDS.forEach(function(b) {
     counts[b.class] = (counts[b.class] || 0) + 1;
   });
-  getSavedBuilds().forEach(function(b) {
-    counts[b.class] = (counts[b.class] || 0) + 1;
+
+  // Community builds from CDN
+  Object.keys(communityStats).forEach(function(cls) {
+    counts[cls] = (counts[cls] || 0) + communityStats[cls].count;
+    likes[cls] = (likes[cls] || 0) + communityStats[cls].likes;
   });
-  return counts;
+
+  // Local-only builds (old format with b_ prefix, not on CDN)
+  getSavedBuilds().forEach(function(b) {
+    if (b.id && b.id.indexOf('b_') === 0) {
+      counts[b.class] = (counts[b.class] || 0) + 1;
+      likes[b.class] = (likes[b.class] || 0) + (b.likes || 0);
+    }
+  });
+
+  return { counts: counts, likes: likes };
+}
+
+// ── Community builds from CDN ─────────────────────────────────────────────
+function fetchCommunityStats(callback) {
+  fetch(BUILDS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'stats' })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.stats) {
+      communityStats = data.stats;
+      renderScorecard();
+    }
+    if (callback) callback();
+  })
+  .catch(function() { if (callback) callback(); });
+}
+
+function fetchCommunityBuilds(classKey, callback) {
+  if (communityLoaded[classKey]) {
+    if (callback) callback();
+    return;
+  }
+  fetch(BUILDS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'list', class: classKey, limit: 200 })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.builds) {
+      communityBuilds[classKey] = data.builds;
+      communityLoaded[classKey] = true;
+    }
+    if (callback) callback();
+  })
+  .catch(function() { if (callback) callback(); });
 }
 
 function getPointsSummary(points) {
@@ -670,28 +744,79 @@ function saveBuildToLibrary() {
   div.textContent = name;
   name = div.innerHTML;
 
-  var build = {
-    id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-    name: name,
+  var buildData = {
     class: currentClass,
-    build: currentBuild,
-    level: currentLevel,
+    name: name,
+    description: '',
     points: points,
     virtues: api.getVirtues ? api.getVirtues() : [],
-    likes: 0,
-    createdAt: Date.now()
+    level: currentLevel,
   };
 
-  var builds = getSavedBuilds();
-  builds.unshift(build);
-  saveBuildsList(builds);
+  // Upload to CDN via API
+  fetch(BUILDS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'save', build: buildData })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.ok && data.id) {
+      var build = {
+        id: data.id,
+        name: name,
+        class: currentClass,
+        build: currentBuild,
+        level: currentLevel,
+        points: points,
+        virtues: buildData.virtues,
+        likes: 0,
+        createdAt: new Date().toISOString(),
+      };
 
-  currentLoadedBuildId = build.id;
-  buildsCurrentPage = 1;
-  renderBuilds();
-  renderScorecard();
-  syncVoteButton();
-  alert('Build "' + name + '" saved!');
+      // Cache in localStorage
+      var builds = getSavedBuilds();
+      builds.unshift(build);
+      saveBuildsList(builds);
+
+      currentLoadedBuildId = build.id;
+      buildsCurrentPage = 1;
+
+      // Refresh community data
+      communityLoaded[currentClass] = false;
+      fetchCommunityBuilds(currentClass, function() { renderBuilds(); });
+      fetchCommunityStats();
+      syncVoteButton();
+      alert('Build "' + name + '" saved!');
+    } else {
+      alert('Failed to save: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(function() {
+    // Fallback: save locally only
+    var build = {
+      id: 'b_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+      name: name,
+      class: currentClass,
+      build: currentBuild,
+      level: currentLevel,
+      points: points,
+      virtues: buildData.virtues,
+      likes: 0,
+      createdAt: Date.now(),
+    };
+
+    var builds = getSavedBuilds();
+    builds.unshift(build);
+    saveBuildsList(builds);
+
+    currentLoadedBuildId = build.id;
+    buildsCurrentPage = 1;
+    renderBuilds();
+    renderScorecard();
+    syncVoteButton();
+    alert('Build "' + name + '" saved locally.');
+  });
 }
 
 // ── Like / unlike a build ─────────────────────────────────────────────────
@@ -710,6 +835,8 @@ function toggleLike(buildId) {
 
   // Update local build data for immediate counter display
   var isGuide = buildId.indexOf('guide_') === 0;
+  var isLocalOnly = buildId.indexOf('b_') === 0;
+
   if (!isGuide) {
     var builds = getSavedBuilds();
     var build = builds.find(function(b) { return b.id === buildId; });
@@ -736,35 +863,41 @@ function toggleLike(buildId) {
     if (wasLiked) { btn.classList.remove('liked'); } else { btn.classList.add('liked'); }
   });
 
-  // Call the API for server-side persistence
-  var apiUrl = (window.LOTRO_BUILDS_API || '/api/builds/save');
-  fetch(apiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: apiAction, id: buildId })
-  }).then(function(res) { return res.json(); }).then(function(data) {
-    if (data && typeof data.likes === 'number') {
-      // Sync the authoritative like count from the server
-      allCountEls = document.querySelectorAll('.like-btn[onclick*="' + buildId + '"] .like-count');
-      allCountEls.forEach(function(el) { el.textContent = data.likes; });
+  // Call the API for CDN builds (not guide builds or local-only builds)
+  if (!isGuide && !isLocalOnly) {
+    fetch(BUILDS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: apiAction, id: buildId })
+    }).then(function(res) { return res.json(); }).then(function(data) {
+      if (data && typeof data.likes === 'number') {
+        // Sync the authoritative like count from the server
+        allCountEls = document.querySelectorAll('.like-btn[onclick*="' + buildId + '"] .like-count');
+        allCountEls.forEach(function(el) { el.textContent = data.likes; });
 
-      // Also update the in-planner vote count if this build is loaded
-      if (currentLoadedBuildId === buildId) {
-        var voteCount = document.querySelector('.ltp-vote-count');
-        if (voteCount) voteCount.textContent = data.likes > 0 ? data.likes : '';
-      }
+        // Also update the in-planner vote count if this build is loaded
+        if (currentLoadedBuildId === buildId) {
+          var voteCount = document.querySelector('.ltp-vote-count');
+          if (voteCount) voteCount.textContent = data.likes > 0 ? data.likes : '';
+        }
 
-      // Update local storage with server value
-      if (!isGuide) {
+        // Update local storage with server value
         var updatedBuilds = getSavedBuilds();
         var updatedBuild = updatedBuilds.find(function(b) { return b.id === buildId; });
         if (updatedBuild) {
           updatedBuild.likes = data.likes;
           saveBuildsList(updatedBuilds);
         }
+
+        // Update community builds cache
+        var communityBuild = (communityBuilds[currentClass] || []).find(function(b) { return b.id === buildId; });
+        if (communityBuild) communityBuild.likes = data.likes;
+
+        // Refresh community stats for scorecard
+        fetchCommunityStats();
       }
-    }
-  }).catch(function() { /* API unavailable — optimistic update stands */ });
+    }).catch(function() { /* API unavailable — optimistic update stands */ });
+  }
 
   // Re-render the build list and sync the planner vote button
   renderBuilds();
@@ -795,9 +928,45 @@ function deleteBuild(buildId) {
 function loadSavedBuild(buildId) {
   var build = GUIDE_BUILDS.find(function(b) { return b.id === buildId; })
     || getSavedBuilds().find(function(b) { return b.id === buildId; });
-  if (!build) return;
 
-  currentLoadedBuildId = buildId;
+  if (build && build.points) {
+    applyBuildToPlanner(build);
+    return;
+  }
+
+  // Community build from manifest — fetch full data from API
+  var communityBuild = (communityBuilds[currentClass] || []).find(function(b) { return b.id === buildId; });
+  if (communityBuild && !communityBuild.points) {
+    fetch(BUILDS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get', id: buildId })
+    }).then(function(res) { return res.json(); }).then(function(data) {
+      if (data && data.build) {
+        var fullBuild = {
+          id: data.id,
+          name: data.build.name,
+          class: data.build.class,
+          level: data.build.level,
+          points: data.build.points,
+          virtues: data.build.virtues || [],
+          desc: data.build.description || '',
+          likes: data.likes || 0,
+          createdAt: data.createdAt,
+        };
+        applyBuildToPlanner(fullBuild);
+      }
+    }).catch(function() {
+      alert('Failed to load build from server.');
+    });
+    return;
+  }
+
+  if (build) applyBuildToPlanner(build);
+}
+
+function applyBuildToPlanner(build) {
+  currentLoadedBuildId = build.id;
   currentClass = build.class;
   currentBuild = build.build || 'endgame';
   currentLevel = build.level || 160;
@@ -867,14 +1036,17 @@ function renderBuilds() {
   var liked = getLikedBuilds();
 
   list.innerHTML = pageBuilds.map(function(build) {
-    var summary = getPointsSummary(build.points);
+    var summary = build.ps
+      ? { blue: build.ps.b || 0, red: build.ps.r || 0, yellow: build.ps.y || 0 }
+      : getPointsSummary(build.points);
     var isLiked = liked[build.id] ? ' liked' : '';
     var date = build.createdAt ? new Date(build.createdAt).toLocaleDateString() : '';
 
-    var isGuide = build.guide;
+    var isGuide = build.guide || (build.id && build.id.indexOf('guide_') === 0);
+    var isLocalOnly = build.id && build.id.indexOf('b_') === 0;
     var guideBadge = isGuide ? '<span class="guide-badge"><i class="fa fa-book"></i> Guide</span> ' : '';
-    var descHtml = isGuide && build.desc ? '<div class="build-card-desc">' + build.desc + '</div>' : '';
-    var deleteBtn = isGuide ? '' :
+    var descHtml = build.desc ? '<div class="build-card-desc">' + build.desc + '</div>' : '';
+    var deleteBtn = (isGuide || !isLocalOnly) ? '' :
         '<button class="delete-build-btn" onclick="deleteBuild(\'' + build.id + '\')" title="Delete this build">' +
           '<i class="fa fa-trash"></i>' +
         '</button>';
@@ -940,17 +1112,26 @@ function goToBuildsPage(page) {
 function renderScorecard() {
   var grid = document.getElementById('classGrid');
   if (!grid) return;
-  var buildCounts = countBuildsPerClass();
+  var data = countBuildsPerClass();
+  var buildCounts = data.counts;
+  var likeCounts = data.likes;
 
   grid.innerHTML = Object.keys(CLASS_META).map(function(key) {
     var meta = CLASS_META[key];
     var count = buildCounts[key] || 0;
-    var buildsLabel = count === 1 ? '1 saved build' : count + ' saved builds';
+    var likeCount = likeCounts[key] || 0;
+    var buildsLabel = count === 1 ? '1 build' : count + ' builds';
+    var statsHtml = '';
+    if (count > 0) {
+      statsHtml = '<div class="class-card-builds"><i class="fa fa-bookmark"></i> ' + buildsLabel;
+      if (likeCount > 0) statsHtml += ' &middot; <i class="fa fa-heart" style="color:#e87d7d"></i> ' + likeCount;
+      statsHtml += '</div>';
+    }
     return '<div class="class-card" onclick="selectClass(\'' + key + '\')">' +
       '<img class="class-card-icon" src="{{assets}}/img/icons/classes/' + key + '.png" alt="' + meta.name + '">' +
       '<div class="class-card-name">' + meta.name + '</div>' +
       '<div class="class-card-roles">' + meta.roles + '</div>' +
-      (count > 0 ? '<div class="class-card-builds"><i class="fa fa-bookmark"></i> ' + buildsLabel + '</div>' : '') +
+      statsHtml +
     '</div>';
   }).join('');
 }
@@ -964,6 +1145,11 @@ function selectClass(classKey) {
   currentLoadedBuildId = null;
   buildsCurrentPage = 1;
   showPlanner();
+
+  // Fetch community builds if not already loaded
+  if (!communityLoaded[classKey]) {
+    fetchCommunityBuilds(classKey, function() { renderBuilds(); });
+  }
 }
 
 function showPlanner() {
@@ -1060,8 +1246,13 @@ function syncVoteButton() {
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
+  // Fetch community stats from CDN on page load
+  fetchCommunityStats();
+
   if (urlProcessResult) {
     showPlanner();
+    // Fetch community builds for the current class
+    fetchCommunityBuilds(currentClass, function() { renderBuilds(); });
   } else {
     renderScorecard();
   }

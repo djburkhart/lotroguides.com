@@ -26,6 +26,7 @@ const NAMESPACES = {
   // github shares the cdn namespace (add its own if created)
   github:    'fn-ee2ee76a-f0db-416f-852b-f334142df8da',
   discord:   'fn-41039bc6-30e5-4581-a23a-f14fe5c2f748',
+  deeds:     'fn-15b56daf-ff46-43ce-a2ed-b3ac87f50a7f',
 };
 
 // Full project.yml entry for each package
@@ -58,9 +59,17 @@ const PACKAGE_DEFS = {
     functions: [{ name: 'interact', runtime: 'nodejs:22', web: true }],
     environment: {
       DO_CDN_URL: 'https://lotroguides.atl1.cdn.digitaloceanspaces.com',
+      DO_FUNCTIONS_HOST: 'https://faas-nyc1-2ef2e6cc.doserverless.co',
+      DO_QUESTS_NS: 'fn-3d455932-ad0c-4e6b-b531-278828780133',
+      DO_DEEDS_NS:  'fn-15b56daf-ff46-43ce-a2ed-b3ac87f50a7f',
     },
-  },
-};
+  },  deeds: {
+    name: 'deeds',
+    functions: [{ name: 'lookup', runtime: 'nodejs:22', web: true }],
+    environment: {
+      DO_CDN_URL: 'https://lotroguides.atl1.cdn.digitaloceanspaces.com',
+    },
+  },};
 
 function run(cmd) {
   console.log('  $ ' + cmd);

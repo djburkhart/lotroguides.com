@@ -35,9 +35,10 @@ var commands = [
     options: [
       {
         name: 'name',
-        description: 'Quest name (partial match)',
+        description: 'Start typing a quest name…',
         type: STRING,
         required: true,
+        autocomplete: true,
       },
     ],
   },
@@ -47,9 +48,10 @@ var commands = [
     options: [
       {
         name: 'name',
-        description: 'Deed name (partial match)',
+        description: 'Start typing a deed name…',
         type: STRING,
         required: true,
+        autocomplete: true,
       },
     ],
   },
@@ -59,9 +61,10 @@ var commands = [
     options: [
       {
         name: 'name',
-        description: 'Item name (partial match)',
+        description: 'Start typing an item name…',
         type: STRING,
         required: true,
+        autocomplete: true,
       },
     ],
   },

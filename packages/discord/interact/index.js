@@ -6,8 +6,8 @@
  * visual style.
  *
  * Slash commands:
- *   /quest <name>              – search quests by name
- *   /deed  <name>              – search deeds by name
+ *   /quest <name>              – search quests via quest DO Function API
+ *   /deed  <name>              – search deeds via deed DO Function API
  *   /item  <name>              – search items by name
  *   /map   <region>            – link to an interactive map region
  *   /build <class> [build]     – show a class trait build
@@ -15,6 +15,9 @@
  * Required env vars:
  *   DISCORD_PUBLIC_KEY  – Ed25519 public key from Discord Developer Portal
  *   DO_CDN_URL          – e.g. https://lotroguides.atl1.cdn.digitaloceanspaces.com
+ *   DO_FUNCTIONS_HOST   – e.g. https://faas-nyc1-2ef2e6cc.doserverless.co
+ *   DO_QUESTS_NS        – quests namespace ID (e.g. fn-3d455932-...)
+ *   DO_DEEDS_NS         – deeds namespace ID (if deployed; otherwise falls back to CDN)
  */
 
 'use strict';
@@ -23,13 +26,12 @@ var nacl    = require('tweetnacl');
 var embeds  = require('./embeds');
 
 var CDN_URL = '';
+var FN_HOST = '';
+var QUESTS_NS = '';
+var DEEDS_NS  = '';
 
-/* ── Data caches (cold-start fetch, then kept in memory) ──────────── */
+/* ── Data caches (only for item + map which have no DO Function) ──── */
 
-var questIndex = null;
-var questNames = null;
-var deedIndex  = null;
-var deedNames  = null;
 var itemIndex  = null;
 var itemNames  = null;
 var mapIndex   = null;
@@ -44,34 +46,24 @@ function fetchJson(url) {
   });
 }
 
-function loadQuests() {
-  if (questIndex) return Promise.resolve();
-  if (loadPromises.quests) return loadPromises.quests;
-  loadPromises.quests = fetchJson(CDN_URL + '/data/quest-index.json')
-    .then(function (data) {
-      questIndex = data;
-      questNames = data.map(function (q) { return (q.n || '').toLowerCase(); });
-    })
-    .catch(function (err) { loadPromises.quests = null; throw err; });
-  return loadPromises.quests;
+/* ── DO Function API helpers (quests + deeds) ─────────────────────── */
+
+function questApiUrl(params) {
+  var qs = new URLSearchParams(params).toString();
+  return FN_HOST + '/api/v1/web/' + QUESTS_NS + '/quests/lookup?' + qs;
 }
 
-function loadDeeds() {
-  if (deedIndex) return Promise.resolve();
-  if (loadPromises.deeds) return loadPromises.deeds;
-  loadPromises.deeds = fetchJson(CDN_URL + '/data/deed-index.json')
-    .then(function (data) {
-      deedIndex = data;
-      deedNames = data.map(function (d) { return (d.n || '').toLowerCase(); });
-    })
-    .catch(function (err) { loadPromises.deeds = null; throw err; });
-  return loadPromises.deeds;
+function deedApiUrl(params) {
+  var qs = new URLSearchParams(params).toString();
+  return FN_HOST + '/api/v1/web/' + DEEDS_NS + '/deeds/lookup?' + qs;
 }
+
+/* ── CDN-based loaders (items + maps only) ────────────────────────── */
 
 function loadItems() {
   if (itemIndex) return Promise.resolve();
   if (loadPromises.items) return loadPromises.items;
-  loadPromises.items = fetchJson(CDN_URL + '/data/lore/item-index.json')
+  loadPromises.items = fetchJson(CDN_URL + '/data/items-db.json')
     .then(function (data) {
       itemIndex = data;
       itemNames = data.map(function (it) { return (it.n || '').toLowerCase(); });
@@ -105,7 +97,7 @@ function verifySignature(publicKey, signature, timestamp, rawBody) {
   }
 }
 
-/* ── Search helpers ───────────────────────────────────────────────── */
+/* ── Search helper (for items + maps only) ────────────────────────── */
 
 function search(names, index, query, limit) {
   var q = (query || '').trim().toLowerCase();
@@ -118,6 +110,46 @@ function search(names, index, query, limit) {
   return results;
 }
 
+/* ── Autocomplete handlers ────────────────────────────────────────── */
+
+async function autocompleteQuest(query) {
+  if (!query || query.trim().length < 2) return [];
+  var data = await fetchJson(questApiUrl({ q: query, limit: '25' }));
+  return (data.results || []).map(function (q) {
+    var label = q.n || '?';
+    if (q.lv) label += ' (Lv ' + q.lv + ')';
+    return { name: label.slice(0, 100), value: String(q.id) };
+  });
+}
+
+async function autocompleteDeed(query) {
+  if (!query || query.trim().length < 2) return [];
+  var data = await fetchJson(deedApiUrl({ q: query, limit: '25' }));
+  return (data.results || []).map(function (d) {
+    var label = d.n || '?';
+    if (d.lv) label += ' (Lv ' + d.lv + ')';
+    if (d.tp) label += ' [' + d.tp + ']';
+    return { name: label.slice(0, 100), value: String(d.id) };
+  });
+}
+
+async function autocompleteItem(query) {
+  if (!query || query.trim().length < 2) return [];
+  await loadItems();
+  var results = search(itemNames, itemIndex, query, 25);
+  return results.map(function (it) {
+    var label = it.n || '?';
+    if (it.lv) label += ' (Lv ' + it.lv + ')';
+    return { name: label.slice(0, 100), value: String(it.id) };
+  });
+}
+
+var AUTOCOMPLETE_HANDLERS = {
+  quest: autocompleteQuest,
+  deed:  autocompleteDeed,
+  item:  autocompleteItem,
+};
+
 /* ── Command handlers ─────────────────────────────────────────────── */
 
 function getOptionValue(options, name) {
@@ -129,76 +161,95 @@ function getOptionValue(options, name) {
 }
 
 async function handleQuest(options) {
-  var query = getOptionValue(options, 'name');
-  await loadQuests();
-  var results = search(questNames, questIndex, query, 5);
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Quest')] };
 
-  if (results.length === 0) {
+  // Value is an ID from autocomplete selection — fetch full detail
+  try {
+    var detail = await fetchJson(questApiUrl({ id: value }));
+    if (detail && detail.n) return { embeds: [embeds.questEmbed(detail)] };
+  } catch (e) { /* fall through */ }
+
+  // Fallback: user typed a free-text name without selecting autocomplete
+  try {
+    var data = await fetchJson(questApiUrl({ q: value, limit: '5' }));
+    var results = data.results || [];
+    if (results.length === 0) return { embeds: [embeds.missingEmbed('Quest')] };
+    if (results.length === 1) {
+      try {
+        var d = await fetchJson(questApiUrl({ id: results[0].id }));
+        if (d && d.n) return { embeds: [embeds.questEmbed(d)] };
+      } catch (e2) { /* ignore */ }
+      return { embeds: [embeds.questEmbed(results[0])] };
+    }
+    var lines = results.map(function (q, i) {
+      var lv = q.lv ? ' (Lv ' + q.lv + ')' : '';
+      return (i + 1) + '. [' + (q.n || '?') + '](https://lotroguides.com/quests?id=' + q.id + ')' + lv;
+    });
+    return {
+      embeds: [{
+        title: '📖 Quest search: "' + value + '"',
+        description: lines.join('\n'),
+        color: 0xc9aa58,
+        footer: { text: results.length + ' results — LOTRO Guides' },
+      }],
+    };
+  } catch (e) {
     return { embeds: [embeds.missingEmbed('Quest')] };
   }
-  if (results.length === 1) {
-    // Single match — try to fetch full quest data for richer card
-    try {
-      var full = await fetchJson(CDN_URL + '/data/quests-db.json');
-      var detail = full.find(function (q) { return q.id === results[0].id; });
-      if (detail) return { embeds: [embeds.questEmbed(detail)] };
-    } catch (e) { /* fall through to index data */ }
-    return { embeds: [embeds.questEmbed(results[0])] };
-  }
-
-  // Multiple matches — show a list embed
-  var lines = results.map(function (q, i) {
-    var lv = q.lv ? ' (Lv ' + q.lv + ')' : '';
-    return (i + 1) + '. [' + (q.n || '?') + '](' + 'https://lotroguides.com/quests?id=' + q.id + ')' + lv;
-  });
-  return {
-    embeds: [{
-      title: '📖 Quest search: "' + query + '"',
-      description: lines.join('\n'),
-      color: 0xc9aa58,
-      footer: { text: results.length + ' results — LOTRO Guides' },
-    }],
-  };
 }
 
 async function handleDeed(options) {
-  var query = getOptionValue(options, 'name');
-  await loadDeeds();
-  var results = search(deedNames, deedIndex, query, 5);
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Deed')] };
 
-  if (results.length === 0) {
+  // Value is an ID from autocomplete selection — fetch detail from deed API
+  try {
+    var detail = await fetchJson(deedApiUrl({ id: value }));
+    if (detail && detail.n) return { embeds: [embeds.deedEmbed(detail)] };
+  } catch (e) { /* fall through */ }
+
+  // Fallback: free-text name search
+  try {
+    var data = await fetchJson(deedApiUrl({ q: value, limit: '5' }));
+    var results = data.results || [];
+    if (results.length === 0) return { embeds: [embeds.missingEmbed('Deed')] };
+    if (results.length === 1) return { embeds: [embeds.deedEmbed(results[0])] };
+    var lines = results.map(function (d, i) {
+      var lv = d.lv ? ' (Lv ' + d.lv + ')' : '';
+      var tp = d.tp ? ' [' + d.tp + ']' : '';
+      return (i + 1) + '. [' + (d.n || '?') + '](https://lotroguides.com/deeds?id=' + d.id + ')' + lv + tp;
+    });
+    return {
+      embeds: [{
+        title: '🛡️ Deed search: "' + value + '"',
+        description: lines.join('\n'),
+        color: 0x5b9bd5,
+        footer: { text: results.length + ' results — LOTRO Guides' },
+      }],
+    };
+  } catch (e) {
     return { embeds: [embeds.missingEmbed('Deed')] };
   }
-  if (results.length === 1) {
-    return { embeds: [embeds.deedEmbed(results[0])] };
-  }
-
-  var lines = results.map(function (d, i) {
-    var lv = d.lv ? ' (Lv ' + d.lv + ')' : '';
-    var tp = d.tp ? ' [' + d.tp + ']' : '';
-    return (i + 1) + '. [' + (d.n || '?') + '](https://lotroguides.com/deeds?id=' + d.id + ')' + lv + tp;
-  });
-  return {
-    embeds: [{
-      title: '🛡️ Deed search: "' + query + '"',
-      description: lines.join('\n'),
-      color: 0x5b9bd5,
-      footer: { text: results.length + ' results — LOTRO Guides' },
-    }],
-  };
 }
 
 async function handleItem(options) {
-  var query = getOptionValue(options, 'name');
-  await loadItems();
-  var results = search(itemNames, itemIndex, query, 5);
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Item')] };
 
-  if (results.length === 0) {
-    return { embeds: [embeds.missingEmbed('Item')] };
+  await loadItems();
+
+  // Try as an ID first (from autocomplete)
+  var item = null;
+  for (var i = 0; i < itemIndex.length; i++) {
+    if (String(itemIndex[i].id) === String(value)) { item = itemIndex[i]; break; }
   }
-  if (results.length === 1) {
-    return { embeds: [embeds.itemEmbed(results[0], CDN_URL)] };
-  }
+  if (item) return { embeds: [embeds.itemEmbed(item, CDN_URL)] };
+
+  // Fallback: free-text search
+  var results = search(itemNames, itemIndex, value, 5);
+  if (results.length === 0) return { embeds: [embeds.missingEmbed('Item')] };
+  if (results.length === 1) return { embeds: [embeds.itemEmbed(results[0], CDN_URL)] };
 
   var lines = results.map(function (it, i) {
     var lv = it.lv ? ' (Lv ' + it.lv + ')' : '';
@@ -206,7 +257,7 @@ async function handleItem(options) {
   });
   return {
     embeds: [{
-      title: '🎒 Item search: "' + query + '"',
+      title: '🎒 Item search: "' + value + '"',
       description: lines.join('\n'),
       color: 0xa855f7,
       footer: { text: results.length + ' results — LOTRO Guides' },
@@ -289,7 +340,10 @@ var HANDLERS = {
 /* ── Main entry point ─────────────────────────────────────────────── */
 
 exports.main = async function main(args) {
-  CDN_URL = (process.env.DO_CDN_URL || '').replace(/\/$/, '');
+  CDN_URL    = (process.env.DO_CDN_URL || '').replace(/\/$/, '');
+  FN_HOST    = (process.env.DO_FUNCTIONS_HOST || '').replace(/\/$/, '');
+  QUESTS_NS  = process.env.DO_QUESTS_NS || '';
+  DEEDS_NS   = process.env.DO_DEEDS_NS || '';
   var publicKey = process.env.DISCORD_PUBLIC_KEY || '';
 
   // ── Signature verification ──
@@ -362,6 +416,42 @@ exports.main = async function main(args) {
             flags: 64,
           },
         },
+      };
+    }
+  }
+
+  // ── Type 4: APPLICATION_COMMAND_AUTOCOMPLETE ──
+  if (body.type === 4) {
+    var acCommandName = body.data && body.data.name;
+    var acOptions     = body.data && body.data.options || [];
+
+    // Find the focused option (the one the user is currently typing in)
+    var focused = null;
+    for (var f = 0; f < acOptions.length; f++) {
+      if (acOptions[f].focused) { focused = acOptions[f]; break; }
+    }
+
+    var acHandler = AUTOCOMPLETE_HANDLERS[acCommandName];
+    if (!acHandler || !focused) {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: { type: 8, data: { choices: [] } },
+      };
+    }
+
+    try {
+      var choices = await acHandler(focused.value || '');
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: { type: 8, data: { choices: choices.slice(0, 25) } },
+      };
+    } catch (err) {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: { type: 8, data: { choices: [] } },
       };
     }
   }

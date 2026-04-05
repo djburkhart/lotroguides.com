@@ -6,19 +6,26 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 
 ## Features
 
+### Content & Databases
 - **Guides** — In-depth guides for raids, instances, crafting, leveling, legendary items, and class builds
-- **Skills & Trait Builder** — Interactive trait planner for all LOTRO classes with save, share, and embed functionality
 - **Instance Database** — 80+ instance/raid detail pages with per-boss loot tables, skill breakdowns, and strategy notes
-- **Item Database** — Searchable items database with sharded lazy loading (38,000+ items)
-- **Deed, Mob, Quest, Set & Virtue Databases** — Filterable client-side databases with dedicated pages
+- **Item Database** — Searchable items database with sharded lazy loading (38,000+ items across 7 shards)
+- **Quest Database** — Server-side paginated quest browser with search, category filters, and level range filtering
+- **Deed, Mob, Set & Virtue Databases** — Filterable client-side databases with dedicated pages
 - **Interactive Map** — LOTRO world map with quest POI overlays and embeddable map views
 - **Media** — YouTube video library with category filtering
 - **News** — Aggregated and original LOTRO news articles
+
+### Tools & Interactivity
+- **Skills & Trait Builder** — Interactive trait planner for all LOTRO classes with save, share, and embed functionality
 - **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot, quest/deed cards, trait planner), image upload, dirty tracking, and auto-draft
+- **Discord Bot** — Slash commands (`/quest`, `/deed`, `/item`, `/map`, `/build`) with live autocomplete powered by DO Function APIs
 - **Comments** — Cusdis-powered comment widget on article and instance pages, gated behind reCAPTCHA Enterprise
-- **Browser Extension** — Chrome extension for exporting in-game data via the LOTRO Bridge plugin
-- **Clean URLs** — All internal links are extensionless
+
+### Infrastructure
+- **Serverless Functions** — DigitalOcean Functions for quest lookup (SSP), deed lookup, CDN upload, reCAPTCHA, GitHub auth, Cusdis webhooks, and Discord interactions
 - **CDN Integration** — DigitalOcean Spaces for images and data with versioning support
+- **Clean URLs** — All internal links are extensionless
 
 ## Getting Started
 
@@ -128,10 +135,12 @@ instances/            Built instance detail pages (HTML output)
 news/                 Built news pages (HTML output)
 packages/
   cdn/                Serverless CDN upload function with versioning
-  github/             Serverless GitHub OAuth + Device Flow function
-  recaptcha/          Serverless reCAPTCHA Enterprise assessment function
-  quests/             Serverless quest search/lookup function
   cusdis/             Serverless Cusdis webhook function
+  deeds/              Serverless deed search/lookup function
+  discord/            Serverless Discord interactions endpoint (slash commands + autocomplete)
+  github/             Serverless GitHub OAuth + Device Flow function
+  quests/             Serverless quest search/lookup function (SSP + detail)
+  recaptcha/          Serverless reCAPTCHA Enterprise assessment function
 extension/            Chrome browser extension for LOTRO data export
 plugins/              Third-party libraries (Bootstrap, Font Awesome, etc.)
 ```
@@ -157,6 +166,46 @@ JSON article format:
 ```
 
 You can also use the built-in editor at `/editor` to create and edit articles with a live preview.
+
+## Changelog
+
+### [2.5.1] — 2026-04-04
+- **reCAPTCHA submit-time verification** — Moved assessment from page-load gating to comment submit time; widget renders immediately
+- **Discord bot with autocomplete** — `/quest`, `/deed`, `/item` commands use Discord autocomplete with live results from DO Function APIs
+- **Deed lookup function** — New `packages/deeds/lookup` deployed to DigitalOcean Functions with search, filter, and pagination
+
+### [2.5.0] — 2026-04-04
+- **Trait Planner editor widget** — ProseMirror widget for `{{traitPlanner:class=X,build=Y,level=Z}}` tokens
+- **Embedded trait planner template** — `embedded-trait-planner.html` built via `buildEmbeddedTraitPlanner()`
+- **Instance mob filtering** — Mob Database links on instance pages filter to instance-specific mobs
+- **CSS Celtic knotwork navbar** — Pure CSS pattern with lotro.com-style gold gradient text and nav hover effects
+- **Barad Guldur loot restructured** — Reorganized from flat entries to properly grouped bosses with chest tiers
+
+### [2.2.0] — 2026-04-03
+- **Skills & Trait Builder page** — Interactive trait planner for all LOTRO classes
+- **reCAPTCHA Enterprise** — Fully wired into App Platform with DO Function
+- **Quest lookup function** — `packages/quests/lookup` with search API and in-memory caching
+- **Cusdis comments webhook** — `packages/cusdis/webhook` for comment notifications
+
+### [2.1.0] — 2026-04-02
+- **Cusdis comments** — Comment widget on guide, news, and instance pages
+- **GitHub Device Flow auth** — Editor OAuth with Google ID token verification
+- **CDN preconnect hints** — Faster resource loading
+- **Deferred script loading** — jQuery, Bootstrap, and theme scripts use `defer`
+
+### [2.0.0] — 2026-04-02
+- **Instance, Item, Deed, Mob, Quest, Set & Virtue databases** — Full searchable/filterable databases
+- **Interactive map** — LOTRO world map with quest POI overlays
+- **ProseMirror editor** — Custom widget nodes, toolbar, image upload, dirty tracking, auto-draft
+- **CDN integration** — DigitalOcean Spaces upload with versioning
+- **Browser extension** — Chrome extension for LOTRO data export
+- **11 guide pages** and **80+ instance detail pages**
+
+### [1.0.0] — 2026-03-29
+- Static site generator with Markdown + YAML front matter
+- News scraper, HTML templates, custom LOTRO-themed styling
+
+See [CHANGELOG.md](CHANGELOG.md) for the full detailed changelog.
 
 ## License
 

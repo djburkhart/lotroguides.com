@@ -170,48 +170,39 @@ function mapEmbed(region) {
   };
 }
 
-/* ── Item (from item-index) ────────────────────────────────────────── */
+/* ── Item (from items-db.json) ─────────────────────────────────────── */
 
 function itemEmbed(item, cdnUrl) {
   if (!item) return missingEmbed('Item');
   var fields = [];
 
-  if (item.q) {
-    fields.push({ name: 'Quality', value: escMd(item.q), inline: true });
+  if (item.t) {
+    fields.push({ name: 'Type', value: escMd(capitalize(item.t)), inline: true });
   }
-  if (item.lv) {
-    fields.push({ name: '⚔️ Level', value: String(item.lv), inline: true });
+  if (item.st) {
+    fields.push({ name: 'Subtype', value: escMd(capitalize(item.st)), inline: true });
   }
-  if (item.cat) {
-    fields.push({ name: 'Category', value: escMd(item.cat), inline: true });
-  }
-  if (item.desc) {
-    fields.push({ name: 'Description', value: escMd(item.desc) });
+  if (item.stats && item.stats.length) {
+    var statLines = item.stats.slice(0, 6).map(function (s) {
+      return '• ' + escMd(s.s) + ': **' + s.v + '**';
+    });
+    if (item.stats.length > 6) statLines.push('*+' + (item.stats.length - 6) + ' more…*');
+    fields.push({ name: 'Stats', value: statLines.join('\n') });
   }
 
   var thumb = undefined;
-  if (item.icon && cdnUrl) {
-    thumb = { url: cdnUrl + '/img/icons/items/' + item.icon + '.png' };
+  if (item.ic && cdnUrl) {
+    thumb = { url: cdnUrl + '/img/icons/items/' + item.ic + '.png' };
   }
 
   return {
     title: '🎒 ' + (item.n || 'Unknown Item'),
     url: SITE + '/items?id=' + encodeURIComponent(item.id),
-    color: qualityColor(item.q),
+    color: 0xa855f7,
     fields: fields.length ? fields : undefined,
     thumbnail: thumb,
     footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },
   };
-}
-
-function qualityColor(q) {
-  switch ((q || '').toLowerCase()) {
-    case 'legendary':   return 0xff8000;
-    case 'incomparable': return 0x00bfff;
-    case 'rare':        return 0xa855f7;
-    case 'uncommon':    return 0x22c55e;
-    default:            return 0xa855f7;
-  }
 }
 
 /* ── Build ─────────────────────────────────────────────────────────── */

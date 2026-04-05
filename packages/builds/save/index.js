@@ -2,19 +2,22 @@
  * User Builds — DigitalOcean Serverless Function
  *
  * Handles saving user trait builds to the CDN and per-build likes.
+ * Maintains a lightweight manifest for efficient listing and stats.
  *
  * Actions:
- *   save  — Persist a build JSON to data/builds/user-builds/{id}.json
- *   like  — Increment the like count for a specific build
- *   get   — Retrieve a single build by ID
- *   list  — List recent builds (optionally filtered by class)
+ *   save   — Persist a build JSON to data/builds/user-builds/{id}.json
+ *   like   — Increment the like count for a specific build
+ *   unlike — Decrement the like count for a specific build
+ *   get    — Retrieve a single build by ID
+ *   list   — List recent builds (optionally filtered by class)
+ *   stats  — Per-class build count and like totals
  *
  * Required env vars:
  *   DO_SPACES_KEY, DO_SPACES_SECRET, DO_SPACES_BUCKET, DO_SPACES_REGION
  */
 'use strict';
 
-const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const crypto = require('crypto');
 
 const PREFIX = 'data/builds/user-builds/';
@@ -82,6 +85,48 @@ async function writeJSON(key, data) {
     ACL: 'public-read',
     CacheControl: 'public, max-age=60',
   }));
+}
+
+/* ── Manifest management ────────────────────────────────────────────────── */
+
+const MANIFEST_KEY = PREFIX + 'manifest.json';
+
+/** Read the community builds manifest. */
+async function readManifest() {
+  var data = await readJSON(MANIFEST_KEY);
+  if (!data || !Array.isArray(data.builds)) return { builds: [], updated: null };
+  return data;
+}
+
+/** Write the community builds manifest. */
+async function writeManifest(manifest) {
+  manifest.updated = new Date().toISOString();
+  await writeJSON(MANIFEST_KEY, manifest);
+}
+
+/** Create a lightweight manifest entry from a full build record. */
+function toManifestEntry(record) {
+  var build = record.build;
+  var ps = { b: 0, r: 0, y: 0 };
+  if (build.points) {
+    Object.keys(build.points).forEach(function (key) {
+      var v = build.points[key] || 0;
+      if (key.indexOf('b-') === 0) ps.b += v;
+      else if (key.indexOf('r-') === 0) ps.r += v;
+      else if (key.indexOf('y-') === 0) ps.y += v;
+    });
+  }
+  return {
+    id: record.id,
+    class: build.class,
+    name: build.name,
+    desc: build.description || '',
+    level: build.level || 160,
+    likes: record.likes || 0,
+    ps: ps,
+    virtues: build.virtues || [],
+    createdAt: record.createdAt,
+  };
 }
 
 /** Generate a short unique build ID (8-char hex from SHA-256 of content + timestamp). */
@@ -155,6 +200,11 @@ async function handleSave(args) {
 
   await writeJSON(key, record);
 
+  // Update manifest with new entry
+  var manifest = await readManifest();
+  manifest.builds.push(toManifestEntry(record));
+  await writeManifest(manifest);
+
   return respond(200, { ok: true, id: id, url: key });
 }
 
@@ -169,6 +219,14 @@ async function handleLike(args) {
 
   record.likes = (record.likes || 0) + 1;
   await writeJSON(key, record);
+
+  // Update manifest likes
+  var manifest = await readManifest();
+  var entry = manifest.builds.find(function (b) { return b.id === id; });
+  if (entry) {
+    entry.likes = record.likes;
+    await writeManifest(manifest);
+  }
 
   return respond(200, { ok: true, id: id, likes: record.likes });
 }
@@ -185,6 +243,14 @@ async function handleUnlike(args) {
   record.likes = Math.max(0, (record.likes || 0) - 1);
   await writeJSON(key, record);
 
+  // Update manifest likes
+  var manifest = await readManifest();
+  var entry = manifest.builds.find(function (b) { return b.id === id; });
+  if (entry) {
+    entry.likes = record.likes;
+    await writeManifest(manifest);
+  }
+
   return respond(200, { ok: true, id: id, likes: record.likes });
 }
 
@@ -200,7 +266,7 @@ async function handleGet(args) {
   return respond(200, record);
 }
 
-/** List recent builds (optionally filtered by class). */
+/** List recent builds (optionally filtered by class). Uses manifest for efficiency. */
 async function handleList(args) {
   const filterClass = args.class ? String(args.class).toLowerCase() : null;
   if (filterClass && !VALID_CLASSES.includes(filterClass)) {
@@ -208,35 +274,44 @@ async function handleList(args) {
   }
 
   const limit = Math.min(parseInt(args.limit, 10) || 50, 200);
+  const offset = parseInt(args.offset, 10) || 0;
 
-  // List all build keys under the prefix
-  const res = await getS3().send(new ListObjectsV2Command({
-    Bucket: process.env.DO_SPACES_BUCKET,
-    Prefix: PREFIX,
-    MaxKeys: 1000,
-  }));
+  var manifest = await readManifest();
+  var builds = manifest.builds;
 
-  const keys = (res.Contents || [])
-    .sort(function (a, b) { return (b.LastModified || 0) - (a.LastModified || 0); })
-    .slice(0, limit + 50); // fetch a few extra to account for class filtering
-
-  // Fetch each build (in parallel, capped at 20 concurrency)
-  const builds = [];
-  const batchSize = 20;
-  for (let i = 0; i < keys.length && builds.length < limit; i += batchSize) {
-    const batch = keys.slice(i, i + batchSize);
-    const results = await Promise.all(batch.map(function (obj) {
-      return readJSON(obj.Key).catch(function () { return null; });
-    }));
-    for (const rec of results) {
-      if (!rec || !rec.build) continue;
-      if (filterClass && rec.build.class !== filterClass) continue;
-      builds.push({ id: rec.id, build: rec.build, likes: rec.likes || 0, createdAt: rec.createdAt });
-      if (builds.length >= limit) break;
-    }
+  if (filterClass) {
+    builds = builds.filter(function (b) { return b.class === filterClass; });
   }
 
-  return respond(200, { builds: builds, total: builds.length });
+  // Sort: most likes first, then newest first
+  builds.sort(function (a, b) {
+    if ((b.likes || 0) !== (a.likes || 0)) return (b.likes || 0) - (a.likes || 0);
+    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+  });
+
+  return respond(200, {
+    builds: builds.slice(offset, offset + limit),
+    total: builds.length,
+  });
+}
+
+/** Return per-class build counts and like totals. */
+async function handleStats() {
+  var manifest = await readManifest();
+  var stats = {};
+  var totalBuilds = 0;
+  var totalLikes = 0;
+
+  manifest.builds.forEach(function (b) {
+    var cls = b.class;
+    if (!stats[cls]) stats[cls] = { count: 0, likes: 0 };
+    stats[cls].count++;
+    stats[cls].likes += (b.likes || 0);
+    totalBuilds++;
+    totalLikes += (b.likes || 0);
+  });
+
+  return respond(200, { stats: stats, totalBuilds: totalBuilds, totalLikes: totalLikes });
 }
 
 /* ── Entry point ────────────────────────────────────────────────────────── */
@@ -248,8 +323,8 @@ exports.main = async function main(args) {
   }
 
   const action = String(args.action || '').toLowerCase();
-  if (!['save', 'like', 'unlike', 'get', 'list'].includes(action)) {
-    return respond(400, { error: 'Unknown action. Use: save, like, unlike, get, list' });
+  if (!['save', 'like', 'unlike', 'get', 'list', 'stats'].includes(action)) {
+    return respond(400, { error: 'Unknown action. Use: save, like, unlike, get, list, stats' });
   }
 
   if (!process.env.DO_SPACES_KEY || !process.env.DO_SPACES_SECRET || !process.env.DO_SPACES_BUCKET) {
@@ -263,6 +338,7 @@ exports.main = async function main(args) {
       case 'unlike': return await handleUnlike(args);
       case 'get':    return await handleGet(args);
       case 'list':   return await handleList(args);
+      case 'stats':  return await handleStats();
     }
   } catch (err) {
     return respond(502, { error: 'Operation failed: ' + err.message });
