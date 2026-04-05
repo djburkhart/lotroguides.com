@@ -333,6 +333,21 @@ var HANDLERS = {
   build: handleBuild,
 };
 
+var CT_JSON = { 'Content-Type': 'application/json' };
+
+/* ── Webhook follow-up (for deferred responses) ──────────────────── */
+
+function sendFollowUp(appId, token, responseData) {
+  var url = 'https://discord.com/api/v10/webhooks/' + appId + '/' + token + '/messages/@original';
+  return fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(responseData),
+  }).catch(function (err) {
+    console.error('Follow-up webhook failed:', err.message || err);
+  });
+}
+
 /* ── Main entry point ─────────────────────────────────────────────── */
 
 exports.main = async function main(args) {
@@ -370,7 +385,7 @@ exports.main = async function main(args) {
   if (body.type === 1) {
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CT_JSON,
       body: { type: 1 },
     };
   }
@@ -379,12 +394,14 @@ exports.main = async function main(args) {
   if (body.type === 2) {
     var commandName = body.data && body.data.name;
     var options     = body.data && body.data.options;
+    var appId       = process.env.DISCORD_APP_ID || body.application_id || '';
+    var token       = body.token || '';
 
     var handler = HANDLERS[commandName];
     if (!handler) {
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CT_JSON,
         body: {
           type: 4,
           data: { content: 'Unknown command: ' + commandName, flags: 64 },
@@ -392,26 +409,43 @@ exports.main = async function main(args) {
       };
     }
 
-    try {
-      var responseData = await handler(options);
+    // Race the handler against a 2.5s timeout.
+    // Fast path → respond directly (type 4).
+    // Slow path → return deferred (type 5) and send follow-up via webhook.
+    var TIMEOUT_MS = 2500;
+    var handlerPromise = handler(options).then(
+      function (data) { return { ok: true, data: data }; },
+      function (err)  { return { ok: false, err: err }; }
+    );
+
+    var result = await Promise.race([
+      handlerPromise,
+      new Promise(function (resolve) {
+        setTimeout(function () { resolve(null); }, TIMEOUT_MS);
+      }),
+    ]);
+
+    if (result !== null) {
+      // Handler completed within timeout — respond directly
+      if (result.ok) {
+        return { statusCode: 200, headers: CT_JSON, body: { type: 4, data: result.data } };
+      }
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: { type: 4, data: responseData },
-      };
-    } catch (err) {
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: {
-          type: 4,
-          data: {
-            content: '⚠️ Something went wrong: ' + (err.message || 'Unknown error'),
-            flags: 64,
-          },
-        },
+        headers: CT_JSON,
+        body: { type: 4, data: { content: '⚠️ Something went wrong: ' + (result.err.message || 'Unknown error'), flags: 64 } },
       };
     }
+
+    // Handler still running — fire-and-forget the follow-up webhook
+    handlerPromise.then(function (res) {
+      var responseData = res.ok
+        ? res.data
+        : { content: '⚠️ Something went wrong: ' + (res.err.message || 'Unknown error'), flags: 64 };
+      return sendFollowUp(appId, token, responseData);
+    });
+
+    return { statusCode: 200, headers: CT_JSON, body: { type: 5 } };
   }
 
   // ── Type 4: APPLICATION_COMMAND_AUTOCOMPLETE ──
@@ -429,7 +463,7 @@ exports.main = async function main(args) {
     if (!acHandler || !focused) {
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CT_JSON,
         body: { type: 8, data: { choices: [] } },
       };
     }
@@ -438,13 +472,13 @@ exports.main = async function main(args) {
       var choices = await acHandler(focused.value || '');
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CT_JSON,
         body: { type: 8, data: { choices: choices.slice(0, 25) } },
       };
     } catch (err) {
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CT_JSON,
         body: { type: 8, data: { choices: [] } },
       };
     }
@@ -454,7 +488,7 @@ exports.main = async function main(args) {
   if (body.type === 3) {
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CT_JSON,
       body: { type: 6 }, // DEFERRED_UPDATE_MESSAGE — acknowledge without edit
     };
   }

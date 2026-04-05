@@ -57,3 +57,23 @@ functions:
         type: SECRET
       - key: GOOGLE_CLOUD_PROJECT
         type: SECRET
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        type: SECRET
+      - key: DISCORD_PUBLIC_KEY
+        type: SECRET
+      - key: DISCORD_APP_ID
+        type: SECRET
+      - key: DISCORD_BOT_TOKEN
+        type: SECRET
+      - key: DO_CDN_URL
+        type: SECRET
+      - key: SITE_API_URL
+        type: SECRET
+      - key: DO_SPACES_KEY
+        type: SECRET
+      - key: DO_SPACES_SECRET
+        type: SECRET
+      - key: DO_SPACES_BUCKET
+        type: SECRET
+      - key: DO_SPACES_REGION
+        type: SECRET
