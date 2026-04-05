@@ -59,9 +59,7 @@ const PACKAGE_DEFS = {
     functions: [{ name: 'interact', runtime: 'nodejs:22', web: true }],
     environment: {
       DO_CDN_URL: 'https://lotroguides.atl1.cdn.digitaloceanspaces.com',
-      DO_FUNCTIONS_HOST: 'https://faas-nyc1-2ef2e6cc.doserverless.co',
-      DO_QUESTS_NS: 'fn-3d455932-ad0c-4e6b-b531-278828780133',
-      DO_DEEDS_NS:  'fn-15b56daf-ff46-43ce-a2ed-b3ac87f50a7f',
+      SITE_API_URL: 'https://lotroguides.com',
     },
   },  deeds: {
     name: 'deeds',

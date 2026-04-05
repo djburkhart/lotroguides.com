@@ -8,7 +8,7 @@
   },
   "homepage": "https://lotroguides.com",
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "scripts": {
     "start": "node serve.js",
@@ -31,9 +31,13 @@
     "deploy:discord": "node scripts/deploy-functions.js discord"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/multipart": "^9.4.0",
+    "@fastify/static": "^9.0.0",
     "chokidar": "^3.6.0",
     "dotenv": "^17.3.1",
     "esbuild": "^0.27.4",
+    "fastify": "^5.8.4",
     "gray-matter": "^4.0.3",
     "marked": "^12.0.0",
     "prosemirror-commands": "^1.6.2",
@@ -44,11 +48,11 @@
     "prosemirror-model": "^1.24.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.37.1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1022.0",
-    "adm-zip": "^0.5.17",
-    "xlsx": "^0.18.5"
+    "adm-zip": "^0.5.17"
   }
 }

@@ -15,9 +15,7 @@
  * Required env vars:
  *   DISCORD_PUBLIC_KEY  – Ed25519 public key from Discord Developer Portal
  *   DO_CDN_URL          – e.g. https://lotroguides.atl1.cdn.digitaloceanspaces.com
- *   DO_FUNCTIONS_HOST   – e.g. https://faas-nyc1-2ef2e6cc.doserverless.co
- *   DO_QUESTS_NS        – quests namespace ID (e.g. fn-3d455932-...)
- *   DO_DEEDS_NS         – deeds namespace ID (if deployed; otherwise falls back to CDN)
+ *   SITE_API_URL        – e.g. https://lotroguides.com (base URL for quest/deed API)
  */
 
 'use strict';
@@ -26,9 +24,7 @@ var nacl    = require('tweetnacl');
 var embeds  = require('./embeds');
 
 var CDN_URL = '';
-var FN_HOST = '';
-var QUESTS_NS = '';
-var DEEDS_NS  = '';
+var SITE_API = '';
 
 /* ── Data caches (only for item + map which have no DO Function) ──── */
 
@@ -50,12 +46,12 @@ function fetchJson(url) {
 
 function questApiUrl(params) {
   var qs = new URLSearchParams(params).toString();
-  return FN_HOST + '/api/v1/web/' + QUESTS_NS + '/quests/lookup?' + qs;
+  return SITE_API + '/api/quests/lookup?' + qs;
 }
 
 function deedApiUrl(params) {
   var qs = new URLSearchParams(params).toString();
-  return FN_HOST + '/api/v1/web/' + DEEDS_NS + '/deeds/lookup?' + qs;
+  return SITE_API + '/api/deeds/lookup?' + qs;
 }
 
 /* ── CDN-based loaders (items + maps only) ────────────────────────── */
@@ -341,9 +337,7 @@ var HANDLERS = {
 
 exports.main = async function main(args) {
   CDN_URL    = (process.env.DO_CDN_URL || '').replace(/\/$/, '');
-  FN_HOST    = (process.env.DO_FUNCTIONS_HOST || '').replace(/\/$/, '');
-  QUESTS_NS  = process.env.DO_QUESTS_NS || '';
-  DEEDS_NS   = process.env.DO_DEEDS_NS || '';
+  SITE_API   = (process.env.SITE_API_URL || '').replace(/\/$/, '');
   var publicKey = process.env.DISCORD_PUBLIC_KEY || '';
 
   // ── Signature verification ──

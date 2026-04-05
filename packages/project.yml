@@ -34,3 +34,8 @@ packages:
       - name: webhook
         runtime: nodejs:22
         web: true
+  - name: discord
+    functions:
+      - name: interact
+        runtime: nodejs:22
+        web: true

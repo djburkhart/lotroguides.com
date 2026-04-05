@@ -1,371 +1,182 @@
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
+'use strict';
+
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
-const PORT = process.env.PORT || 8080;
+const Fastify = require('fastify');
+const fastifyStatic = require('@fastify/static');
+const fastifyCors = require('@fastify/cors');
+const fastifyMultipart = require('@fastify/multipart');
+
+const PORT = parseInt(process.env.PORT, 10) || 8080;
 const ROOT = __dirname;
-const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY || '';
 
-const MIME_TYPES = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'application/javascript',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-  '.eot': 'application/vnd.ms-fontobject',
-  '.xml': 'application/xml',
-  '.txt': 'text/plain',
-};
+/* ── Fastify instance ───────────────────────────────────────────────────── */
 
-// Minimal multipart/form-data parser (dev-only helper)
-function parseMultipart(buf, boundary) {
-  const sep = Buffer.from('--' + boundary);
-  const parts = [];
-  let start = bufferIndexOf(buf, sep, 0);
-  while (start !== -1) {
-    start += sep.length;
-    // Skip \r\n after boundary
-    if (buf[start] === 0x0d) start += 2;
-    else if (buf[start] === 0x0a) start += 1;
-    // Check for closing --
-    if (buf[start] === 0x2d && buf[start + 1] === 0x2d) break;
-    const headerEnd = bufferIndexOf(buf, Buffer.from('\r\n\r\n'), start);
-    if (headerEnd === -1) break;
-    const headers = buf.slice(start, headerEnd).toString();
-    const nameMatch = headers.match(/name="([^"]+)"/);
-    const dataStart = headerEnd + 4;
-    const dataEnd = bufferIndexOf(buf, sep, dataStart);
-    if (dataEnd === -1) break;
-    // Trim trailing \r\n before boundary
-    let end = dataEnd;
-    if (buf[end - 2] === 0x0d && buf[end - 1] === 0x0a) end -= 2;
-    parts.push({ name: nameMatch ? nameMatch[1] : '', data: buf.slice(dataStart, end) });
-    start = dataEnd;
-    // reset to re-find boundary from this position
-    start = bufferIndexOf(buf, sep, dataEnd);
+const app = Fastify({ logger: false });
+
+/* ── Plugins ────────────────────────────────────────────────────────────── */
+
+app.register(fastifyCors, { origin: true });
+
+app.register(fastifyMultipart, { limits: { fileSize: 10 * 1024 * 1024 } });
+
+app.register(fastifyStatic, {
+  root: ROOT,
+  prefix: '/',
+  decorateReply: true,
+  extensions: ['html'],    // clean URLs: /skills → /skills.html
+  redirect: false,         // don't redirect /guides → /guides/ (prefer guides.html)
+  index: 'index.html',
+});
+
+// When a URL matches a directory name AND a .html file exists, prefer the .html file.
+// e.g. /guides → guides.html (not guides/index.html which doesn't exist)
+app.setNotFoundHandler((request, reply) => {
+  const urlPath = request.url.split('?')[0].replace(/\/+$/, '');
+  const htmlFile = path.join(ROOT, urlPath + '.html');
+  if (urlPath && fs.existsSync(htmlFile) && fs.statSync(htmlFile).isFile()) {
+    return reply.sendFile(urlPath + '.html');
   }
-  return parts;
+  reply.code(404).type('text/html').send('<h1>404 — Page Not Found</h1>');
+});
+
+/* ── DO Function proxy helper ───────────────────────────────────────────── */
+
+/**
+ * Run a DigitalOcean Function module locally, translating its OpenWhisk-style
+ * response into a Fastify reply.
+ *
+ * @param {string}  modulePath  — relative path from project root
+ * @param {object}  fnArgs      — arguments object passed to fn.main()
+ * @param {object}  reply       — Fastify reply
+ */
+async function invokeDOFunction(modulePath, fnArgs, reply) {
+  try {
+    const fn = require(modulePath);
+    const result = await fn.main(fnArgs);
+    const body = typeof result.body === 'string' ? result.body : JSON.stringify(result.body);
+    reply.code(result.statusCode || 200).headers(result.headers || {}).send(body);
+  } catch (err) {
+    reply.code(500).send({ error: err.message });
+  }
 }
 
-function bufferIndexOf(buf, search, offset) {
-  for (let i = offset; i <= buf.length - search.length; i++) {
-    let found = true;
-    for (let j = 0; j < search.length; j++) {
-      if (buf[i + j] !== search[j]) { found = false; break; }
-    }
-    if (found) return i;
-  }
-  return -1;
+/** Build a DO Function args object from a GET request's query string. */
+function getArgs(request) {
+  const args = { __ow_method: 'get' };
+  for (const [k, v] of Object.entries(request.query)) args[k] = v;
+  return args;
 }
 
-const server = http.createServer((req, res) => {
-  // ── Image upload API (dev only) ──────────────────────────────────
-  if (req.method === 'POST' && req.url === '/api/upload-image') {
-    const boundary = (req.headers['content-type'] || '').split('boundary=')[1];
-    if (!boundary) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Missing multipart boundary' }));
-      return;
-    }
+/** Build a DO Function args object from a POST request body. */
+function postArgs(request) {
+  return Object.assign({ __ow_method: 'post' }, request.body || {});
+}
 
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => {
-      const buf = Buffer.concat(chunks);
-      const parts = parseMultipart(buf, boundary);
-      const imgPart = parts.find(p => p.name === 'image');
-      const pathPart = parts.find(p => p.name === 'path');
-      if (!imgPart || !pathPart) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Missing image or path field' }));
-        return;
-      }
-      const relPath = pathPart.data.toString().trim();
-      // Prevent directory traversal
-      const dest = path.join(ROOT, path.normalize(relPath));
-      if (!dest.startsWith(ROOT)) {
-        res.writeHead(403, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid path' }));
-        return;
-      }
-      fs.mkdirSync(path.dirname(dest), { recursive: true });
-      fs.writeFileSync(dest, imgPart.data);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, path: relPath }));
+/* ── API routes — DO Function proxies ───────────────────────────────────── */
+
+// Quests lookup (GET)
+app.get('/api/quests/lookup', async (request, reply) => {
+  process.env.DO_CDN_URL = `http://localhost:${PORT}`;
+  return invokeDOFunction('./packages/quests/lookup/index.js', getArgs(request), reply);
+});
+
+// Deeds lookup (GET)
+app.get('/api/deeds/lookup', async (request, reply) => {
+  process.env.DO_CDN_URL = `http://localhost:${PORT}`;
+  return invokeDOFunction('./packages/deeds/lookup/index.js', getArgs(request), reply);
+});
+
+// Builds — save / like / unlike / get / list / stats (POST)
+app.post('/api/builds/save', async (request, reply) => {
+  return invokeDOFunction('./packages/builds/save/index.js', postArgs(request), reply);
+});
+
+// reCAPTCHA Enterprise verification (POST)
+app.post('/api/recaptcha/verify', async (request, reply) => {
+  const key = process.env.RECAPTCHA_SECRET_KEY;
+  if (!key) {
+    // No key configured — pass through for local dev
+    return reply.send({
+      success: true, score: 1.0, reasons: [], valid: true,
+      action: 'comment', assessmentName: '',
     });
-    return;
   }
+  return invokeDOFunction('./packages/recaptcha/verify/index.js', postArgs(request), reply);
+});
 
-  // ── Cusdis webhook dev endpoint ────────────────────────────────
-  if (req.method === 'POST' && req.url.startsWith('/api/cusdis/webhook')) {
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => {
-      let payload;
-      try { payload = JSON.parse(Buffer.concat(chunks).toString()); }
-      catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid JSON' }));
-        return;
-      }
-      console.log('[cusdis-webhook]', JSON.stringify(payload, null, 2));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, dev: true }));
-    });
-    return;
-  }
+// GitHub OAuth — device flow + legacy code exchange (POST)
+app.post('/api/github/auth', async (request, reply) => {
+  return invokeDOFunction('./packages/github/auth/index.js', postArgs(request), reply);
+});
 
-  // ── GitHub Device Flow auth dev endpoint ────────────────────────
-  if (req.method === 'POST' && req.url === '/api/github/auth') {
-    const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || '';
-    const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || '';
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => {
-      let body;
-      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
-      catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Invalid JSON' }));
-        return;
-      }
+// Cusdis webhook (POST)
+app.post('/api/cusdis/webhook', async (request, reply) => {
+  const args = postArgs(request);
+  // Pass query-string secret for webhook authentication
+  if (request.query.secret) args.secret = request.query.secret;
+  return invokeDOFunction('./packages/cusdis/webhook/index.js', args, reply);
+});
 
-      if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'GitHub OAuth not configured — set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env' }));
-        return;
-      }
+// Discord interactions — encapsulated with raw body parser for signature verification
+app.register(async function (fastify) {
+  fastify.addContentTypeParser('application/json', { parseAs: 'buffer' }, (req, body, done) => {
+    req._rawBody = body;
+    try { done(null, JSON.parse(body.toString())); }
+    catch (e) { done(e); }
+  });
 
-      const ghPayload = JSON.stringify(
-        body.action === 'device-code'
-          ? { client_id: GITHUB_CLIENT_ID, scope: 'repo' }
-          : { client_id: GITHUB_CLIENT_ID, device_code: body.device_code, grant_type: 'urn:ietf:params:oauth:grant-type:device_code' }
-      );
-      const ghPath = body.action === 'device-code'
-        ? '/login/device/code'
-        : '/login/oauth/access_token';
-
-      const ghReq = https.request({
-        hostname: 'github.com',
-        path: ghPath,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Content-Length': Buffer.byteLength(ghPayload),
-        },
-      }, (ghRes) => {
-        let data = '';
-        ghRes.on('data', d => data += d);
-        ghRes.on('end', () => {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(data);
-        });
-      });
-      ghReq.on('error', () => {
-        res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'GitHub request failed' }));
-      });
-      ghReq.write(ghPayload);
-      ghReq.end();
-    });
-    return;
-  }
-
-  // ── reCAPTCHA Enterprise verification endpoint ──────────────────
-  if (req.method === 'POST' && req.url === '/api/recaptcha/verify') {
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => {
-      if (!RECAPTCHA_SECRET_KEY) {
-        // No key configured — pass through for local dev
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, score: 1.0, reasons: [], valid: true, action: 'comment', assessmentName: '' }));
-        return;
-      }
-      let body;
-      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
-      catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: 'Invalid request body' }));
-        return;
-      }
-      const { token, action } = body;
-      if (!token) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: 'Missing token' }));
-        return;
-      }
-      const projectId = process.env.GOOGLE_CLOUD_PROJECT || '';
-      const apiKey = RECAPTCHA_SECRET_KEY;
-      const siteKey = process.env.RECAPTCHA_SITE_KEY || '';
-      const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments?key=${apiKey}`;
-      const payload = JSON.stringify({
-        event: { token, siteKey, expectedAction: action || 'comment' }
-      });
-      const verifyReq = https.request(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(payload),
-        },
-      }, (verifyRes) => {
-        let data = '';
-        verifyRes.on('data', d => data += d);
-        verifyRes.on('end', () => {
-          try {
-            const result = JSON.parse(data);
-            const tp = result.tokenProperties || {};
-            const ra = result.riskAnalysis || {};
-            const score = typeof ra.score === 'number' ? ra.score : 0;
-            const valid = !!tp.valid;
-            const actionMatch = tp.action === (action || 'comment');
-            const reasons = Array.isArray(ra.reasons) ? ra.reasons : [];
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-              success: valid && actionMatch,
-              score,
-              reasons,
-              valid,
-              action: tp.action || '',
-              assessmentName: result.name || '',
-            }));
-          } catch (e) {
-            res.writeHead(502, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ success: false, error: 'Invalid upstream response' }));
-          }
-        });
-      });
-      verifyReq.on('error', () => {
-        res.writeHead(502, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: 'Verification request failed' }));
-      });
-      verifyReq.write(payload);
-      verifyReq.end();
-    });
-    return;
-  }
-
-  // ── Quest lookup endpoint (proxy to DO Function — SSP + detail + meta) ─
-  if (req.url.startsWith('/api/quests/lookup')) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
-    if (req.method !== 'GET') { res.writeHead(405); res.end('Method not allowed'); return; }
-    const qs = new URL(req.url, `http://localhost:${PORT}`).searchParams;
-    const fnArgs = { __ow_method: 'get' };
-    for (const [k, v] of qs.entries()) fnArgs[k] = v;
+  fastify.post('/api/discord/interact', async (request, reply) => {
+    const rawBody = request.raw._rawBody || Buffer.from(JSON.stringify(request.body));
+    const args = {
+      __ow_method: 'post',
+      __ow_headers: request.headers,
+      __ow_body: rawBody.toString('base64'),
+    };
     process.env.DO_CDN_URL = `http://localhost:${PORT}`;
-    const fn = require('./packages/quests/lookup/index.js');
-    fn.main(fnArgs).then(result => {
-      res.writeHead(result.statusCode, result.headers);
-      res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
-    }).catch(err => {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: err.message }));
-    });
-    return;
-  }
-
-  // ── Deed lookup endpoint (proxy to DO Function) ─────────────────
-  if (req.url.startsWith('/api/deeds/lookup')) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
-    if (req.method !== 'GET') { res.writeHead(405); res.end('Method not allowed'); return; }
-    const qs = new URL(req.url, `http://localhost:${PORT}`).searchParams;
-    const fnArgs = { __ow_method: 'get' };
-    for (const [k, v] of qs.entries()) fnArgs[k] = v;
-    // Force local CDN URL so the DO Function loads local deed-index.json (not production CDN)
-    process.env.DO_CDN_URL = `http://localhost:${PORT}`;
-    const fn = require('./packages/deeds/lookup/index.js');
-    fn.main(fnArgs).then(result => {
-      res.writeHead(result.statusCode, result.headers);
-      res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
-    }).catch(err => {
-      res.writeHead(500, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: err.message }));
-    });
-    return;
-  }
-
-  // ── User Builds save / like / get / list endpoint ───────────────
-  if (req.url.startsWith('/api/builds/save')) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
-    if (req.method !== 'POST') { res.writeHead(405); res.end('Method not allowed'); return; }
-    const chunks = [];
-    req.on('data', c => chunks.push(c));
-    req.on('end', () => {
-      let body;
-      try { body = JSON.parse(Buffer.concat(chunks).toString()); }
-      catch (e) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid JSON' })); return; }
-      // Proxy to the DO function or mock locally
-      const fn = require('./packages/builds/save/index.js');
-      fn.main(Object.assign({ __ow_method: 'post' }, body)).then(result => {
-        res.writeHead(result.statusCode, result.headers);
-        res.end(typeof result.body === 'string' ? result.body : JSON.stringify(result.body));
-      }).catch(err => {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: err.message }));
-      });
-    });
-    return;
-  }
-
-  // Normalize URL and prevent directory traversal
-  const url = new URL(req.url, `http://localhost:${PORT}`);
-  let filePath = path.join(ROOT, path.normalize(url.pathname));
-
-  if (!filePath.startsWith(ROOT)) {
-    res.writeHead(403);
-    res.end('Forbidden');
-    return;
-  }
-
-  // Serve index.html for directory requests, or fall back to .html file with same name
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    const indexPath = path.join(filePath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      filePath = indexPath;
-    } else if (fs.existsSync(filePath + '.html')) {
-      filePath = filePath + '.html';
-    }
-  }
-
-  // Try adding .html extension for clean URLs
-  if (!fs.existsSync(filePath) && fs.existsSync(filePath + '.html')) {
-    filePath += '.html';
-  }
-
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      res.end('<h1>404 — Page Not Found</h1>');
-      return;
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, { 'Content-Type': contentType });
-    res.end(data);
+    process.env.SITE_API_URL = `http://localhost:${PORT}`;
+    return invokeDOFunction('./packages/discord/interact/index.js', args, reply);
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Static server running on port ${PORT}`);
+/* ── Dev-only routes ────────────────────────────────────────────────────── */
+
+// Image upload (multipart form — dev only)
+app.post('/api/upload-image', async (request, reply) => {
+  const parts = request.parts();
+  let imageBuf = null;
+  let relPath = null;
+
+  for await (const part of parts) {
+    if (part.fieldname === 'image' && part.file) {
+      const chunks = [];
+      for await (const chunk of part.file) chunks.push(chunk);
+      imageBuf = Buffer.concat(chunks);
+    } else if (part.fieldname === 'path') {
+      relPath = (await part.toBuffer()).toString().trim();
+    }
+  }
+
+  if (!imageBuf || !relPath) {
+    return reply.code(400).send({ error: 'Missing image or path field' });
+  }
+
+  // Prevent directory traversal
+  const dest = path.join(ROOT, path.normalize(relPath));
+  if (!dest.startsWith(ROOT)) {
+    return reply.code(403).send({ error: 'Invalid path' });
+  }
+
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, imageBuf);
+  return reply.send({ ok: true, path: relPath });
+});
+
+/* ── Start server ───────────────────────────────────────────────────────── */
+
+app.listen({ port: PORT, host: '0.0.0.0' }, (err) => {
+  if (err) { console.error(err); process.exit(1); }
+  console.log(`Fastify server running on port ${PORT}`);
 });
