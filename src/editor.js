@@ -1207,34 +1207,37 @@ function updateConnectionStatus() {
   var btnGh = document.getElementById('btn-connect-github');
   var btnGhDisc = document.getElementById('btn-disconnect-github');
 
+  // Status bar shows both CDN (articles) and GitHub (config) state
+  var parts = [];
+  if (isCdnConfigured()) parts.push('<i class="fa fa-cloud-upload"></i> CDN');
+  if (isGitHubConnected()) parts.push('<i class="fa fa-github"></i> ' + esc(githubRepo.owner + '/' + githubRepo.name));
+
+  if (statusEl) {
+    statusEl.innerHTML = parts.length ? parts.join(' · ') : '<i class="fa fa-cloud-upload"></i> Not connected';
+    statusEl.className = 'workspace-status' + (parts.length ? ' connected' : '');
+  }
+
   if (isGitHubConnected()) {
-    if (statusEl) {
-      statusEl.innerHTML = '<i class="fa fa-github"></i> ' + esc(githubRepo.owner + '/' + githubRepo.name);
-      statusEl.className = 'workspace-status connected';
-    }
     if (btnGh) btnGh.style.display = 'none';
     if (btnGhDisc) btnGhDisc.style.display = '';
   } else {
-    if (statusEl) {
-      statusEl.innerHTML = isCdnConfigured()
-        ? '<i class="fa fa-cloud-upload"></i> CDN'
-        : '<i class="fa fa-cloud-upload"></i> Not connected';
-      statusEl.className = 'workspace-status' + (isCdnConfigured() ? ' connected' : '');
-    }
     if (btnGh) btnGh.style.display = '';
     if (btnGhDisc) btnGhDisc.style.display = 'none';
   }
 
-  // Update save button labels
-  var canSave = isGitHubConnected() || isCdnConfigured();
-  var saveLabel = canSave ? 'Save' : 'Download';
-  var icon = isGitHubConnected() ? 'github' : (isCdnConfigured() ? 'cloud-upload' : 'download');
+  // Article save button — CDN
+  var articleIcon = isCdnConfigured() ? 'cloud-upload' : 'download';
+  var articleLabel = isCdnConfigured() ? 'Save' : 'Download';
   var btnDl = document.getElementById('btn-download');
-  if (btnDl) btnDl.innerHTML = '<i class="fa fa-' + icon + '"></i> ' + saveLabel + ' .md';
+  if (btnDl) btnDl.innerHTML = '<i class="fa fa-' + articleIcon + '"></i> ' + articleLabel + ' .md';
+
+  // Config save buttons — GitHub
+  var configIcon = isGitHubConnected() ? 'github' : 'download';
+  var configLabel = isGitHubConnected() ? 'Save' : 'Download';
   var btnCfgDl = document.getElementById('btn-config-download');
-  if (btnCfgDl) btnCfgDl.innerHTML = '<i class="fa fa-' + icon + '"></i> ' + saveLabel + ' .json';
+  if (btnCfgDl) btnCfgDl.innerHTML = '<i class="fa fa-' + configIcon + '"></i> ' + configLabel + ' .json';
   var btnDpsSave = document.getElementById('btn-dps-save-config');
-  if (btnDpsSave) btnDpsSave.innerHTML = '<i class="fa fa-' + icon + '"></i> ' + saveLabel + ' Config';
+  if (btnDpsSave) btnDpsSave.innerHTML = '<i class="fa fa-' + configIcon + '"></i> ' + configLabel + ' Config';
 }
 
 /* ─── Helpers ────────────────────────────────────────────────────── */
@@ -1709,9 +1712,10 @@ function saveMarkdown() {
     if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
   }
 
+  var fm = buildFrontmatter();
+  var full = fm + '\n' + article.markdown + '\n';
+
   if (isCdnConfigured()) {
-    var fm = buildFrontmatter();
-    var full = fm + '\n' + article.markdown + '\n';
     var cdnKey = 'content/' + category + '/' + slug + '.md';
     cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
       .then(function (res) {
@@ -1721,17 +1725,7 @@ function saveMarkdown() {
         showSaveToast(msg);
       })
       .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
-  } else if (isGitHubConnected()) {
-    var fm = buildFrontmatter();
-    var full = fm + '\n' + article.markdown + '\n';
-    var ghPath = 'content/' + category + '/' + slug + '.md';
-    ghSaveFile(ghPath, full, 'Update ' + category + '/' + slug + '.md')
-      .then(function () { afterSave(); showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
-      .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
   } else {
-    // Fallback: download as .md with frontmatter
-    var fm = buildFrontmatter();
-    var full = fm + '\n' + article.markdown + '\n';
     downloadBlob(new Blob([full], { type: 'text/markdown;charset=utf-8' }), slug + '.md');
     afterSave();
   }
@@ -1846,15 +1840,6 @@ function saveConfigJson() {
     ghSaveFile(ghPath, text, 'Update ' + filename)
       .then(function () { showSaveToast('Committed ' + ghPath + ' to ' + githubBranch); })
       .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (isCdnConfigured() && CONFIG_KEY_PATHS[currentConfigKey]) {
-    var cdnKey = CONFIG_KEY_PATHS[currentConfigKey];
-    cdnUploadFile(cdnKey, text, 'application/json')
-      .then(function (res) {
-        var msg = 'Uploaded ' + cdnKey + ' to CDN';
-        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
-        showSaveToast(msg);
-      })
-      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
     downloadBlob(new Blob([text], { type: 'application/json;charset=utf-8' }), filename);
   }
@@ -2110,14 +2095,6 @@ function saveDpsConfig() {
     ghSaveFile('content/stats/dps-reference.json', json, 'Update DPS reference config')
       .then(function () { showSaveToast('Committed dps-reference.json to ' + githubBranch); })
       .catch(function (err) { showSaveToast('GitHub save failed: ' + err.message, true); });
-  } else if (isCdnConfigured()) {
-    cdnUploadFile('content/stats/dps-reference.json', json, 'application/json')
-      .then(function (res) {
-        var msg = 'Uploaded dps-reference.json to CDN';
-        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
-        showSaveToast(msg);
-      })
-      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
     downloadBlob(new Blob([json], { type: 'application/json;charset=utf-8' }), 'dps-reference.json');
   }
