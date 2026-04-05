@@ -9,6 +9,7 @@
  *   Deed   — #5b9bd5  (deed blue)
  *   Map    — #4a6741  (forest green)
  *   Item   — #a855f7  (purple)
+ *   Guide  — #c9aa58  (--lotro-gold)
  *   Build  — #e06060  (trait red)
  */
 
@@ -519,11 +520,27 @@ function formatNumber(n) {
   return Number(n || 0).toLocaleString('en-US');
 }
 
+/* ── Guide ─────────────────────────────────────────────────────────── */
+
+function guideEmbed(guide) {
+  if (!guide) return missingEmbed('Guide');
+  return {
+    title: '📖 ' + escMd(guide.title),
+    url: SITE + '/guides/' + guide.slug,
+    color: 0xc9aa58,
+    fields: [
+      { name: 'Category', value: escMd(guide.cat), inline: true },
+    ],
+    footer: { text: 'LOTRO Guides — lotroguides.com' },
+  };
+}
+
 exports.questEmbed  = questEmbed;
 exports.deedEmbed   = deedEmbed;
 exports.mapEmbed    = mapEmbed;
 exports.itemEmbed   = itemEmbed;
 exports.buildEmbed  = buildEmbed;
+exports.guideEmbed  = guideEmbed;
 exports.statCapsEmbeds = statCapsEmbeds;
 exports.statCapsEmbed = statCapsEmbed;
 exports.missingEmbed = missingEmbed;

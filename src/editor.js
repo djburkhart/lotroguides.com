@@ -849,7 +849,10 @@ function cdnApi(payload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(function (r) { return r.json(); }).then(function (data) {
+  }).then(function (r) {
+    if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ': ' + t.slice(0, 200)); });
+    return r.json();
+  }).then(function (data) {
     if (data.error) throw new Error(data.error);
     return data;
   });

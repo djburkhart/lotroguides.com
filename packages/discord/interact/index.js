@@ -9,6 +9,7 @@
  *   /quest <name>              – search quests via quest DO Function API
  *   /deed  <name>              – search deeds via deed DO Function API
  *   /item  <name>              – search items by name
+ *   /guide <name>              – link to a guide on lotroguides.com
  *   /map   <region>            – link to an interactive map region
  *   /build <class> [build]     – show a class trait build
  *   /statcaps <class> <level> <penetration> [mob_level]
@@ -56,6 +57,27 @@ function deedApiUrl(params) {
   var qs = new URLSearchParams(params).toString();
   return SITE_API + '/api/deeds/lookup?' + qs;
 }
+
+/* ── Guide catalog (static — no data loading needed) ─────────────── */
+
+var GUIDES = [
+  { slug: 'beginners-guide', title: "Beginner's Guide to LOTRO", cat: 'New Player' },
+  { slug: 'starter-zones-leveling-guide-0-20', title: 'Starter Zones Leveling Guide (0-20)', cat: 'Leveling' },
+  { slug: 'crafting-guide', title: 'Complete Crafting Guide', cat: 'Crafting' },
+  { slug: 'legendary-items-guide', title: 'Legendary Items Reforged — Complete LI Guide', cat: 'Gear' },
+  { slug: 'raid-preparation-guide', title: 'Raid Preparation Guide — Consumables & Buffs', cat: 'Raiding' },
+  { slug: 'red-line-hunter-endgame-guide', title: 'Red Line Hunter End-Game Guide', cat: 'Class' },
+  { slug: 'light-of-earendil-shadow-of-mordor-guide', title: 'Light of Eärendil & Shadow of Mordor Guide', cat: 'Mechanics' },
+  { slug: 'abyss-of-mordath-raid-guide', title: 'The Abyss of Mordath — Full Raid Guide', cat: 'Raid' },
+  { slug: 'hiddenhoard-of-abnankara-raid-guide', title: 'The Hiddenhoard of Abnankâra — Full Raid Guide', cat: 'Raid' },
+  { slug: 'tower-of-orthanc-fire-ice-guide', title: 'Tower of Orthanc Fire & Ice T2c Guide', cat: 'Raid' },
+  { slug: 'ost-dunhoth-disease-wing-guide', title: 'Ost Dunhoth Disease Wing T2c Guide', cat: 'Raid' },
+  { slug: 'court-of-seregost-guide', title: 'The Court of Seregost — Instance Guide', cat: 'Instance' },
+  { slug: 'dungeons-of-naerband-guide', title: 'The Dungeons of Naerband — Instance Guide', cat: 'Instance' },
+  { slug: 'lotro-guides-site-companion-guide', title: 'LOTRO Guides Site Companion', cat: 'Meta' },
+];
+
+var guideNames = GUIDES.map(function (g) { return g.title.toLowerCase(); });
 
 /* ── CDN-based loaders (items + maps only) ────────────────────────── */
 
@@ -188,11 +210,30 @@ async function autocompleteBuild(query, allOptions) {
   return choices.slice(0, 25);
 }
 
+async function autocompleteGuide(query) {
+  var q = (query || '').trim().toLowerCase();
+  if (q.length < 1) {
+    // Show all guides when no query
+    return GUIDES.map(function (g) {
+      return { name: ('[' + g.cat + '] ' + g.title).slice(0, 100), value: g.slug };
+    });
+  }
+  var results = [];
+  for (var i = 0; i < GUIDES.length && results.length < 25; i++) {
+    if (guideNames[i].includes(q) || GUIDES[i].cat.toLowerCase().includes(q) || GUIDES[i].slug.includes(q)) {
+      var g = GUIDES[i];
+      results.push({ name: ('[' + g.cat + '] ' + g.title).slice(0, 100), value: g.slug });
+    }
+  }
+  return results;
+}
+
 var AUTOCOMPLETE_HANDLERS = {
   quest: autocompleteQuest,
   deed:  autocompleteDeed,
   item:  autocompleteItem,
   build: autocompleteBuild,
+  guide: autocompleteGuide,
 };
 
 /* ── Command handlers ─────────────────────────────────────────────── */
@@ -393,6 +434,28 @@ async function handleBuild(options) {
   return { embeds: [embeds.missingEmbed('Build for ' + className)] };
 }
 
+async function handleGuide(options) {
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Guide')] };
+
+  // Find by slug (from autocomplete) or by name search
+  var guide = null;
+  for (var i = 0; i < GUIDES.length; i++) {
+    if (GUIDES[i].slug === value) { guide = GUIDES[i]; break; }
+  }
+  if (!guide) {
+    // Fallback: search by name
+    var q = value.toLowerCase();
+    for (var j = 0; j < GUIDES.length; j++) {
+      if (guideNames[j].includes(q)) { guide = GUIDES[j]; break; }
+    }
+  }
+
+  if (!guide) return { embeds: [embeds.missingEmbed('Guide')] };
+
+  return { embeds: [embeds.guideEmbed(guide)] };
+}
+
 async function handleStatCaps(options) {
   try {
     var result = statCaps.calculateStatCaps({
@@ -426,6 +489,7 @@ var HANDLERS = {
   item:  handleItem,
   map:   handleMap,
   build: handleBuild,
+  guide: handleGuide,
   statcaps: handleStatCaps,
 };
 

@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.5.3] - 2026-04-05
+
+### Added
+
+- **Discord bot** — Full Discord Interactions endpoint (`packages/discord/interact`) with slash commands: `/quest`, `/deed`, `/item`, `/map`, `/build`, `/guide`, `/statcaps`. Includes Ed25519 signature verification, autocomplete handlers for quest/deed/item/guide, deferred response with webhook follow-up for slow queries, and rich embeds matching the site's visual style
+- **`/guide` command** — Links to guides on lotroguides.com with autocomplete search by title, category, or slug across all 14 guides
+- **`/statcaps` command** — Calculates LOTRO stat caps using Giseldah formulas for any class, level, and penetration preset; contributed via PR #1
+- **Deeds DO Function** — Serverless deed search/lookup (`packages/deeds/lookup`) with `?q=`, `?id=`, filter, and pagination support; used by Discord bot autocomplete
+- **Community Builds API** — Serverless build save/like/delete (`packages/builds/save`) backed by DigitalOcean Spaces S3 storage with manifest-based listing and per-class stats
+- **Build delete system** — Users can delete their own community builds from the library
+- **Discord command registration script** — `scripts/register-discord-commands.js` registers all 7 slash commands with Discord API via bulk PUT
+
+### Changed
+
+- **Skills page community builds** — Trait Builder now loads/saves/likes/deletes builds via the Builds API; browse builds modal with like counts and class filtering
+- **CDN upload URL** — Fixed 404 by pointing `CDN_UPLOAD_URL` to standalone DO Functions URL instead of App Platform `/api` route
+
+### Fixed
+
+- **CDN storage error** — Added `DO_SPACES_*` env vars to `.do/app.yaml` functions component; builds function now correctly connects to DigitalOcean Spaces
+- **CI build fix** — Minor build pipeline correction
+
 ## [2.5.1] - 2026-04-04
 
 ### Changed

@@ -114,6 +114,19 @@ var commands = [
     ],
   },
   {
+    name: 'guide',
+    description: 'Link to a guide on lotroguides.com',
+    options: [
+      {
+        name: 'name',
+        description: 'Start typing a guide name…',
+        type: STRING,
+        required: true,
+        autocomplete: true,
+      },
+    ],
+  },
+  {
     name: 'build',
     description: 'Show a class trait build',
     options: [
