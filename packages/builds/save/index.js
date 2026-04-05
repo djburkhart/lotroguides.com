@@ -11,13 +11,14 @@
  *   get    — Retrieve a single build by ID
  *   list   — List recent builds (optionally filtered by class)
  *   stats  — Per-class build count and like totals
+ *   delete — Remove a build (editor auth required)
  *
  * Required env vars:
  *   DO_SPACES_KEY, DO_SPACES_SECRET, DO_SPACES_BUCKET, DO_SPACES_REGION
  */
 'use strict';
 
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const crypto = require('crypto');
 
 const PREFIX = 'data/builds/user-builds/';
@@ -295,6 +296,59 @@ async function handleList(args) {
   });
 }
 
+/** Verify a Google ID token and check the editor allowlist. */
+async function authenticateEditor(idToken) {
+  if (!idToken) return { error: 'Missing idToken', status: 401 };
+  var payload;
+  try {
+    var res = await fetch(
+      'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken)
+    );
+    if (!res.ok) throw new Error('Invalid token');
+    payload = await res.json();
+  } catch (err) {
+    return { error: 'Authentication failed: ' + err.message, status: 401 };
+  }
+  var expectedClientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+  if (expectedClientId && payload.aud !== expectedClientId) {
+    return { error: 'Token audience mismatch', status: 401 };
+  }
+  var email = (payload.email || '').toLowerCase();
+  var allowed = (process.env.EDITOR_ALLOWED_EMAILS || '').split(',')
+    .map(function (e) { return e.trim().toLowerCase(); })
+    .filter(Boolean);
+  if (!email || (allowed.length > 0 && allowed.indexOf(email) === -1)) {
+    return { error: 'Access denied for ' + email, status: 403 };
+  }
+  return { email: email };
+}
+
+/** Delete a build by ID (editor auth required). */
+async function handleDelete(args) {
+  var auth = await authenticateEditor(args.idToken);
+  if (auth.error) return respond(auth.status, { error: auth.error });
+
+  const id = String(args.id || '').replace(/[^a-f0-9]/gi, '');
+  if (!id) return respond(400, { error: 'Missing build id' });
+
+  const key = PREFIX + id + '.json';
+  const record = await readJSON(key);
+  if (!record) return respond(404, { error: 'Build not found' });
+
+  // Delete the file from Spaces
+  await getS3().send(new DeleteObjectCommand({
+    Bucket: process.env.DO_SPACES_BUCKET,
+    Key: key,
+  }));
+
+  // Remove from manifest
+  var manifest = await readManifest();
+  manifest.builds = manifest.builds.filter(function (b) { return b.id !== id; });
+  await writeManifest(manifest);
+
+  return respond(200, { ok: true, id: id, deletedBy: auth.email });
+}
+
 /** Return per-class build counts and like totals. */
 async function handleStats() {
   var manifest = await readManifest();
@@ -323,8 +377,8 @@ exports.main = async function main(args) {
   }
 
   const action = String(args.action || '').toLowerCase();
-  if (!['save', 'like', 'unlike', 'get', 'list', 'stats'].includes(action)) {
-    return respond(400, { error: 'Unknown action. Use: save, like, unlike, get, list, stats' });
+  if (!['save', 'like', 'unlike', 'get', 'list', 'stats', 'delete'].includes(action)) {
+    return respond(400, { error: 'Unknown action. Use: save, like, unlike, get, list, stats, delete' });
   }
 
   if (!process.env.DO_SPACES_KEY || !process.env.DO_SPACES_SECRET || !process.env.DO_SPACES_BUCKET) {
@@ -339,6 +393,7 @@ exports.main = async function main(args) {
       case 'get':    return await handleGet(args);
       case 'list':   return await handleList(args);
       case 'stats':  return await handleStats();
+      case 'delete': return await handleDelete(args);
     }
   } catch (err) {
     return respond(502, { error: 'Operation failed: ' + err.message });

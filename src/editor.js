@@ -1758,6 +1758,7 @@ function switchTab(tabName) {
     contents[i].style.display = contents[i].id === 'tab-' + tabName ? '' : 'none';
   }
   if (tabName === 'config') loadConfigList();
+  if (tabName === 'builds') loadBuildsList();
 }
 
 /* ─── Config Editor ──────────────────────────────────────────────── */
@@ -1857,6 +1858,93 @@ function saveConfigJson() {
   } else {
     downloadBlob(new Blob([text], { type: 'application/json;charset=utf-8' }), filename);
   }
+}
+
+/* ─── Builds Management ──────────────────────────────────────────── */
+var buildsApiUrl = '/api/builds/save';
+
+function loadBuildsList() {
+  var container = document.getElementById('builds-list');
+  var classFilter = document.getElementById('builds-class-filter').value;
+  container.innerHTML = '<p class="text-muted">Loading builds...</p>';
+
+  var payload = { action: 'list', limit: 200 };
+  if (classFilter) payload.class = classFilter;
+
+  fetch(buildsApiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (!data.builds || data.builds.length === 0) {
+      container.innerHTML = '<p class="text-muted">No community builds found' + (classFilter ? ' for ' + classFilter : '') + '.</p>';
+      return;
+    }
+    var html = '<div class="builds-count text-muted" style="margin-bottom:8px">' + data.total + ' build' + (data.total !== 1 ? 's' : '') + '</div>';
+    data.builds.forEach(function (b) {
+      var pts = b.ps || {};
+      var specLabel = '';
+      if (pts.r >= pts.b && pts.r >= pts.y) specLabel = 'Red';
+      else if (pts.b >= pts.r && pts.b >= pts.y) specLabel = 'Blue';
+      else specLabel = 'Yellow';
+      var className = (b.class || '').replace(/-/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      html += '<li class="builds-item" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #333">'
+        + '<div style="flex:1;min-width:0">'
+        + '<strong>' + escapeHtml(b.name || 'Unnamed') + '</strong>'
+        + ' <span class="text-muted">— ' + className + ' (' + specLabel + ')</span>'
+        + (b.desc ? '<br><small class="text-muted">' + escapeHtml(b.desc).substring(0, 120) + '</small>' : '')
+        + '<br><small class="text-muted">Lv ' + (b.level || '?') + ' · ❤️ ' + (b.likes || 0) + ' · ' + (b.createdAt ? new Date(b.createdAt).toLocaleDateString() : '?') + '</small>'
+        + '</div>'
+        + '<div style="flex-shrink:0;margin-left:12px">'
+        + '<a href="/skills?class=' + encodeURIComponent(b.class) + '&id=' + encodeURIComponent(b.id) + '" target="_blank" class="btn btn-xs btn-default" title="View build"><i class="fa fa-external-link"></i></a> '
+        + '<button class="btn btn-xs btn-danger btn-delete-build" data-build-id="' + escapeHtml(b.id) + '" data-build-name="' + escapeHtml(b.name || 'Unnamed') + '" title="Delete build"><i class="fa fa-trash"></i></button>'
+        + '</div>'
+        + '</li>';
+    });
+    container.innerHTML = '<ul style="list-style:none;padding:0;margin:0">' + html + '</ul>';
+
+    // Bind delete buttons
+    container.querySelectorAll('.btn-delete-build').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-build-id');
+        var name = btn.getAttribute('data-build-name');
+        deleteBuild(id, name);
+      });
+    });
+  })
+  .catch(function (err) {
+    container.innerHTML = '<p class="text-danger">Failed to load builds: ' + escapeHtml(err.message) + '</p>';
+  });
+}
+
+function deleteBuild(buildId, buildName) {
+  if (!confirm('Delete build "' + buildName + '"?\n\nThis cannot be undone.')) return;
+  if (!googleIdToken) {
+    alert('You must be signed in to delete builds.');
+    return;
+  }
+
+  fetch(buildsApiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'delete', id: buildId, idToken: googleIdToken })
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (data) {
+    if (data.error) throw new Error(data.error);
+    showSaveToast('Deleted build: ' + buildName);
+    loadBuildsList();
+  })
+  .catch(function (err) {
+    alert('Delete failed: ' + err.message);
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 /* ─── Insert Text at Cursor ──────────────────────────────────────── */
@@ -2618,6 +2706,12 @@ document.addEventListener('DOMContentLoaded', function () {
   // Live JSON validation on input
   var jsonEditor = document.getElementById('config-json-editor');
   if (jsonEditor) jsonEditor.addEventListener('input', validateConfigJson);
+
+  // Builds tab
+  var btnBuildsRefresh = document.getElementById('btn-builds-refresh');
+  if (btnBuildsRefresh) btnBuildsRefresh.addEventListener('click', loadBuildsList);
+  var buildsClassFilter = document.getElementById('builds-class-filter');
+  if (buildsClassFilter) buildsClassFilter.addEventListener('change', loadBuildsList);
 
   // Widget dropdown toggle
   var btnWidget = document.getElementById('btn-insert-widget');

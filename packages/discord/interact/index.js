@@ -35,8 +35,8 @@ var mapNames   = null;
 
 var loadPromises = {};
 
-function fetchJson(url) {
-  return fetch(url).then(function (r) {
+function fetchJson(url, opts) {
+  return fetch(url, opts).then(function (r) {
     if (!r.ok) throw new Error('HTTP ' + r.status + ' for ' + url);
     return r.json();
   });
@@ -140,10 +140,56 @@ async function autocompleteItem(query) {
   });
 }
 
+async function autocompleteBuild(query, allOptions) {
+  var className = getOptionValue(allOptions, 'class');
+  if (!className) return [];
+  className = className.toLowerCase().replace(/ /g, '-');
+  var q = (query || '').trim().toLowerCase();
+
+  var choices = [];
+
+  // Fetch community builds for this class
+  try {
+    var listData = await fetchJson(SITE_API + '/api/builds/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'list', class: className, limit: 50 }),
+    });
+    (listData.builds || []).forEach(function (b) {
+      var label = b.name || 'Unnamed';
+      if (b.likes) label += ' (' + b.likes + ' ❤️)';
+      label = '🌐 ' + label;
+      choices.push({ name: label.slice(0, 100), value: b.id });
+    });
+  } catch (e) { /* community unavailable, continue */ }
+
+  // Fetch guide builds for this class
+  try {
+    var classData = await fetchJson(CDN_URL + '/data/builds/' + className + '.json');
+    if (classData && classData.builds) {
+      Object.keys(classData.builds).forEach(function (key) {
+        var gb = classData.builds[key];
+        var label = '📖 ' + (gb.name || key);
+        choices.push({ name: label.slice(0, 100), value: 'guide:' + key });
+      });
+    }
+  } catch (e) { /* no guide builds */ }
+
+  // Filter by query if provided
+  if (q.length >= 1) {
+    choices = choices.filter(function (c) {
+      return c.name.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  return choices.slice(0, 25);
+}
+
 var AUTOCOMPLETE_HANDLERS = {
   quest: autocompleteQuest,
   deed:  autocompleteDeed,
   item:  autocompleteItem,
+  build: autocompleteBuild,
 };
 
 /* ── Command handlers ─────────────────────────────────────────────── */
@@ -288,7 +334,7 @@ async function handleMap(options) {
 
 async function handleBuild(options) {
   var className = (getOptionValue(options, 'class') || '').toLowerCase().replace(/ /g, '-');
-  var buildName = (getOptionValue(options, 'build') || 'endgame').toLowerCase().replace(/ /g, '-');
+  var buildValue = (getOptionValue(options, 'build') || '').trim();
 
   var validClasses = [
     'beorning', 'brawler', 'burglar', 'captain', 'champion',
@@ -305,22 +351,43 @@ async function handleBuild(options) {
     };
   }
 
+  // Try community build by ID first (from autocomplete — community IDs are hex)
+  if (buildValue && /^[a-f0-9]{8,12}$/.test(buildValue)) {
+    try {
+      var record = await fetchJson(SITE_API + '/api/builds/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get', id: buildValue }),
+      });
+      if (record && record.build) {
+        return { embeds: [embeds.buildEmbed(record.build, className, record.build.name, record.likes, record.id)] };
+      }
+    } catch (e) { /* fall through to guide builds */ }
+  }
+
+  // Handle guide: prefix from autocomplete selection
+  var guideKey = null;
+  if (buildValue && buildValue.indexOf('guide:') === 0) {
+    guideKey = buildValue.slice(6);
+  }
+
+  // Try guide build from static class data
   try {
     var data = await fetchJson(CDN_URL + '/data/builds/' + className + '.json');
-    var build = null;
-
-    if (data.builds) {
-      build = data.builds[buildName] || data.builds[Object.keys(data.builds)[0]];
-    } else if (Array.isArray(data)) {
-      build = data.find(function (b) { return (b.name || '').toLowerCase().replace(/ /g, '-') === buildName; }) || data[0];
-    } else {
-      build = data;
+    if (data && data.builds) {
+      var buildKey = guideKey || (buildValue ? buildValue.toLowerCase().replace(/ /g, '-') : null);
+      var build = buildKey ? data.builds[buildKey] : null;
+      if (!build) {
+        buildKey = Object.keys(data.builds)[0];
+        build = data.builds[buildKey];
+      }
+      if (build) {
+        return { embeds: [embeds.buildEmbed(build, className, buildKey)] };
+      }
     }
+  } catch (e) { /* fall through */ }
 
-    return { embeds: [embeds.buildEmbed(build, className, buildName)] };
-  } catch (err) {
-    return { embeds: [embeds.missingEmbed('Build for ' + className)] };
-  }
+  return { embeds: [embeds.missingEmbed('Build for ' + className)] };
 }
 
 /* ── Command router ───────────────────────────────────────────────── */
@@ -469,7 +536,7 @@ exports.main = async function main(args) {
     }
 
     try {
-      var choices = await acHandler(focused.value || '');
+      var choices = await acHandler(focused.value || '', acOptions);
       return {
         statusCode: 200,
         headers: CT_JSON,

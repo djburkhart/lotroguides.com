@@ -207,10 +207,11 @@ function itemEmbed(item, cdnUrl) {
 
 /* ── Build ─────────────────────────────────────────────────────────── */
 
-function buildEmbed(buildData, className, buildName) {
+function buildEmbed(buildData, className, buildName, likes, buildId) {
   if (!buildData) return missingEmbed('Build');
 
-  var title = capitalize(className) + ' — ' + (buildData.label || buildName || 'Build');
+  var displayName = buildData.name || buildData.label || buildName || 'Build';
+  var title = capitalize(className) + ' — ' + displayName;
   var lines = [];
 
   if (buildData.traits && buildData.traits.length) {
@@ -224,9 +225,25 @@ function buildEmbed(buildData, className, buildName) {
     lines.push(escMd(buildData.description));
   }
 
+  if (likes) {
+    lines.push('❤️ ' + likes + ' like' + (likes === 1 ? '' : 's'));
+  }
+
+  // Build clean skills page URL — guide builds resolve by name, community builds by ID
+  var url;
+  if (buildId) {
+    // Community build: use ?id= so the page fetches it by ID
+    url = SITE + '/skills?class=' + encodeURIComponent(className) + '&id=' + encodeURIComponent(buildId);
+  } else if (buildName) {
+    // Guide build: resolve by name (the planner loads points from static data)
+    url = SITE + '/skills?class=' + encodeURIComponent(className) + '&build=' + encodeURIComponent(buildName);
+  } else {
+    url = SITE + '/skills?class=' + encodeURIComponent(className);
+  }
+
   return {
     title: '⚙️ ' + title,
-    url: SITE + '/embedded-trait-planner?class=' + encodeURIComponent(className) + '&build=' + encodeURIComponent(buildName),
+    url: url,
     color: 0xe06060,
     description: lines.join('\n\n') || 'View the full trait build on the site.',
     footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },

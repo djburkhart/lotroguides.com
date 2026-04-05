@@ -106,9 +106,10 @@ var commands = [
       },
       {
         name: 'build',
-        description: 'Build name (default: endgame)',
+        description: 'Build name (search guide and community builds)',
         type: STRING,
         required: false,
+        autocomplete: true,
       },
     ],
   },

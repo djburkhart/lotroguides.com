@@ -59,6 +59,8 @@ functions:
         type: SECRET
       - key: GOOGLE_OAUTH_CLIENT_ID
         type: SECRET
+      - key: EDITOR_ALLOWED_EMAILS
+        type: SECRET
       - key: DISCORD_PUBLIC_KEY
         type: SECRET
       - key: DISCORD_APP_ID
