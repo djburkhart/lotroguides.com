@@ -11,6 +11,8 @@
  *   /item  <name>              – search items by name
  *   /map   <region>            – link to an interactive map region
  *   /build <class> [build]     – show a class trait build
+ *   /statcaps <class> <level> <penetration> [mob_level]
+ *                             – calculate stat caps using Giseldah formulas
  *
  * Required env vars:
  *   DISCORD_PUBLIC_KEY  – Ed25519 public key from Discord Developer Portal
@@ -22,6 +24,7 @@
 
 var nacl    = require('tweetnacl');
 var embeds  = require('./embeds');
+var statCaps = require('./statcaps');
 
 var CDN_URL = '';
 var SITE_API = '';
@@ -390,6 +393,31 @@ async function handleBuild(options) {
   return { embeds: [embeds.missingEmbed('Build for ' + className)] };
 }
 
+async function handleStatCaps(options) {
+  try {
+    var result = statCaps.calculateStatCaps({
+      className: getOptionValue(options, 'class'),
+      level: getOptionValue(options, 'level'),
+      mobLevel: getOptionValue(options, 'mob_level'),
+      mitigationLevel: getOptionValue(options, 'mitigation_level'),
+      penetration: getOptionValue(options, 'penetration'),
+    });
+    return { embeds: embeds.statCapsEmbeds(result) };
+  } catch (err) {
+    if (err && err.expose) {
+      return {
+        embeds: [{
+          title: '❌ Invalid /statcaps input',
+          description: err.message,
+          color: 0xff4444,
+          footer: { text: 'LOTRO Guides' },
+        }],
+      };
+    }
+    throw err;
+  }
+}
+
 /* ── Command router ───────────────────────────────────────────────── */
 
 var HANDLERS = {
@@ -398,6 +426,7 @@ var HANDLERS = {
   item:  handleItem,
   map:   handleMap,
   build: handleBuild,
+  statcaps: handleStatCaps,
 };
 
 var CT_JSON = { 'Content-Type': 'application/json' };

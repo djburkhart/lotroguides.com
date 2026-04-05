@@ -19,7 +19,7 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 ### Tools & Interactivity
 - **Skills & Trait Builder** — Interactive trait planner for all LOTRO classes with save, share, and embed functionality
 - **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot, quest/deed cards, trait planner), image upload, dirty tracking, and auto-draft
-- **Discord Bot** — Slash commands (`/quest`, `/deed`, `/item`, `/map`, `/build`) with live autocomplete powered by DO Function APIs
+- **Discord Bot** — Slash commands (`/quest`, `/deed`, `/item`, `/map`, `/build`, `/statcaps`) with live autocomplete powered by DO Function APIs
 - **Comments** — Cusdis-powered comment widget on article and instance pages, gated behind reCAPTCHA Enterprise
 
 ### Infrastructure

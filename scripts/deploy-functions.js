@@ -128,15 +128,8 @@ function buildTempProject(pkgName) {
   for (const fn of def.functions) {
     const srcDir = path.join(PACKAGES_DIR, def.name, fn.name);
     const dstDir = path.join(tmpDir, 'packages', def.name, fn.name);
-    fs.mkdirSync(dstDir, { recursive: true });
-
-    // Copy all files from the source function directory
-    for (const file of fs.readdirSync(srcDir)) {
-      const srcFile = path.join(srcDir, file);
-      if (fs.statSync(srcFile).isFile()) {
-        fs.copyFileSync(srcFile, path.join(dstDir, file));
-      }
-    }
+    fs.mkdirSync(path.dirname(dstDir), { recursive: true });
+    fs.cpSync(srcDir, dstDir, { recursive: true, force: true });
   }
 
   return tmpDir;

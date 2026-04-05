@@ -55,3 +55,6 @@ npm-debug.log*
 
 # Temp files
 .tmp/
+
+# Synced file from Giseldah's GitHub
+packages/discord/interact/vendor/giseldah-calcstat.js
