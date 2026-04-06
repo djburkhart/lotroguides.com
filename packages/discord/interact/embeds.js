@@ -17,6 +17,78 @@
 
 var SITE = 'https://lotroguides.com';
 
+/* ── Custom Discord Emojis ─────────────────────────────────────────── */
+
+var EMOJI = {
+  // Deed types
+  Map:              '<:Map:1490518401326776411>',
+  Slayer:           '<:Slayer:1490518233357357240>',
+  Reputation:       '<:Reputation:1490518232631742529>',
+  Race:             '<:Race:1490518231738224692>',
+  Lore:             '<:Lore:1490518230731853986>',
+  Explorer:         '<:Explorer:1490518229427159153>',
+  Event:            '<:Event:1490518228550811738>',
+  Class:            '<:Class:1490518227875397672>',
+  // Classes
+  Warden:           '<:Warden:1490517794247409846>',
+  Runekeeper:       '<:Runekeeper:1490517767281967164>',
+  Minstrel:         '<:Minstrel:1490517733862015067>',
+  Mariner:          '<:Mariner:1490517691197423626>',
+  Loremaster:       '<:Loremaster:1490517660461695037>',
+  Hunter:           '<:Hunter:1490517621685358682>',
+  Guardian:         '<:Guardian:1490517592832737300>',
+  Champion:         '<:Champion:1490517564575711292>',
+  Captain:          '<:Captain:1490517536595382292>',
+  Burglar:          '<:Burglar:1490517506321027142>',
+  Brawler:          '<:Brawler:1490517470388424917>',
+  Beorning:         '<:Beorning:1490517434791231699>',
+  // General
+  VirtueXP:         '<:VirtueExperience:1490398579087507636>',
+  LP:               '<:LOTROPoints:1490398533449416926>',
+  TheOneRing:       '<:TheOneRing:1490398397201645568>',
+};
+
+// className key → emoji key (handles hyphenated names)
+var CLASS_EMOJI_MAP = {
+  beorning:      'Beorning',
+  brawler:       'Brawler',
+  burglar:       'Burglar',
+  captain:       'Captain',
+  champion:      'Champion',
+  guardian:       'Guardian',
+  hunter:        'Hunter',
+  'lore-master': 'Loremaster',
+  mariner:       'Mariner',
+  minstrel:      'Minstrel',
+  'rune-keeper': 'Runekeeper',
+  warden:        'Warden',
+};
+
+// Deed type → emoji key
+var DEED_TYPE_EMOJI = {
+  'Slayer':     'Slayer',
+  'Explorer':   'Explorer',
+  'Lore':       'Lore',
+  'Reputation': 'Reputation',
+  'Class':      'Class',
+  'Race':       'Race',
+  'Event':      'Event',
+};
+
+function em(key, fallback) {
+  return EMOJI[key] || fallback || '';
+}
+
+function classEmoji(className) {
+  var key = CLASS_EMOJI_MAP[(className || '').toLowerCase()];
+  return key ? EMOJI[key] : '';
+}
+
+function deedTypeEmoji(type) {
+  var key = DEED_TYPE_EMOJI[type];
+  return key ? EMOJI[key] : '🛡️';
+}
+
 function escMd(s) {
   if (!s) return '';
   return s.replace(/([*_~`|\\>])/g, '\\$1');
@@ -29,7 +101,7 @@ function questEmbed(quest) {
   var fields = [];
 
   if (quest.cat) {
-    fields.push({ name: '📍 Zone', value: escMd(quest.cat), inline: true });
+    fields.push({ name: em('Map', '📍') + ' Zone', value: escMd(quest.cat), inline: true });
   }
   if (quest.lv) {
     fields.push({ name: '⚔️ Level', value: String(quest.lv), inline: true });
@@ -61,7 +133,7 @@ function questEmbed(quest) {
   }
 
   return {
-    title: '📖 ' + (quest.n || 'Unknown Quest'),
+    title: em('TheOneRing', '📖') + ' ' + (quest.n || 'Unknown Quest'),
     url: SITE + '/quests?id=' + encodeURIComponent(quest.id),
     color: 0xc9aa58,
     description: quest.desc ? escMd(quest.desc) : undefined,
@@ -74,7 +146,7 @@ function formatQuestRewards(rw) {
   if (!rw) return '';
   var parts = [];
   if (rw.xp) parts.push('⭐ ' + rw.xp + ' XP');
-  if (rw.m)  parts.push('💰 ' + rw.m);
+  if (rw.m)  parts.push(em('TheOneRing', '💰') + ' ' + rw.m);
   if (rw.it && rw.it.length) {
     rw.it.forEach(function (it) {
       parts.push('🎁 ' + escMd(it.n));
@@ -90,16 +162,16 @@ function deedEmbed(deed) {
   var fields = [];
 
   if (deed.tp) {
-    fields.push({ name: 'Type', value: escMd(deed.tp), inline: true });
+    fields.push({ name: 'Type', value: deedTypeEmoji(deed.tp) + ' ' + escMd(deed.tp), inline: true });
   }
   if (deed.lv) {
     fields.push({ name: '⚔️ Level', value: String(deed.lv), inline: true });
   }
   if (deed.rg) {
-    fields.push({ name: '📍 Region', value: escMd(deed.rg), inline: true });
+    fields.push({ name: em('Map', '📍') + ' Region', value: escMd(deed.rg), inline: true });
   }
   if (deed.cl) {
-    fields.push({ name: '🛡️ Class', value: escMd(deed.cl), inline: true });
+    fields.push({ name: em('Class', '🛡️') + ' Class', value: (classEmoji(deed.cl) ? classEmoji(deed.cl) + ' ' : '') + escMd(deed.cl), inline: true });
   }
 
   if (deed.obj && deed.obj.length) {
@@ -116,7 +188,7 @@ function deedEmbed(deed) {
   }
 
   return {
-    title: '🛡️ ' + (deed.n || 'Unknown Deed'),
+    title: deedTypeEmoji(deed.tp) + ' ' + (deed.n || 'Unknown Deed'),
     url: SITE + '/deeds?id=' + encodeURIComponent(deed.id),
     color: 0x5b9bd5,
     fields: fields.length ? fields : undefined,
@@ -127,17 +199,17 @@ function deedEmbed(deed) {
 function formatDeedObjective(obj) {
   if (!obj) return '';
   switch (obj.t) {
-    case 'kill':     return 'Defeat ' + escMd(obj.mn || 'enemies') + (obj.c ? ' ×' + obj.c : '') + (obj.z ? ' in ' + escMd(obj.z) : '');
+    case 'kill':     return em('Slayer', '⚔️') + ' Defeat ' + escMd(obj.mn || 'enemies') + (obj.c ? ' ×' + obj.c : '') + (obj.z ? ' in ' + escMd(obj.z) : '');
     case 'complete': return 'Complete: ' + escMd(obj.an || '');
     case 'qc':       return 'Complete ' + (obj.c || '?') + ' quests';
-    case 'explore':  return 'Explore: ' + escMd(obj.n || '');
+    case 'explore':  return em('Explorer', '🗺️') + ' Explore: ' + escMd(obj.n || '');
     case 'item':     return 'Collect: ' + escMd(obj.n || '');
     case 'npc':      return 'Talk to ' + escMd(obj.n || '');
     case 'use':      return 'Use: ' + escMd(obj.n || '');
     case 'skill':    return 'Use skill: ' + escMd(obj.n || '');
     case 'emote':    return 'Emote: ' + escMd(obj.n || '');
-    case 'lm':       return escMd(obj.n || obj.t);
-    case 'fac':      return 'Reach reputation: ' + escMd(obj.n || '');
+    case 'lm':       return em('Lore', '📜') + ' ' + escMd(obj.n || obj.t);
+    case 'fac':      return em('Reputation', '🏳️') + ' Reach reputation: ' + escMd(obj.n || '');
     default:         return escMd(obj.n || obj.t || '');
   }
 }
@@ -146,11 +218,11 @@ function formatDeedRewards(rw) {
   if (!rw || !rw.length) return '';
   var parts = [];
   rw.forEach(function (r) {
-    if (r.t === 'LP')         parts.push('⭐ ' + r.v + ' LP');
+    if (r.t === 'LP')         parts.push(em('LP', '⭐') + ' ' + r.v + ' LP');
     else if (r.t === 'Title') parts.push('📜 ' + escMd(String(r.v)));
     else if (r.t === 'Virtue' || r.t === 'VirtueXP')
-      parts.push('❤️ ' + escMd(String(r.v)) + (r.t === 'VirtueXP' ? ' VXP' : ''));
-    else if (r.t === 'Reputation') parts.push('🏳️ ' + escMd(String(r.v)));
+      parts.push(em('VirtueXP', '❤️') + ' ' + escMd(String(r.v)) + (r.t === 'VirtueXP' ? ' VXP' : ''));
+    else if (r.t === 'Reputation') parts.push(em('Reputation', '🏳️') + ' ' + escMd(String(r.v)));
     else if (r.t === 'XP')   parts.push('⭐ ' + escMd(String(r.v)) + ' XP');
     else if (r.t === 'Item') parts.push('🎁 ' + escMd(String(r.v)));
     else                      parts.push(escMd(String(r.v || r.t)));
@@ -163,7 +235,7 @@ function formatDeedRewards(rw) {
 function mapEmbed(region) {
   if (!region) return missingEmbed('Map location');
   return {
-    title: '🗺️ ' + (region.name || 'Unknown Region'),
+    title: em('Map', '🗺️') + ' ' + (region.name || 'Unknown Region'),
     url: SITE + '/map?region=' + encodeURIComponent(region.id),
     color: 0x4a6741,
     description: 'Click to open the interactive map for this region.',
@@ -212,7 +284,8 @@ function buildEmbed(buildData, className, buildName, likes, buildId) {
   if (!buildData) return missingEmbed('Build');
 
   var displayName = buildData.name || buildData.label || buildName || 'Build';
-  var title = capitalize(className) + ' — ' + displayName;
+  var classIcon = classEmoji(className);
+  var title = (classIcon ? classIcon + ' ' : '⚙️ ') + capitalize(className) + ' — ' + displayName;
   var lines = [];
 
   if (buildData.traits && buildData.traits.length) {
@@ -243,7 +316,7 @@ function buildEmbed(buildData, className, buildName, likes, buildId) {
   }
 
   return {
-    title: '⚙️ ' + title,
+    title: title,
     url: url,
     color: 0xe06060,
     description: lines.join('\n\n') || 'View the full trait build on the site.',
@@ -258,7 +331,7 @@ function statCapsEmbeds(result) {
 
   var color = statCapsColor(result);
   var embed = {
-    title: '🧮 ' + result.classLabel + ' Stat Caps',
+    title: (classEmoji(result.classKey) || '🧮') + ' ' + result.classLabel + ' Stat Caps',
     color: color,
     description: buildStatCapsDescription(result),
     thumbnail: { url: classIconUrl(result.classKey) },
@@ -525,7 +598,7 @@ function formatNumber(n) {
 function guideEmbed(guide) {
   if (!guide) return missingEmbed('Guide');
   return {
-    title: '📖 ' + escMd(guide.title),
+    title: em('TheOneRing', '📖') + ' ' + escMd(guide.title),
     url: SITE + '/guides/' + guide.slug,
     color: 0xc9aa58,
     fields: [

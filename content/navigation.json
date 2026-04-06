@@ -69,6 +69,11 @@
       "activeOn": ["skills"]
     },
     {
+      "label": "Discord Bot",
+      "url": "bot.html",
+      "activeOn": ["bot"]
+    },
+    {
       "label": "Media",
       "url": "media.html",
       "activeOn": ["media"]
@@ -120,6 +125,10 @@
       {
         "label": "About",
         "url": "about.html"
+      },
+      {
+        "label": "Discord Bot",
+        "url": "bot.html"
       }
     ],
     "secondary": [
@@ -134,6 +143,14 @@
       {
         "label": "Instances",
         "url": "guides.html#instances"
+      },
+      {
+        "label": "Terms of Service",
+        "url": "terms.html"
+      },
+      {
+        "label": "Privacy Policy",
+        "url": "privacy.html"
       }
     ]
   }

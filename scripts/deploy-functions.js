@@ -36,6 +36,14 @@ const PACKAGE_DEFS = {
   cdn: {
     name: 'cdn',
     functions: [{ name: 'upload', runtime: 'nodejs:22', web: true }],
+    environment: {
+      DO_SPACES_KEY: process.env.DO_SPACES_KEY || '',
+      DO_SPACES_SECRET: process.env.DO_SPACES_SECRET || '',
+      DO_SPACES_BUCKET: process.env.DO_SPACES_BUCKET || '',
+      DO_SPACES_REGION: process.env.DO_SPACES_REGION || 'nyc3',
+      GOOGLE_OAUTH_CLIENT_ID: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
+      EDITOR_ALLOWED_EMAILS: process.env.EDITOR_ALLOWED_EMAILS || '',
+    },
   },
   cusdis: {
     name: 'cusdis',

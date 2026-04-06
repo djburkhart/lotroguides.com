@@ -40,6 +40,9 @@ static_sites:
       - key: CDN_UPLOAD_URL
         type: SECRET
         scope: BUILD_TIME
+      - key: DISCORD_APP_ID
+        type: SECRET
+        scope: BUILD_TIME
 functions:
   - name: github-auth
     github:

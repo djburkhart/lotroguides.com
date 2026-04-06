@@ -25,6 +25,7 @@ const GOOGLE_SEARCH_CONSOLE_VERIFICATION = process.env.GOOGLE_SEARCH_CONSOLE_VER
 const CUSDIS_APP_ID = process.env.CUSDIS_APP_ID || '';
 const CUSDIS_HOST = process.env.CUSDIS_HOST || 'https://cusdis.com';
 const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY || '';
+const DISCORD_APP_ID = process.env.DISCORD_APP_ID || '';
 // CDN base URL for large binary assets (basemaps ~34 MB, icons ~72 MB).
 // Set to your DO Spaces CDN endpoint, e.g. https://lotroguides.nyc3.cdn.digitaloceanspaces.com
 // Leave blank to serve from the site origin (local/dev).
@@ -3501,6 +3502,37 @@ async function build() {
     newsNavItems: newsNav,
   })));
   console.log('   ✓ about.html');
+
+  // Build Discord bot page
+  const botBody = readTemplate('bot-content.html').replace(/\{\{discordAppId\}\}/g, DISCORD_APP_ID);
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'bot.html'), optimizeImages(buildPage(botBody, {
+    title: 'Discord Bot - LOTRO Guides',
+    currentPage: 'bot',
+    metaDescription: 'Add the LOTRO Guides Discord bot to your server. Look up quests, deeds, items, guides, stat caps, and trait builds with slash commands.',
+    guideNavItems: guideNav,
+    newsNavItems: newsNav,
+  })));
+  console.log('   ✓ bot.html');
+
+  // Build terms of service page
+  const termsBody = readTemplate('terms-content.html');
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'terms.html'), optimizeImages(buildPage(termsBody, {
+    title: 'Terms of Service - LOTRO Guides',
+    currentPage: 'terms',
+    guideNavItems: guideNav,
+    newsNavItems: newsNav,
+  })));
+  console.log('   ✓ terms.html');
+
+  // Build privacy policy page
+  const privacyBody = readTemplate('privacy-content.html');
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'privacy.html'), optimizeImages(buildPage(privacyBody, {
+    title: 'Privacy Policy - LOTRO Guides',
+    currentPage: 'privacy',
+    guideNavItems: guideNav,
+    newsNavItems: newsNav,
+  })));
+  console.log('   ✓ privacy.html');
 
   // Build media page
   buildMediaPage({ guideNavItems: guideNav, newsNavItems: newsNav });
