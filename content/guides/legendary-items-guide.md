@@ -15,10 +15,9 @@ The Legendary Items (LI) system was completely overhauled with the "Legendary It
 
 Unlike the old system of random legacies and relics, the Reforged system gives you full control over your LI build:
 
-1. **Obtain** a Legendary Item through quests or crafting
+1. **Obtain** a Legendary Item through the intro LI quest or from the library
 2. **Choose Traceries** — These are the stat and ability modifiers you slot into your LI
 3. **Level Traceries** — Use Ancient Script currency to enhance them
-4. **Upgrade LI quality** — Progress from Incomparable to First Age
 
 ## Types of Legendary Items
 
