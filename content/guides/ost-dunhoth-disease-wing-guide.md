@@ -13,6 +13,14 @@ This guide covers the Disease Wing of Ost Dunhoth, from the trash leading up to 
 
 {{map:map=268447045,lng=-3.709,lat=-86.131,height=350}}
 
+---
+
+## Desired Stat Percentages
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=65}}
+
+---
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}
@@ -135,7 +143,15 @@ There is no hard timer on this fight. When Lurkers are active, you may **keep 2 
 
 Ost Dunhoth Disease Wing features heavy disease pressure and distributed damage. Come prepared:
 
-{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant,notes=warding=Defensive mitigation (critical for tanks and Lurker swaps)|hope=Hope — counters the dread in Ost Dunhoth|celebrant=Power sustain during extended Lurker phases}}
+| Consumable | Example | Purpose |
+|-----------|---------|----------|
+| Cooked Food | Superior Supreme Rations | Primary stat food for your class |
+| Trail Food | Supreme Trail Provisions | Trail food — mitigation buffs |
+| Battle Scroll | Scroll of Supreme Battle Lore | Offensive mastery buff |
+| Warding Scroll | Scroll of Supreme Warding Lore | Defensive mitigation (critical for tanks and Lurker swaps) |
+| Hope Token | Supreme Edhelharn Token | Hope — counters the dread in Ost Dunhoth |
+| Athelas Essence | Supreme Athelas Essence | Emergency morale between phases |
+| Celebrant Salve | Supreme Celebrant Salve | Power sustain during extended Lurker phases |
 
 > **Tip:** Disease cleanse pots are essential in this wing. The Grodbog Queens and Deep-worm Scavengers apply diseases constantly — have extra pots on your quickbar.
 

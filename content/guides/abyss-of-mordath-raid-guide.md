@@ -20,6 +20,10 @@ A complete walkthrough of the Shadow of Mordor raid instance, covering every tra
 | **T1** | 170 | 150 (extra needed for debuffs) |
 | **T2** | 220 | 200 (extra needed for debuffs) |
 
+## Stat Caps at Level 115
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=115}}
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}
@@ -389,9 +393,19 @@ King Vaskmun Greytooth spawns. The tank grabs him (minimal damage). Continue the
 
 The Abyss of Mordath is a long raid with high sustained damage. Full consumable uptime is non-negotiable for T2.
 
-{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant+rune+shield,notes=warding=Defensive mitigation — critical for tanks and off-tanks managing ESGs|hope=Hope buff — counters Abyssal Darkness dread from Deathless Watchers|athelas=Emergency morale after Bursting Boils or Blood Sickness|celebrant=Power sustain — essential during long corruption removal phases|rune=Extra LI item levels for DPS and healing output|shield=Shield-spike for tanks (match damage type to content)}}
+| Consumable | Example | Purpose |
+|-----------|---------|----------|
+| Cooked Food | Superior Doomfold Rations | Primary stat food for your class |
+| Trail Food | Doomfold Trail Provisions | Trail food — mitigation buffs |
+| Battle Scroll | Scroll of Doomfold Battle Lore | Offensive mastery buff |
+| Warding Scroll | Scroll of Doomfold Warding Lore | Defensive mitigation — critical for tanks and ESG off-tanks |
+| Hope Token | Doomfold Edhelharn Token | Hope buff — counters Abyssal Darkness dread from Deathless Watchers |
+| Athelas Essence | Supreme Doomfold Athelas Essence | Emergency morale after Bursting Boils or Blood Sickness |
+| Celebrant Salve | Supreme Doomfold Celebrant Salve | Power sustain — essential during long corruption removal phases |
+| Enhancement Rune | Enhancement Rune, Lvl 116 | Extra LI item levels for DPS and healing output |
+| Shield-spikes | Doomfold Shield-spike Kit | Shield-spike for tanks (match damage type to content) |
 
-> **Tip:** Bring at least 3 stacks of each consumable — the Abyss is long and wipes mean rebuffing. The 25-minute enrage on Fingar means every stat point counts. Coordinate a Splendid Mûrai Feast or Durable Umbari Feast before each boss pull.
+> **Tip:** Bring at least 3 stacks of each consumable — the Abyss is long and wipes mean rebuffing. The 25-minute enrage on Fingar means every stat point counts. Coordinate a Doomfold Feast before each boss pull.
 
 ---
 

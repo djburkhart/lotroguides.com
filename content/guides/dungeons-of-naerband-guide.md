@@ -17,6 +17,15 @@ Unlike most world instances, the discovery for the Dungeons of Naerband is at th
 
 {{map:map=268452166,lng=18.651,lat=-63.798,height=350}}
 
+---
+
+## Desired Stat Percentages
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=105}}
+
+---
+
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}
@@ -131,15 +140,16 @@ This is a patience-heavy challenge that requires coordination and deliberate pac
 
 Naerband is not a long instance, but Thraknûl’s Chains of Malice mechanic punishes under-preparedness. Bring:
 
-{{consumableTable:items=food+trail+battle+warding+hope+athelas,notes=battle=Offensive mastery for boss burns|athelas=Emergency morale — especially when healing is cut off by Chains of Malice}}
+| Consumable | Example | Purpose |
+|-----------|---------|----------|
+| Cooked Food | Superior Doomfold Rations | Primary stat food for your class |
+| Trail Food | Doomfold Trail Provisions | Trail food — mitigation buffs |
+| Battle Scroll | Scroll of Doomfold Battle Lore | Offensive mastery for boss burns |
+| Warding Scroll | Scroll of Doomfold Warding Lore | Defensive mitigation buff |
+| Hope Token | Doomfold Edhelharn Token | Hope buff / dread counter |
+| Athelas Essence | Supreme Doomfold Athelas Essence | Emergency morale — especially when healing is cut off by Chains of Malice |
 
 > **Note:** If you are jailed during the Thraknûl fight, you’ll face a mob solo inside the cell. Having food and potions active means you can survive the solo encounter without healer support.
-
----
-
-## Desired Stat Percentages
-
-{{dpsStatTable:heading=Desired Stat Percentages,levelCap=160}}
 
 ---
 

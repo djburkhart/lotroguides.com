@@ -78,6 +78,8 @@ Around level 10, you can visit a Master of Apprentices to choose a crafting voca
 - **Historian** — Farmer, Scholar, Weaponsmith (Scholar crafts Scroll of Mûrai Battle Lore, Scroll of Mûrai Warding Lore, and healing essences)
 - **Yeoman** — Farmer, Cook, Tailor
 
+> Mix and match any of the vocations above if desired as a way to customize what you can craft.
+
 Since the Umbar expansion, you can also purchase a **4th profession slot** from the LOTRO Store. This lets you add any profession regardless of your vocation — handy for filling gaps in self-sufficiency or picking up a profitable skill like Cook or Scholar.
 
 **Crafting tips for beginners:**
@@ -94,7 +96,7 @@ Since the Umbar expansion, you can also purchase a **4th profession slot** from 
 3. **Join a Kinship** — Guilds (called Kinships) are the best way to find groups and make friends.
 4. **Use your milestones** — Set your milestone skill to a hub you visit frequently.
 5. **Don't sell everything** — Some drops are crafting materials. Check before vendoring!
-6. **Try Skirmishes at level 20** — These scalable instances are great for solo or group play.
+6. **Try Skirmishes and Missions at level 20** — These scalable instances are great for solo or group play.
 
 ## Getting Into Instances & Raids
 
@@ -114,7 +116,7 @@ A balanced fellowship typically includes:
 - **1 Healer** (Minstrel, Beorning, or Rune-keeper)
 - **4 DPS/Support** (mix of Champions, Hunters, Burglars, Lore-masters, etc.)
 
-For raids, you'll generally want 2 tanks, 2–3 healers, and the rest DPS/support.
+For raids, you'll generally want 2 tanks, 2–3 healers/support classes, and the rest DPS.
 
 ### How to Find Groups
 
@@ -127,16 +129,16 @@ For raids, you'll generally want 2 tanks, 2–3 healers, and the rest DPS/suppor
 1. **Start with on-level content** — Don't jump straight into end-game. Run instances at your level to learn your role.
 2. **Know your role** — If you're a tank, know how to hold threat. If you're healing, prioritize the tank. DPS should focus targets and avoid pulling extra enemies.
 3. **Let the tank pull** — Charging ahead as DPS is a quick way to wipe the group. Wait for the tank to engage first.
-4. **Bring consumables** — Food buffs, potions, and hope tokens make a noticeable difference. At end-game, raiders run Luxurious Roasted Oryx Shank or similar stat food, a Scroll of Mûrai Battle Lore for offense, a Scroll of Mûrai Warding Lore for defense, and a Mûrai Edhelharn Token for hope. Check the Auction House or craft your own.
+4. **Bring consumables** — Food buffs, potions, and hope tokens make a noticeable difference. At end-game, raiders run Luxurious Roasted Oryx Shank or similar stat food, a Scroll of Battle Lore for offense, a Scroll of Warding Lore for defense, and a Edhelharn Token for hope. Check the Auction House or craft your own.
 5. **Ask questions** — LOTRO's community is one of the friendliest in MMOs. If you don't know a fight, say so. Most groups are happy to explain.
-6. **Watch for distributed defeat** — In many boss fights, the damage is shared across the fellowship. Spreading out or stacking up at the right time matters.
+6. **Watch for distributed damage** — In many boss fights, the damage is shared across the fellowship. Spreading out or stacking up at the right time matters.
 
 ### Gearing Up for Group Content
 
 - **Landscape gear** gets you started, but instance drops and crafted gear are a step up.
 - **Skirmish camps** sell solid gear for Skirmish Marks — a reliable catch-up option at any level.
 - **Mission instances** (available from level 20) are quick, repeatable, and reward useful gear and currency.
-- At end-game, **raid gear** and **crafted guild recipes** offer the best-in-slot equipment.
+- At end-game, barterable **raid gear** offer the best-in-slot equipment. Use **crafted guild recipes** to start T1 Raiding as a way to build to being able to have such gear.
 
 > **Don't be intimidated.** Every experienced raider was once a beginner running their first Great Barrow. Start small, learn as you go, and enjoy the journey.
 

@@ -91,12 +91,12 @@ Food provides a sustained stat buff that lasts through combat. You can have **on
 
 Crafted consumables get you most of the way there, but for T2 Challenge content where every stat point matters, store-bought items push you over the edge. These do not replace crafted consumables — they **stack on top of them**.
 
-### Stat Tomes (Permanent, Account-Wide)
+### Stat Tomes (Permanent)
 
 - Available for all primary stats: Might, Agility, Will, Vitality, Fate
 - Each tome adds a permanent +10 to the stat
 - You can use multiple tomes per stat (up to a cap)
-- These are **permanent account upgrades** — the best long-term investment in the store
+- These are **permanent character upgrades** — the best long-term investment in the store
 - Over time, stacking stat tomes gives a substantial baseline increase
 
 ### Enhancement Runes
@@ -105,13 +105,6 @@ Crafted consumables get you most of the way there, but for T2 Challenge content 
 - Lower tiers like Enhancement Rune +3, Lvl 151 and Enhancement Rune +2, Lvl 151 are also available
 - Stack with all other consumables for the highest possible stat ceiling
 - Useful for progression nights where you are pushing a boss for the first time
-
-### Revival Tomes
-
-- Allow you to revive on the spot after a defeat without retreating
-- In T2C, a single death at the wrong moment can wipe the group
-- Having revival tomes means a quick recovery instead of a long run back or a lost attempt
-- Carry several — you may need them on progression fights
 
 ### Morale & Power Bubbles
 
@@ -141,7 +134,6 @@ Here's a checklist of what to have in your bags before every T2C raid:
 |---|---|
 | Permanent Stat Tomes | +10 per stat, permanent |
 | Enhancement Runes | Raise LI item level (Enhancement Rune +4, Lvl 151) |
-| Revival Tomes | Revive in place on defeat |
 | Morale/Power Bubbles | Emergency absorb shield |
 | Store Hope Tokens | Stronger dread resistance |
 

@@ -13,6 +13,14 @@ The following guide covers the mechanics and other useful information about the 
 
 {{map:map=268446985,lng=-2.465,lat=-79.154,height=350}}
 
+---
+
+## Desired Stat Percentages
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=75}}
+
+---
+
 ## Instance Loot Reference
 
 {{instanceLootReference}}
@@ -54,6 +62,13 @@ Each ring has different trash pulls and mechanics for the final boss in each rin
 
 Fire and Ice is a pure DPS race — every point of mastery matters. Stack everything:
 
-{{consumableTable:items=food+trail+battle+warding+hope+rune+athelas,notes=battle=Offensive mastery — critical for the 30-second DPS windows|warding=Defensive mitigation for tanks holding Grims|rune=Extra LI item levels for maximum DPS}}
+| Consumable | Example | Purpose |
+|-----------|---------|----------|
+| Cooked Food | Superior Westfold Rations | Primary stat food for your class |
+| Trail Food | Westfold Trail Provisions | Trail food — mitigation buffs |
+| Battle Scroll | Scroll of Westfold Battle Lore | Offensive mastery — critical for the 30-second DPS windows |
+| Warding Scroll | Scroll of Westfold Warding Lore | Defensive mitigation for tanks holding Grims |
+| Hope Token | Westfold Edhelharn Token | Hope buff / dread counter |
+| Athelas Essence | Supreme Westfold Athelas Essence | Emergency morale between phases |
 
-> **Tip:** Coordinate Splendid Mûrai Feast or Durable Umbari Feast before the pull so the entire raid starts with food buffs active.
+> **Tip:** Coordinate a Westfold Feast before the pull so the entire raid starts with food buffs active.

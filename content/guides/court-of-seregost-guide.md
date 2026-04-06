@@ -19,6 +19,12 @@ A complete walkthrough of The Court of Seregost, set inside the keep of Seregost
 
 ---
 
+## DPS Stats for Level 115
+
+{{dpsStatTable:heading=Desired Stat Percentages,levelCap=115}}
+
+---
+
 ## Phase One: The Morroval Twins
 
 ### Trash Pulls
@@ -191,9 +197,19 @@ Lhaereth calls in Khílnat after **6 Plagued Great Bats have been defeated**.
 
 Seregost features heavy poison/disease pressure from Plagued Bats and Dulgabêrth’s Bursting Boils. Tactical mitigation and cleanse ability are paramount.
 
-{{consumableTable:items=food+trail+battle+warding+hope+athelas+celebrant,notes=warding=Defensive mitigation — essential for surviving Bursting Boils at T2|athelas=Emergency morale after Bursting Boils|celebrant=Power sustain during the extended T2 Khílnat fight}}
+| Consumable | Example | Purpose |
+|-----------|---------|----------|
+| Cooked Food | Superior Doomfold Rations | Primary stat food for your class |
+| Trail Food | Doomfold Trail Provisions | Trail food — mitigation buffs |
+| Battle Scroll | Scroll of Doomfold Battle Lore | Offensive mastery buff |
+| Warding Scroll | Scroll of Doomfold Warding Lore | Defensive mitigation — critical for tanks and ESG off-tanks |
+| Hope Token | Doomfold Edhelharn Token | Hope buff — counters Abyssal Darkness dread from Deathless Watchers |
+| Athelas Essence | Supreme Doomfold Athelas Essence | Emergency morale after Bursting Boils or Blood Sickness |
+| Celebrant Salve | Supreme Doomfold Celebrant Salve | Power sustain — essential during long corruption removal phases |
+| Enhancement Rune | Enhancement Rune, Lvl 116 | Extra LI item levels for DPS and healing output |
+| Shield-spikes | Doomfold Shield-spike Kit | Shield-spike for tanks (match damage type to content) |
 
-> **Tip:** For the T2 Challenge against Khílnat, the kiting tank should use Mûrai Westernesse Shield-spike Kit or the appropriate damage-type shield-spike kit and keep Scroll of Mûrai Warding Lore active at all times. The fight duration makes power management critical — bring extra Greater Mûrai Celebrant Essence.
+> Read my guide for information about [Light of Eärendil](light-of-earendil-shadow-of-mordor-guide.md) if you are playing the instance on level 115.
 
 ---
 

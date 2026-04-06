@@ -4,7 +4,35 @@ const matter = require('gray-matter');
 const { marked } = require('marked');
 const sharp = require('sharp');
 const esbuild = require('esbuild');
+const giseldah = require('./packages/discord/interact/vendor/giseldah-calcstat');
 require('dotenv').config();
+
+const CalcStat = giseldah.CalcStat;
+const DblCalcDev = giseldah.DblCalcDev;
+
+// Map dps-reference.json curve names to CalcStat stat keys
+const CURVE_CALCSTAT_KEYS = {
+  mastery: 'phydmg',
+  tacticalMastery: 'tacdmg',
+  criticalHit: 'crithit',
+  devastateHit: 'devhit',
+  finesse: 'finesse',
+  lightMitigation: 'MitLight',
+  mediumMitigation: 'MitMedium',
+  heavyMitigation: 'MitHeavy',
+  resistance: 'resist',
+  criticalDefence: 'critdef',
+  criticalMagnitude: 'critmagn',
+  outgoingHealing: 'outheal',
+  incomingHealing: 'inheal',
+};
+
+function calcStatCap(calcStatKey, level) {
+  var capRating = Math.max(0, Math.ceil(CalcStat(calcStatKey + 'PRatPCapR', level) - DblCalcDev));
+  var bonus = CalcStat(calcStatKey + 'PBonus', level);
+  var capPercent = Math.ceil((CalcStat(calcStatKey + 'PRatPCap', level) + bonus) * 10 - DblCalcDev) / 10;
+  return { capPercent: capPercent, capRating: capRating };
+}
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 const CONTENT_DIR = path.join(__dirname, 'content');
@@ -76,13 +104,13 @@ function loadDpsReferenceConfig() {
     intro: 'Quick offensive targets for DPS-oriented builds.',
     tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
     curves: {
-      mastery: { hardCap: 200, targetCap: 6.0, ratingByLevel: { '150': 450000, '160': 900000 } },
-      criticalHit: { hardCap: 25, targetCap: 0.75, ratingByLevel: { '150': 450000, '160': 900000 } },
-      devastateHit: { hardCap: 10, targetCap: 0.3, ratingByLevel: { '150': 600000, '160': 1200000 } },
-      finesse: { hardCap: 50, targetCap: 1.5, ratingByLevel: { '150': 300000, '160': 600000 } },
-      lightMitigation: { hardCap: 40, targetCap: 1.2, ratingByLevel: { '150': 200000, '160': 400000 } },
-      mediumMitigation: { hardCap: 50, targetCap: 1.5, ratingByLevel: { '150': 250000, '160': 500000 } },
-      heavyMitigation: { hardCap: 60, targetCap: 1.8, ratingByLevel: { '150': 300000, '160': 600000 } },
+      mastery: {},
+      criticalHit: {},
+      devastateHit: {},
+      finesse: {},
+      lightMitigation: {},
+      mediumMitigation: {},
+      heavyMitigation: {},
     },
     tableRows: [
       { stat: 'Physical Mastery', curve: 'mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
@@ -157,14 +185,14 @@ function buildDpsTableHtml(dpsRef, overrides) {
     if (r.note) notes.push(r.note);
 
     if (hasCurves) {
-      const curve = r.curve && curves[r.curve] ? curves[r.curve] : null;
-      const capVal = curve ? curve.hardCap + '%' : '';
-      const ratingVal = (() => {
-        if (!curve) return '';
-        const rbl = curve.ratingByLevel || {};
-        const rLevel = rbl[String(levelCap)];
-        return rLevel ? fmtNum(rLevel) : '\u2014';
-      })();
+      const calcKey = r.curve && CURVE_CALCSTAT_KEYS[r.curve];
+      let capVal = '';
+      let ratingVal = '';
+      if (calcKey) {
+        const caps = calcStatCap(calcKey, levelCap);
+        capVal = caps.capPercent + '%';
+        ratingVal = fmtNum(caps.capRating);
+      }
       const vals = [String(r.stat || ''), capVal, ratingVal, String(r.t1 || ''), String(r.t2 || ''), String(r.t3 || '')];
       return `<tr>${vals.map(v => `<td>${mdInline(v)}</td>`).join('')}</tr>`;
     } else {
