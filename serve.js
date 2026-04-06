@@ -143,6 +143,72 @@ app.register(async function (fastify) {
 
 /* ── Dev-only routes ────────────────────────────────────────────────────── */
 
+// Editor: CDN upload proxy — works in both dev and production mode.
+// When CDN env vars are set, delegates to the real CDN function.
+// When CDN is not configured, writes files to disk and rebuilds.
+app.post('/api/editor/upload', async (request, reply) => {
+  return editorSave(request, reply, false);
+});
+
+app.post('/api/editor/update', async (request, reply) => {
+  return editorSave(request, reply, true);
+});
+
+async function editorSave(request, reply, mustExist) {
+  const { key, content, contentType } = request.body || {};
+
+  if (!key || !content) {
+    return reply.code(400).send({ error: 'Missing key or content' });
+  }
+
+  // Restrict to safe content paths
+  if (key.indexOf('..') !== -1 || key.startsWith('/') ||
+      !(key.startsWith('content/') || key.startsWith('data/') || key.startsWith('img/'))) {
+    return reply.code(403).send({ error: 'Path not allowed: ' + key });
+  }
+
+  // If CDN env vars are configured, proxy to the real CDN function
+  if (process.env.DO_SPACES_KEY && process.env.DO_SPACES_SECRET && process.env.DO_SPACES_BUCKET) {
+    const args = postArgs(request);
+    args.action = 'upload';
+    return invokeDOFunction('./packages/cdn/upload/index.js', args, reply);
+  }
+
+  // Local dev mode: write to disk
+  const dest = path.join(ROOT, path.normalize(key));
+  if (!dest.startsWith(ROOT)) {
+    return reply.code(403).send({ error: 'Invalid path' });
+  }
+
+  const exists = fs.existsSync(dest);
+
+  if (mustExist && !exists) {
+    return reply.code(404).send({ error: 'File does not exist: ' + key });
+  }
+  if (!mustExist && exists) {
+    return reply.code(409).send({ error: 'File already exists: ' + key + '. Use /api/editor/update instead.' });
+  }
+
+  const buf = Buffer.from(content, 'base64');
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, buf);
+
+  // Trigger a rebuild in the background so the site reflects changes
+  const { execFile } = require('child_process');
+  execFile('node', ['build.js', '--local'], { cwd: ROOT }, (err) => {
+    if (err) console.error('Rebuild failed:', err.message);
+    else console.log('Rebuild complete after editor save: ' + key);
+  });
+
+  return reply.send({
+    ok: true,
+    key: key,
+    size: buf.length,
+    versionId: null,
+    local: true,
+  });
+}
+
 // Image upload (multipart form — dev only)
 app.post('/api/upload-image', async (request, reply) => {
   const parts = request.parts();

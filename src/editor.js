@@ -1229,8 +1229,8 @@ function updateConnectionStatus() {
   }
 
   // Article save button — CDN
-  var articleIcon = isCdnConfigured() ? 'cloud-upload' : 'download';
-  var articleLabel = isCdnConfigured() ? 'Save' : 'Download';
+  var articleIcon = isCdnConfigured() ? 'cloud-upload' : 'save';
+  var articleLabel = isCdnConfigured() ? 'Save' : 'Save';
   var btnDl = document.getElementById('btn-download');
   if (btnDl) btnDl.innerHTML = '<i class="fa fa-' + articleIcon + '"></i> ' + articleLabel + ' .md';
 
@@ -1729,8 +1729,29 @@ function saveMarkdown() {
       })
       .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
-    downloadBlob(new Blob([full], { type: 'text/markdown;charset=utf-8' }), slug + '.md');
-    afterSave();
+    var editorKey = 'content/' + category + '/' + slug + '.md';
+    var isUpdate = !!currentSlug;
+    var endpoint = isUpdate ? '/api/editor/update' : '/api/editor/upload';
+    var encoded = btoa(unescape(encodeURIComponent(full)));
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: editorKey, content: encoded, contentType: 'text/markdown; charset=utf-8' })
+    })
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'HTTP ' + r.status); });
+      return r.json();
+    })
+    .then(function (res) {
+      afterSave();
+      currentSlug = slug;
+      var msg = (isUpdate ? 'Updated' : 'Created') + ' ' + editorKey;
+      if (res.local) msg += ' (rebuilding…)';
+      showSaveToast(msg);
+      // Reload the article list after rebuild has time to finish
+      setTimeout(loadArticleList, 3000);
+    })
+    .catch(function (err) { showSaveToast('Save failed: ' + err.message, true); });
   }
 }
 

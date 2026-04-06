@@ -2834,15 +2834,17 @@ function buildInstancesPage(navData, subDirNavData, allGuides) {
 
       // Check if any guide tag matches the instance slug tokens
       const slugTokens = slug.split('-').filter(w => w.length > 2 && !stopWords.has(w));
+      const gSlugTokens = gSlug.split('-').filter(w => w.length > 2 && !stopWords.has(w));
+      const gTitleWords = gTitle.split(/[\s,\-–—]+/).filter(w => w.length > 2 && !stopWords.has(w));
       for (const token of slugTokens) {
-        if (gTags.some(t => t.includes(token))) score += 3;
-        if (gSlug.includes(token)) score += 2;
-        if (gTitle.includes(token)) score += 1;
+        if (gTags.some(t => t === token)) score += 3;
+        if (gSlugTokens.includes(token)) score += 2;
+        if (gTitleWords.includes(token)) score += 1;
       }
       // Check if instance name words appear in guide tags/title
       for (const word of nameWords) {
-        if (gTags.some(t => t.includes(word))) score += 2;
-        if (gTitle.includes(word)) score += 1;
+        if (gTags.some(t => t === word)) score += 2;
+        if (gTitleWords.includes(word)) score += 1;
       }
       // Must be an instance/raid-related guide to count
       const isInstanceGuide = gTags.some(t => ['instance', 'instances', 'raid', 'raids', 'dungeon'].includes(t));
