@@ -22,6 +22,7 @@ const CDN_URL = (process.env.DO_CDN_URL || '').replace(/\/$/, '');
 const FILES = [
   'data/instances-db.json',
   'data/instance-loot.json',
+  'data/instance-videos.json',
   // Class build definitions (used at build time by Skills page + editor trait planner)
   'data/builds/beorning.json',
   'data/builds/brawler.json',

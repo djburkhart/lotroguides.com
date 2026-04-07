@@ -15,7 +15,7 @@ const { S3Client, PutObjectCommand, ListObjectVersionsCommand, GetObjectCommand 
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://lotroguides.com',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
