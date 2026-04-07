@@ -30,6 +30,11 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  function stripColorTags(str) {
+    if (!str) return '';
+    return str.replace(/&lt;\/?rgb(?:=#[A-Fa-f0-9]+)?&gt;/g, '').replace(/<\/?rgb(?:=#[A-Fa-f0-9]+)?>/g, '');
+  }
+
   function renderName(data, type, row) {
     if (type !== 'display') return data || '';
     var html = '<a href="quests?id=' + row.id + '" class="lotro-quest-link" data-quest-id="' + row.id + '">';
@@ -320,7 +325,7 @@
     // Description
     if (q.desc) {
       html += '<div class="quest-modal-desc">';
-      html += '<p>' + escapeHtml(q.desc) + '</p>';
+      html += '<p>' + escapeHtml(stripColorTags(q.desc)) + '</p>';
       html += '</div>';
     }
 

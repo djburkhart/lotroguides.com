@@ -29,6 +29,7 @@ const NAMESPACES = {
   discord:   'fn-41039bc6-30e5-4581-a23a-f14fe5c2f748',
   deeds:     'fn-15b56daf-ff46-43ce-a2ed-b3ac87f50a7f',
   builds:    'fn-db4a7682-0b2c-40c0-b008-b9cc91c16a92',
+  mapdata:   'fn-7c951b22-9074-45af-a2a3-ec1fba6309d7',
 };
 
 // Full project.yml entry for each package
@@ -87,6 +88,13 @@ const PACKAGE_DEFS = {
       DO_SPACES_SECRET: process.env.DO_SPACES_SECRET || '',
       DO_SPACES_BUCKET: process.env.DO_SPACES_BUCKET || '',
       DO_SPACES_REGION: process.env.DO_SPACES_REGION || 'nyc3',
+    },
+  },
+  mapdata: {
+    name: 'mapdata',
+    functions: [{ name: 'lookup', runtime: 'nodejs:22', web: true }],
+    environment: {
+      DO_CDN_URL: 'https://lotroguides.atl1.cdn.digitaloceanspaces.com',
     },
   },
 };

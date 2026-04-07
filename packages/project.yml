@@ -39,3 +39,8 @@ packages:
       - name: interact
         runtime: nodejs:22
         web: true
+  - name: mapdata
+    functions:
+      - name: lookup
+        runtime: nodejs:22
+        web: true

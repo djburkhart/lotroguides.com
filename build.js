@@ -699,6 +699,10 @@ function escHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function stripColorTags(s) {
+  return String(s).replace(/&lt;\/?rgb(?:=#[A-Fa-f0-9]+)?&gt;/g, '').replace(/<\/?rgb(?:=#[A-Fa-f0-9]+)?>/g, '');
+}
+
 function buildQuestCardHtml(quest) {
   if (!quest) return '<div class="lotro-card lotro-card-quest lotro-card-missing"><i class="fa fa-exclamation-triangle"></i> Quest not found</div>';
   const name = escHtml(quest.n || '');
@@ -706,7 +710,7 @@ function buildQuestCardHtml(quest) {
   const cat = quest.cat ? `<span class="lotro-card-zone"><i class="fa fa-map-marker"></i> ${escHtml(quest.cat)}</span>` : '';
   const arc = quest.arc ? `<span class="lotro-card-arc"><i class="fa fa-link"></i> ${escHtml(quest.arc)}</span>` : '';
   const bestower = quest.b ? `<div class="lotro-card-bestower"><strong>Bestower:</strong> ${escHtml(quest.b)}</div>` : '';
-  const desc = quest.desc ? `<div class="lotro-card-desc">${escHtml(quest.desc)}</div>` : '';
+  const desc = quest.desc ? `<div class="lotro-card-desc">${escHtml(stripColorTags(quest.desc))}</div>` : '';
 
   let rewardsHtml = '';
   if (quest.rw) {
@@ -3558,6 +3562,20 @@ function buildFactionsPage(navData) {
   if (!fs.existsSync(factionsPath)) return;
 
   const factions = JSON.parse(fs.readFileSync(factionsPath, 'utf8'));
+
+  // Resolve deed IDs to deed names using deeds-db
+  const deedsDbPath = path.join(__dirname, 'data', 'deeds-db.json');
+  if (fs.existsSync(deedsDbPath)) {
+    const deeds = JSON.parse(fs.readFileSync(deedsDbPath, 'utf8'));
+    const deedMap = {};
+    for (const d of deeds) deedMap[String(d.id)] = d.n;
+    for (const f of factions) {
+      if (!f.tiers) continue;
+      for (const t of f.tiers) {
+        if (t.deed && /^\d+$/.test(t.deed) && deedMap[t.deed]) t.deed = deedMap[t.deed];
+      }
+    }
+  }
 
   ensureDir(path.join(OUTPUT_DIR, 'data'));
   fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'factions-db.json'), JSON.stringify(factions));

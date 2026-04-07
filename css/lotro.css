@@ -2549,6 +2549,66 @@ h1, h2, h3 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
+/* ─── Mob Overlay Panel ─────────────────────────────────────────────────── */
+.lotro-map-mob-panel {
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  background: rgba(26, 26, 46, 0.95);
+  border: 1px solid var(--lotro-gold);
+  border-radius: 6px;
+  z-index: 1000;
+  padding: 12px;
+  margin-right: 10px;
+  max-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 13px;
+  color: var(--lotro-parchment);
+}
+.lotro-map-mob-panel h5 {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--lotro-gold);
+  margin: 0 0 8px;
+}
+.lotro-map-mob-panel .close-panel {
+  float: right;
+  cursor: pointer;
+  color: #999;
+  font-size: 16px;
+}
+.lotro-map-mob-panel .close-panel:hover {
+  color: #fff;
+}
+.mob-map-entry {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+}
+.mob-map-entry:last-child {
+  border-bottom: none;
+}
+.mob-map-entry i {
+  margin-right: 4px;
+}
+.mob-map-current {
+  color: var(--lotro-gold);
+}
+.mob-map-offmap {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.mob-map-offmap:hover {
+  opacity: 1;
+  color: var(--lotro-gold);
+}
+.mob-spawn-count {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
 /* (Quest popup styles are now integrated into .lotro-map-popup-details above) */
 
 /* ─── Instance Loot Accordion ───────────────────────────────────────────── */

@@ -10,6 +10,9 @@
   var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
   function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
 
+  // DO Function API for map overlays (quests, deeds, mobs)
+  var MAP_API = 'https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-7c951b22-9074-45af-a2a3-ec1fba6309d7/mapdata/lookup';
+
   // ─── State ──────────────────────────────────────────────────────────────
   var map;
   var allMaps = [];           // All map definitions
@@ -1149,6 +1152,17 @@
       }
     });
 
+    // Mob overlay panel close
+    $(document).on('click', '#mob-panel-close', function () {
+      clearMobOverlay();
+    });
+
+    // Mob overlay — switch map when clicking an off-map entry
+    $(document).on('click', '.mob-map-offmap', function () {
+      var targetMap = $(this).data('mob-switch-map');
+      if (targetMap) switchMobMap(String(targetMap));
+    });
+
     // Handle URL params for direct linking
     var params = new URLSearchParams(window.location.search);
 
@@ -1218,19 +1232,24 @@
 
   // ─── Deed Overlay ───────────────────────────────────────────────────────
   function loadDeedOverlay(deedId) {
-    if (deedOverlayData) {
+    // Check per-deed cache first
+    if (deedOverlayData && deedOverlayData[deedId]) {
       showDeedOverlay(deedId);
       return;
     }
-    $.getJSON(cdnUrl('data/deed-overlay.json'), function (data) {
-      deedOverlayData = data || {};
+    if (!deedOverlayData) deedOverlayData = {};
+    $.getJSON(MAP_API + '?type=deed&id=' + encodeURIComponent(deedId), function (data) {
+      deedOverlayData[deedId] = data;
       showDeedOverlay(deedId);
+    }).fail(function () {
+      console.warn('Deed overlay not found:', deedId);
     });
   }
 
   function showDeedOverlay(deedId) {
     clearDeedOverlay();
     clearQuestOverlay(); // Clear any active quest overlay
+    clearMobOverlay();   // Clear any active mob overlay
 
     var deed = deedOverlayData && deedOverlayData[deedId];
     if (!deed || !deed.pts || !deed.pts.length) return;
@@ -1354,23 +1373,152 @@
     $('#lotro-map').parent().append(html);
   }
 
+  // Mob overlay layer + state
+  var mobOverlayLayer = null;
+  var activeMobId = null;
+  var activeMobData = null;
+
   function loadMobOverlay(mobId) {
-    if (mobOverlayData) {
+    if (mobOverlayData && mobOverlayData[mobId]) {
       showMobOverlay(mobId);
       return;
     }
-    $.getJSON(cdnUrl('data/mob-overlay.json'), function (data) {
-      mobOverlayData = data || {};
+    if (!mobOverlayData) mobOverlayData = {};
+    $.getJSON(MAP_API + '?type=mob&id=' + encodeURIComponent(mobId), function (data) {
+      mobOverlayData[mobId] = data;
       showMobOverlay(mobId);
+    }).fail(function () {
+      console.warn('Mob overlay not found:', mobId);
     });
   }
 
   function showMobOverlay(mobId) {
     clearQuestOverlay();
     clearDeedOverlay();
+    clearMobOverlay();
+
     var mob = mobOverlayData && mobOverlayData[mobId];
-    if (!mob || !mob.map) return;
-    goToSharedLocation(mob.map, mob.lng, mob.lat, mob.n || mob.l || 'Mob location');
+    if (!mob || !mob.pts || !mob.pts.length) return;
+
+    activeMobId = mobId;
+    activeMobData = mob;
+    mobOverlayLayer = L.layerGroup();
+    map.addLayer(mobOverlayLayer);
+
+    // Find best primary map: the one with the most spawn points
+    var mapCounts = {};
+    for (var i = 0; i < mob.pts.length; i++) {
+      var mid = mob.pts[i].map;
+      mapCounts[mid] = (mapCounts[mid] || 0) + 1;
+    }
+    var primaryMap = null;
+    var maxCount = 0;
+    for (var m in mapCounts) {
+      if (mapCounts[m] > maxCount && mapById[m]) {
+        maxCount = mapCounts[m];
+        primaryMap = m;
+      }
+    }
+
+    if (primaryMap) {
+      showMap(primaryMap, true);
+    }
+
+    renderMobMarkers(mob, currentMapId);
+    showMobPanel(mob);
+  }
+
+  /**
+   * Render mob spawn markers for only the given map.
+   */
+  function renderMobMarkers(mob, targetMapId) {
+    if (!mobOverlayLayer) return;
+    mobOverlayLayer.clearLayers();
+
+    var count = 0;
+    for (var i = 0; i < mob.pts.length; i++) {
+      var pt = mob.pts[i];
+      if (pt.map !== targetMapId) continue;
+      var ll = gameToLatLng(pt.lng, pt.lat);
+      var pin = L.circleMarker(ll, {
+        radius: 10,
+        color: '#C9A84C',
+        fillColor: '#FFD700',
+        fillOpacity: 0.55,
+        weight: 2,
+      });
+      count++;
+      pin.bindPopup(
+        '<div class="lotro-map-popup">' +
+        '<div class="lotro-map-popup-title">' + escapeHtml(mob.n) + '</div>' +
+        '<div class="lotro-map-popup-cat">Spawn point ' + count + '</div>' +
+        '<div class="lotro-map-popup-coords">' + pt.lng.toFixed(1) + ', ' + pt.lat.toFixed(1) + '</div>' +
+        '</div>'
+      );
+      mobOverlayLayer.addLayer(pin);
+    }
+  }
+
+  /**
+   * Switch the mob overlay to a different map when the user clicks a
+   * map link in the panel.
+   */
+  function switchMobMap(targetMapId) {
+    if (!activeMobData) return;
+    if (mapById[targetMapId]) {
+      showMap(targetMapId, true);
+    }
+    renderMobMarkers(activeMobData, currentMapId);
+    showMobPanel(activeMobData);
+  }
+
+  function clearMobOverlay() {
+    if (mobOverlayLayer) {
+      map.removeLayer(mobOverlayLayer);
+      mobOverlayLayer = null;
+    }
+    activeMobId = null;
+    activeMobData = null;
+    $('#lotro-mob-panel').remove();
+  }
+
+  function showMobPanel(mob) {
+    $('#lotro-mob-panel').remove();
+
+    // Group points by map
+    var byMap = {};
+    for (var i = 0; i < mob.pts.length; i++) {
+      var mid = mob.pts[i].map;
+      if (!byMap[mid]) byMap[mid] = [];
+      byMap[mid].push(mob.pts[i]);
+    }
+
+    var mapIds = Object.keys(byMap);
+
+    var html = '<div id="lotro-mob-panel" class="lotro-map-mob-panel">' +
+      '<span class="close-panel" id="mob-panel-close">&times;</span>' +
+      '<h5>' + escapeHtml(mob.n) + '</h5>';
+
+    for (var m = 0; m < mapIds.length; m++) {
+      var mid = mapIds[m];
+      var mapName = (mapById[mid] && mapById[mid].name) ? cleanGameText(mapById[mid].name) : 'Unknown';
+      var pts = byMap[mid];
+      var onCurrent = mid === currentMapId;
+
+      if (onCurrent) {
+        html += '<div class="mob-map-entry mob-map-current">' +
+          '<i class="fa fa-map-marker"></i> ' + escapeHtml(mapName) +
+          ' <span class="mob-spawn-count">(' + pts.length + ' spawn' + (pts.length > 1 ? 's' : '') + ')</span>' +
+          '</div>';
+      } else {
+        html += '<div class="mob-map-entry mob-map-offmap" data-mob-switch-map="' + mid + '">' +
+          '<i class="fa fa-map-o"></i> ' + escapeHtml(mapName) +
+          ' <span class="mob-spawn-count">(' + pts.length + ' spawn' + (pts.length > 1 ? 's' : '') + ')</span>' +
+          '</div>';
+      }
+    }
+    html += '</div>';
+    $('#lotro-map').parent().append(html);
   }
 
   // ─── Quest Overlay ───────────────────────────────────────────────────────
@@ -1408,13 +1556,13 @@
 
   function loadQuestOverlay(questId) {
     // questOverlayData is a partial cache: {questId → questData}.
-    // We fetch only the specific quest file (~650 bytes) instead of the full 7.9 MB monolith.
+    // We fetch only the specific quest via the map API function.
     if (questOverlayData && questOverlayData[questId]) {
       showQuestOverlay(questId);
       return;
     }
     if (!questOverlayData) questOverlayData = {};
-    $.getJSON(cdnUrl('data/lore/quests/' + questId + '.json'), function (data) {
+    $.getJSON(MAP_API + '?type=quest&id=' + encodeURIComponent(questId), function (data) {
       questOverlayData[questId] = data;
       showQuestOverlay(questId);
     }).fail(function () {
@@ -1425,6 +1573,7 @@
   function showQuestOverlay(questId) {
     clearQuestOverlay();
     clearDeedOverlay(); // Clear any active deed overlay
+    clearMobOverlay();  // Clear any active mob overlay
     var quest = questOverlayData[questId];
     if (!quest) return;
 

@@ -46,6 +46,16 @@ var EMOJI = {
   VirtueXP:         '<:VirtueExperience:1490398579087507636>',
   LP:               '<:LOTROPoints:1490398533449416926>',
   TheOneRing:       '<:TheOneRing:1490398397201645568>',
+  // Title categories
+  Hobby:            '<:Hobby:1491134599978291280>',
+  Food:             '<:Food:1491134507573575800>',
+  Heritage:         '<:Heritage:1491134335372230859>',
+  Kinship:          '<:Kinship:1491134300987457669>',
+  Pedigree:         '<:Pedigree:1491134075975634985>',
+  Deed:             '<:Deed:1491134015522996264>',
+  Emote:            '<:Emote:1491133961462611968>',
+  Social:           '<:Social:1491133922632011968>',
+  Crafting:         '<:Crafting:1491133878264533133>',
 };
 
 // className key → emoji key (handles hyphenated names)
@@ -94,6 +104,11 @@ function escMd(s) {
   return s.replace(/([*_~`|\\>])/g, '\\$1');
 }
 
+function stripColorTags(s) {
+  if (!s) return '';
+  return s.replace(/&lt;\/?rgb(?:=#[A-Fa-f0-9]+)?&gt;/g, '').replace(/<\/?rgb(?:=#[A-Fa-f0-9]+)?>/g, '');
+}
+
 /* ── Quest ─────────────────────────────────────────────────────────── */
 
 function questEmbed(quest) {
@@ -104,10 +119,10 @@ function questEmbed(quest) {
     fields.push({ name: em('Map', '📍') + ' Zone', value: escMd(quest.cat), inline: true });
   }
   if (quest.lv) {
-    fields.push({ name: '⚔️ Level', value: String(quest.lv), inline: true });
+    fields.push({ name: 'Level', value: String(quest.lv), inline: true });
   }
   if (quest.arc) {
-    fields.push({ name: '🔗 Arc', value: escMd(quest.arc), inline: true });
+    fields.push({ name: em('Lore', '🔗') + ' Arc', value: escMd(quest.arc), inline: true });
   }
   if (quest.b) {
     fields.push({ name: 'Bestower', value: escMd(quest.b), inline: true });
@@ -136,7 +151,7 @@ function questEmbed(quest) {
     title: em('TheOneRing', '📖') + ' ' + (quest.n || 'Unknown Quest'),
     url: SITE + '/quests?id=' + encodeURIComponent(quest.id),
     color: 0xc9aa58,
-    description: quest.desc ? escMd(quest.desc) : undefined,
+    description: quest.desc ? escMd(stripColorTags(quest.desc)) : undefined,
     fields: fields.length ? fields : undefined,
     footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },
   };
@@ -145,11 +160,11 @@ function questEmbed(quest) {
 function formatQuestRewards(rw) {
   if (!rw) return '';
   var parts = [];
-  if (rw.xp) parts.push('⭐ ' + rw.xp + ' XP');
+  if (rw.xp) parts.push(rw.xp + ' XP');
   if (rw.m)  parts.push(em('TheOneRing', '💰') + ' ' + rw.m);
   if (rw.it && rw.it.length) {
     rw.it.forEach(function (it) {
-      parts.push('🎁 ' + escMd(it.n));
+      parts.push(escMd(it.n));
     });
   }
   return parts.join('\n') || '';
@@ -165,7 +180,7 @@ function deedEmbed(deed) {
     fields.push({ name: 'Type', value: deedTypeEmoji(deed.tp) + ' ' + escMd(deed.tp), inline: true });
   }
   if (deed.lv) {
-    fields.push({ name: '⚔️ Level', value: String(deed.lv), inline: true });
+    fields.push({ name: 'Level', value: String(deed.lv), inline: true });
   }
   if (deed.rg) {
     fields.push({ name: em('Map', '📍') + ' Region', value: escMd(deed.rg), inline: true });
@@ -219,12 +234,12 @@ function formatDeedRewards(rw) {
   var parts = [];
   rw.forEach(function (r) {
     if (r.t === 'LP')         parts.push(em('LP', '⭐') + ' ' + r.v + ' LP');
-    else if (r.t === 'Title') parts.push('📜 ' + escMd(String(r.v)));
+    else if (r.t === 'Title') parts.push(em('Deed', '📜') + ' ' + escMd(String(r.v)));
     else if (r.t === 'Virtue' || r.t === 'VirtueXP')
       parts.push(em('VirtueXP', '❤️') + ' ' + escMd(String(r.v)) + (r.t === 'VirtueXP' ? ' VXP' : ''));
     else if (r.t === 'Reputation') parts.push(em('Reputation', '🏳️') + ' ' + escMd(String(r.v)));
-    else if (r.t === 'XP')   parts.push('⭐ ' + escMd(String(r.v)) + ' XP');
-    else if (r.t === 'Item') parts.push('🎁 ' + escMd(String(r.v)));
+    else if (r.t === 'XP')   parts.push(escMd(String(r.v)) + ' XP');
+    else if (r.t === 'Item') parts.push(escMd(String(r.v)));
     else                      parts.push(escMd(String(r.v || r.t)));
   });
   return parts.join('\n') || '';
@@ -269,7 +284,7 @@ function itemEmbed(item, cdnUrl) {
   }
 
   return {
-    title: '🎒 ' + (item.n || 'Unknown Item'),
+    title: item.n || 'Unknown Item',
     url: SITE + '/items?id=' + encodeURIComponent(item.id),
     color: 0xa855f7,
     fields: fields.length ? fields : undefined,
@@ -285,7 +300,7 @@ function buildEmbed(buildData, className, buildName, likes, buildId) {
 
   var displayName = buildData.name || buildData.label || buildName || 'Build';
   var classIcon = classEmoji(className);
-  var title = (classIcon ? classIcon + ' ' : '⚙️ ') + capitalize(className) + ' — ' + displayName;
+  var title = (classIcon ? classIcon + ' ' : em('Class', '⚙️') + ' ') + capitalize(className) + ' — ' + displayName;
   var lines = [];
 
   if (buildData.traits && buildData.traits.length) {
@@ -300,7 +315,7 @@ function buildEmbed(buildData, className, buildName, likes, buildId) {
   }
 
   if (likes) {
-    lines.push('❤️ ' + likes + ' like' + (likes === 1 ? '' : 's'));
+    lines.push('⭐ ' + likes + ' like' + (likes === 1 ? '' : 's'));
   }
 
   // Build clean skills page URL — guide builds resolve by name, community builds by ID
@@ -331,7 +346,7 @@ function statCapsEmbeds(result) {
 
   var color = statCapsColor(result);
   var embed = {
-    title: (classEmoji(result.classKey) || '🧮') + ' ' + result.classLabel + ' Stat Caps',
+    title: (classEmoji(result.classKey) || em('Class', '🧮')) + ' ' + result.classLabel + ' Stat Caps',
     color: color,
     description: buildStatCapsDescription(result),
     thumbnail: { url: classIconUrl(result.classKey) },
@@ -610,6 +625,25 @@ function guideEmbed(guide) {
 
 /* ── Title ─────────────────────────────────────────────────────────── */
 
+function titleCatEmoji(cat) {
+  if (!cat) return '📜';
+  if (cat.startsWith('Slayer')) return em('Slayer', '⚔️');
+  var map = {
+    'Event': 'Event',
+    'Deed': 'Deed',
+    'Quest': 'TheOneRing',
+    'Heritage': 'Heritage',
+    'Pedigree': 'Pedigree',
+    'Crafting': 'Crafting',
+    'Social': 'Social',
+    'Kinship': 'Kinship',
+    'Hobby': 'Hobby',
+    'Skirmish': 'Slayer',
+  };
+  if (map[cat]) return em(map[cat], '📜');
+  return '📜';
+}
+
 function titleEmbed(title, cdnUrl) {
   if (!title) return missingEmbed('Title');
   var fields = [];
@@ -624,7 +658,7 @@ function titleEmbed(title, cdnUrl) {
   }
 
   return {
-    title: '📜 ' + (title.n || 'Unknown Title'),
+    title: titleCatEmoji(title.cat) + ' ' + (title.n || 'Unknown Title'),
     url: SITE + '/titles?id=' + encodeURIComponent(title.id),
     color: 0xdaa520,
     description: title.desc ? escMd(title.desc) : undefined,
@@ -679,10 +713,10 @@ function recipeEmbed(recipe, cdnUrl) {
   var fields = [];
 
   if (recipe.prof) {
-    fields.push({ name: '🔨 Profession', value: escMd(capitalize(recipe.prof.toLowerCase())), inline: true });
+    fields.push({ name: em('Crafting', '🔨') + ' Profession', value: escMd(capitalize(recipe.prof.toLowerCase())), inline: true });
   }
   if (recipe.tier) {
-    fields.push({ name: '📊 Tier', value: String(recipe.tier), inline: true });
+    fields.push({ name: 'Tier', value: String(recipe.tier), inline: true });
   }
   if (recipe.cat) {
     fields.push({ name: 'Category', value: escMd(recipe.cat), inline: true });
@@ -701,7 +735,7 @@ function recipeEmbed(recipe, cdnUrl) {
   if (recipe.res && recipe.res.length) {
     var resLines = recipe.res.map(function (r) {
       var qty = r.qty && r.qty > 1 ? ' ×' + r.qty : '';
-      var crit = r.crit ? ' ⭐ crit' : '';
+      var crit = r.crit ? ' crit' : '';
       return '• [' + escMd(r.n || '?') + '](https://lotroguides.com/items?id=' + r.id + ')' + qty + crit;
     });
     fields.push({ name: 'Results', value: resLines.join('\n') });
@@ -718,7 +752,7 @@ function recipeEmbed(recipe, cdnUrl) {
   }
 
   return {
-    title: '🔨 ' + (recipe.n || 'Unknown Recipe'),
+    title: em('Crafting', '🔨') + ' ' + (recipe.n || 'Unknown Recipe'),
     url: SITE + '/recipes?id=' + encodeURIComponent(recipe.id),
     color: 0xcd7f32,
     fields: fields.length ? fields : undefined,

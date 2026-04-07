@@ -727,6 +727,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://lotroguides.com/news/lotro-letter-to-players-december-2024-en</loc>
+    <lastmod>2024-12-18</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://lotroguides.com/news/lotro-update-42-3-release-notes-en</loc>
     <lastmod>2024-12-11</lastmod>
     <changefreq>yearly</changefreq>
@@ -987,6 +993,60 @@
   <url>
     <loc>https://lotroguides.com/news/lotro-update-35-0-1-release-notes-en</loc>
     <lastmod>2023-04-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-35-release-notes-en</loc>
+    <lastmod>2023-03-17</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-3-release-notes-en</loc>
+    <lastmod>2023-03-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-2-1-release-notes-en</loc>
+    <lastmod>2023-02-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-2-release-notes-en</loc>
+    <lastmod>2023-01-31</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-1-2-release-notes-en</loc>
+    <lastmod>2023-01-10</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-1-1-release-notes-en</loc>
+    <lastmod>2022-12-13</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-1-release-notes-en</loc>
+    <lastmod>2022-12-06</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-0-2-release-notes-en</loc>
+    <lastmod>2022-12-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://lotroguides.com/news/lotro-update-34-0-1-release-notes-en</loc>
+    <lastmod>2022-11-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
