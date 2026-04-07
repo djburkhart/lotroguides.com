@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Title Database — Client-side DataTable + Filters
+   Title Database — Client-side DataTable + Filters + Modal
    Expects: window.LOTRO_TITLES_DB loaded before init
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -20,6 +20,7 @@
 
   var table;
   var allData = [];
+  var titleById = {};
   var initialized = false;
 
   var catColors = {
@@ -42,9 +43,19 @@
   }
 
   function renderName(data, type, row) {
-    if (type !== 'display') return data;
-    var icon = row.ic ? gameIcon(row.ic, 24) + ' ' : '';
-    return '<span class="db-name-cell">' + icon + '<strong>' + $('<span/>').text(data).html() + '</strong></span>';
+    if (type === 'display') {
+      var icon = row.ic ? gameIcon(row.ic, 24) + ' ' : '';
+      return '<span class="db-name-cell">' + icon +
+             '<a href="titles?id=' + row.id + '" class="lotro-title-link" data-title-id="' + row.id + '"><strong>' +
+             $('<span/>').text(data).html() + '</strong></a></span>';
+    }
+    if (type === 'filter') {
+      var parts = [data];
+      if (row.cat) parts.push(row.cat);
+      if (row.desc) parts.push(row.desc);
+      return parts.join(' ');
+    }
+    return data;
   }
 
   function renderCat(data, type) {
@@ -79,26 +90,78 @@
     table.clear().rows.add(filtered).draw();
   }
 
+  // ── Title detail modal ──────────────────────────────────────────────────
+  function showTitleModal(id) {
+    var t = titleById[id];
+    if (!t) return;
+
+    var icon = t.ic ? gameIcon(t.ic, 36) + ' ' : '';
+    $('#title-modal-title').html(icon + '<strong>' + $('<span/>').text(t.n).html() + '</strong>');
+
+    var html = '';
+    if (t.cat) html += '<p><strong>Category:</strong> ' + catBadge(t.cat) + '</p>';
+    if (t.desc) html += '<p class="text-muted">' + $('<span/>').text(t.desc).html() + '</p>';
+
+    $('#title-modal-body').html(html);
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'titles?id=' + id);
+    }
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'select_content', content_type: 'title', content_id: id });
+
+    $('#title-modal').modal('show');
+  }
+
+  function checkUrlParams() {
+    var params = new URLSearchParams(window.location.search);
+
+    var q = params.get('q');
+    if (q && table) {
+      table.search(q).draw();
+      $('div.dataTables_filter input').val(q);
+    }
+
+    var catVal = params.get('cat');
+    if (catVal) {
+      $('#filter-category').val(catVal);
+      applyFilters();
+      if (q && table) table.search(q).draw();
+    }
+
+    var id = params.get('id');
+    if (id) {
+      setTimeout(function () { showTitleModal(id); }, 200);
+    }
+  }
+
   function init() {
     if (initialized) return;
     initialized = true;
 
     allData = window.LOTRO_TITLES_DB || [];
+    for (var i = 0; i < allData.length; i++) titleById[allData[i].id] = allData[i];
     populateCategories(allData);
 
     table = $('#titles-table').DataTable({
       data: allData,
+      deferRender: true,
+      pageLength: 100,
+      lengthMenu: [50, 100, 250, 500],
+      order: [[0, 'asc']],
       columns: [
         { data: 'n', title: 'Title', render: renderName },
-        { data: 'cat', title: 'Category', render: renderCat, defaultContent: '' },
+        { data: 'cat', title: 'Category', render: renderCat, defaultContent: '', width: '160px' },
         { data: 'desc', title: 'Description', render: renderDesc, defaultContent: '' }
       ],
-      pageLength: 25,
-      order: [[0, 'asc']],
-      language: { search: '', searchPlaceholder: 'Search titles…' },
-      dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
-           "<'row'<'col-sm-12'tr>>" +
-           "<'row'<'col-sm-5'i><'col-sm-7'p>>"
+      language: {
+        search: '<i class="fa fa-search"></i>',
+        searchPlaceholder: 'Search titles…',
+        info: 'Showing _START_\u2013_END_ of _TOTAL_ titles',
+        lengthMenu: 'Show _MENU_'
+      },
+      dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rtip'
     });
 
     $('#filter-category').on('change', applyFilters);
@@ -107,13 +170,20 @@
       applyFilters();
     });
 
-    // Deep-link support
-    var params = new URLSearchParams(window.location.search);
-    if (params.get('cat')) {
-      $('#filter-category').val(params.get('cat'));
-      applyFilters();
-    }
+    checkUrlParams();
   }
+
+  // ── Delegated click handler ─────────────────────────────────────────────
+  $(document).on('click', '.lotro-title-link', function (e) {
+    e.preventDefault();
+    showTitleModal($(this).data('title-id').toString());
+  });
+
+  $(document).on('hidden.bs.modal', '#title-modal', function () {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'titles');
+    }
+  });
 
   window.LOTRO_TITLES_INIT = init;
 })();

@@ -608,12 +608,134 @@ function guideEmbed(guide) {
   };
 }
 
+/* ── Title ─────────────────────────────────────────────────────────── */
+
+function titleEmbed(title, cdnUrl) {
+  if (!title) return missingEmbed('Title');
+  var fields = [];
+
+  if (title.cat) {
+    fields.push({ name: 'Category', value: escMd(title.cat), inline: true });
+  }
+
+  var thumb = undefined;
+  if (title.ic && cdnUrl) {
+    thumb = { url: cdnUrl + '/img/icons/titles/' + title.ic + '.png' };
+  }
+
+  return {
+    title: '📜 ' + (title.n || 'Unknown Title'),
+    url: SITE + '/titles?id=' + encodeURIComponent(title.id),
+    color: 0xdaa520,
+    description: title.desc ? escMd(title.desc) : undefined,
+    fields: fields.length ? fields : undefined,
+    thumbnail: thumb,
+    footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },
+  };
+}
+
+/* ── Faction ───────────────────────────────────────────────────────── */
+
+function factionEmbed(faction) {
+  if (!faction) return missingEmbed('Faction');
+  var fields = [];
+
+  if (faction.cat) {
+    fields.push({ name: 'Category', value: escMd(faction.cat), inline: true });
+  }
+
+  // Reputation tiers summary
+  if (faction.tiers && faction.tiers.length) {
+    var tierLines = [];
+    var totalLP = 0;
+    faction.tiers.forEach(function (tier) {
+      if (tier.k === 'ENEMY' || tier.k === 'OUTSIDER' || tier.k === 'NEUTRAL') return;
+      var line = '• **' + escMd(tier.n) + '** — ' + formatNumber(tier.rep) + ' rep';
+      if (tier.lp) { line += ' · ' + em('LP', '⭐') + ' ' + tier.lp + ' LP'; totalLP += tier.lp; }
+      tierLines.push(line);
+    });
+    if (tierLines.length) {
+      fields.push({ name: 'Tiers', value: tierLines.join('\n') });
+    }
+    if (totalLP > 0) {
+      fields.push({ name: em('LP', '⭐') + ' Total LP', value: String(totalLP), inline: true });
+    }
+  }
+
+  return {
+    title: em('Reputation', '🏳️') + ' ' + (faction.n || 'Unknown Faction'),
+    url: SITE + '/factions?id=' + encodeURIComponent(faction.id),
+    color: 0x8b4513,
+    description: faction.desc ? escMd(faction.desc) : undefined,
+    fields: fields.length ? fields : undefined,
+    footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },
+  };
+}
+
+/* ── Recipe ─────────────────────────────────────────────────────────── */
+
+function recipeEmbed(recipe, cdnUrl) {
+  if (!recipe) return missingEmbed('Recipe');
+  var fields = [];
+
+  if (recipe.prof) {
+    fields.push({ name: '🔨 Profession', value: escMd(capitalize(recipe.prof.toLowerCase())), inline: true });
+  }
+  if (recipe.tier) {
+    fields.push({ name: '📊 Tier', value: String(recipe.tier), inline: true });
+  }
+  if (recipe.cat) {
+    fields.push({ name: 'Category', value: escMd(recipe.cat), inline: true });
+  }
+
+  // Ingredients
+  if (recipe.ing && recipe.ing.length) {
+    var ingLines = recipe.ing.map(function (i) {
+      var qty = i.qty && i.qty > 1 ? ' ×' + i.qty : '';
+      return '• ' + escMd(i.n || '?') + qty;
+    });
+    fields.push({ name: 'Ingredients', value: ingLines.join('\n') });
+  }
+
+  // Results
+  if (recipe.res && recipe.res.length) {
+    var resLines = recipe.res.map(function (r) {
+      var qty = r.qty && r.qty > 1 ? ' ×' + r.qty : '';
+      var crit = r.crit ? ' ⭐ crit' : '';
+      return '• [' + escMd(r.n || '?') + '](https://lotroguides.com/items?id=' + r.id + ')' + qty + crit;
+    });
+    fields.push({ name: 'Results', value: resLines.join('\n') });
+  }
+
+  // Recipe scroll
+  if (recipe.scroll) {
+    fields.push({ name: 'Recipe Scroll', value: '[' + escMd(recipe.scroll.n) + '](https://lotroguides.com/items?id=' + recipe.scroll.id + ')' });
+  }
+
+  var thumb = undefined;
+  if (recipe.ic && cdnUrl) {
+    thumb = { url: cdnUrl + '/img/icons/items/' + recipe.ic + '.png' };
+  }
+
+  return {
+    title: '🔨 ' + (recipe.n || 'Unknown Recipe'),
+    url: SITE + '/recipes?id=' + encodeURIComponent(recipe.id),
+    color: 0xcd7f32,
+    fields: fields.length ? fields : undefined,
+    thumbnail: thumb,
+    footer: { text: 'LOTRO Guides', icon_url: SITE + '/img/icons/lotro-guides-icon.png' },
+  };
+}
+
 exports.questEmbed  = questEmbed;
 exports.deedEmbed   = deedEmbed;
 exports.mapEmbed    = mapEmbed;
 exports.itemEmbed   = itemEmbed;
 exports.buildEmbed  = buildEmbed;
 exports.guideEmbed  = guideEmbed;
+exports.titleEmbed  = titleEmbed;
+exports.factionEmbed = factionEmbed;
+exports.recipeEmbed = recipeEmbed;
 exports.statCapsEmbeds = statCapsEmbeds;
 exports.statCapsEmbed = statCapsEmbed;
 exports.missingEmbed = missingEmbed;

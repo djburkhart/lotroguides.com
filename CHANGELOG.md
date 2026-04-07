@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.2] - 2026-04-07
+
+### Added
+
+- **Discord `/title` command** — Look up any of 3,035 LOTRO titles with autocomplete search, category badges, and in-game icon thumbnails
+- **Discord `/faction` command** — Look up any of 105 reputation factions with tier progression, LOTRO Points totals, and custom LP emoji
+- **Discord `/recipe` command** — Look up any of 7,753 crafting recipes with profession, tier, ingredients, result item links, recipe scroll links, and icon thumbnails
+- **Discord command registration** — Registration script updated from 7 to 10 slash commands
+
+## [2.6.1] - 2026-04-07
+
+### Added
+
+- **Title detail modal** — Clicking a title opens a detail modal showing category badge and description; URL updates to `?id=` for deep-linking and shareable links
+- **Faction & Recipe URL deep-linking** — Faction and recipe modals now update the browser URL with `?id=` for shareable direct links
+- **GA4 analytics events** — Faction, recipe, and title modals push `select_content` events to dataLayer for tracking
+
+### Changed
+
+- **Enhanced DataTable search** — Title, faction, and recipe tables now include category, description, profession, and other metadata in the search filter for richer full-text results
+- **DataTable performance** — Faction and recipe tables use `deferRender` for faster initial load, increased default page size to 100, and consistent column widths
+
 ## [2.6.0] - 2026-04-07
 
 ### Added

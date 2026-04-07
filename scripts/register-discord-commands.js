@@ -147,6 +147,45 @@ var commands = [
     ],
   },
   {
+    name: 'title',
+    description: 'Look up a LOTRO title by name',
+    options: [
+      {
+        name: 'name',
+        description: 'Start typing a title name…',
+        type: STRING,
+        required: true,
+        autocomplete: true,
+      },
+    ],
+  },
+  {
+    name: 'faction',
+    description: 'Look up a LOTRO reputation faction',
+    options: [
+      {
+        name: 'name',
+        description: 'Start typing a faction name…',
+        type: STRING,
+        required: true,
+        autocomplete: true,
+      },
+    ],
+  },
+  {
+    name: 'recipe',
+    description: 'Look up a LOTRO crafting recipe',
+    options: [
+      {
+        name: 'name',
+        description: 'Start typing a recipe name…',
+        type: STRING,
+        required: true,
+        autocomplete: true,
+      },
+    ],
+  },
+  {
     name: 'statcaps',
     description: 'Calculate stat caps for a class, level, and penetration preset',
     options: [

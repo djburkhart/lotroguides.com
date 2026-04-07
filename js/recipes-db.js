@@ -56,11 +56,21 @@
   }
 
   function renderName(data, type, row) {
-    if (type !== 'display') return data;
-    var icon = row.ic ? gameIcon(row.ic, 24) + ' ' : '';
-    return '<span class="db-name-cell">' + icon +
-           '<a href="recipes?id=' + row.id + '" class="lotro-recipe-link" data-recipe-id="' + row.id + '">' +
-           $('<span/>').text(data).html() + '</a></span>';
+    if (type === 'display') {
+      var icon = row.ic ? gameIcon(row.ic, 24) + ' ' : '';
+      return '<span class="db-name-cell">' + icon +
+             '<a href="recipes?id=' + row.id + '" class="lotro-recipe-link" data-recipe-id="' + row.id + '">' +
+             $('<span/>').text(data).html() + '</a></span>';
+    }
+    if (type === 'filter') {
+      var parts = [data];
+      if (row.prof) parts.push(profNames[row.prof] || row.prof);
+      if (row.cat) parts.push(row.cat);
+      if (row.guild) parts.push('guild');
+      if (row.single) parts.push('single use');
+      return parts.join(' ');
+    }
+    return data;
   }
 
   function renderProf(data, type) {
@@ -179,6 +189,14 @@
     }
 
     $('#recipe-modal-body').html(html);
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'recipes?id=' + id);
+    }
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'select_content', content_type: 'recipe', content_id: id });
+
     $('#recipe-modal').modal('show');
   }
 
@@ -192,19 +210,24 @@
 
     table = $('#recipes-table').DataTable({
       data: allData,
+      deferRender: true,
+      pageLength: 100,
+      lengthMenu: [50, 100, 250, 500],
+      order: [[0, 'asc']],
       columns: [
         { data: 'n', title: 'Recipe', render: renderName },
-        { data: 'prof', title: 'Profession', render: renderProf, defaultContent: '' },
-        { data: 'tier', title: 'Tier', render: renderTier, defaultContent: '' },
+        { data: 'prof', title: 'Profession', render: renderProf, defaultContent: '', width: '120px' },
+        { data: 'tier', title: 'Tier', render: renderTier, defaultContent: '', width: '60px' },
         { data: 'cat', title: 'Category', render: renderCat, defaultContent: '' },
-        { data: 'xp', title: 'XP', render: renderXp, defaultContent: '' }
+        { data: 'xp', title: 'XP', render: renderXp, defaultContent: '', width: '80px' }
       ],
-      pageLength: 25,
-      order: [[0, 'asc']],
-      language: { search: '', searchPlaceholder: 'Search recipes…' },
-      dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
-           "<'row'<'col-sm-12'tr>>" +
-           "<'row'<'col-sm-5'i><'col-sm-7'p>>"
+      language: {
+        search: '<i class="fa fa-search"></i>',
+        searchPlaceholder: 'Search recipes…',
+        info: 'Showing _START_\u2013_END_ of _TOTAL_ recipes',
+        lengthMenu: 'Show _MENU_'
+      },
+      dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rtip'
     });
 
     $('#filter-profession, #filter-tier, #filter-category').on('change', applyFilters);
@@ -216,17 +239,41 @@
     // Click handler
     $(document).on('click', '.lotro-recipe-link', function (e) {
       e.preventDefault();
-      showRecipeModal($(this).data('recipe-id'));
+      showRecipeModal($(this).data('recipe-id').toString());
     });
 
     // Deep-link support
     var params = new URLSearchParams(window.location.search);
-    if (params.get('id')) showRecipeModal(params.get('id'));
-    if (params.get('prof')) {
-      $('#filter-profession').val(params.get('prof'));
+
+    var q = params.get('q');
+    if (q && table) {
+      table.search(q).draw();
+      $('div.dataTables_filter input').val(q);
+    }
+
+    var profVal = params.get('prof');
+    var tierVal = params.get('tier');
+    var catVal = params.get('cat');
+    if (profVal) $('#filter-profession').val(profVal);
+    if (tierVal) $('#filter-tier').val(tierVal);
+    if (catVal) $('#filter-category').val(catVal);
+    if (profVal || tierVal || catVal) {
       applyFilters();
+      if (q && table) table.search(q).draw();
+    }
+
+    var id = params.get('id');
+    if (id) {
+      setTimeout(function () { showRecipeModal(id); }, 200);
     }
   }
+
+  // Clear URL when modal closes
+  $(document).on('hidden.bs.modal', '#recipe-modal', function () {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'recipes');
+    }
+  });
 
   window.LOTRO_RECIPES_INIT = init;
 })();

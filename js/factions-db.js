@@ -58,12 +58,20 @@
   };
 
   function renderName(data, type, row) {
-    if (type !== 'display') return data;
-    var iconCls = catIcons[row.cat] || 'fa-star';
-    var icon = '<i class="fa ' + iconCls + ' faction-cat-icon"></i> ';
-    return '<span class="db-name-cell">' + icon +
-           '<a href="factions?id=' + row.id + '" class="lotro-faction-link" data-faction-id="' + row.id + '">' +
-           $('<span/>').text(data).html() + '</a></span>';
+    if (type === 'display') {
+      var iconCls = catIcons[row.cat] || 'fa-star';
+      var icon = '<i class="fa ' + iconCls + ' faction-cat-icon"></i> ';
+      return '<span class="db-name-cell">' + icon +
+             '<a href="factions?id=' + row.id + '" class="lotro-faction-link" data-faction-id="' + row.id + '">' +
+             $('<span/>').text(data).html() + '</a></span>';
+    }
+    if (type === 'filter') {
+      var parts = [data];
+      if (row.cat) parts.push(row.cat);
+      if (row.desc) parts.push(row.desc);
+      return parts.join(' ');
+    }
+    return data;
   }
 
   function renderRegion(data, type) {
@@ -136,6 +144,14 @@
     }
 
     $('#faction-modal-body').html(html);
+
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'factions?id=' + id);
+    }
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'select_content', content_type: 'faction', content_id: id });
+
     $('#faction-modal').modal('show');
   }
 
@@ -149,18 +165,23 @@
 
     table = $('#factions-table').DataTable({
       data: allData,
+      deferRender: true,
+      pageLength: 100,
+      lengthMenu: [50, 100, 250, 500],
+      order: [[0, 'asc']],
       columns: [
         { data: 'n', title: 'Faction', render: renderName },
-        { data: 'cat', title: 'Region', render: renderRegion, defaultContent: '' },
-        { data: null, title: 'Tiers', render: renderTiers },
-        { data: null, title: 'LP Total', render: renderLP }
+        { data: 'cat', title: 'Region', render: renderRegion, defaultContent: '', width: '120px' },
+        { data: null, title: 'Tiers', render: renderTiers, width: '80px' },
+        { data: null, title: 'LP Total', render: renderLP, width: '100px' }
       ],
-      pageLength: 25,
-      order: [[0, 'asc']],
-      language: { search: '', searchPlaceholder: 'Search factions…' },
-      dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>" +
-           "<'row'<'col-sm-12'tr>>" +
-           "<'row'<'col-sm-5'i><'col-sm-7'p>>"
+      language: {
+        search: '<i class="fa fa-search"></i>',
+        searchPlaceholder: 'Search factions…',
+        info: 'Showing _START_\u2013_END_ of _TOTAL_ factions',
+        lengthMenu: 'Show _MENU_'
+      },
+      dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>rtip'
     });
 
     $('#filter-category').on('change', applyFilters);
@@ -172,17 +193,37 @@
     // Click handler for faction details
     $(document).on('click', '.lotro-faction-link', function (e) {
       e.preventDefault();
-      showFactionModal($(this).data('faction-id'));
+      showFactionModal($(this).data('faction-id').toString());
     });
 
     // Deep-link support
     var params = new URLSearchParams(window.location.search);
-    if (params.get('id')) showFactionModal(params.get('id'));
-    if (params.get('cat')) {
-      $('#filter-category').val(params.get('cat'));
+
+    var q = params.get('q');
+    if (q && table) {
+      table.search(q).draw();
+      $('div.dataTables_filter input').val(q);
+    }
+
+    var catVal = params.get('cat');
+    if (catVal) {
+      $('#filter-category').val(catVal);
       applyFilters();
+      if (q && table) table.search(q).draw();
+    }
+
+    var id = params.get('id');
+    if (id) {
+      setTimeout(function () { showFactionModal(id); }, 200);
     }
   }
+
+  // Clear URL when modal closes
+  $(document).on('hidden.bs.modal', '#faction-modal', function () {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, '', 'factions');
+    }
+  });
 
   window.LOTRO_FACTIONS_INIT = init;
 })();

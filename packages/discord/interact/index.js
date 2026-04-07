@@ -105,6 +105,57 @@ function loadMaps() {
   return loadPromises.maps;
 }
 
+/* ── Titles / Factions / Recipes CDN caches ───────────────────────── */
+
+var titleIndex = null;
+var titleNames = [];
+
+var factionIndex = null;
+var factionNames = [];
+
+var recipeIndex = null;
+var recipeNames = [];
+
+function loadTitles() {
+  if (loadPromises.titles) return loadPromises.titles;
+  loadPromises.titles = fetchJson(CDN_URL + '/data/titles-db.json')
+    .then(function (data) {
+      titleIndex = data;
+      titleNames = data.map(function (t) { return (t.n || '').toLowerCase(); });
+    })
+    .catch(function (err) { loadPromises.titles = null; throw err; });
+  return loadPromises.titles;
+}
+
+function loadFactions() {
+  if (loadPromises.factions) return loadPromises.factions;
+  loadPromises.factions = fetchJson(CDN_URL + '/data/factions-db.json')
+    .then(function (data) {
+      factionIndex = data;
+      factionNames = data.map(function (f) { return (f.n || '').toLowerCase(); });
+    })
+    .catch(function (err) { loadPromises.factions = null; throw err; });
+  return loadPromises.factions;
+}
+
+function loadRecipes() {
+  if (loadPromises.recipes) return loadPromises.recipes;
+  loadPromises.recipes = fetchJson(CDN_URL + '/data/recipes-db.json')
+    .then(function (data) {
+      recipeIndex = data;
+      recipeNames = data.map(function (r) { return (r.n || '').toLowerCase(); });
+    })
+    .catch(function (err) { loadPromises.recipes = null; throw err; });
+  return loadPromises.recipes;
+}
+
+/* ── Helpers ───────────────────────────────────────────────────────── */
+
+function capitalize(s) {
+  if (!s) return '';
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase().replace(/-/g, ' ');
+}
+
 /* ── Signature verification ───────────────────────────────────────── */
 
 function verifySignature(publicKey, signature, timestamp, rawBody) {
@@ -228,12 +279,48 @@ async function autocompleteGuide(query) {
   return results;
 }
 
+async function autocompleteTitle(query) {
+  if (!query || query.trim().length < 2) return [];
+  await loadTitles();
+  var results = search(titleNames, titleIndex, query, 25);
+  return results.map(function (t) {
+    var label = t.n || '?';
+    if (t.cat) label += ' [' + t.cat + ']';
+    return { name: label.slice(0, 100), value: String(t.id) };
+  });
+}
+
+async function autocompleteFaction(query) {
+  if (!query || query.trim().length < 2) return [];
+  await loadFactions();
+  var results = search(factionNames, factionIndex, query, 25);
+  return results.map(function (f) {
+    var label = f.n || '?';
+    if (f.cat) label += ' [' + f.cat + ']';
+    return { name: label.slice(0, 100), value: String(f.id) };
+  });
+}
+
+async function autocompleteRecipe(query) {
+  if (!query || query.trim().length < 2) return [];
+  await loadRecipes();
+  var results = search(recipeNames, recipeIndex, query, 25);
+  return results.map(function (r) {
+    var label = r.n || '?';
+    if (r.prof) label += ' (' + capitalize(r.prof.toLowerCase()) + ')';
+    return { name: label.slice(0, 100), value: String(r.id) };
+  });
+}
+
 var AUTOCOMPLETE_HANDLERS = {
-  quest: autocompleteQuest,
-  deed:  autocompleteDeed,
-  item:  autocompleteItem,
-  build: autocompleteBuild,
-  guide: autocompleteGuide,
+  quest:   autocompleteQuest,
+  deed:    autocompleteDeed,
+  item:    autocompleteItem,
+  build:   autocompleteBuild,
+  guide:   autocompleteGuide,
+  title:   autocompleteTitle,
+  faction: autocompleteFaction,
+  recipe:  autocompleteRecipe,
 };
 
 /* ── Command handlers ─────────────────────────────────────────────── */
@@ -483,14 +570,113 @@ async function handleStatCaps(options) {
 
 /* ── Command router ───────────────────────────────────────────────── */
 
+async function handleTitle(options) {
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Title')] };
+
+  await loadTitles();
+
+  // Try as ID first (from autocomplete)
+  var title = null;
+  for (var i = 0; i < titleIndex.length; i++) {
+    if (String(titleIndex[i].id) === String(value)) { title = titleIndex[i]; break; }
+  }
+  if (title) return { embeds: [embeds.titleEmbed(title, CDN_URL)] };
+
+  // Fallback: free-text search
+  var results = search(titleNames, titleIndex, value, 5);
+  if (results.length === 0) return { embeds: [embeds.missingEmbed('Title')] };
+  if (results.length === 1) return { embeds: [embeds.titleEmbed(results[0], CDN_URL)] };
+
+  var lines = results.map(function (t, i) {
+    var cat = t.cat ? ' [' + t.cat + ']' : '';
+    return (i + 1) + '. [' + (t.n || '?') + '](https://lotroguides.com/titles?id=' + t.id + ')' + cat;
+  });
+  return {
+    embeds: [{
+      title: '📜 Title search: "' + value + '"',
+      description: lines.join('\n'),
+      color: 0xdaa520,
+      footer: { text: results.length + ' results — LOTRO Guides' },
+    }],
+  };
+}
+
+async function handleFaction(options) {
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Faction')] };
+
+  await loadFactions();
+
+  // Try as ID first (from autocomplete)
+  var faction = null;
+  for (var i = 0; i < factionIndex.length; i++) {
+    if (String(factionIndex[i].id) === String(value)) { faction = factionIndex[i]; break; }
+  }
+  if (faction) return { embeds: [embeds.factionEmbed(faction)] };
+
+  // Fallback: free-text search
+  var results = search(factionNames, factionIndex, value, 5);
+  if (results.length === 0) return { embeds: [embeds.missingEmbed('Faction')] };
+  if (results.length === 1) return { embeds: [embeds.factionEmbed(results[0])] };
+
+  var lines = results.map(function (f, i) {
+    var cat = f.cat ? ' [' + f.cat + ']' : '';
+    return (i + 1) + '. [' + (f.n || '?') + '](https://lotroguides.com/factions?id=' + f.id + ')' + cat;
+  });
+  return {
+    embeds: [{
+      title: '🏳️ Faction search: "' + value + '"',
+      description: lines.join('\n'),
+      color: 0x8b4513,
+      footer: { text: results.length + ' results — LOTRO Guides' },
+    }],
+  };
+}
+
+async function handleRecipe(options) {
+  var value = getOptionValue(options, 'name');
+  if (!value) return { embeds: [embeds.missingEmbed('Recipe')] };
+
+  await loadRecipes();
+
+  // Try as ID first (from autocomplete)
+  var recipe = null;
+  for (var i = 0; i < recipeIndex.length; i++) {
+    if (String(recipeIndex[i].id) === String(value)) { recipe = recipeIndex[i]; break; }
+  }
+  if (recipe) return { embeds: [embeds.recipeEmbed(recipe, CDN_URL)] };
+
+  // Fallback: free-text search
+  var results = search(recipeNames, recipeIndex, value, 5);
+  if (results.length === 0) return { embeds: [embeds.missingEmbed('Recipe')] };
+  if (results.length === 1) return { embeds: [embeds.recipeEmbed(results[0], CDN_URL)] };
+
+  var lines = results.map(function (r, i) {
+    var prof = r.prof ? ' (' + capitalize(r.prof.toLowerCase()) + ')' : '';
+    return (i + 1) + '. [' + (r.n || '?') + '](https://lotroguides.com/recipes?id=' + r.id + ')' + prof;
+  });
+  return {
+    embeds: [{
+      title: '🔨 Recipe search: "' + value + '"',
+      description: lines.join('\n'),
+      color: 0xcd7f32,
+      footer: { text: results.length + ' results — LOTRO Guides' },
+    }],
+  };
+}
+
 var HANDLERS = {
-  quest: handleQuest,
-  deed:  handleDeed,
-  item:  handleItem,
-  map:   handleMap,
-  build: handleBuild,
-  guide: handleGuide,
+  quest:    handleQuest,
+  deed:     handleDeed,
+  item:     handleItem,
+  map:      handleMap,
+  build:    handleBuild,
+  guide:    handleGuide,
   statcaps: handleStatCaps,
+  title:    handleTitle,
+  faction:  handleFaction,
+  recipe:   handleRecipe,
 };
 
 var CT_JSON = { 'Content-Type': 'application/json' };
