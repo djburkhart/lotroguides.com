@@ -762,12 +762,13 @@ function importFactions() {
 
     // Parse tiers
     const tiers = [];
-    const tierRe = /<level tier="(\d+)" key="([^"]*)"([^/]*)\/?>/g;
+    const tierRe = /<level tier="(\d+)"(?:\s+key="([^"]*)")?\s+name="([^"]*)"([^/]*)\/?>/g;
     let t;
     while ((t = tierRe.exec(body)) !== null) {
       const tierNum = parseInt(t[1]);
-      const tierKey = t[2];
-      const tierAttrs = t[3];
+      const tierKey = t[2] || '';       // may be absent
+      const tierName = t[3];            // name="key:..." label reference
+      const tierAttrs = t[4];
 
       const repMatch = tierAttrs.match(/requiredReputation="(\d+)"/);
       const lpMatch = tierAttrs.match(/lotroPoints="(\d+)"/);
@@ -776,7 +777,9 @@ function importFactions() {
       const tier = {
         t: tierNum,
         k: tierKey,
-        n: TIER_NAMES[tierKey] || tierKey,
+        n: tierKey
+          ? (TIER_NAMES[tierKey] || tierKey)
+          : (allLabels[tierName] || TIER_NAMES[tierName] || tierName),
         rep: repMatch ? parseInt(repMatch[1]) : 0,
       };
       if (lpMatch && parseInt(lpMatch[1]) > 0) tier.lp = parseInt(lpMatch[1]);

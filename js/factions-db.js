@@ -21,6 +21,8 @@
   var allData = [];
   var factionById = {};
   var initialized = false;
+  var deedIndex = null;
+  var deedLoadPromise = null;
 
   var regionColors = {
     'Eriador':     '#4682B4',
@@ -112,6 +114,75 @@
     table.clear().rows.add(filtered).draw();
   }
 
+  function loadRelatedDeeds(factionName) {
+    var $container = $('#faction-related-deeds');
+    if (!$container.length) return;
+
+    function render() {
+      if (!deedIndex) return;
+      var nameLower = factionName.toLowerCase();
+      var matches = [];
+      for (var i = 0; i < deedIndex.length; i++) {
+        var d = deedIndex[i];
+        if (!d.rw) continue;
+        for (var r = 0; r < d.rw.length; r++) {
+          if (d.rw[r].t === 'Reputation' && d.rw[r].v &&
+              d.rw[r].v.toLowerCase().indexOf(nameLower) === 0) {
+            // Extract amount
+            var m = d.rw[r].v.match(/([+\-]\d+)$/);
+            matches.push({ id: d.id, n: d.n, tp: d.tp, lv: d.lv, amt: m ? m[1] : '' });
+            break;
+          }
+        }
+      }
+
+      if (!matches.length) {
+        $container.empty();
+        return;
+      }
+
+      // Sort by level then name
+      matches.sort(function (a, b) {
+        return (a.lv || 0) - (b.lv || 0) || (a.n || '').localeCompare(b.n || '');
+      });
+
+      var html = '<h5 style="margin-top:16px"><i class="fa fa-bookmark"></i> Deeds That Grant Reputation (' + matches.length + ')</h5>';
+      html += '<div class="faction-related-deeds-list">';
+      var maxShow = Math.min(matches.length, 20);
+      for (var i = 0; i < maxShow; i++) {
+        var d = matches[i];
+        html += '<div class="faction-deed-entry">';
+        html += '<a href="deeds?id=' + d.id + '" target="_blank">' + $('<span/>').text(d.n).html() + '</a>';
+        if (d.amt) html += ' <span class="faction-deed-amt">' + d.amt + '</span>';
+        if (d.lv) html += ' <span class="text-muted" style="font-size:11px">Lv.' + d.lv + '</span>';
+        html += '</div>';
+      }
+      if (matches.length > 20) {
+        html += '<div class="text-muted" style="font-size:12px;margin-top:4px">+ ' + (matches.length - 20) + ' more deeds</div>';
+      }
+      html += '</div>';
+      $container.html(html);
+    }
+
+    if (deedIndex) {
+      render();
+      return;
+    }
+
+    $container.html('<div class="text-muted" style="font-size:12px;margin-top:8px"><i class="fa fa-spinner fa-spin"></i> Loading related deeds...</div>');
+
+    if (!deedLoadPromise) {
+      deedLoadPromise = $.getJSON(cdnUrl('data/deed-index.json'));
+    }
+
+    deedLoadPromise.done(function (data) {
+      deedIndex = data || [];
+      render();
+    }).fail(function () {
+      $container.empty();
+    });
+  }
+
   function showFactionModal(id) {
     var f = factionById[id];
     if (!f) return;
@@ -143,7 +214,10 @@
       html += '</tbody></table>';
     }
 
-    $('#faction-modal-body').html(html);
+    $('#faction-modal-body').html(html + '<div id="faction-related-deeds"></div>');
+
+    // Load related deeds lazily
+    loadRelatedDeeds(f.n);
 
     if (window.history && window.history.replaceState) {
       window.history.replaceState(null, '', 'factions?id=' + id);
@@ -203,6 +277,19 @@
     if (q && table) {
       table.search(q).draw();
       $('div.dataTables_filter input').val(q);
+
+      // Auto-open modal if query exactly matches a faction name
+      var qLower = q.toLowerCase();
+      var matchId = null;
+      for (var i = 0; i < allData.length; i++) {
+        if (allData[i].n && allData[i].n.toLowerCase() === qLower) {
+          matchId = allData[i].id.toString();
+          break;
+        }
+      }
+      if (matchId) {
+        setTimeout(function () { showFactionModal(matchId); }, 300);
+      }
     }
 
     var catVal = params.get('cat');

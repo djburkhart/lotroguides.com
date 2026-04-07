@@ -89,7 +89,7 @@
       if (r.t === 'LP') return '<span class="deed-reward-badge deed-reward-lp"><img src="' + cdnUrl('img/icons/lp.png') + '"   class="deed-reward-icon" alt="LP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' LP</span>';
       if (r.t === 'Title') return '<span class="deed-reward-badge deed-reward-title">' + value + '</span>';
       if (r.t === 'Virtue') return '<span class="deed-reward-badge deed-reward-virtue">' + virtueIcon(value) + value + '</span>';
-      if (r.t === 'Reputation') return '<span class="deed-reward-badge deed-reward-rep">' + value + '</span>';
+      if (r.t === 'Reputation') return '<span class="deed-reward-badge deed-reward-rep"><a href="factions?q=' + encodeURIComponent(parseFactionName(r.v)) + '">' + value + '</a></span>';
       if (r.t === 'VirtueXP') return '<span class="deed-reward-badge deed-reward-virtue-xp"><img src="' + cdnUrl('img/icons/virtue-xp.png') + '" class="deed-reward-icon" alt="VXP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' VXP</span>';
       if (r.t === 'XP') return '<span class="deed-reward-badge deed-reward-xp">' + value + ' XP</span>';
       if (r.t === 'Item') return '<span class="deed-reward-badge deed-reward-item">' + gameIcon(r.i) + value + '</span>';
@@ -412,7 +412,7 @@
       case 'explore':
         return '<i class="fa fa-compass text-success"></i> Explore ' + o.c + ' areas';
       case 'fac':
-        return '<i class="fa fa-flag text-warning"></i> Reach tier ' + o.tier + ' with ' + escHtml(o.n);
+        return '<i class="fa fa-flag text-warning"></i> Reach tier ' + o.tier + ' with <a href="factions?q=' + encodeURIComponent(o.n) + '">' + escHtml(o.n) + '</a>';
       default:
         return '<i class="fa fa-circle-o"></i> ' + JSON.stringify(o);
     }
@@ -420,7 +420,18 @@
 
   function formatRewardValue(r) {
     if (r.t === 'LP') return escHtml(String(r.v)) + ' LOTRO Points';
+    if (r.t === 'Reputation') {
+      var fn = parseFactionName(r.v);
+      if (fn) return '<a href="factions?q=' + encodeURIComponent(fn) + '">' + escHtml(String(r.v || '')) + '</a>';
+    }
     return escHtml(String(r.v || ''));
+  }
+
+  function parseFactionName(v) {
+    if (!v) return '';
+    var s = String(v);
+    var m = s.match(/^(.+?)\s+[+\-]\d+/);
+    return m ? m[1] : s;
   }
 
   function escHtml(s) {

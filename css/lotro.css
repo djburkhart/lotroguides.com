@@ -962,6 +962,29 @@ h1, h2, h3 {
   margin-top: -2px;
   border-radius: 2px;
 }
+.faction-related-deeds-list {
+  max-height: 260px;
+  overflow-y: auto;
+}
+.faction-deed-entry {
+  padding: 3px 0;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.faction-deed-entry:last-child {
+  border-bottom: none;
+}
+.faction-deed-entry a {
+  color: #f0c040;
+}
+.faction-deed-entry a:hover {
+  color: #fff;
+}
+.faction-deed-amt {
+  color: #5cb85c;
+  font-weight: 600;
+  font-size: 11px;
+}
 .lp-icon {
   width: 16px;
   height: 16px;
@@ -1482,6 +1505,8 @@ h1, h2, h3 {
   border-color: #00332b;
 }
 .deed-reward-rep      { color: #fff; background: #7b1fa2; border: 1px solid #6a1b9a; }
+.deed-reward-rep a    { color: #fff; text-decoration: none; }
+.deed-reward-rep a:hover { text-decoration: underline; }
 .deed-reward-icon {
   width: 24px;
   height: 24px;

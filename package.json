@@ -28,8 +28,7 @@
     "import:lotro-data": "node scripts/import-lotro-data.js",
     "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:maps && npm run update:lore && npm run update:icons && npm run update:videos",
     "sync": "node scripts/sync-cdn.js",
-    "deploy:functions": "node scripts/vendor-giseldah-calcstat.js && node scripts/deploy-functions.js",
-    "deploy:discord": "node scripts/vendor-giseldah-calcstat.js && node scripts/register-discord-commands.js && node scripts/deploy-functions.js discord"
+    "deploy:functions": "node scripts/vendor-giseldah-calcstat.js && node scripts/deploy-functions.js && node scripts/register-discord-commands.js && node scripts/deploy-functions.js discord"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
