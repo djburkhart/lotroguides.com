@@ -919,6 +919,89 @@ h1, h2, h3 {
   background: rgba(255, 213, 79, 0.25);
   color: #fff176;
 }
+.item-crosslink-quest {
+  color: #4fc3f7;
+  background: rgba(3, 169, 244, 0.12);
+  border: 1px solid rgba(3, 169, 244, 0.3);
+}
+.item-crosslink-quest:hover {
+  background: rgba(3, 169, 244, 0.25);
+  color: #81d4fa;
+}
+.item-crosslink-recipe {
+  color: #ff8a65;
+  background: rgba(255, 87, 34, 0.12);
+  border: 1px solid rgba(255, 87, 34, 0.3);
+}
+.item-crosslink-recipe:hover {
+  background: rgba(255, 87, 34, 0.25);
+  color: #ffab91;
+}
+
+/* Icon display in database table name columns */
+.db-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.db-name-cell .lotro-game-icon {
+  flex-shrink: 0;
+  margin-top: -1px;
+}
+.faction-cat-icon {
+  color: var(--lotro-gold);
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+.faction-deed-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  margin-right: 3px;
+  margin-top: -2px;
+  border-radius: 2px;
+}
+.lp-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-top: -2px;
+}
+
+/* Tables inside dark modals (faction, recipe, etc.) */
+.item-modal-content .table {
+  color: #d4cfc0;
+  margin-bottom: 8px;
+}
+.item-modal-content .table > thead > tr > th {
+  border-bottom: 2px solid #444;
+  color: var(--lotro-gold);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px;
+}
+.item-modal-content .table > tbody > tr > td {
+  border-top: 1px solid #2a2a2a;
+  padding: 7px 8px;
+}
+.item-modal-content .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: rgba(255,255,255,0.03);
+}
+.item-modal-content .table-striped > tbody > tr:nth-of-type(even) {
+  background-color: rgba(255,255,255,0.07);
+}
+.item-modal-content .table > tbody > tr:hover {
+  background-color: rgba(255,255,255,0.10);
+}
+.item-modal-content .table a {
+  color: #7eb8da;
+}
+.item-modal-content .table a:hover {
+  color: #aed4ec;
+}
+
 /* DataTables overrides for dark theme */
 #items-table_wrapper .dataTables_filter input {
   background: var(--lotro-dark);
@@ -3470,6 +3553,22 @@ body.lotro-map-embed-mode {
   color: var(--lotro-parchment);
   background: #333;
   border: 1px solid #555;
+}
+.instance-category-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--lotro-parchment);
+  background: #4a4a6a;
+  border: 1px solid #6a6a8a;
+}
+.deed-description {
+  color: #ccc;
+  font-style: italic;
+  margin-bottom: 12px;
+  line-height: 1.5;
 }
 
 #instances-table {

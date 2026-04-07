@@ -206,7 +206,35 @@ function main() {
     console.log(`    Extracted ${virtueExtracted} new virtue icons`);
   }
 
-  // 7. Write the icon map (itemId → iconId) for use by build.js
+  // 7. Extract title icons
+  const titleIconIds = parseIconIds('titles.xml', /icon="(\d+)"/);
+  if (titleIconIds.size) {
+    const titleIconDir = path.join(ICONS_OUT, 'titles');
+    ensureDir(titleIconDir);
+    console.log(`  📂 Extracting ${titleIconIds.size} title icons...`);
+    const titleExtracted = extractSpecificIcons(
+      path.join(LIB_DIR, 'titleIcons.zip'),
+      titleIconDir,
+      titleIconIds
+    );
+    console.log(`    Extracted ${titleExtracted} new title icons`);
+  }
+
+  // 8. Extract emote icons
+  const emoteIconIds = parseIconIds('emotes.xml', /icon="(\d+)"/);
+  if (emoteIconIds.size) {
+    const emoteIconDir = path.join(ICONS_OUT, 'emotes');
+    ensureDir(emoteIconDir);
+    console.log(`  📂 Extracting ${emoteIconIds.size} emote icons...`);
+    const emoteExtracted = extractSpecificIcons(
+      path.join(LIB_DIR, 'emoteIcons.zip'),
+      emoteIconDir,
+      emoteIconIds
+    );
+    console.log(`    Extracted ${emoteExtracted} new emote icons`);
+  }
+
+  // 9. Write the icon map (itemId → iconId) for use by build.js
   ensureDir(DATA_OUT);
   fs.writeFileSync(
     path.join(DATA_OUT, 'icon-map.json'),

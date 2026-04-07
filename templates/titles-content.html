@@ -1,0 +1,45 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="./">Home</a></li>
+          <li class="active">Title Database</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-certificate"></i>
+          <h2>Title Database</h2>
+          <p>Browse {{titleCount}} character titles from Lord of the Rings Online.</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="row m-b-30">
+          <div class="col-sm-6 col-md-4 m-b-15">
+            <label class="item-filter-label">Category</label>
+            <select id="filter-category" class="form-control item-filter-select">
+              <option value="">All Categories</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-4 m-b-15">
+            <label class="item-filter-label">&nbsp;</label>
+            <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Titles Table -->
+        <div class="table-responsive">
+          <table id="titles-table" class="table table-striped table-hover" style="width:100%">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>

@@ -38,6 +38,7 @@ Priority checklist:
 2. Equip every gear upgrade, even if small.
 3. Start killing nearby deed mobs while you quest (free progress).
 4. Sell junk, keep useful crafting materials.
+5. Prepare for crafting level 7 or level 10 starter gear.
 
 If you need setup help first, see the [Beginner's Guide](beginners-guide.html).
 
@@ -50,10 +51,12 @@ Strong options:
 - **Bree-land starter flow** (Archet / Combe / Staddle)
 - **The Shire**
 - **Ered Luin** (Elf/Dwarf routes)
+- **Swanfleet** (New with Before the Shadow Expansion)
 
-{{map:map=268437653,height=300}}
-{{map:map=268437678,height=300}}
-{{map:map=268437576,height=300}}
+{{map:map=268437653,height=350}}
+{{map:map=268437678,height=350}}
+{{map:map=268437576,height=350}}
+{{map:map=268453997,height=350}}
 
 Helpful lookups:
 

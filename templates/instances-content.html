@@ -27,6 +27,15 @@
             </select>
           </div>
           <div class="col-sm-6 col-md-4 m-b-15">
+            <label class="item-filter-label">Category</label>
+            <select id="filter-category" class="form-control item-filter-select">
+              <option value="">All Categories</option>
+              <option value="Instance">Instance</option>
+              <option value="Non-scaling Instance">Non-scaling Instance</option>
+              <option value="Seasonal">Seasonal</option>
+            </select>
+          </div>
+          <div class="col-sm-6 col-md-4 m-b-15">
             <label class="item-filter-label">&nbsp;</label>
             <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset Filters</button>
           </div>
@@ -39,6 +48,7 @@
               <tr>
                 <th>Name</th>
                 <th>Group Size</th>
+                <th>Category</th>
                 <th>Tiers</th>
                 <th>Mobs</th>
                 <th>Loot</th>

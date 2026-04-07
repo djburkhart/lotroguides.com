@@ -2072,6 +2072,45 @@ function buildItemsPage(navData) {
     if (added) console.log(`   + ${added} quest reward items added to item DB`);
   }
 
+  // ── Cross-link: recipes (ingredient/result → item) ──────────────────────
+  const recipesDbPath = path.join(LORE_DIR, 'recipes.json');
+  if (fs.existsSync(recipesDbPath)) {
+    const recipes = JSON.parse(fs.readFileSync(recipesDbPath, 'utf8'));
+    // Build reverse lookups: itemId → [{recipeId, recipeName, profession}]
+    const usedIn = {};   // item is an ingredient
+    const madeBy = {};   // item is a result
+    for (const r of recipes) {
+      const ref = { id: r.id, n: r.n, prof: r.prof };
+      for (const ing of (r.ing || [])) {
+        if (!usedIn[ing.id]) usedIn[ing.id] = [];
+        usedIn[ing.id].push(ref);
+      }
+      for (const res of (r.res || [])) {
+        if (!madeBy[res.id]) madeBy[res.id] = [];
+        madeBy[res.id].push(ref);
+      }
+      // Scroll item is also a recipe cross-link
+      if (r.scroll) {
+        if (!madeBy[r.scroll.id]) madeBy[r.scroll.id] = [];
+        madeBy[r.scroll.id].push(ref);
+      }
+    }
+    // Inject into client items (compact: ru = used-in recipes, rc = crafted-by recipes)
+    let ruCount = 0, rcCount = 0;
+    for (const item of clientItems) {
+      if (usedIn[item.id]) {
+        // Limit to top 10 to keep payload reasonable
+        item.ru = usedIn[item.id].slice(0, 10).map(r => ({ id: r.id, n: r.n }));
+        ruCount++;
+      }
+      if (madeBy[item.id]) {
+        item.rc = madeBy[item.id].slice(0, 10).map(r => ({ id: r.id, n: r.n }));
+        rcCount++;
+      }
+    }
+    console.log(`   Recipe cross-links: ${ruCount} items used-in, ${rcCount} items crafted-by`);
+  }
+
   const itemCount = clientItems.length;
 
   // Write chunked JSON data files for progressive loading
@@ -2150,13 +2189,14 @@ function buildItemsPage(navData) {
 function buildMobsPage(navData) {
   if (!Object.keys(itemIndex).length) return;
 
-  // Build compact client-side JSON: array of {id, n, g, sp}
+  // Build compact client-side JSON: array of {id, n, g, sp, ss}
   const clientMobs = Object.entries(itemIndex)
     .filter(([, v]) => v.type === 'mob')
     .map(([name, v]) => {
       const row = { id: v.id, n: name };
       if (v.genus) row.g = v.genus;
       if (v.species) row.sp = v.species;
+      if (v.subSpecies) row.ss = v.subSpecies;
       return row;
     });
 
@@ -2402,11 +2442,12 @@ function buildDeedsPage(navData) {
     for (const q of quests) questNameById[q.id] = q.n || q.name;
   }
 
-  // Compact format: {id, n, tp, lv, rw:[{t,v}], cl?, obj?:[{...}]}
+  // Compact format: {id, n, tp, lv, rw:[{t,v}], cl?, desc?, obj?:[{...}]}
   const clientDeeds = deeds.map(d => {
     const row = { id: d.id, n: d.name, tp: d.type || 'Other' };
     if (d.level) row.lv = d.level;
     if (d.region) row.rg = d.region;
+    if (d.description) row.desc = d.description;
     if (d.rewards && d.rewards.length) {
       row.rw = d.rewards.map(r => {
         const cr = { t: r.type, v: r.value };
@@ -2554,8 +2595,9 @@ function buildDeedsPage(navData) {
   }
   let deedDetailCount = 0;
   for (const d of clientDeeds) {
-    // Per-deed file: objectives, full rewards, overlay data
+    // Per-deed file: objectives, full rewards, description, overlay data
     const detail = {};
+    if (d.desc) detail.desc = d.desc;
     if (d.obj && d.obj.length) detail.obj = d.obj;
     if (d.rw && d.rw.length) detail.rw = d.rw;
     if (d.cl) detail.cl = d.cl;
@@ -2778,6 +2820,7 @@ function buildInstancesPage(navData, subDirNavData, allGuides) {
       tiers: inst.tiers,
       mobCount: inst.mobCount,
     };
+    if (inst.category) obj.cat = inst.category;
     if (hasLoot) {
       obj.lootUrl = `instances/${inst.slug}#loot`;
     }
@@ -3110,6 +3153,9 @@ function buildInstancesPage(navData, subDirNavData, allGuides) {
       }
     }
 
+    const categoryRow = inst.category
+      ? `<tr><th><i class="fa fa-tag"></i> Category</th><td>${escapeHtml(inst.category)}</td></tr>`
+      : '';
     const scalingRow = inst.scaling
       ? `<tr><th><i class="fa fa-arrows-v"></i> Scaling</th><td>${escapeHtml(inst.scaling)}</td></tr>`
       : '';
@@ -3123,6 +3169,7 @@ function buildInstancesPage(navData, subDirNavData, allGuides) {
     const detailBody = render(detailTemplate, {
       instanceName: escapeHtml(inst.name),
       groupType: inst.groupType,
+      categoryRow,
       tiers: String(inst.tiers),
       scalingRow,
       mobCount: String(inst.mobCount),
@@ -3461,6 +3508,161 @@ function buildSkillsPage(navData) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'skills.html'), optimizeImages(html));
 }
 
+// ─── Titles Database Page ───────────────────────────────────────────────────
+
+function buildTitlesPage(navData) {
+  const titlesPath = path.join(LORE_DIR, 'titles.json');
+  if (!fs.existsSync(titlesPath)) return;
+
+  const titles = JSON.parse(fs.readFileSync(titlesPath, 'utf8'));
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'titles-db.json'), JSON.stringify(titles));
+
+  const template = readTemplate('titles-content.html');
+  const body = render(template, { titleCount: titles.length.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Title Database - LOTRO Guides',
+    metaDescription: `Browse ${titles.length.toLocaleString()} character titles from Lord of the Rings Online. Filter by category including deeds, quests, crafting, and events.`,
+    currentPage: 'titles',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
+    '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/titles-db.json").done(function(data) {',
+    '    window.LOTRO_TITLES_DB = data;',
+    '    $.getScript("./js/titles-db.js", function() {',
+    '      if (window.LOTRO_TITLES_INIT) window.LOTRO_TITLES_INIT();',
+    '    });',
+    '  });',
+    '});',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'titles.html'), html);
+}
+
+// ─── Factions Database Page ─────────────────────────────────────────────────
+
+function buildFactionsPage(navData) {
+  const factionsPath = path.join(LORE_DIR, 'factions.json');
+  if (!fs.existsSync(factionsPath)) return;
+
+  const factions = JSON.parse(fs.readFileSync(factionsPath, 'utf8'));
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'factions-db.json'), JSON.stringify(factions));
+
+  const template = readTemplate('factions-content.html');
+  const body = render(template, { factionCount: factions.length.toLocaleString() });
+
+  let html = buildPage(body, {
+    title: 'Reputation Factions - LOTRO Guides',
+    metaDescription: `Browse ${factions.length.toLocaleString()} reputation factions in Lord of the Rings Online. View tier requirements and LOTRO Point rewards.`,
+    currentPage: 'factions',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
+    '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/factions-db.json").done(function(data) {',
+    '    window.LOTRO_FACTIONS_DB = data;',
+    '    $.getScript("./js/factions-db.js", function() {',
+    '      if (window.LOTRO_FACTIONS_INIT) window.LOTRO_FACTIONS_INIT();',
+    '    });',
+    '  });',
+    '});',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'factions.html'), html);
+}
+
+// ─── Recipes Database Page ──────────────────────────────────────────────────
+
+function buildRecipesPage(navData) {
+  const recipesPath = path.join(LORE_DIR, 'recipes.json');
+  if (!fs.existsSync(recipesPath)) return;
+
+  const recipes = JSON.parse(fs.readFileSync(recipesPath, 'utf8'));
+  const profsPath = path.join(LORE_DIR, 'professions.json');
+  const professions = fs.existsSync(profsPath)
+    ? JSON.parse(fs.readFileSync(profsPath, 'utf8'))
+    : {};
+
+  // Inject result-item icons into recipes using icon-map
+  const recipeIconMap = {};
+  const iconMapPath2 = path.join(LORE_DIR, 'icon-map.json');
+  if (fs.existsSync(iconMapPath2)) {
+    const im = JSON.parse(fs.readFileSync(iconMapPath2, 'utf8'));
+    let iconCount = 0;
+    for (const r of recipes) {
+      // Use first (normal) result item's icon as the recipe icon
+      const res = r.res && r.res.find(x => !x.crit);
+      const resAny = r.res && r.res[0];
+      const target = res || resAny;
+      if (target && im[target.id]) {
+        r.ic = im[target.id];
+        iconCount++;
+      }
+    }
+    console.log(`   Injected ${iconCount} recipe icons from icon-map`);
+  }
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'recipes-db.json'), JSON.stringify(recipes));
+
+  const template = readTemplate('recipes-content.html');
+  const body = render(template, {
+    recipeCount: recipes.length.toLocaleString(),
+    professionCount: Object.keys(professions).length,
+  });
+
+  let html = buildPage(body, {
+    title: 'Recipe Database - LOTRO Guides',
+    metaDescription: `Browse ${recipes.length.toLocaleString()} crafting recipes across ${Object.keys(professions).length} professions in Lord of the Rings Online.`,
+    currentPage: 'recipes',
+    ...navData,
+  });
+
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
+  const dtScripts = [
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
+    '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/recipes-db.json").done(function(data) {',
+    '    window.LOTRO_RECIPES_DB = data;',
+    '    $.getScript("./js/recipes-db.js", function() {',
+    '      if (window.LOTRO_RECIPES_INIT) window.LOTRO_RECIPES_INIT();',
+    '    });',
+    '  });',
+    '});',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${dtScripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'recipes.html'), html);
+}
+
 // ─── Embedded Trait Planner ─────────────────────────────────────────────────
 
 function buildEmbeddedTraitPlanner() {
@@ -3607,6 +3809,18 @@ async function build() {
   // Build skills page
   buildSkillsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ skills.html');
+
+  // Build titles database page
+  buildTitlesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ titles.html');
+
+  // Build factions database page
+  buildFactionsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ factions.html');
+
+  // Build recipes database page
+  buildRecipesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ recipes.html');
 
   // Build embedded trait planner
   buildEmbeddedTraitPlanner();

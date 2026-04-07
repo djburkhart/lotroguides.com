@@ -312,7 +312,7 @@
     html += formatStatsFull(item.stats);
 
     // ── Divider before cross-links ──
-    var hasLinks = item.sid || item.t === 'deed' || item.t === 'set' || item.t === 'virtue' || item.t === 'quest-reward';
+    var hasLinks = item.sid || item.t === 'deed' || item.t === 'set' || item.t === 'virtue' || item.t === 'quest-reward' || item.rc || item.ru;
     if (hasLinks) {
       html += '<div class="tt-divider"></div>';
       html += '<div class="tt-links">';
@@ -330,6 +330,22 @@
       }
       if (item.t === 'quest-reward') {
         html += '<a href="quests?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-quest"><i class="fa fa-gift"></i> Search Quests</a>';
+      }
+      // Recipe cross-links
+      if (item.rc) {
+        for (var ri = 0; ri < item.rc.length; ri++) {
+          html += '<a href="recipes?id=' + item.rc[ri].id + '" class="item-crosslink item-crosslink-recipe"><i class="fa fa-flask"></i> Crafted by: ' + $('<span/>').text(item.rc[ri].n).html() + '</a>';
+        }
+      }
+      if (item.ru) {
+        var ruLabel = item.ru.length === 1 ? 'Used in 1 recipe' : 'Used in ' + item.ru.length + ' recipes';
+        if (item.ru.length <= 3) {
+          for (var ui = 0; ui < item.ru.length; ui++) {
+            html += '<a href="recipes?id=' + item.ru[ui].id + '" class="item-crosslink item-crosslink-recipe"><i class="fa fa-wrench"></i> Used in: ' + $('<span/>').text(item.ru[ui].n).html() + '</a>';
+          }
+        } else {
+          html += '<a href="recipes?q=' + encodeURIComponent(item.n) + '" class="item-crosslink item-crosslink-recipe"><i class="fa fa-wrench"></i> ' + ruLabel + '</a>';
+        }
       }
       html += '</div>';
     }

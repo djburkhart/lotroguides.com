@@ -318,6 +318,10 @@
       .done(function (detail) {
         var detailHtml = '';
 
+        if (detail.desc) {
+          detailHtml += '<p class="deed-description">' + escHtml(detail.desc) + '</p>';
+        }
+
         if (detail.cl && !d.cl) {
           detailHtml += '<p><strong>Required Class:</strong> ' + detail.cl + '</p>';
         }

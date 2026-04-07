@@ -137,6 +137,7 @@
     var html = '<div class="item-modal-meta">';
     if (mob.g) html += '<p><strong>Genus:</strong> ' + genusBadge(mob.g) + '</p>';
     if (mob.sp) html += '<p><strong>Species:</strong> ' + speciesBadge(mob.sp) + '</p>';
+    if (mob.ss) html += '<p><strong>Sub-species:</strong> ' + mob.ss + '</p>';
 
     var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[id];
     if (overlay && overlay.map) {

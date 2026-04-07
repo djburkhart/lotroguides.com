@@ -19651,8 +19651,8 @@
         "name": "Storm",
         "chests": [
           {
-            "label": "Chest - Solo",
-            "tier": "Chest - Solo",
+            "label": "Backpack",
+            "tier": "Backpack",
             "items": [
               {
                 "name": "Gauradan Claw",
@@ -19692,8 +19692,8 @@
             ]
           },
           {
-            "label": "Chest - Tier 1",
-            "tier": "Chest - Tier 1",
+            "label": "Gold Chest",
+            "tier": "Gold Chest",
             "items": [
               {
                 "name": "Abiding Cloak of the Narrowdelve",
@@ -20346,8 +20346,8 @@
             ]
           },
           {
-            "label": "Chest - Tier 2",
-            "tier": "Chest - Tier 2",
+            "label": "Fancy Gold Chest",
+            "tier": "Fancy Gold Chest",
             "items": [
               {
                 "name": "Token of Resolution",
@@ -21646,8 +21646,8 @@
             ]
           },
           {
-            "label": "Chest - Tier 3+",
-            "tier": "Chest - Tier 3+",
+            "label": "Ornate Chest",
+            "tier": "Ornate Chest",
             "items": [
               {
                 "name": "Token of Resolution",

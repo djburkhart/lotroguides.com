@@ -11,6 +11,9 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 - **Instance Database** — 80+ instance/raid detail pages with per-boss loot tables, skill breakdowns, and strategy notes
 - **Item Database** — Searchable items database with sharded lazy loading (38,000+ items across 7 shards)
 - **Quest Database** — Server-side paginated quest browser with search, category filters, and level range filtering
+- **Title Database** — 3,035 character titles with in-game category icons and category filtering
+- **Faction Database** — 105 factions with tier progression, LOTRO Points rewards, and reputation deed cross-links
+- **Recipe Database** — 7,753 crafting recipes with ingredient/result item links and in-game icons
 - **Deed, Mob, Set & Virtue Databases** — Filterable client-side databases with dedicated pages
 - **Interactive Map** — LOTRO world map with quest POI overlays and embeddable map views
 - **Media** — YouTube video library with category filtering

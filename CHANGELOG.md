@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.0] - 2026-04-07
+
+### Added
+
+- **Title Database** — Searchable database of 3,035 character titles with in-game category icons extracted from LotRO Companion data (13 unique title icons)
+- **Faction Database** — 105 factions across 11 regions with tier progression tables, LOTRO Points rewards using the in-game LP icon, and reputation deed icons linking to the Deed Database
+- **Recipe Database** — 7,753 crafting recipes across 10 professions with ingredient/result item cross-links, in-game item icons (99.9% coverage via icon-map), and filterable by profession, tier, and category
+- **Emote Database** — 267 emotes imported with in-game icons (214 unique emote icons extracted from LotRO Companion)
+- **XP Table** — Level progression data for 200 levels imported from lotro-data-master
+- **Geographic Areas** — 6 regions, 83 territories, and 664 areas imported for location cross-referencing
+- **Icon extraction pipeline** — `extract-icons.js` extended with title icon (section 7) and emote icon (section 8) extraction from LotRO Companion ZIP archives
+- **Recipe cross-links in Item Database** — Items now show "Crafted By" and "Used In" recipe badges linking to the Recipe Database (5,455 crafted-by, 249 used-in)
+- **Dark modal table styling** — Tables inside dark modals (faction, recipe) now have gold column headers, proper dark-theme row striping, and themed link colors
+
+### Changed
+
+- **Navigation** — Database dropdown expanded with Title, Faction, and Recipe links
+- **Build pipeline** — `buildRecipesPage()` injects result-item icons from icon-map.json at build time; `buildTitlesPage()` and `buildFactionsPage()` produce enriched JSON with icon data
+- **Faction modal** — Region-themed FontAwesome icons per category, reputation deed icons with deed name links, LOTRO Points icon replacing generic diamond icon, readable table styling for dark background
+
 ## [2.5.3] - 2026-04-05
 
 ### Added

@@ -54,6 +54,12 @@
       '<i class="fa fa-gift"></i> Loot</a>';
   }
 
+  function renderCategory(data, type) {
+    if (type !== 'display') return data || '';
+    if (!data) return '<span class="text-muted">—</span>';
+    return '<span class="instance-category-badge">' + data + '</span>';
+  }
+
   // ── Load data ───────────────────────────────────────────────────────────
   function loadData() {
     if (initialized) return;
@@ -82,6 +88,7 @@
       columns: [
         { data: 'name', render: renderName },
         { data: 'groupType', render: renderGroup, width: '150px' },
+        { data: 'cat', render: renderCategory, width: '160px' },
         { data: 'tiers', render: renderTiers, width: '100px' },
         { data: 'mobCount', render: renderMobs, width: '80px' },
         { data: 'lootUrl', render: renderLoot, width: '80px', orderable: false, searchable: false }
@@ -100,21 +107,24 @@
 
   // ── Filters ─────────────────────────────────────────────────────────────
   function bindFilters() {
-    $('#filter-group').on('change', applyFilters);
+    $('#filter-group, #filter-category').on('change', applyFilters);
     $('#filter-reset').on('click', function () {
-      $('#filter-group').val('');
+      $('#filter-group, #filter-category').val('');
       applyFilters();
     });
   }
 
   function applyFilters() {
     var group = $('#filter-group').val();
+    var category = $('#filter-category').val();
 
     $.fn.dataTable.ext.search = [];
-    if (group) {
+    if (group || category) {
       $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
         var row = allData[dataIndex];
-        return row.groupType === group;
+        if (group && row.groupType !== group) return false;
+        if (category && row.cat !== category) return false;
+        return true;
       });
     }
     table.draw();
