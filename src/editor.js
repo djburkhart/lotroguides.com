@@ -1723,9 +1723,12 @@ function saveMarkdown() {
     cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
       .then(function (res) {
         afterSave();
+        currentSlug = slug;
         var msg = 'Uploaded ' + cdnKey + ' to CDN';
         if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
         showSaveToast(msg);
+        // Manifest is updated server-side; reload list after CDN cache settles
+        setTimeout(loadArticleList, 2000);
       })
       .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
   } else {
@@ -1849,6 +1852,7 @@ function validateConfigJson() {
 
 var CONFIG_KEY_PATHS = {
   'navigation': 'content/navigation.json',
+  'homepage-flow': 'content/homepage-flow.json',
   'media-videos': 'content/media/videos.json',
   'dps-reference': 'content/stats/dps-reference.json',
   'loot-reference': 'content/instances/loot-reference.json'

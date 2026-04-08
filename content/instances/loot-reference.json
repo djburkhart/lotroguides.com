@@ -19022,5 +19022,1504 @@
         ]
       }
     ]
+  },
+  "sarch-vorn-the-black-grave-guide": {
+    "label": "Instance Loot - Sarch Vorn, the Black Grave",
+    "levelRange": "140",
+    "groupSize": "6-Player Fellowship",
+    "notes": "Loot drops by boss and tier. Higher tiers offer better quality and more items.",
+    "bosses": [
+      {
+        "name": "Hithrengor",
+        "chests": [
+          {
+            "label": "Chest - Solo",
+            "tier": "Solo",
+            "items": [
+              {
+                "name": "Broken Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Winter Delver's Essence Box",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Rare"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Rare"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Rare"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 1",
+            "tier": "Tier 1",
+            "items": [
+              {
+                "name": "Winter Delver's Essence Box",
+                "drop": "Common"
+              },
+              {
+                "name": "Broken Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Rare"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 2",
+            "tier": "Tier 2",
+            "items": [
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Small Box of Forgotten Curiosities",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Winter Delver's Essence Box",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked Bronze Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Silver Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Tin Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked White Gold Grave Pendant",
+                "drop": "Rare"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 3",
+            "tier": "Tier 3",
+            "items": [
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Delver's Lively Essence Box",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Lump of Brilliant Silver",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Small Box of Forgotten Curiosities",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked Bronze Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Silver Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Tin Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked White Gold Grave Pendant",
+                "drop": "Rare"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 4",
+            "tier": "Tier 4",
+            "items": [
+              {
+                "name": "Delver's Lively Essence Box",
+                "drop": "Common"
+              },
+              {
+                "name": "Small Box of Forgotten Curiosities",
+                "drop": "Common"
+              },
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Broken Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Broken Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Lump of Brilliant Silver",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Bronze Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Silver Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked Tin Grave Pendant",
+                "drop": "Rare"
+              },
+              {
+                "name": "Cracked White Gold Grave Pendant",
+                "drop": "Rare"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 5",
+            "tier": "Tier 5",
+            "items": [
+              {
+                "name": "Delver's Lively Essence Box",
+                "drop": "Common"
+              },
+              {
+                "name": "Lump of Brilliant Silver",
+                "drop": "Common"
+              },
+              {
+                "name": "Small Box of Forgotten Curiosities",
+                "drop": "Common"
+              },
+              {
+                "name": "Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Austere Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Chipped Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked Bronze Grave Pendant",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked Silver Grave Pendant",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked Tin Grave Pendant",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Cracked White Gold Grave Pendant",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Curious Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Intricate Tarnished Grave Gift",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Ornate Tin Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Bloodstone Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Garnet Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Agility",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Fate",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Finesse",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Might",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Vitality",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Grave Bracelet of Will",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Tarnished Opal Grave Necklace",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Iron Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Silver Grave Band",
+                "drop": "Uncommon"
+              },
+              {
+                "name": "Twisting Tin Grave Band",
+                "drop": "Uncommon"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Luilloth",
+        "chests": [
+          {
+            "label": "Chest - Solo",
+            "tier": "Solo",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 1",
+            "tier": "Tier 1",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 2",
+            "tier": "Tier 2",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 3",
+            "tier": "Tier 3",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 4",
+            "tier": "Tier 4",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 5",
+            "tier": "Tier 5",
+            "items": [
+              {
+                "name": "Balanced Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Resilient Targe of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Skirmisher's Shield of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Mace of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Heavy Club of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Mace of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Fladach",
+        "chests": [
+          {
+            "label": "Chest - Solo",
+            "tier": "Solo",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 1",
+            "tier": "Tier 1",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 2",
+            "tier": "Tier 2",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 3",
+            "tier": "Tier 3",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 4",
+            "tier": "Tier 4",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          },
+          {
+            "label": "Chest - Tier 5",
+            "tier": "Tier 5",
+            "items": [
+              {
+                "name": "Adroit War Hammer of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Heavy Bow of the Black Grave",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Iron Coin of Cardolan",
+                "drop": "Guaranteed"
+              },
+              {
+                "name": "Balanced Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Keen Sword of the Black Grave",
+                "drop": "Common"
+              },
+              {
+                "name": "Tempered Sword of the Black Grave",
+                "drop": "Common"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

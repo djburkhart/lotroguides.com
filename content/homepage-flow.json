@@ -1,0 +1,26 @@
+[
+  {
+    "href": "items",
+    "icon": "fa-database",
+    "title": "Items & Gear",
+    "text": "Search 38,000+ items with stat tooltips, linked drop sources, and set bonuses."
+  },
+  {
+    "href": "deeds",
+    "icon": "fa-trophy",
+    "title": "Deeds & Virtues",
+    "text": "Browse deeds by region or type, track virtue XP rewards, and find LOTRO Point totals."
+  },
+  {
+    "href": "map",
+    "icon": "fa-map-marker",
+    "title": "Interactive Map",
+    "text": "Track deeds, quests, travel hubs, and landmarks with our interactive LOTRO world map."
+  },
+  {
+    "href": "factions",
+    "icon": "fa-flag",
+    "title": "Factions & Rep",
+    "text": "View all 105 reputation factions with tier requirements, LP rewards, and linked deeds."
+  }
+]

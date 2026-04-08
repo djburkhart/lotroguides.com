@@ -1790,6 +1790,22 @@ function buildIndex(allPosts, navData) {
   const template = readTemplate('index-content.html');
   const latestPosts = allPosts.slice(0, 6);
 
+  // Homepage flow cards from config
+  const flowPath = path.join(CONTENT_DIR, 'homepage-flow.json');
+  let flowCards = '';
+  try {
+    const flowItems = JSON.parse(fs.readFileSync(flowPath, 'utf8'));
+    flowCards = flowItems.map(item =>
+      `<a class="lotro-home-flow-card" href="${item.href}">\n` +
+      `            <span class="lotro-home-flow-icon"><i class="fa ${item.icon}"></i></span>\n` +
+      `            <h3>${item.title}</h3>\n` +
+      `            <p>${item.text}</p>\n` +
+      `          </a>`
+    ).join('\n          ');
+  } catch (err) {
+    console.warn('   ⚠ homepage-flow.json not found, using empty flow grid');
+  }
+
   // Featured post (most recent)
   const featured = latestPosts[0];
   const featuredHtml = featured ? render(readTemplate('partials/featured-card.html'), {
@@ -1822,6 +1838,7 @@ function buildIndex(allPosts, navData) {
   })).join('\n');
 
   const body = render(template, {
+    flowCards: flowCards,
     featuredPost: featuredHtml,
     recentPosts: recentHtml,
     assets: ASSETS_PREFIX,
@@ -3408,6 +3425,7 @@ function buildEditorPage(allPosts, navData) {
   // Copy JSON config files so the editor can fetch/edit them
   const configFiles = [
     { src: path.join(CONTENT_DIR, 'navigation.json'), key: 'navigation', label: 'Navigation' },
+    { src: path.join(CONTENT_DIR, 'homepage-flow.json'), key: 'homepage-flow', label: 'Homepage Flow Cards' },
     { src: path.join(CONTENT_DIR, 'media', 'videos.json'), key: 'media-videos', label: 'Media Videos' },
     { src: path.join(CONTENT_DIR, 'stats', 'dps-reference.json'), key: 'dps-reference', label: 'DPS Reference' },
     { src: path.join(CONTENT_DIR, 'instances', 'loot-reference.json'), key: 'loot-reference', label: 'Loot Reference' },
@@ -3783,6 +3801,16 @@ async function build() {
     newsNavItems: newsNav,
   })));
   console.log('   ✓ privacy.html');
+
+  // Build 404 error page
+  const notFoundBody = readTemplate('404-content.html');
+  fs.writeFileSync(path.join(OUTPUT_DIR, '404.html'), optimizeImages(buildPage(notFoundBody, {
+    title: 'Page Not Found - LOTRO Guides',
+    currentPage: '',
+    guideNavItems: guideNav,
+    newsNavItems: newsNav,
+  })));
+  console.log('   ✓ 404.html');
 
   // Build media page
   buildMediaPage({ guideNavItems: guideNav, newsNavItems: newsNav });
