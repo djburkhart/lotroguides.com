@@ -39,6 +39,10 @@ app.setNotFoundHandler((request, reply) => {
   if (urlPath && fs.existsSync(htmlFile) && fs.statSync(htmlFile).isFile()) {
     return reply.sendFile(urlPath + '.html');
   }
+  const notFoundPage = path.join(ROOT, '404.html');
+  if (fs.existsSync(notFoundPage)) {
+    return reply.code(404).type('text/html').send(fs.readFileSync(notFoundPage, 'utf-8'));
+  }
   reply.code(404).type('text/html').send('<h1>404 — Page Not Found</h1>');
 });
 

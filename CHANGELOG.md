@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.3] - 2026-04-09
+
+### Added
+
+- **Editor draft & publish system** — Articles can be saved as drafts (with `draft: true` frontmatter) to CDN or disk, then published or unpublished independently; build system skips draft articles from the live site
+- **Save Draft button** — Uploads article to CDN/disk with `draft: true` in frontmatter, with localStorage backup; auto-draft on idle saves to localStorage
+- **Publish button** — Uploads article without `draft: true`, making it live; removes local draft backup on success
+- **Unpublish button** — Moved to editor panel header so it's always visible for published articles; re-uploads with `draft: true` to hide from the live site
+- **Article status badge** — Shows "Published" (green) or "Draft" (amber) in the editor panel header
+- **Draft badge in article list** — Local-only drafts show an amber "draft" badge; published articles with local edits show a "local" badge; server-side drafts show "draft" in place of the category badge
+- **Editor preview toggle** — Slide switch in the editor header renders the current markdown as formatted HTML with title, date, author, excerpt, and featured image in a read-only preview pane
+- **localStorage draft helpers** — `saveLocalDraft()`, `loadLocalDraft()`, `deleteLocalDraft()`, `getLocalDraftIndex()` for browser-side draft persistence
+
+### Changed
+
+- **Build system** — `loadContent()` skips articles with `draft: true` frontmatter; `buildEditorPage()` scans source files directly for the editor manifest (including drafts with a `draft` flag)
+- **CDN upload function** — `updateEditorManifest()` includes `draft` field in manifest entries when present in frontmatter
+
 ## [2.6.2] - 2026-04-07
 
 ### Added

@@ -2914,6 +2914,7 @@ h1, h2, h3 {
 }
 .badge-guides { background: #2e7d32; }
 .badge-news { background: #1565c0; }
+.badge-draft { background: #f59e0b; }
 .editor-article-title {
   flex: 1;
   font-weight: 500;
@@ -3032,6 +3033,139 @@ h1, h2, h3 {
 .draft-status.draft-error {
   color: #dc2626;
 }
+.article-status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 10px;
+  border-radius: 3px;
+  color: #fff;
+}
+.article-status-badge.status-draft {
+  background: #f59e0b;
+  color: #78350f;
+}
+.article-status-badge.status-published {
+  background: #2e7d32;
+}
+/* Preview toggle switch */
+.preview-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 12px;
+  color: #666;
+  vertical-align: middle;
+}
+.preview-toggle input { display: none; }
+.preview-toggle-slider {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  background: #ccc;
+  border-radius: 9px;
+  transition: background 0.2s;
+}
+.preview-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.preview-toggle input:checked + .preview-toggle-slider {
+  background: #1565c0;
+}
+.preview-toggle input:checked + .preview-toggle-slider::after {
+  transform: translateX(16px);
+}
+.preview-toggle-label {
+  font-weight: 600;
+}
+.preview-toggle input:checked ~ .preview-toggle-label {
+  color: #1565c0;
+}
+/* Preview pane */
+.editor-preview {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  min-height: 400px;
+  background: #fff;
+}
+.editor-preview-banner {
+  padding: 8px 16px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid #ffc107;
+  border-radius: 4px 4px 0 0;
+}
+.editor-preview-content {
+  padding: 24px 32px;
+  line-height: 1.7;
+  font-size: 15px;
+  color: #333;
+  max-width: 900px;
+}
+.editor-preview-content h1 { font-size: 28px; margin: 24px 0 12px; color: #222; }
+.editor-preview-content h2 { font-size: 22px; margin: 20px 0 10px; color: #333; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+.editor-preview-content h3 { font-size: 18px; margin: 16px 0 8px; color: #444; }
+.editor-preview-content p { margin: 0 0 12px; }
+.editor-preview-content ul, .editor-preview-content ol { margin: 0 0 12px; padding-left: 24px; }
+.editor-preview-content blockquote {
+  border-left: 3px solid #1565c0;
+  margin: 12px 0;
+  padding: 8px 16px;
+  background: #f0f7ff;
+  color: #444;
+}
+.editor-preview-content pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 12px 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+.editor-preview-content code {
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+.editor-preview-content pre code {
+  background: none;
+  padding: 0;
+}
+.editor-preview-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+.editor-preview-content hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 20px 0;
+}
+.editor-preview-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+.editor-preview-content th, .editor-preview-content td {
+  border: 1px solid #ddd;
+  padding: 6px 10px;
+  text-align: left;
+}
+.editor-preview-content th { background: #f5f5f5; font-weight: 600; }
 .editor-milkdown-container {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
@@ -3752,7 +3886,7 @@ body.lotro-map-embed-mode {
 .rc-section { margin-bottom: 20px; }
 .rc-section-title {
   font-size: 16px;
-  color: var(--lotro-parchment, #d4c4a0);
+  color: var(--lotro-text, #d4c4a0);
   margin: 0 0 12px;
   padding-bottom: 6px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -3798,7 +3932,7 @@ body.lotro-map-embed-mode {
 }
 .rc-card-excerpt {
   font-size: 12px;
-  color: #999;
+  color: var(--lotro-text-light, #999);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -3807,7 +3941,7 @@ body.lotro-map-embed-mode {
 }
 .rc-card-channel {
   font-size: 11px;
-  color: #888;
+  color: var(--lotro-text-light, #888);
 }
 .rc-thumb-wrap {
   position: relative;

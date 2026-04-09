@@ -64,7 +64,14 @@
         <div id="edit-panel" style="display:none">
           <div class="editor-panel-header">
             <button id="btn-back" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Back</button>
+            <span id="article-status-badge" class="article-status-badge" style="display:none"></span>
+            <button id="btn-unpublish" class="btn btn-sm btn-warning" title="Unpublish article (move to drafts)" style="display:none"><i class="fa fa-cloud-download"></i> Unpublish</button>
             <div class="editor-panel-header-right">
+              <label class="preview-toggle" title="Toggle article preview">
+                <input type="checkbox" id="btn-preview-toggle">
+                <span class="preview-toggle-slider"></span>
+                <span class="preview-toggle-label"><i class="fa fa-eye"></i> Preview</span>
+              </label>
               <button id="btn-download" class="btn btn-sm btn-default"><i class="fa fa-download"></i> .md</button>
             </div>
           </div>
@@ -138,7 +145,8 @@
             </div>
             <div class="save-changes-right">
               <button id="btn-draft-versions" class="btn btn-xs btn-default" title="View draft history"><i class="fa fa-history"></i></button>
-              <button id="btn-save-changes" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Save Changes</button>
+              <button id="btn-save-draft" class="btn btn-sm btn-default" title="Save to local drafts"><i class="fa fa-floppy-o"></i> Save Draft</button>
+              <button id="btn-publish" class="btn btn-sm btn-success" title="Publish article"><i class="fa fa-cloud-upload"></i> Publish</button>
             </div>
           </div>
           <div id="milkdown-editor" class="editor-milkdown-container">
@@ -180,6 +188,11 @@
               </div>
             </div>
             <div id="prosemirror-editor" class="pm-editor-content"></div>
+          </div>
+          <!-- Article Preview (hidden until toggled) -->
+          <div id="editor-preview" class="editor-preview" style="display:none">
+            <div class="editor-preview-banner"><i class="fa fa-eye"></i> Draft Preview</div>
+            <div id="editor-preview-content" class="editor-preview-content"></div>
           </div>
         </div>
       </div>

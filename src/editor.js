@@ -7,6 +7,7 @@ import { baseKeymap, toggleMark, setBlockType, wrapIn, lift } from 'prosemirror-
 import { history, undo, redo } from 'prosemirror-history';
 import { inputRules, wrappingInputRule, textblockTypeInputRule } from 'prosemirror-inputrules';
 import 'prosemirror-view/style/prosemirror.css';
+import { marked } from 'marked';
 
 /* ─── Custom Schema (extends markdown with widget nodes) ─────────── */
 var schema = new Schema({
@@ -444,6 +445,7 @@ var cleanFrontmatter = null;   // snapshot of frontmatter field values
 var autoDraftTimer = null;
 var AUTO_DRAFT_DELAY = 5000;   // ms after last change before auto-draft
 var lastDraftKey = null;
+var isPublished = false;       // whether current article is published (on CDN/disk)
 
 function snapshotFrontmatter() {
   return {
@@ -506,18 +508,74 @@ function scheduleAutoDraft() {
 }
 
 function saveAutoDraft() {
-  if (!isCdnConfigured() || !isDirty()) return;
+  if (!isDirty()) return;
   var article = buildArticleJson();
-  var draftKey = 'drafts/' + article.category + '/' + article.slug + '.json';
-  lastDraftKey = draftKey;
-  var payload = JSON.stringify(article);
-  cdnUploadFile(draftKey, payload, 'application/json; charset=utf-8')
-    .then(function (res) {
-      var msg = 'Auto-draft saved';
-      if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
-      showDraftStatus(msg);
-    })
-    .catch(function () { showDraftStatus('Draft save failed', true); });
+  if (!article.slug && !article.title) return;
+  var slug = article.slug || slugify(article.title) || 'untitled';
+  saveLocalDraft(slug, article);
+  showDraftStatus('Draft auto-saved');
+}
+
+/* ─── Local Draft Storage ────────────────────────────────────────── */
+var DRAFT_PREFIX = 'lotro-draft:';
+var DRAFT_INDEX_KEY = 'lotro-drafts-index';
+
+function draftKey(slug) {
+  return DRAFT_PREFIX + slug;
+}
+
+function saveLocalDraft(slug, article) {
+  article.slug = slug;
+  try {
+    localStorage.setItem(draftKey(slug), JSON.stringify(article));
+    // Update draft index
+    var index = getLocalDraftIndex();
+    var existing = index.findIndex(function (d) { return d.slug === slug; });
+    var entry = {
+      slug: slug,
+      title: article.title || slug,
+      category: article.category || 'guides',
+      date: article.date || '',
+      author: article.author || '',
+      savedAt: new Date().toISOString(),
+    };
+    if (existing !== -1) {
+      index[existing] = entry;
+    } else {
+      index.unshift(entry);
+    }
+    localStorage.setItem(DRAFT_INDEX_KEY, JSON.stringify(index));
+  } catch (e) {
+    showDraftStatus('Draft save failed (storage full?)', true);
+  }
+}
+
+function loadLocalDraft(slug) {
+  try {
+    var raw = localStorage.getItem(draftKey(slug));
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function deleteLocalDraft(slug) {
+  try {
+    localStorage.removeItem(draftKey(slug));
+    var index = getLocalDraftIndex();
+    var filtered = index.filter(function (d) { return d.slug !== slug; });
+    localStorage.setItem(DRAFT_INDEX_KEY, JSON.stringify(filtered));
+  } catch (e) { /* ignore */ }
+}
+
+function getLocalDraftIndex() {
+  try {
+    var raw = localStorage.getItem(DRAFT_INDEX_KEY);
+    var arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    return [];
+  }
 }
 
 function showDraftStatus(msg, isError) {
@@ -1279,7 +1337,7 @@ function parseFrontmatter(text) {
   return { data: data, content: m[2].trim() };
 }
 
-function buildFrontmatter() {
+function buildFrontmatter(asDraft) {
   var lines = ['---'];
   var title = document.getElementById('fm-title').value;
   var date = document.getElementById('fm-date').value;
@@ -1298,6 +1356,7 @@ function buildFrontmatter() {
   }
   if (image) lines.push('image: "' + image.replace(/"/g, '\\"') + '"');
   if (excerpt) lines.push('excerpt: "' + excerpt.replace(/"/g, '\\"') + '"');
+  if (asDraft) lines.push('draft: true');
   lines.push('---');
   return lines.join('\n') + '\n';
 }
@@ -1647,50 +1706,134 @@ function loadArticleList() {
   fetch('./data/editor-manifest.json')
     .then(function (r) { return r.json(); })
     .then(function (articles) {
-      var list = document.getElementById('article-list');
-      list.innerHTML = '';
-      articles.forEach(function (a) {
-        var li = document.createElement('li');
-        li.className = 'editor-article-item';
-        li.innerHTML =
-          '<span class="editor-article-cat badge-' + esc(a.category) + '">' + esc(a.category) + '</span>' +
-          '<span class="editor-article-title">' + esc(a.title) + '</span>' +
-          '<small class="editor-article-date">' + esc(a.date || '') + '</small>';
-        li.addEventListener('click', function () { loadArticle(a.category, a.slug); });
-        list.appendChild(li);
-      });
+      renderArticleList(articles);
     })
-    .catch(function () { /* manifest may not exist yet */ });
+    .catch(function () {
+      // Manifest may not exist — just show local drafts
+      renderArticleList([]);
+    });
+}
+
+function renderArticleList(publishedArticles) {
+  var list = document.getElementById('article-list');
+  list.innerHTML = '';
+
+  // Build a set of manifest slugs
+  var manifestSlugs = {};
+  publishedArticles.forEach(function (a) { manifestSlugs[a.slug] = true; });
+
+  // Local drafts that don't have a manifest counterpart (purely local, never saved to disk/CDN)
+  var drafts = getLocalDraftIndex();
+  drafts.forEach(function (d) {
+    if (manifestSlugs[d.slug]) return; // will show under manifest listing
+    var li = document.createElement('li');
+    li.className = 'editor-article-item';
+    li.innerHTML =
+      '<span class="editor-article-cat badge-draft">draft</span>' +
+      '<span class="editor-article-title">' + esc(d.title) + '</span>' +
+      '<small class="editor-article-date">' + esc(d.date || '') + '</small>';
+    li.addEventListener('click', function () { loadDraft(d.slug); });
+    list.appendChild(li);
+  });
+
+  // Manifest articles (published + server drafts, with local-draft overlay)
+  publishedArticles.forEach(function (a) {
+    var hasLocalDraft = drafts.some(function (d) { return d.slug === a.slug; });
+    var isDraft = a.draft || false;
+    var li = document.createElement('li');
+    li.className = 'editor-article-item';
+    var badges = '';
+    if (isDraft) {
+      badges += '<span class="editor-article-cat badge-draft">draft</span>';
+    } else {
+      badges += '<span class="editor-article-cat badge-' + esc(a.category) + '">' + esc(a.category) + '</span>';
+    }
+    if (hasLocalDraft) {
+      badges += '<span class="editor-article-cat badge-draft" style="margin-left:-4px">local</span>';
+    }
+    li.innerHTML =
+      badges +
+      '<span class="editor-article-title">' + esc(a.title) + '</span>' +
+      '<small class="editor-article-date">' + esc(a.date || '') + '</small>';
+    li.addEventListener('click', function () {
+      if (hasLocalDraft) {
+        loadDraft(a.slug);
+      } else if (isDraft) {
+        loadArticle(a.category, a.slug, true);
+      } else {
+        loadArticle(a.category, a.slug);
+      }
+    });
+    list.appendChild(li);
+  });
 }
 
 /* ─── Load Article ───────────────────────────────────────────────── */
-function loadArticle(category, slug) {
+function loadArticle(category, slug, asDraft) {
   fetch('./data/content/' + encodeURIComponent(category) + '/' + encodeURIComponent(slug) + '.json')
     .then(function (r) {
       if (!r.ok) throw new Error('Not found');
       return r.json();
     })
     .then(function (data) {
-      document.getElementById('fm-title').value = data.title || '';
-      document.getElementById('fm-date').value = data.date || '';
-      document.getElementById('fm-author').value = data.author || '';
-      document.getElementById('fm-tags').value = Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || '');
-      document.getElementById('fm-excerpt').value = data.excerpt || '';
-      document.getElementById('fm-image').value = data.image || '';
-      updateImagePreview(data.image || '');
-      document.getElementById('fm-category').value = data.category || category;
-      currentSlug = slug;
-      return createEditor(data.markdown || '');
-    })
-    .then(function () {
-      showEditPanel();
+      populateEditor(data, category, slug);
+      isPublished = !asDraft;
+      updatePublishState();
     })
     .catch(function (e) { alert('Could not load article: ' + e.message); });
+}
+
+function loadDraft(slug) {
+  var data = loadLocalDraft(slug);
+  if (!data) {
+    alert('Draft not found in local storage.');
+    return;
+  }
+  populateEditor(data, data.category || 'guides', slug);
+  isPublished = false;
+  updatePublishState();
+}
+
+function populateEditor(data, category, slug) {
+  document.getElementById('fm-title').value = data.title || '';
+  document.getElementById('fm-date').value = data.date || '';
+  document.getElementById('fm-author').value = data.author || '';
+  document.getElementById('fm-tags').value = Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || '');
+  document.getElementById('fm-excerpt').value = data.excerpt || '';
+  document.getElementById('fm-image').value = data.image || '';
+  updateImagePreview(data.image || '');
+  document.getElementById('fm-category').value = data.category || category;
+  currentSlug = slug;
+  createEditor(data.markdown || '').then(function () {
+    showEditPanel();
+  });
+}
+
+function updatePublishState() {
+  var badge = document.getElementById('article-status-badge');
+  var btnPublish = document.getElementById('btn-publish');
+  var btnUnpublish = document.getElementById('btn-unpublish');
+  var btnSaveDraft = document.getElementById('btn-save-draft');
+
+  if (badge) {
+    badge.style.display = '';
+    if (isPublished) {
+      badge.textContent = 'Published';
+      badge.className = 'article-status-badge status-published';
+    } else {
+      badge.textContent = 'Draft';
+      badge.className = 'article-status-badge status-draft';
+    }
+  }
+  if (btnPublish) btnPublish.style.display = '';
+  if (btnUnpublish) btnUnpublish.style.display = isPublished ? '' : 'none';
+  if (btnSaveDraft) btnSaveDraft.style.display = '';
 }
 
 /* ─── New Article ────────────────────────────────────────────────── */
 function newArticle() {
   currentSlug = null;
+  isPublished = false;
   document.getElementById('fm-title').value = '';
   document.getElementById('fm-date').value = new Date().toISOString().slice(0, 10);
   document.getElementById('fm-author').value = currentUser ? currentUser.name : '';
@@ -1700,37 +1843,45 @@ function newArticle() {
   updateImagePreview('');
   document.getElementById('fm-category').value = 'guides';
   createEditor('').then(function () {
+    updatePublishState();
     showEditPanel();
   });
 }
 
 /* ─── Save / Download ────────────────────────────────────────────── */
-function saveMarkdown() {
+
+function saveDraft() {
   var article = buildArticleJson();
-  var slug = article.slug;
+  var slug = article.slug || slugify(article.title) || 'untitled';
+  currentSlug = slug;
+  article.slug = slug;
   var category = article.category;
 
-  function afterSave() {
+  // Always keep a localStorage backup
+  saveLocalDraft(slug, article);
+
+  // Upload to CDN/disk with draft: true so it persists across browsers
+  var fm = buildFrontmatter(true);  // draft=true
+  var full = fm + '\n' + article.markdown + '\n';
+
+  function afterDraftSave(msg) {
     markClean();
     if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
+    isPublished = false;
+    updatePublishState();
+    showSaveToast(msg);
+    setTimeout(loadArticleList, 2000);
   }
-
-  var fm = buildFrontmatter();
-  var full = fm + '\n' + article.markdown + '\n';
 
   if (isCdnConfigured()) {
     var cdnKey = 'content/' + category + '/' + slug + '.md';
     cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
       .then(function (res) {
-        afterSave();
-        currentSlug = slug;
-        var msg = 'Uploaded ' + cdnKey + ' to CDN';
+        var msg = 'Draft saved to CDN';
         if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
-        showSaveToast(msg);
-        // Manifest is updated server-side; reload list after CDN cache settles
-        setTimeout(loadArticleList, 2000);
+        afterDraftSave(msg);
       })
-      .catch(function (err) { showSaveToast('CDN save failed: ' + err.message, true); });
+      .catch(function (err) { showSaveToast('Draft save failed: ' + err.message, true); });
   } else {
     var editorKey = 'content/' + category + '/' + slug + '.md';
     var isUpdate = !!currentSlug;
@@ -1746,27 +1897,184 @@ function saveMarkdown() {
       return r.json();
     })
     .then(function (res) {
-      afterSave();
+      var msg = 'Draft saved';
+      if (res.local) msg += ' (rebuilding…)';
+      afterDraftSave(msg);
+    })
+    .catch(function (err) { showSaveToast('Draft save failed: ' + err.message, true); });
+  }
+}
+
+function publishArticle() {
+  var article = buildArticleJson();
+  var slug = article.slug;
+  var category = article.category;
+
+  function afterPublish() {
+    markClean();
+    if (autoDraftTimer) { clearTimeout(autoDraftTimer); autoDraftTimer = null; }
+    isPublished = true;
+    updatePublishState();
+    // Remove local draft since it's now published
+    deleteLocalDraft(slug);
+  }
+
+  var fm = buildFrontmatter();
+  var full = fm + '\n' + article.markdown + '\n';
+
+  if (isCdnConfigured()) {
+    var cdnKey = 'content/' + category + '/' + slug + '.md';
+    cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
+      .then(function (res) {
+        afterPublish();
+        currentSlug = slug;
+        var msg = 'Published ' + cdnKey;
+        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        showSaveToast(msg);
+        // Manifest is updated server-side; reload list after CDN cache settles
+        setTimeout(loadArticleList, 2000);
+      })
+      .catch(function (err) { showSaveToast('Publish failed: ' + err.message, true); });
+  } else {
+    var editorKey = 'content/' + category + '/' + slug + '.md';
+    var isUpdate = !!currentSlug;
+    var endpoint = isUpdate ? '/api/editor/update' : '/api/editor/upload';
+    var encoded = btoa(unescape(encodeURIComponent(full)));
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: editorKey, content: encoded, contentType: 'text/markdown; charset=utf-8' })
+    })
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'HTTP ' + r.status); });
+      return r.json();
+    })
+    .then(function (res) {
+      afterPublish();
       currentSlug = slug;
-      var msg = (isUpdate ? 'Updated' : 'Created') + ' ' + editorKey;
+      var msg = 'Published ' + editorKey;
       if (res.local) msg += ' (rebuilding…)';
       showSaveToast(msg);
       // Reload the article list after rebuild has time to finish
       setTimeout(loadArticleList, 3000);
     })
-    .catch(function (err) { showSaveToast('Save failed: ' + err.message, true); });
+    .catch(function (err) { showSaveToast('Publish failed: ' + err.message, true); });
   }
 }
 
+function unpublishArticle() {
+  if (!currentSlug) return;
+  if (!confirm('Unpublish this article? It will be saved as a draft and hidden from the live site.')) return;
+
+  var article = buildArticleJson();
+  // Save current state as local draft backup
+  saveLocalDraft(currentSlug, article);
+
+  // Upload with draft: true in frontmatter so the build skips it
+  var category = article.category;
+  var fm = buildFrontmatter(true);  // pass draft=true
+  var full = fm + '\n' + article.markdown + '\n';
+
+  function afterUnpublish() {
+    markClean();
+    isPublished = false;
+    updatePublishState();
+    showSaveToast('Article unpublished — saved as draft');
+    setTimeout(loadArticleList, 2000);
+  }
+
+  if (isCdnConfigured()) {
+    var cdnKey = 'content/' + category + '/' + currentSlug + '.md';
+    cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
+      .then(function () { afterUnpublish(); })
+      .catch(function (err) { showSaveToast('Unpublish failed: ' + err.message, true); });
+  } else {
+    var editorKey = 'content/' + category + '/' + currentSlug + '.md';
+    var encoded = btoa(unescape(encodeURIComponent(full)));
+    fetch('/api/editor/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: editorKey, content: encoded, contentType: 'text/markdown; charset=utf-8' })
+    })
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (d) { throw new Error(d.error || 'HTTP ' + r.status); });
+      return r.json();
+    })
+    .then(function () { afterUnpublish(); })
+    .catch(function (err) { showSaveToast('Unpublish failed: ' + err.message, true); });
+  }
+}
+
+// Keep legacy name for download button
+function saveMarkdown() {
+  publishArticle();
+}
+
 /* ─── UI Navigation ──────────────────────────────────────────────── */
+
+/* ─── Preview Toggle ─────────────────────────────────────────────── */
+function togglePreview(on) {
+  var editorContainer = document.getElementById('milkdown-editor');
+  var previewContainer = document.getElementById('editor-preview');
+  var previewContent = document.getElementById('editor-preview-content');
+  var saveBar = document.getElementById('save-changes-bar');
+  var frontmatter = document.querySelector('.editor-frontmatter');
+
+  if (on) {
+    // Render markdown to HTML
+    var md = getMarkdown();
+    var title = document.getElementById('fm-title').value;
+    var date = document.getElementById('fm-date').value;
+    var author = document.getElementById('fm-author').value;
+    var image = document.getElementById('fm-image').value;
+    var excerpt = document.getElementById('fm-excerpt').value;
+
+    var headerHtml = '';
+    if (title) headerHtml += '<h1>' + esc(title) + '</h1>';
+    if (date || author) {
+      headerHtml += '<p style="color:#888; font-size:13px; margin-bottom:4px;">';
+      if (date) headerHtml += '<i class="fa fa-calendar"></i> ' + esc(date);
+      if (date && author) headerHtml += ' &nbsp;|&nbsp; ';
+      if (author) headerHtml += '<i class="fa fa-user"></i> ' + esc(author);
+      headerHtml += '</p>';
+    }
+    if (excerpt) headerHtml += '<p style="color:#666; font-style:italic; margin-bottom:16px;">' + esc(excerpt) + '</p>';
+    if (image) headerHtml += '<img src="' + esc(image) + '" alt="" style="max-width:100%;border-radius:4px;margin-bottom:16px;">';
+    if (headerHtml) headerHtml += '<hr>';
+
+    var bodyHtml = marked.parse(md);
+    previewContent.innerHTML = headerHtml + bodyHtml;
+
+    editorContainer.style.display = 'none';
+    if (saveBar) saveBar.style.display = 'none';
+    if (frontmatter) frontmatter.style.display = 'none';
+    previewContainer.style.display = '';
+  } else {
+    previewContainer.style.display = 'none';
+    editorContainer.style.display = '';
+    if (frontmatter) frontmatter.style.display = '';
+    // Save bar visibility is managed by updateSaveBar; trigger it
+    if (typeof updateSaveBar === 'function') updateSaveBar();
+  }
+}
+
 function showEditPanel() {
   document.getElementById('article-panel').style.display = 'none';
   document.getElementById('edit-panel').style.display = '';
+  // Reset preview toggle when entering edit mode
+  var toggle = document.getElementById('btn-preview-toggle');
+  if (toggle && toggle.checked) {
+    toggle.checked = false;
+    togglePreview(false);
+  }
 }
 
 function showArticlePanel() {
   document.getElementById('edit-panel').style.display = 'none';
   document.getElementById('article-panel').style.display = '';
+  // Reset preview toggle
+  var toggle = document.getElementById('btn-preview-toggle');
+  if (toggle) toggle.checked = false;
 }
 
 function switchTab(tabName) {
@@ -2645,12 +2953,16 @@ document.addEventListener('DOMContentLoaded', function () {
   var btnDownload = document.getElementById('btn-download');
   var btnBack = document.getElementById('btn-back');
   var btnSignOut = document.getElementById('btn-sign-out');
-  var btnSaveChanges = document.getElementById('btn-save-changes');
+  var btnSaveDraft = document.getElementById('btn-save-draft');
+  var btnPublish = document.getElementById('btn-publish');
+  var btnUnpublish = document.getElementById('btn-unpublish');
   var btnDraftVersions = document.getElementById('btn-draft-versions');
 
   if (btnNew) btnNew.addEventListener('click', newArticle);
   if (btnDownload) btnDownload.addEventListener('click', saveMarkdown);
-  if (btnSaveChanges) btnSaveChanges.addEventListener('click', saveMarkdown);
+  if (btnSaveDraft) btnSaveDraft.addEventListener('click', saveDraft);
+  if (btnPublish) btnPublish.addEventListener('click', publishArticle);
+  if (btnUnpublish) btnUnpublish.addEventListener('click', unpublishArticle);
   if (btnDraftVersions) btnDraftVersions.addEventListener('click', function () {
     if (!lastDraftKey && currentSlug) {
       var cat = document.getElementById('fm-category').value || 'guides';
@@ -2663,6 +2975,12 @@ document.addEventListener('DOMContentLoaded', function () {
     showArticlePanel();
   });
   if (btnSignOut) btnSignOut.addEventListener('click', window.handleSignOut);
+
+  // Preview toggle
+  var btnPreview = document.getElementById('btn-preview-toggle');
+  if (btnPreview) btnPreview.addEventListener('change', function () {
+    togglePreview(btnPreview.checked);
+  });
 
   // Frontmatter change listeners
   ['fm-title', 'fm-date', 'fm-category', 'fm-author', 'fm-tags', 'fm-image', 'fm-excerpt'].forEach(function (id) {

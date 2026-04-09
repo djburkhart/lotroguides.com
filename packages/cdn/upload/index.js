@@ -124,6 +124,7 @@ async function updateEditorManifest(key, buf) {
     date: formatDate(fm.date),
     author: fm.author || '',
   };
+  if (fm.draft === true || fm.draft === 'true') entry.draft = true;
 
   // Update or add
   var idx = manifest.findIndex(function (item) { return item.slug === slug && item.category === category; });

@@ -1658,6 +1658,10 @@ function loadContent(subdir) {
   return files.map(file => {
     const raw = fs.readFileSync(path.join(dir, file), 'utf-8');
     const { data, content } = matter(raw);
+
+    // Skip draft articles — they won't be included in the site build
+    if (data.draft === true) return null;
+
     let resolvedContent = content;
     if (subdir === 'guides') {
       const slug = path.basename(file, '.md');
@@ -1691,7 +1695,7 @@ function loadContent(subdir) {
       image,
       tags: data.tags || [],
     };
-  }).sort((a, b) => new Date(b.date) - new Date(a.date));
+  }).filter(Boolean).sort((a, b) => new Date(b.date) - new Date(a.date));
 }
 
 // ─── Legacy HTML Scanner ────────────────────────────────────────────────────
@@ -3380,18 +3384,37 @@ function buildEditorPage(allPosts, navData) {
   // Bundle ProseMirror editor JS + CSS
   buildEditorBundle();
 
-  // Generate article manifest for the editor
-  const manifest = allPosts.map(p => ({
-    slug: p.slug,
-    title: p.title || p.slug,
-    category: p.category || 'guides',
-    date: p.formattedDate || '',
-    author: p.author || '',
-  }));
+  // Generate article manifest for the editor — includes ALL articles (even drafts)
+  // allPosts won't have drafts, so scan source files directly
+  const manifestEntries = [];
+  for (const subdir of ['guides', 'news']) {
+    const srcDir = path.join(CONTENT_DIR, subdir);
+    if (!fs.existsSync(srcDir)) continue;
+    for (const f of fs.readdirSync(srcDir).filter(f => f.endsWith('.md'))) {
+      const raw = fs.readFileSync(path.join(srcDir, f), 'utf-8');
+      const { data } = matter(raw);
+      const dateStr = data.date instanceof Date ? data.date.toISOString().slice(0, 10) : (data.date ? String(data.date).slice(0, 10) : '');
+      const entry = {
+        slug: path.basename(f, '.md'),
+        title: data.title || path.basename(f, '.md'),
+        category: subdir,
+        date: formatDate(dateStr || '2026-01-01'),
+        author: data.author || '',
+      };
+      if (data.draft === true) entry.draft = true;
+      manifestEntries.push(entry);
+    }
+  }
+  manifestEntries.sort((a, b) => {
+    // Drafts first, then by date descending
+    if (a.draft && !b.draft) return -1;
+    if (!a.draft && b.draft) return 1;
+    return 0;
+  });
   ensureDir(path.join(OUTPUT_DIR, 'data'));
   fs.writeFileSync(
     path.join(OUTPUT_DIR, 'data', 'editor-manifest.json'),
-    JSON.stringify(manifest)
+    JSON.stringify(manifestEntries)
   );
 
   // Generate per-article JSON files (metadata + raw markdown body) for the editor
