@@ -20,6 +20,33 @@ const CORS_HEADERS = {
 const EDITOR_MANIFEST_KEY = 'data/editor-manifest.json';
 
 /**
+ * Trigger a DigitalOcean App Platform deployment to rebuild the static site.
+ * Requires env vars: DO_API_TOKEN, DO_APP_ID
+ */
+async function triggerDeploy() {
+  var token = process.env.DO_API_TOKEN;
+  var appId = process.env.DO_APP_ID;
+  if (!token || !appId) return null;
+
+  var res = await fetch('https://api.digitalocean.com/v2/apps/' + appId + '/deployments', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ force_build: true }),
+  });
+
+  if (!res.ok) {
+    var text = await res.text();
+    throw new Error('Deploy trigger failed (' + res.status + '): ' + text);
+  }
+
+  var data = await res.json();
+  return data.deployment ? data.deployment.id : null;
+}
+
+/**
  * Parse YAML frontmatter from markdown content.
  * Returns { data: {}, content: "" } similar to gray-matter.
  */
@@ -233,6 +260,16 @@ async function handleUpload(args, email) {
     console.error('Manifest update failed:', e.message);
   }
 
+  // Trigger a site rebuild if a content article was published/unpublished
+  var deploymentId = null;
+  if (/^content\/(guides|news)\//.test(key)) {
+    try {
+      deploymentId = await triggerDeploy();
+    } catch (e) {
+      console.error('Deploy trigger failed:', e.message);
+    }
+  }
+
   return {
     statusCode: 200,
     headers: CORS_HEADERS,
@@ -242,6 +279,7 @@ async function handleUpload(args, email) {
       size: buf.length,
       versionId: result.VersionId || null,
       uploadedBy: email,
+      deploymentId: deploymentId,
     },
   };
 }

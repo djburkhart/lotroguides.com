@@ -1878,7 +1878,8 @@ function saveDraft() {
     cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
       .then(function (res) {
         var msg = 'Draft saved to CDN';
-        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        if (res.deploymentId) msg += ' — rebuilding site';
+        else if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
         afterDraftSave(msg);
       })
       .catch(function (err) { showSaveToast('Draft save failed: ' + err.message, true); });
@@ -1929,7 +1930,8 @@ function publishArticle() {
         afterPublish();
         currentSlug = slug;
         var msg = 'Published ' + cdnKey;
-        if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
+        if (res.deploymentId) msg += ' — rebuilding site';
+        else if (res.versionId) msg += ' (v' + res.versionId.slice(0, 8) + ')';
         showSaveToast(msg);
         // Manifest is updated server-side; reload list after CDN cache settles
         setTimeout(loadArticleList, 2000);
@@ -1975,18 +1977,22 @@ function unpublishArticle() {
   var fm = buildFrontmatter(true);  // pass draft=true
   var full = fm + '\n' + article.markdown + '\n';
 
-  function afterUnpublish() {
+  function afterUnpublish(msg) {
     markClean();
     isPublished = false;
     updatePublishState();
-    showSaveToast('Article unpublished — saved as draft');
+    showSaveToast(msg || 'Article unpublished — saved as draft');
     setTimeout(loadArticleList, 2000);
   }
 
   if (isCdnConfigured()) {
     var cdnKey = 'content/' + category + '/' + currentSlug + '.md';
     cdnUploadFile(cdnKey, full, 'text/markdown; charset=utf-8')
-      .then(function () { afterUnpublish(); })
+      .then(function (res) {
+        var msg = 'Article unpublished — saved as draft';
+        if (res.deploymentId) msg += ' — rebuilding site';
+        afterUnpublish(msg);
+      })
       .catch(function (err) { showSaveToast('Unpublish failed: ' + err.message, true); });
   } else {
     var editorKey = 'content/' + category + '/' + currentSlug + '.md';
