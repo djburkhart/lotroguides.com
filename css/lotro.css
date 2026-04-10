@@ -3296,6 +3296,30 @@ h1, h2, h3 {
 .pm-widget:hover {
   border-color: #89b0d0;
 }
+.pm-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pm-widget-edit-btn {
+  display: none;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  color: #888;
+  font-size: 12px;
+  padding: 2px 6px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pm-widget-edit-btn:hover {
+  color: #337ab7;
+  border-color: #337ab7;
+}
+.pm-widget:hover .pm-widget-edit-btn {
+  display: inline-flex;
+}
 .ProseMirror-selectednode .pm-widget,
 .pm-widget.ProseMirror-selectednode {
   border-color: #337ab7;
@@ -5189,6 +5213,19 @@ body.lotro-map-embed-mode {
 .ltp-cell-locked {
   opacity: 0.4;
   cursor: not-allowed !important;
+}
+
+.ltp-cell-dep-locked {
+  opacity: 0.5;
+  position: relative;
+}
+.ltp-cell-dep-locked::after {
+  content: '\1F512';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 10px;
+  line-height: 1;
 }
 
 /* Auxiliary tree styling */

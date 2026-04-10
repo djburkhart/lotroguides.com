@@ -222,40 +222,62 @@ function replaceWidgetTokens(doc) {
 }
 
 /* ─── Widget NodeViews ───────────────────────────────────────────── */
-function DpsWidgetView(node) {
+function DpsWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-dps';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openDpsModalForEdit(self.node.attrs.token); });
+  });
 }
 DpsWidgetView.prototype.render = function () {
   var opts = parseDpsToken(this.node.attrs.token);
-  var html = '<div class="pm-widget-badge"><i class="fa fa-table"></i> DPS Stat Table</div>';
+  var html = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-table"></i> DPS Stat Table</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>';
   var details = [];
   if (opts.levelCap) details.push('Level Cap: ' + opts.levelCap);
   if (opts.heading) details.push(opts.heading);
   if (details.length) html += '<div class="pm-widget-info">' + details.join(' &middot; ') + '</div>';
   this.dom.innerHTML = html;
+  var self = this;
+  this.dom.querySelector('.pm-widget-edit-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openDpsModalForEdit(self.node.attrs.token); });
+  });
 };
 DpsWidgetView.prototype.stopEvent = function () { return false; };
 DpsWidgetView.prototype.ignoreMutation = function () { return true; };
 
-function MapWidgetView(node) {
+function MapWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-map';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openMapModalForEdit(self.node.attrs.token); });
+  });
 }
 MapWidgetView.prototype.render = function () {
   var info = parseMapToken(this.node.attrs.token);
   var label = info.type === 'map' ? 'Map Region' : info.type.charAt(0).toUpperCase() + info.type.slice(1);
-  var html = '<div class="pm-widget-badge"><i class="fa fa-map-o"></i> Map Embed</div>'
+  var html = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-map-o"></i> Map Embed</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>'
     + '<div class="pm-widget-info">' + label + ': ' + info.id + ' &middot; ' + info.height + 'px</div>'
     + '<iframe src="map?' + encodeURIComponent(info.type) + '=' + encodeURIComponent(info.id)
     + '&embed=1" class="pm-widget-map-preview" loading="lazy" title="Map preview"></iframe>';
   this.dom.innerHTML = html;
+  var self = this;
+  this.dom.querySelector('.pm-widget-edit-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openMapModalForEdit(self.node.attrs.token); });
+  });
 };
 MapWidgetView.prototype.stopEvent = function () { return false; };
 MapWidgetView.prototype.ignoreMutation = function () { return true; };
@@ -294,16 +316,22 @@ function parseConsumableToken(token) {
   return opts;
 }
 
-function ConsumableWidgetView(node) {
+function ConsumableWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-consumable';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openConsumableModalForEdit(self.node.attrs.token); });
+  });
 }
 ConsumableWidgetView.prototype.render = function () {
   var opts = parseConsumableToken(this.node.attrs.token);
-  var badge = '<div class="pm-widget-badge"><i class="fa fa-flask"></i> Consumable Table</div>';
+  var badge = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-flask"></i> Consumable Table</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>';
   var info = '';
   if (opts.heading) info += opts.heading;
   if (opts.items && opts.items.length) {
@@ -323,8 +351,19 @@ ConsumableWidgetView.prototype.render = function () {
     this.dom.innerHTML = html + '<div class="pm-widget-info">Loading preview...</div>';
     loadConsumablesRef().then(function (ref) {
       self.dom.innerHTML = badge + '<div class="pm-widget-info">' + info + '</div>' + self.buildPreviewTable(ref, opts);
+      self.wireEditBtn();
     });
   }
+  this.wireEditBtn();
+};
+ConsumableWidgetView.prototype.wireEditBtn = function () {
+  var btn = this.dom.querySelector('.pm-widget-edit-btn');
+  if (!btn) return;
+  var self = this;
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openConsumableModalForEdit(self.node.attrs.token); });
+  });
 };
 ConsumableWidgetView.prototype.buildPreviewTable = function (ref, opts) {
   var items = ref.items || [];
@@ -344,7 +383,7 @@ ConsumableWidgetView.prototype.buildPreviewTable = function (ref, opts) {
 ConsumableWidgetView.prototype.stopEvent = function () { return false; };
 ConsumableWidgetView.prototype.ignoreMutation = function () { return true; };
 
-function InstanceLootWidgetView(node) {
+function InstanceLootWidgetView(node, view, getPos) {
   this.node = node;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-instance-loot';
@@ -359,34 +398,56 @@ InstanceLootWidgetView.prototype.render = function () {
 InstanceLootWidgetView.prototype.stopEvent = function () { return false; };
 InstanceLootWidgetView.prototype.ignoreMutation = function () { return true; };
 
-function QuestWidgetView(node) {
+function QuestWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-quest';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openQuestSearchModal(); });
+  });
 }
 QuestWidgetView.prototype.render = function () {
   var m = this.node.attrs.token.match(/^\{\{quest:([^}]+)\}\}$/);
   var ref = m ? m[1] : '?';
-  this.dom.innerHTML = '<div class="pm-widget-badge"><i class="fa fa-exclamation-circle"></i> Quest Card</div>'
+  this.dom.innerHTML = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-exclamation-circle"></i> Quest Card</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>'
     + '<div class="pm-widget-info">' + ref + '</div>';
+  var self = this;
+  this.dom.querySelector('.pm-widget-edit-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openQuestSearchModal(); });
+  });
 };
 QuestWidgetView.prototype.stopEvent = function () { return false; };
 QuestWidgetView.prototype.ignoreMutation = function () { return true; };
 
-function DeedWidgetView(node) {
+function DeedWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-deed';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openDeedSearchModal(); });
+  });
 }
 DeedWidgetView.prototype.render = function () {
   var m = this.node.attrs.token.match(/^\{\{deed:([^}]+)\}\}$/);
   var ref = m ? m[1] : '?';
-  this.dom.innerHTML = '<div class="pm-widget-badge"><i class="fa fa-bookmark"></i> Deed Card</div>'
+  this.dom.innerHTML = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-bookmark"></i> Deed Card</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>'
     + '<div class="pm-widget-info">' + ref + '</div>';
+  var self = this;
+  this.dom.querySelector('.pm-widget-edit-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openDeedSearchModal(); });
+  });
 };
 DeedWidgetView.prototype.stopEvent = function () { return false; };
 DeedWidgetView.prototype.ignoreMutation = function () { return true; };
@@ -403,31 +464,58 @@ function parseTraitPlannerToken(token) {
   return opts;
 }
 
-function TraitPlannerWidgetView(node) {
+function TraitPlannerWidgetView(node, view, getPos) {
   this.node = node;
+  this.getPos = getPos;
   this.dom = document.createElement('div');
   this.dom.className = 'pm-widget pm-widget-trait-planner';
   this.dom.setAttribute('contenteditable', 'false');
   this.render();
+  var self = this;
+  this.dom.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    editWidgetAt(self.getPos, function () { openTraitPlannerModalForEdit(self.node.attrs.token); });
+  });
 }
 TraitPlannerWidgetView.prototype.render = function () {
   var opts = parseTraitPlannerToken(this.node.attrs.token);
   var cls = opts['class'] || '?';
   var build = opts.build || '?';
   var level = opts.level || '160';
-  var html = '<div class="pm-widget-badge"><i class="fa fa-sitemap"></i> Trait Planner</div>'
+  var html = '<div class="pm-widget-header"><div class="pm-widget-badge"><i class="fa fa-sitemap"></i> Trait Planner</div><button class="pm-widget-edit-btn" title="Edit widget"><i class="fa fa-pencil"></i></button></div>'
     + '<div class="pm-widget-info">' + cls.charAt(0).toUpperCase() + cls.slice(1) + ' &middot; ' + build + ' &middot; Level ' + level + '</div>';
   this.dom.innerHTML = html;
+  var self = this;
+  this.dom.querySelector('.pm-widget-edit-btn').addEventListener('click', function (e) {
+    e.stopPropagation();
+    editWidgetAt(self.getPos, function () { openTraitPlannerModalForEdit(self.node.attrs.token); });
+  });
 };
 TraitPlannerWidgetView.prototype.stopEvent = function () { return false; };
 TraitPlannerWidgetView.prototype.ignoreMutation = function () { return true; };
 
+/* ─── Widget Edit State ──────────────────────────────────────────── */
+var editingWidgetPos = null;  // When non-null, modal will update widget at this position instead of inserting
+
 function insertWidgetNode(nodeType, attrs) {
   if (!editorView) return;
-  var state = editorView.state;
-  var tr = state.tr.replaceSelectionWith(nodeType.create(attrs));
-  editorView.dispatch(tr);
+  if (editingWidgetPos !== null) {
+    // Update existing widget node at the stored position
+    var pos = editingWidgetPos;
+    editingWidgetPos = null;
+    var tr = editorView.state.tr.setNodeMarkup(pos, nodeType, attrs);
+    editorView.dispatch(tr);
+  } else {
+    // Insert new widget node at cursor
+    var tr = editorView.state.tr.replaceSelectionWith(nodeType.create(attrs));
+    editorView.dispatch(tr);
+  }
   editorView.focus();
+}
+
+function editWidgetAt(getPos, openModalFn) {
+  editingWidgetPos = getPos();
+  openModalFn();
 }
 
 /* ─── State ──────────────────────────────────────────────────────── */
@@ -2427,6 +2515,7 @@ function addDpsRow() {
 
 function closeDpsModal() {
   document.getElementById('dps-widget-modal').style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function saveDpsConfig() {
@@ -2450,6 +2539,15 @@ function insertDpsWidget() {
   var token = '{{dpsStatTable' + (opts.length ? ':' + opts.join(',') : '') + '}}';
   insertWidgetNode(schema.nodes.dps_widget, { token: token });
   closeDpsModal();
+}
+
+function openDpsModalForEdit(existingToken) {
+  var opts = parseDpsToken(existingToken);
+  // Seed the config from the existing token so the modal pre-populates
+  dpsConfig = dpsConfig || getDefaultDpsConfig();
+  if (opts.levelCap) dpsConfig.levelCap = parseInt(opts.levelCap, 10);
+  if (opts.heading) dpsConfig.sectionHeading = opts.heading;
+  openDpsModal();
 }
 
 /* ─── Quest / Deed Search Modals ─────────────────────────────────── */
@@ -2553,6 +2651,7 @@ function openQuestSearchModal() {
 
 function closeQuestSearchModal() {
   document.getElementById('quest-search-modal').style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function insertQuestWidget() {
@@ -2587,6 +2686,7 @@ function openDeedSearchModal() {
 
 function closeDeedSearchModal() {
   document.getElementById('deed-search-modal').style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function insertDeedWidget() {
@@ -2679,6 +2779,7 @@ function populateTraitPlannerSelects(data, classSelect, buildSelect, btnInsert) 
 function closeTraitPlannerModal() {
   var modal = document.getElementById('trait-planner-modal');
   if (modal) modal.style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function insertTraitPlannerWidget() {
@@ -2689,6 +2790,30 @@ function insertTraitPlannerWidget() {
   var token = '{{traitPlanner:class=' + cls + ',build=' + build + ',level=' + level + '}}';
   insertWidgetNode(schema.nodes.trait_planner_widget, { token: token });
   closeTraitPlannerModal();
+}
+
+function openTraitPlannerModalForEdit(existingToken) {
+  var opts = parseTraitPlannerToken(existingToken);
+  openTraitPlannerModal();
+  // Pre-select class, then wait for builds to load and select build
+  var tryPopulate = function () {
+    var classSelect = document.getElementById('tp-class');
+    var buildSelect = document.getElementById('tp-build');
+    if (classSelect && classSelect.options.length > 1) {
+      classSelect.value = opts['class'] || '';
+      // Trigger change to populate builds dropdown
+      if (classSelect.onchange) classSelect.onchange();
+      // Wait for builds to populate then select
+      setTimeout(function () {
+        buildSelect.value = opts.build || '';
+        if (buildSelect.onchange) buildSelect.onchange();
+      }, 50);
+      document.getElementById('tp-level').value = opts.level || '160';
+    } else {
+      setTimeout(tryPopulate, 100);
+    }
+  };
+  tryPopulate();
 }
 
 /* ─── Insert Image ───────────────────────────────────────────────── */
@@ -2761,6 +2886,7 @@ function populateMapSelect() {
 function closeMapModal() {
   var modal = document.getElementById('map-embed-modal');
   if (modal) modal.style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function updateMapEmbedPreview() {
@@ -2812,6 +2938,30 @@ function insertMapEmbed() {
   closeMapModal();
 }
 
+function openMapModalForEdit(existingToken) {
+  var info = parseMapToken(existingToken);
+  openMapModal();
+  // Pre-populate after modal opens
+  document.getElementById('map-embed-type').value = info.type || 'map';
+  document.getElementById('map-embed-height').value = info.height || '450';
+  if (info.type === 'map') {
+    // Needs to wait for mapsIndex to load so the select option exists
+    var trySelect = function () {
+      var sel = document.getElementById('map-embed-select');
+      if (sel && sel.options.length > 1) {
+        sel.value = info.id;
+        updateMapEmbedPreview();
+      } else {
+        setTimeout(trySelect, 100);
+      }
+    };
+    trySelect();
+  } else {
+    document.getElementById('map-embed-id').value = info.id || '';
+    updateMapEmbedPreview();
+  }
+}
+
 /* ─── Insert Consumable Table ────────────────────────────────────── */
 function openConsumableModal() {
   var modal = document.getElementById('consumable-modal');
@@ -2845,6 +2995,7 @@ function openConsumableModal() {
 function closeConsumableModal() {
   var modal = document.getElementById('consumable-modal');
   if (modal) modal.style.display = 'none';
+  editingWidgetPos = null;
 }
 
 function getSelectedConsumableKeys() {
@@ -2889,6 +3040,37 @@ function insertConsumableTable() {
   token += '}}';
   insertWidgetNode(schema.nodes.consumable_widget, { token: token });
   closeConsumableModal();
+}
+
+function openConsumableModalForEdit(existingToken) {
+  var opts = parseConsumableToken(existingToken);
+  var modal = document.getElementById('consumable-modal');
+  if (!modal) return;
+  document.getElementById('consumable-heading').value = opts.heading || '';
+  var checklist = document.getElementById('consumable-checklist');
+  checklist.innerHTML = '<small class="text-muted">Loading consumables...</small>';
+  modal.style.display = '';
+
+  loadConsumablesRef().then(function (ref) {
+    var items = ref.items || [];
+    var selectedKeys = opts.items || items.map(function (it) { return it.key; });
+    var html = '';
+    items.forEach(function (it) {
+      var checked = selectedKeys.indexOf(it.key) !== -1 ? ' checked' : '';
+      html += '<label class="consumable-check-item">'
+        + '<input type="checkbox" value="' + esc(it.key) + '"' + checked + '> '
+        + '<strong>' + esc(it.consumable) + '</strong> '
+        + '<small class="text-muted">' + esc(it.example) + '</small>'
+        + '</label>';
+    });
+    checklist.innerHTML = html;
+    updateConsumablePreview();
+
+    var boxes = checklist.querySelectorAll('input[type="checkbox"]');
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].addEventListener('change', updateConsumablePreview);
+    }
+  });
 }
 
 /* ─── CDN Version History ────────────────────────────────────────── */

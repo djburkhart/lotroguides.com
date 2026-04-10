@@ -297,6 +297,18 @@
   }
 
   /**
+   * Find a trait object by its cell id (e.g. "b-2-1") across all trees.
+   */
+  function findTraitById(traitId) {
+    if (!currentData) return null;
+    for (var i = 0; i < currentData.trees.length; i++) {
+      var t = currentData.trees[i].traits.find(function (tr) { return tr.id === traitId; });
+      if (t) return t;
+    }
+    return null;
+  }
+
+  /**
    * Get the maximum possible ranks in a tree (sum of all non-milestone trait maxRanks).
    */
   function getTreeMaxRanks(treeId) {
@@ -397,6 +409,15 @@
     if (getTotalSpentPoints() + cost > getMaxTotalPoints()) return false; // Would exceed point cap
     if (!isTierUnlocked(treeId, trait.row)) return false;     // Tier not unlocked yet
 
+    // Check cell dependencies (e.g. "requires Barbed Fury rank 2")
+    if (trait.deps) {
+      for (var d = 0; d < trait.deps.length; d++) {
+        var dep = trait.deps[d];
+        var depRank = (currentBuild.points && currentBuild.points[dep.traitId]) || 0;
+        if (depRank < dep.rank) return false;
+      }
+    }
+
     return true;
   }
   
@@ -445,6 +466,20 @@
         }
         var neededRanks = (tier - 1) * TIER_RANKS_REQUIRED;
         if (cumRanks < neededRanks) return false; // Would invalidate a higher tier
+      }
+    }
+
+    // Check if removing this rank would violate any other trait's dependency on this trait
+    var newRank = currentRank - 1;
+    if (tree) {
+      for (var di = 0; di < tree.traits.length; di++) {
+        var other = tree.traits[di];
+        if (!other.deps || !currentBuild.points[other.id]) continue;
+        for (var dj = 0; dj < other.deps.length; dj++) {
+          if (other.deps[dj].traitId === traitId && newRank < other.deps[dj].rank) {
+            return false; // Would break a dependency
+          }
+        }
       }
     }
 
@@ -648,6 +683,11 @@
             cell.className += ' ltp-cell-empty-trait';
           }
           
+          // Mark traits with unmet dependencies
+          if (!isMilestone && !isRanked && t.deps && !canAllocatePoint(t.id)) {
+            cell.className += ' ltp-cell-dep-locked';
+          }
+          
           // Add interactivity for non-milestone traits
           if (!isMilestone) {
             cell.style.cursor = 'pointer';
@@ -705,6 +745,17 @@
             // Add interaction help
             if (!isMaxed && canAllocatePoint(t.id)) {
               tooltipText += '\n\nClick to allocate point';
+            } else if (!isMaxed && t.deps) {
+              // Show unmet dependency info
+              for (var di = 0; di < t.deps.length; di++) {
+                var dep = t.deps[di];
+                var depRank = (currentBuild.points && currentBuild.points[dep.traitId]) || 0;
+                if (depRank < dep.rank) {
+                  var depTrait = findTraitById(dep.traitId);
+                  var depName = depTrait ? depTrait.name : dep.traitId;
+                  tooltipText += '\n\nRequires ' + depName + ' rank ' + dep.rank;
+                }
+              }
             }
             if (pts > 0) {
               tooltipText += '\nRight-click or Shift+click to remove point';
@@ -1072,6 +1123,9 @@
             if (tierLocked) {
               cell.classList.add('ltp-cell-locked');
             }
+            if (!hasPoints && trait.deps && !canAllocatePoint(trait.id)) {
+              cell.classList.add('ltp-cell-dep-locked');
+            }
             
             // Update interactivity attributes
             cell.setAttribute('data-can-allocate', canAllocatePoint(trait.id) ? 'true' : 'false');
@@ -1101,6 +1155,16 @@
               
               if (!isMaxed && canAllocatePoint(trait.id)) {
                 tooltipText += '\n\nClick to allocate point';
+              } else if (!isMaxed && trait.deps) {
+                for (var di = 0; di < trait.deps.length; di++) {
+                  var dep = trait.deps[di];
+                  var depRank = (currentBuild.points && currentBuild.points[dep.traitId]) || 0;
+                  if (depRank < dep.rank) {
+                    var depTrait = findTraitById(dep.traitId);
+                    var depName = depTrait ? depTrait.name : dep.traitId;
+                    tooltipText += '\n\nRequires ' + depName + ' rank ' + dep.rank;
+                  }
+                }
               }
               if (currentPoints > 0) {
                 tooltipText += '\nRight-click or Shift+click to remove point';
