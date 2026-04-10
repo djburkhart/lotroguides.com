@@ -16,7 +16,8 @@ const path = require('path');
 
 const LORE = path.resolve(__dirname, '..', '..', '..', 'Users', 'me', 'Downloads',
   'lotro-data-master', 'lotro-data-master', 'lore');
-const OUT  = path.resolve(__dirname, '..', 'data', 'collections-db.json');
+const OUT_COLLECTIONS = path.resolve(__dirname, '..', 'data', 'collections-db.json');
+const OUT_ITEMS       = path.resolve(__dirname, '..', 'data', 'collections-items-db.json');
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 
@@ -135,7 +136,8 @@ function parseCollections(filePath) {
 /* ── Main ─────────────────────────────────────────────────────────────── */
 
 console.log('Importing collections from:', LORE);
-console.log('Output:', OUT);
+console.log('Output:', OUT_COLLECTIONS);
+console.log('Output:', OUT_ITEMS);
 console.log();
 
 // 1. Load labels first (needed for mount type enum)
@@ -255,12 +257,9 @@ items.sort((a, b) => {
   return a.n.localeCompare(b.n);
 });
 
-// 7. Write output
-const output = {
-  collections: resultCollections,
-  items: items
-};
-fs.writeFileSync(OUT, JSON.stringify(output));
+// 7. Write output — split into two files
+fs.writeFileSync(OUT_COLLECTIONS, JSON.stringify(resultCollections));
+fs.writeFileSync(OUT_ITEMS, JSON.stringify(items));
 
 console.log();
 console.log('Collections: ' + resultCollections.length);
@@ -273,5 +272,7 @@ console.log('  In a collection: ' + items.filter(i => i.col).length);
 console.log('  With source: ' + items.filter(i => i.src).length);
 console.log('  With description: ' + items.filter(i => i.desc).length);
 console.log();
-const bytes = fs.statSync(OUT).size;
-console.log('Output: ' + OUT + ' (' + (bytes / 1024).toFixed(1) + ' KB)');
+const bCol = fs.statSync(OUT_COLLECTIONS).size;
+const bItm = fs.statSync(OUT_ITEMS).size;
+console.log('Output: ' + OUT_COLLECTIONS + ' (' + (bCol / 1024).toFixed(1) + ' KB)');
+console.log('Output: ' + OUT_ITEMS + ' (' + (bItm / 1024).toFixed(1) + ' KB)');

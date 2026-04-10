@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Collections Database — Collections cards + Items DataTable
-   Expects: window.LOTRO_COLLECTIONS_DB loaded before init
-   Data shape: { collections: [...], items: [...] }
+   Expects:
+     window.LOTRO_COLLECTIONS_DB (array) loaded before LOTRO_COLLECTIONS_INIT
+     window.LOTRO_COLLECTIONS_ITEMS (array) loaded lazily, triggers LOTRO_COLLECTIONS_ITEMS_READY
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -295,21 +296,28 @@
     if (initialized) return;
     initialized = true;
 
-    var db = window.LOTRO_COLLECTIONS_DB || {};
-    var collections = db.collections || [];
-    var items = db.items || [];
-
-    if (!collections.length && !items.length) return;
+    var collections = window.LOTRO_COLLECTIONS_DB || [];
+    if (!collections.length) return;
 
     // Collections tab
     initCollectionsTab(collections);
 
-    // Items tab — init on first show for performance
-    $('a[href="#tab-items"]').on('shown.bs.tab', function () {
-      initItemsTab(items, collections);
-      // Adjust DataTable columns on tab show (hidden tabs need redraw)
-      if (itemsTable) itemsTable.columns.adjust();
-    });
+    // Items tab — data arrives lazily via separate JSON load
+    window.LOTRO_COLLECTIONS_ITEMS_READY = function () {
+      var items = window.LOTRO_COLLECTIONS_ITEMS || [];
+      $('a[href="#tab-items"]').on('shown.bs.tab', function () {
+        initItemsTab(items, collections);
+        if (itemsTable) itemsTable.columns.adjust();
+      });
+      // If tab is already active (e.g. from URL param), init now
+      if ($('#tab-items').hasClass('active')) {
+        initItemsTab(items, collections);
+      }
+    };
+    // If items already loaded (race condition), fire now
+    if (window.LOTRO_COLLECTIONS_ITEMS) {
+      window.LOTRO_COLLECTIONS_ITEMS_READY();
+    }
 
     // URL param support
     var params = new URLSearchParams(window.location.search);

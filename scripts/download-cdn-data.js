@@ -38,6 +38,7 @@ const FILES = [
   'data/builds/warden.json',
   // Collections (mounts & pets)
   'data/collections-db.json',
+  'data/collections-items-db.json',
 ];
 
 function download(url) {

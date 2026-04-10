@@ -3726,14 +3726,22 @@ function buildRecipesPage(navData) {
 
 function buildCollectionsPage(navData) {
   const collectionsPath = path.join(__dirname, 'data', 'collections-db.json');
+  const itemsPath = path.join(__dirname, 'data', 'collections-items-db.json');
   if (!fs.existsSync(collectionsPath)) return;
 
-  const db = JSON.parse(fs.readFileSync(collectionsPath, 'utf8'));
-  const collectionCount = db.collections ? db.collections.length : 0;
-  const itemCount = db.items ? db.items.length : 0;
+  const collections = JSON.parse(fs.readFileSync(collectionsPath, 'utf8'));
+  const collectionCount = Array.isArray(collections) ? collections.length : 0;
+
+  let itemCount = 0;
+  if (fs.existsSync(itemsPath)) {
+    const items = JSON.parse(fs.readFileSync(itemsPath, 'utf8'));
+    itemCount = Array.isArray(items) ? items.length : 0;
+    ensureDir(path.join(OUTPUT_DIR, 'data'));
+    fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'collections-items-db.json'), JSON.stringify(items));
+  }
 
   ensureDir(path.join(OUTPUT_DIR, 'data'));
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'collections-db.json'), JSON.stringify(db));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'collections-db.json'), JSON.stringify(collections));
 
   const template = readTemplate('collections-content.html');
   const body = render(template, {
@@ -3748,7 +3756,12 @@ function buildCollectionsPage(navData) {
     ...navData,
   });
 
+  // Inject DataTables CSS in <head>
+  const dtCss = '<link href="./plugins/datatables/datatables.min.css" rel="stylesheet">';
+  html = html.replace('</head>', `    ${dtCss}\n  </head>`);
+
   const scripts = [
+    '<script src="./plugins/datatables/datatables.min.js" defer></script>',
     '<script>',
     'document.addEventListener("DOMContentLoaded", function() {',
     '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
@@ -3756,6 +3769,16 @@ function buildCollectionsPage(navData) {
     '    window.LOTRO_COLLECTIONS_DB = data;',
     '    $.getScript("./js/collections-db.js", function() {',
     '      if (window.LOTRO_COLLECTIONS_INIT) window.LOTRO_COLLECTIONS_INIT();',
+    '    });',
+    '  });',
+    '  // Load items data lazily when tab is first shown',
+    '  var itemsLoaded = false;',
+    '  $("a[href=\'#tab-items\']").on("show.bs.tab", function() {',
+    '    if (itemsLoaded) return;',
+    '    itemsLoaded = true;',
+    '    $.getJSON(_cdn + "data/collections-items-db.json").done(function(data) {',
+    '      window.LOTRO_COLLECTIONS_ITEMS = data;',
+    '      if (window.LOTRO_COLLECTIONS_ITEMS_READY) window.LOTRO_COLLECTIONS_ITEMS_READY();',
     '    });',
     '  });',
     '});',
