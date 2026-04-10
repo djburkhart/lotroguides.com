@@ -36,6 +36,8 @@ const FILES = [
   'data/builds/minstrel.json',
   'data/builds/rune-keeper.json',
   'data/builds/warden.json',
+  // Collections (mounts & pets)
+  'data/collections-db.json',
 ];
 
 function download(url) {
