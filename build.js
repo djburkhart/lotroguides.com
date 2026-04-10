@@ -3722,6 +3722,50 @@ function buildRecipesPage(navData) {
   fs.writeFileSync(path.join(OUTPUT_DIR, 'recipes.html'), html);
 }
 
+// ─── Collections Page ───────────────────────────────────────────────────────
+
+function buildCollectionsPage(navData) {
+  const collectionsPath = path.join(__dirname, 'data', 'collections-db.json');
+  if (!fs.existsSync(collectionsPath)) return;
+
+  const db = JSON.parse(fs.readFileSync(collectionsPath, 'utf8'));
+  const collectionCount = db.collections ? db.collections.length : 0;
+  const itemCount = db.items ? db.items.length : 0;
+
+  ensureDir(path.join(OUTPUT_DIR, 'data'));
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'collections-db.json'), JSON.stringify(db));
+
+  const template = readTemplate('collections-content.html');
+  const body = render(template, {
+    collectionCount: collectionCount,
+    itemCount: itemCount,
+  });
+
+  let html = buildPage(body, {
+    title: 'Collections - LOTRO Guides',
+    metaDescription: `Browse ${collectionCount} mount and pet collections and ${itemCount} individual mounts & pets in Lord of the Rings Online. See how to obtain each collectible, drop locations, barter sources, and completion rewards.`,
+    currentPage: 'collections',
+    ...navData,
+  });
+
+  const scripts = [
+    '<script>',
+    'document.addEventListener("DOMContentLoaded", function() {',
+    '  var _cdn = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\\/$/, \'\') + \'/\' : \'./\';',
+    '  $.getJSON(_cdn + "data/collections-db.json").done(function(data) {',
+    '    window.LOTRO_COLLECTIONS_DB = data;',
+    '    $.getScript("./js/collections-db.js", function() {',
+    '      if (window.LOTRO_COLLECTIONS_INIT) window.LOTRO_COLLECTIONS_INIT();',
+    '    });',
+    '  });',
+    '});',
+    '</script>',
+  ].join('\n    ');
+  html = html.replace('</body>', `    ${scripts}\n  </body>`);
+
+  fs.writeFileSync(path.join(OUTPUT_DIR, 'collections.html'), html);
+}
+
 // ─── Embedded Trait Planner ─────────────────────────────────────────────────
 
 function buildEmbeddedTraitPlanner() {
@@ -3891,6 +3935,10 @@ async function build() {
   buildRecipesPage({ guideNavItems: guideNav, newsNavItems: newsNav });
   console.log('   ✓ recipes.html');
 
+  // Build collections page
+  buildCollectionsPage({ guideNavItems: guideNav, newsNavItems: newsNav });
+  console.log('   ✓ collections.html');
+
   // Build embedded trait planner
   buildEmbeddedTraitPlanner();
   console.log('   ✓ embedded-trait-planner.html');
@@ -3936,6 +3984,7 @@ function buildSitemap(allPosts) {
     { loc: 'virtues', changefreq: 'monthly', priority: '0.7' },
     { loc: 'sets',    changefreq: 'monthly', priority: '0.7' },
     { loc: 'instances', changefreq: 'weekly', priority: '0.7' },
+    { loc: 'collections', changefreq: 'monthly', priority: '0.6' },
     { loc: 'map',     changefreq: 'weekly',  priority: '0.8' },
     { loc: 'about',   changefreq: 'monthly', priority: '0.5' },
   ];

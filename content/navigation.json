@@ -26,7 +26,7 @@
     {
       "label": "Database",
       "url": "items.html",
-      "activeOn": ["items", "mobs", "sets", "virtues", "deeds", "quests", "instances", "titles", "factions", "recipes"],
+      "activeOn": ["items", "mobs", "sets", "virtues", "deeds", "quests", "instances", "titles", "factions", "recipes", "collections"],
       "children": [
         {
           "label": "Items",
@@ -67,6 +67,10 @@
         {
           "label": "Recipes",
           "url": "recipes.html"
+        },
+        {
+          "label": "Collections",
+          "url": "collections.html"
         }
       ]
     },

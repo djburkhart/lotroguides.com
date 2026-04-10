@@ -1,0 +1,99 @@
+    <section class="breadcrumbs">
+      <div class="container">
+        <ol class="breadcrumb">
+          <li><a href="./">Home</a></li>
+          <li class="active">Collections</li>
+        </ol>
+      </div>
+    </section>
+    <section class="p-y-80">
+      <div class="container">
+        <div class="heading">
+          <i class="fa fa-cubes"></i>
+          <h2>Collections</h2>
+          <p>Browse {{collectionCount}} mount and pet collections and {{itemCount}} individual mounts &amp; pets. See how to obtain each one, where they come from, and collection completion rewards.</p>
+        </div>
+
+        <!-- View toggle -->
+        <ul class="nav nav-tabs m-b-20" id="collections-tabs">
+          <li class="active"><a data-toggle="tab" href="#tab-collections"><i class="fa fa-th-large"></i> Collections <span class="badge">{{collectionCount}}</span></a></li>
+          <li><a data-toggle="tab" href="#tab-items"><i class="fa fa-list"></i> All Mounts &amp; Pets <span class="badge">{{itemCount}}</span></a></li>
+        </ul>
+
+        <div class="tab-content">
+          <!-- Collections tab -->
+          <div id="tab-collections" class="tab-pane active">
+            <div class="row m-b-30">
+              <div class="col-sm-6 col-md-3 m-b-15">
+                <label class="item-filter-label">Category</label>
+                <select id="filter-category" class="form-control item-filter-select">
+                  <option value="">All Categories</option>
+                </select>
+              </div>
+              <div class="col-sm-6 col-md-5 m-b-15">
+                <label class="item-filter-label">Search</label>
+                <input type="text" id="collection-search" class="form-control" placeholder="Search collections or items...">
+              </div>
+              <div class="col-sm-6 col-md-2 m-b-15">
+                <label class="item-filter-label">&nbsp;</label>
+                <button id="filter-reset" class="btn btn-sm btn-default btn-block">Reset</button>
+              </div>
+              <div class="col-sm-6 col-md-2 m-b-15">
+                <label class="item-filter-label">&nbsp;</label>
+                <span id="collection-count" class="text-muted small" style="display:block;padding-top:8px;"></span>
+              </div>
+            </div>
+            <div id="collections-container"></div>
+          </div>
+
+          <!-- Items tab -->
+          <div id="tab-items" class="tab-pane">
+            <div class="row m-b-30">
+              <div class="col-sm-6 col-md-3 m-b-15">
+                <label class="item-filter-label">Category</label>
+                <select id="filter-items-cat" class="form-control item-filter-select">
+                  <option value="">All</option>
+                  <option value="Mounts">Mounts</option>
+                  <option value="Pets">Pets</option>
+                </select>
+              </div>
+              <div class="col-sm-6 col-md-3 m-b-15">
+                <label class="item-filter-label">Source</label>
+                <select id="filter-items-source" class="form-control item-filter-select">
+                  <option value="">All Sources</option>
+                </select>
+              </div>
+              <div class="col-sm-6 col-md-2 m-b-15">
+                <label class="item-filter-label">In Collection?</label>
+                <select id="filter-items-col" class="form-control item-filter-select">
+                  <option value="">Any</option>
+                  <option value="yes">In a collection</option>
+                  <option value="no">Not in a collection</option>
+                </select>
+              </div>
+              <div class="col-sm-6 col-md-2 m-b-15">
+                <label class="item-filter-label">&nbsp;</label>
+                <button id="filter-items-reset" class="btn btn-sm btn-default btn-block">Reset</button>
+              </div>
+              <div class="col-sm-6 col-md-2 m-b-15">
+                <label class="item-filter-label">&nbsp;</label>
+                <span id="items-count" class="text-muted small" style="display:block;padding-top:8px;"></span>
+              </div>
+            </div>
+            <table id="items-table" class="table table-striped lotro-datatable" style="width:100%">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Source</th>
+                  <th>Collection</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>

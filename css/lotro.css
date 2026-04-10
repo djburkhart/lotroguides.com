@@ -4275,6 +4275,111 @@ body.lotro-map-embed-mode {
 .lotro-card-rw-rep .fa { color: #5b9bd5; }
 .lotro-card-rw-title .fa { color: #b8a040; }
 
+/* ─── Collections Page ─────────────────────────────────────────── */
+.collection-card {
+  background: #fff;
+  border: 1px solid #e0ddd5;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow .15s;
+}
+.collection-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.collection-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.collection-card-header:hover {
+  background: #faf8f4;
+}
+.collection-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.collection-card-title h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.collection-count {
+  font-size: 12px;
+  color: #999;
+}
+.collection-toggle {
+  color: #999;
+  transition: transform .2s;
+}
+.collection-reward {
+  padding: 6px 18px 10px;
+  font-size: 13px;
+  border-top: 1px solid #f0ede6;
+}
+.collection-elements {
+  padding: 0 18px 14px;
+}
+.collection-el {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #f0ede6;
+}
+.collection-el:first-child {
+  border-top: 1px solid #e0ddd5;
+}
+.collection-el-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+.collection-el-icon img {
+  border-radius: 4px;
+}
+.collection-el-info {
+  flex: 1;
+  min-width: 0;
+}
+.collection-el-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+.collection-el-src {
+  font-size: 13px;
+  color: #6a8759;
+  margin-top: 2px;
+}
+.collection-el-src .fa {
+  color: #b8860b;
+  margin-right: 3px;
+}
+.collection-el-desc {
+  margin-top: 2px;
+}
+.collection-race-tag {
+  text-transform: capitalize;
+}
+.collection-el-src-inline {
+  font-size: 13px;
+}
+.collection-el-src-inline .fa {
+  margin-right: 3px;
+}
+#items-table .lotro-game-icon {
+  vertical-align: middle;
+}
+#collections-tabs .badge {
+  background: rgba(255,255,255,0.15);
+  margin-left: 4px;
+}
+
 /* ─── Trait Planner Widget ─────────────────────────────────────── */
 .lotro-trait-planner {
   margin: 24px 0;

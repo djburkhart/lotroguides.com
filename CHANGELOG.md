@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [2.6.4] - 2026-04-10
+
+### Added
+
+- **Collections page** — New browsable page for all LOTRO mount and pet collections with two tabs:
+  - **Collections tab** — 29 named collections displayed as expandable cards showing all elements, source descriptions, and completion reward titles
+  - **All Mounts & Pets tab** — DataTable of all 1,216 individual mounts (673) and pets (543) with icon, name, type badge, source description, and collection membership
+- **Collections import script** (`scripts/import-collections.js`) — Parses `collections.xml`, cross-references `skills.xml` for mount/pet metadata (speed, morale, mount type), and resolves label keys from `labels/en/skills.xml` for English source descriptions and flavor text
+- **Source classification filters** — Items tab includes smart source filters (Store, Festival, Barter, Quest, Deed/Reputation, Drop/Loot, Crafting, PvMP, Hobby, Starter) derived from source description text
+- **Collection membership filter** — Filter items by whether they belong to a named collection or not
+- **Mount type data** — Enum-resolved mount types (Horse Or Pony, Goat, Elk, Caveclaw, Boar, Donkey, etc.) included in item data
+- **Navigation & sitemap** — Collections added to Database dropdown and sitemap
+
 ## [2.6.3] - 2026-04-09
 
 ### Added
