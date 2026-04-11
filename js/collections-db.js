@@ -439,15 +439,17 @@
     if (initialized) return;
     initialized = true;
 
-    collections = window.LOTRO_COLLECTIONS_DB || [];
+    var raw = window.LOTRO_COLLECTIONS_DB || [];
+    // Handle both old combined format {collections:[], items:[]} and new split format (plain array)
+    collections = Array.isArray(raw) ? raw : (raw.collections || []);
     if (!collections.length) return;
 
     // Collections tab (always client-side rendered — only ~29 items)
     initCollectionsTab();
 
-    // Items tab — init on first show via SSP, lazy
+    // Items tab — eagerly init SSP so data is ready when user clicks the tab
+    initItemsTab();
     $('a[href="#tab-items"]').on('shown.bs.tab', function () {
-      initItemsTab();
       if (itemsTable) itemsTable.columns.adjust();
     });
 

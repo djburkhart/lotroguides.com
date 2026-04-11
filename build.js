@@ -3729,13 +3729,27 @@ function buildCollectionsPage(navData) {
   const itemsPath = path.join(__dirname, 'data', 'collections-items-db.json');
   if (!fs.existsSync(collectionsPath)) return;
 
-  const collections = JSON.parse(fs.readFileSync(collectionsPath, 'utf8'));
-  const collectionCount = Array.isArray(collections) ? collections.length : 0;
+  const raw = JSON.parse(fs.readFileSync(collectionsPath, 'utf8'));
+
+  // Handle both old combined format {collections:[], items:[]} and new split format (plain array)
+  let collections, items;
+  if (Array.isArray(raw)) {
+    collections = raw;
+  } else if (raw && Array.isArray(raw.collections)) {
+    collections = raw.collections;
+    if (Array.isArray(raw.items)) items = raw.items;
+  } else {
+    collections = [];
+  }
+  const collectionCount = collections.length;
 
   let itemCount = 0;
-  if (fs.existsSync(itemsPath)) {
-    const items = JSON.parse(fs.readFileSync(itemsPath, 'utf8'));
-    itemCount = Array.isArray(items) ? items.length : 0;
+  if (!items && fs.existsSync(itemsPath)) {
+    items = JSON.parse(fs.readFileSync(itemsPath, 'utf8'));
+    if (!Array.isArray(items)) items = [];
+  }
+  if (items) {
+    itemCount = items.length;
     ensureDir(path.join(OUTPUT_DIR, 'data'));
     fs.writeFileSync(path.join(OUTPUT_DIR, 'data', 'collections-items-db.json'), JSON.stringify(items));
   }
