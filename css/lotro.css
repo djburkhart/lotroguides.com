@@ -5175,6 +5175,185 @@ body.lotro-map-embed-mode {
   color: #e06060;
 }
 
+/* Traceries */
+.ltp-traceries {
+  padding-top: 12px;
+  border-top: 1px solid #333;
+  margin-bottom: 8px;
+}
+.ltp-traceries .ltp-section-title {
+  font-size: 13px;
+  color: #c9aa58;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+.ltp-tracery-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ltp-tracery-group-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ltp-tracery-slots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ltp-tracery-slot {
+  position: relative;
+  background: rgba(0,0,0,0.2);
+  border: 1px dashed #555;
+  border-radius: 6px;
+  padding: 6px 10px;
+  min-width: 140px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 11px;
+}
+.ltp-tracery-slot:hover {
+  border-color: #c9aa58;
+  background: rgba(244, 228, 188, 0.05);
+}
+.ltp-tracery-filled {
+  border-style: solid;
+  border-color: #555;
+  background: rgba(201, 170, 88, 0.1);
+}
+.ltp-tracery-filled:hover {
+  border-color: #c9aa58;
+}
+.ltp-tracery-name {
+  color: #f4e4bc;
+  font-weight: 500;
+}
+.ltp-tracery-empty {
+  color: #888;
+}
+.ltp-tracery-remove {
+  color: #999;
+  margin-left: 6px;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ltp-tracery-remove:hover {
+  color: #e06060;
+}
+
+/* Locked tracery slot */
+.ltp-tracery-locked {
+  border-style: solid;
+  border-color: #333;
+  background: rgba(0,0,0,0.35);
+  cursor: default;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ltp-tracery-locked:hover {
+  border-color: #444;
+  background: rgba(0,0,0,0.35);
+  transform: none;
+}
+.ltp-tracery-lock {
+  color: #666;
+  font-size: 12px;
+}
+.ltp-tracery-lock-label {
+  color: #777;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Locked tracery slot */
+.ltp-tracery-locked {
+  border-style: solid;
+  border-color: #333;
+  background: rgba(0,0,0,0.35);
+  cursor: default;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ltp-tracery-locked:hover {
+  border-color: #444;
+  background: rgba(0,0,0,0.35);
+  transform: none;
+}
+.ltp-tracery-lock {
+  color: #666;
+  font-size: 12px;
+}
+.ltp-tracery-lock-label {
+  color: #777;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Tracery picker dropdown */
+.ltp-tracery-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10001;
+  width: 280px;
+  max-height: 300px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+.ltp-tracery-search {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid #333;
+  background: #2a2a2a;
+  color: #eee;
+  font-size: 12px;
+  border-radius: 8px 8px 0 0;
+  outline: none;
+  box-sizing: border-box;
+}
+.ltp-tracery-search::placeholder { color: #666; }
+.ltp-tracery-list {
+  overflow-y: auto;
+  max-height: 250px;
+  padding: 4px 0;
+}
+.ltp-tracery-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #ccc;
+  transition: background 0.1s ease;
+}
+.ltp-tracery-option:hover {
+  background: rgba(244, 228, 188, 0.1);
+  color: #f4e4bc;
+}
+.ltp-tracery-selected {
+  background: rgba(201, 170, 88, 0.2);
+  color: #c9aa58;
+}
+.ltp-tracery-no-match {
+  padding: 12px;
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+}
+
 /* ─── Trait Planner Embedded Viewer ─────────────────────────────────────── */
 .trait-planner-embed {
   margin: 20px 0;

@@ -21,6 +21,9 @@
  *  10. XP Table — level-to-XP progression requirements
  *  11. Emotes   — social emote commands
  *  12. Geo Areas — region/territory/area hierarchy
+ *  13. Traceries — legendary item enhancement traceries
+ *  14. Barterers — NPC barter vendors, profiles, item-barterer index
+ *  15. Landmarks — id-to-name lookup for deed/quest map enrichment
  *
  * Usage:  node scripts/import-lotro-data.js [path-to-lotro-data-master]
  * Env:    LOTRO_DATA_PATH  (alternative to CLI arg)
@@ -1054,6 +1057,181 @@ function importGeoAreas() {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+// IMPORT 13: TRACERIES — legendary item enhancement data
+// ═════════════════════════════════════════════════════════════════════════════
+function importTraceries() {
+  console.log('\n⚔️  Importing traceries...');
+  const xml = readXml('traceries.xml');
+  if (!xml) return;
+
+  // Resolve socket type labels (3=Heraldic, 4=Word of Power, 5=Word of Craft, 6-21=Word of Mastery/class)
+  const socketLabels = resolveEnumLabels('SocketType.xml', 'enum-SocketType.xml');
+
+  const re = /<tracery itemId="(\d+)" name="([^"]*)" type="(\d+)" minItemLevel="(\d+)" maxItemLevel="(\d+)"(?:\s+uniquenessChannel="(\d+)")?(?:\s+setId="(\d+)")?/g;
+  const traceries = [];
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const t = {
+      id: m[1],
+      n: cleanGameText(m[2]),
+      st: socketLabels[m[3]] || `Type ${m[3]}`,
+      sc: Number(m[3]),   // socket type code (for class filtering)
+      min: Number(m[4]),
+      max: Number(m[5]),
+    };
+    if (m[7]) t.set = m[7];
+    traceries.push(t);
+  }
+
+  writeJson(path.join(OUT, 'traceries.json'), traceries, false);
+  console.log(`    ✓ Exported ${traceries.length} traceries`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// IMPORT 14: BARTERERS — NPC barter vendors with profiles and trade entries
+// ═════════════════════════════════════════════════════════════════════════════
+function importBarterers() {
+  console.log('\n🪙  Importing barterers...');
+  const xml = readXml('barters.xml');
+  if (!xml) return;
+
+  // ── Parse barterer NPCs ──
+  const bartererRe = /<barterer id="(\d+)" name="([^"]*)"(?:\s+title="([^"]*)")?([^>]*)>\s*([\s\S]*?)<\/barterer>/g;
+  const profileRefRe = /<barterProfile profileId="(\d+)"\/>/g;
+  const barterers = [];
+  let m;
+  while ((m = bartererRe.exec(xml)) !== null) {
+    const b = { id: m[1], n: cleanGameText(m[2]) };
+    if (m[3]) b.t = cleanGameText(m[3]);
+
+    // Optional attributes
+    const attrs = m[4];
+    const cl = attrs.match(/requiredClass="([^"]*)"/);
+    if (cl) b.cl = cl[1];
+    const fac = attrs.match(/requiredFaction="([^"]*)"/);
+    if (fac) b.fac = fac[1];
+    const quest = attrs.match(/requiredQuest="([^"]*)"/);
+    if (quest) b.quest = quest[1];
+
+    // Profile references
+    const body = m[5];
+    const pids = [];
+    let pr;
+    while ((pr = profileRefRe.exec(body)) !== null) pids.push(pr[1]);
+    profileRefRe.lastIndex = 0;
+    if (pids.length) b.profiles = pids;
+
+    barterers.push(b);
+  }
+
+  // ── Parse standalone barter profiles ──
+  const profileRe = /<barterProfile profileId="(\d+)"(?:\s+name="([^"]*)")?>\s*([\s\S]*?)<\/barterProfile>/g;
+  const entryRe = /<barterEntry>\s*([\s\S]*?)<\/barterEntry>/g;
+  const giveRe = /<give id="(\d+)" name="([^"]*)"(?:\s+quantity="(\d+)")?/g;
+  const recRe = /<receive id="(\d+)" name="([^"]*)"(?:\s+quantity="(\d+)")?/g;
+  const profiles = {};
+  while ((m = profileRe.exec(xml)) !== null) {
+    const pid = m[1];
+    const pname = m[2] ? cleanGameText(m[2]) : '';
+    const body = m[3];
+    const entries = [];
+    let em;
+    while ((em = entryRe.exec(body)) !== null) {
+      const eb = em[1];
+      const give = [];
+      let gm;
+      while ((gm = giveRe.exec(eb)) !== null) {
+        const g = { id: gm[1], n: cleanGameText(gm[2]) };
+        if (gm[3]) g.q = Number(gm[3]);
+        give.push(g);
+      }
+      giveRe.lastIndex = 0;
+      const recv = [];
+      let rm;
+      while ((rm = recRe.exec(eb)) !== null) {
+        const r = { id: rm[1], n: cleanGameText(rm[2]) };
+        if (rm[3]) r.q = Number(rm[3]);
+        recv.push(r);
+      }
+      recRe.lastIndex = 0;
+      if (give.length && recv.length) entries.push({ give, recv });
+    }
+    entryRe.lastIndex = 0;
+    if (entries.length) {
+      const p = { entries };
+      if (pname) p.n = pname;
+      profiles[pid] = p;
+    }
+  }
+
+  writeJson(path.join(OUT, 'barterers.json'), barterers, false);
+  writeJson(path.join(OUT, 'barter-profiles.json'), profiles, false);
+  console.log(`    ✓ Exported ${barterers.length} barterers, ${Object.keys(profiles).length} profiles`);
+
+  // ── Link: flag NPCs as barterers ──
+  const npcsPath = path.join(OUT, 'npcs.json');
+  const npcs = readJson(npcsPath);
+  if (npcs) {
+    let flagged = 0;
+    for (const b of barterers) {
+      if (npcs[b.id]) { npcs[b.id].barterer = true; flagged++; }
+    }
+    writeJson(npcsPath, npcs, false);
+    console.log(`    ✓ Flagged ${flagged} NPCs as barterers`);
+  }
+
+  // ── Link: build item → barterer reverse index ──
+  // For each item that appears as a "receive" in any barter entry, record which barterers sell it
+  const bartererByProfile = {};
+  for (const b of barterers) {
+    if (!b.profiles) continue;
+    for (const pid of b.profiles) {
+      if (!bartererByProfile[pid]) bartererByProfile[pid] = [];
+      bartererByProfile[pid].push(b.id);
+    }
+  }
+
+  const itemBarterers = {};  // itemId → Set of barterer IDs
+  for (const [pid, prof] of Object.entries(profiles)) {
+    const bids = bartererByProfile[pid];
+    if (!bids || !bids.length) continue;
+    for (const entry of prof.entries) {
+      for (const r of entry.recv) {
+        if (!itemBarterers[r.id]) itemBarterers[r.id] = new Set();
+        for (const bid of bids) itemBarterers[r.id].add(bid);
+      }
+    }
+  }
+
+  // Convert sets to arrays for JSON
+  const itemBarterIndex = {};
+  for (const [itemId, bids] of Object.entries(itemBarterers)) {
+    itemBarterIndex[itemId] = Array.from(bids);
+  }
+  writeJson(path.join(OUT, 'item-barterers.json'), itemBarterIndex, false);
+  console.log(`    ✓ Indexed ${Object.keys(itemBarterIndex).length} items with barterer sources`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// IMPORT 15: LANDMARKS — id-to-name lookup for deed/quest map enrichment
+// ═════════════════════════════════════════════════════════════════════════════
+function importLandmarks() {
+  console.log('\n🗺️  Importing landmarks...');
+  const xml = readXml('landmarks.xml');
+  if (!xml) return;
+
+  const re = /<landmark id="(\d+)" name="([^"]*)"/g;
+  const landmarks = {};
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    landmarks[m[1]] = cleanGameText(m[2]);
+  }
+
+  writeJson(path.join(OUT, 'landmarks.json'), landmarks, false);
+  console.log(`    ✓ Exported ${Object.keys(landmarks).length} landmarks`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // MAIN
 // ═════════════════════════════════════════════════════════════════════════════
 function main() {
@@ -1080,6 +1258,9 @@ function main() {
   importXpTable();
   importEmotes();
   importGeoAreas();
+  importTraceries();
+  importBarterers();
+  importLandmarks();
 
   console.log('\n✅ Import complete. Run `node build.js` to rebuild the site.');
 }

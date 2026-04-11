@@ -155,7 +155,17 @@
         return VIRTUE_CODES[v] || v.substring(0, 3);
       }).join('-');
     }
-    return cls + '.' + spec + '.' + pts + (virt ? '.' + virt : '');
+    var trac = '';
+    if (build.traceries && build.traceries.length) {
+      trac = build.traceries.map(function(t) {
+        return t ? encodeURIComponent(t) : '_';
+      }).join('~');
+      // Trim trailing empty slots
+      trac = trac.replace(/(~_)+$/, '');
+      // If only underscores remain, no traceries to encode
+      if (trac === '_') trac = '';
+    }
+    return cls + '.' + spec + '.' + pts + (virt ? '.' + virt : '.') + (trac ? '.' + trac : '');
   }
 
   /**
@@ -199,11 +209,19 @@
       }).filter(Boolean);
     }
 
+    var traceries = [];
+    if (parts[4]) {
+      traceries = parts[4].split('~').map(function(t) {
+        return t === '_' ? null : decodeURIComponent(t);
+      });
+    }
+
     return {
       class: cls,
       specialization: specialization,
       points: points,
-      virtues: virtues
+      virtues: virtues,
+      traceries: traceries
     };
   }
 
@@ -1008,12 +1026,313 @@
         level: currentLevel,
         specialization: currentSpecialization,
         points: Object.assign({}, currentBuild.points || {}),
-        virtues: currentBuild.virtues.slice()
+        virtues: currentBuild.virtues.slice(),
+        traceries: currentBuild.traceries ? currentBuild.traceries.slice() : []
       },
       bubbles: true
     }));
   }
-  
+
+  /* ── Tracery System ───────────────────────────────────────────────────── */
+
+  /* Character level → LI item level progression (from lotro-data) */
+  var LEVEL_TO_ITEM_LEVEL = (function() {
+    var points = [
+      [44,1],[11,52],[5,60],[5,65],[5,70],[5,75],[5,100],[5,129],[5,155],
+      [5,175],[4,190],[1,200],[4,215],[1,250],[5,315],[5,349],[4,365],
+      [1,399],[5,415],[5,449],[5,465],[5,499],[5,515],[5,549],[5,565],[5,599]
+    ];
+    var map = {};
+    var lvl = 1;
+    for (var i = 0; i < points.length; i++) {
+      for (var j = 0; j < points[i][0]; j++) { map[lvl++] = points[i][1]; }
+    }
+    return map;
+  })();
+
+  function getItemLevel(charLevel) {
+    return LEVEL_TO_ITEM_LEVEL[charLevel] || (charLevel >= 160 ? 599 : 1);
+  }
+
+  /*
+   * Each slot: { type, label, unlockItemLevel }
+   * Unlock item levels sourced from legendaryAttributes.xml (consistent across all LIs).
+   * Slot order groups by type for display.
+   */
+  var TRACERY_SLOTS = [
+    { type: 'Heraldic Tracery', label: 'Heraldic Tracery', unlockItemLevel: 52 },
+    { type: 'Word of Power',    label: 'Word of Power',    unlockItemLevel: 60 },
+    { type: 'Word of Power',    label: 'Word of Power',    unlockItemLevel: 425 },
+    { type: 'Word of Craft',    label: 'Word of Craft',    unlockItemLevel: 50 },
+    { type: 'Word of Craft',    label: 'Word of Craft',    unlockItemLevel: 330 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 50 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 50 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 75 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 200 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 234 },
+    { type: 'Word of Mastery',  label: 'Word of Mastery',  unlockItemLevel: 370 }
+  ];
+  var TOTAL_TRACERY_SLOTS = TRACERY_SLOTS.length;
+
+  /* For rendering, group consecutive same-type slots */
+  function groupTracerySlots() {
+    var groups = [];
+    var cur = null;
+    for (var i = 0; i < TRACERY_SLOTS.length; i++) {
+      var s = TRACERY_SLOTS[i];
+      if (!cur || cur.type !== s.type) {
+        cur = { type: s.type, label: s.label, indices: [] };
+        groups.push(cur);
+      }
+      cur.indices.push(i);
+    }
+    return groups;
+  }
+
+  /* Find the min character level that unlocks a given item level */
+  function charLevelForItemLevel(itemLvl) {
+    for (var l = 1; l <= 160; l++) {
+      if (LEVEL_TO_ITEM_LEVEL[l] >= itemLvl) return l;
+    }
+    return 160;
+  }
+
+  /* Map socket codes to class keys (built lazily since TRACERIES_DATA may load after this script) */
+  var SC_CLASS_MAP = null;
+  function getSCClassMap() {
+    if (SC_CLASS_MAP) return SC_CLASS_MAP;
+    SC_CLASS_MAP = {};
+    if (window.TRACERIES_DATA && window.TRACERIES_DATA.classMap) {
+      var cm = window.TRACERIES_DATA.classMap;
+      for (var sc in cm) {
+        cm[sc].forEach(function(cls) {
+          if (!SC_CLASS_MAP[cls]) SC_CLASS_MAP[cls] = [];
+          SC_CLASS_MAP[cls].push(parseInt(sc));
+        });
+      }
+    }
+    return SC_CLASS_MAP;
+  }
+
+  function getTraceriesForSlot(type) {
+    if (!window.TRACERIES_DATA || !window.TRACERIES_DATA.groups) return [];
+    var items = window.TRACERIES_DATA.groups[type] || [];
+    if (type === 'Word of Mastery' && currentData) {
+      var cls = currentData.class;
+      var map = getSCClassMap();
+      var allowedSc = map[cls] || [];
+      return items.filter(function(t) { return allowedSc.indexOf(t.sc) !== -1; });
+    }
+    return items;
+  }
+
+  function renderTraceries(traceries, cdnBase) {
+    if (!window.TRACERIES_DATA) return null;
+
+    var section = document.createElement('div');
+    section.className = 'ltp-traceries';
+
+    var header = document.createElement('h4');
+    header.className = 'ltp-section-title';
+    header.textContent = 'Traceries';
+    section.appendChild(header);
+
+    var itemLvl = getItemLevel(currentLevel);
+
+    var grid = document.createElement('div');
+    grid.className = 'ltp-tracery-grid';
+
+    var groups = groupTracerySlots();
+    groups.forEach(function(group) {
+      var groupEl = document.createElement('div');
+      groupEl.className = 'ltp-tracery-group';
+
+      var groupLabel = document.createElement('div');
+      groupLabel.className = 'ltp-tracery-group-label';
+      groupLabel.textContent = group.label;
+      groupEl.appendChild(groupLabel);
+
+      var slotsRow = document.createElement('div');
+      slotsRow.className = 'ltp-tracery-slots';
+
+      group.indices.forEach(function(idx) {
+        var slotDef = TRACERY_SLOTS[idx];
+        var unlocked = itemLvl >= slotDef.unlockItemLevel;
+
+        var slot = document.createElement('div');
+        slot.className = 'ltp-tracery-slot';
+        slot.setAttribute('data-slot-index', idx);
+        slot.setAttribute('data-slot-type', slotDef.type);
+
+        if (!unlocked) {
+          var reqLevel = charLevelForItemLevel(slotDef.unlockItemLevel);
+          slot.classList.add('ltp-tracery-locked');
+          slot.innerHTML = '<span class="ltp-tracery-lock"><i class="fa fa-lock"></i></span>' +
+            '<span class="ltp-tracery-lock-label">Level ' + reqLevel + '</span>';
+          slot.title = 'Unlocks at character level ' + reqLevel + ' (item level ' + slotDef.unlockItemLevel + ')';
+        } else {
+          var selected = traceries && traceries[idx] ? traceries[idx] : null;
+          if (selected) {
+            slot.classList.add('ltp-tracery-filled');
+            slot.innerHTML = '<span class="ltp-tracery-name">' + escapeHtml(selected) + '</span>' +
+              '<span class="ltp-tracery-remove" title="Remove tracery">&times;</span>';
+          } else {
+            slot.innerHTML = '<span class="ltp-tracery-empty">+ ' + slotDef.label + '</span>';
+          }
+
+          (function(capturedIdx, capturedType) {
+            slot.addEventListener('click', function(e) {
+              if (e.target.classList.contains('ltp-tracery-remove')) {
+                removeTracery(capturedIdx);
+                return;
+              }
+              openTraceryPicker(capturedIdx, capturedType);
+            });
+          })(idx, slotDef.type);
+        }
+
+        slotsRow.appendChild(slot);
+      });
+
+      groupEl.appendChild(slotsRow);
+      grid.appendChild(groupEl);
+    });
+
+    section.appendChild(grid);
+    return section;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function openTraceryPicker(slotIdx, slotType) {
+    closeTraceryPicker();
+
+    var slot = document.querySelector('.ltp-tracery-slot[data-slot-index="' + slotIdx + '"]');
+    if (!slot) return;
+
+    var available = getTraceriesForSlot(slotType);
+    if (!available.length) return;
+
+    var current = (currentBuild.traceries || [])[slotIdx] || null;
+
+    var picker = document.createElement('div');
+    picker.className = 'ltp-tracery-picker';
+
+    var search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'ltp-tracery-search';
+    search.placeholder = 'Search ' + slotType + '...';
+    picker.appendChild(search);
+
+    var list = document.createElement('div');
+    list.className = 'ltp-tracery-list';
+
+    function renderList(filter) {
+      list.innerHTML = '';
+      var filtered = available;
+      if (filter) {
+        var lc = filter.toLowerCase();
+        filtered = available.filter(function(t) { return t.n.toLowerCase().indexOf(lc) !== -1; });
+      }
+      filtered.forEach(function(t) {
+        var item = document.createElement('div');
+        item.className = 'ltp-tracery-option';
+        if (t.n === current) item.classList.add('ltp-tracery-selected');
+        item.textContent = t.n;
+        item.addEventListener('click', function() {
+          selectTracery(slotIdx, t.n);
+        });
+        list.appendChild(item);
+      });
+      if (!filtered.length) {
+        list.innerHTML = '<div class="ltp-tracery-no-match">No matches</div>';
+      }
+    }
+
+    search.addEventListener('input', function() { renderList(search.value); });
+    renderList('');
+
+    picker.appendChild(list);
+    slot.appendChild(picker);
+
+    setTimeout(function() { search.focus(); }, 50);
+
+    // Close on outside click
+    function onDocClick(e) {
+      if (!picker.contains(e.target) && e.target !== slot) {
+        closeTraceryPicker();
+        document.removeEventListener('click', onDocClick, true);
+      }
+    }
+    setTimeout(function() {
+      document.addEventListener('click', onDocClick, true);
+    }, 10);
+  }
+
+  function closeTraceryPicker() {
+    var existing = document.querySelectorAll('.ltp-tracery-picker');
+    existing.forEach(function(p) { p.remove(); });
+  }
+
+  function selectTracery(slotIdx, name) {
+    if (!currentBuild) return;
+    if (!currentBuild.traceries) currentBuild.traceries = new Array(TOTAL_TRACERY_SLOTS).fill(null);
+    currentBuild.traceries[slotIdx] = name;
+
+    closeTraceryPicker();
+
+    // Re-render traceries section
+    var container = document.querySelector('.ltp-traceries');
+    if (container) {
+      var cdnBase = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\/$/, '') + '/' : '';
+      var newTraceries = renderTraceries(currentBuild.traceries, cdnBase);
+      if (newTraceries) container.replaceWith(newTraceries);
+    }
+
+    // Dispatch change
+    document.dispatchEvent(new CustomEvent('traitPlannerChanged', {
+      detail: {
+        class: currentData.class,
+        build: currentBuildKey,
+        level: currentLevel,
+        specialization: currentSpecialization,
+        points: Object.assign({}, currentBuild.points || {}),
+        virtues: currentBuild.virtues ? currentBuild.virtues.slice() : [],
+        traceries: currentBuild.traceries.slice()
+      },
+      bubbles: true
+    }));
+  }
+
+  function removeTracery(slotIdx) {
+    if (!currentBuild || !currentBuild.traceries) return;
+    currentBuild.traceries[slotIdx] = null;
+
+    var container = document.querySelector('.ltp-traceries');
+    if (container) {
+      var cdnBase = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\/$/, '') + '/' : '';
+      var newTraceries = renderTraceries(currentBuild.traceries, cdnBase);
+      if (newTraceries) container.replaceWith(newTraceries);
+    }
+
+    document.dispatchEvent(new CustomEvent('traitPlannerChanged', {
+      detail: {
+        class: currentData.class,
+        build: currentBuildKey,
+        level: currentLevel,
+        specialization: currentSpecialization,
+        points: Object.assign({}, currentBuild.points || {}),
+        virtues: currentBuild.virtues ? currentBuild.virtues.slice() : [],
+        traceries: currentBuild.traceries.slice()
+      },
+      bubbles: true
+    }));
+  }
+
   /* ── Update display after point allocation changes ───────────────────── */
   function updatePlannerDisplay() {
     if (!currentData || !currentBuild || !currentBuildKey) return;
@@ -1177,6 +1496,24 @@
       });
     });
 
+    // Clear traceries in slots that are now locked due to level change
+    if (currentBuild.traceries) {
+      var curItemLvl = getItemLevel(currentLevel);
+      for (var ti = 0; ti < currentBuild.traceries.length; ti++) {
+        if (currentBuild.traceries[ti] && ti < TRACERY_SLOTS.length && curItemLvl < TRACERY_SLOTS[ti].unlockItemLevel) {
+          currentBuild.traceries[ti] = null;
+        }
+      }
+    }
+
+    // Re-render traceries to reflect level-based slot unlocks
+    var traceriesContainer = document.querySelector('.ltp-traceries');
+    if (traceriesContainer) {
+      var cdnBase = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\/$/, '') + '/' : '';
+      var newTraceries = renderTraceries(currentBuild.traceries, cdnBase);
+      if (newTraceries) traceriesContainer.replaceWith(newTraceries);
+    }
+
     // Dispatch change event for Skills page integration
     document.dispatchEvent(new CustomEvent('traitPlannerChanged', {
       detail: {
@@ -1185,7 +1522,8 @@
         level: currentLevel,
         specialization: currentSpecialization,
         points: Object.assign({}, currentBuild.points || {}),
-        virtues: currentBuild.virtues ? currentBuild.virtues.slice() : []
+        virtues: currentBuild.virtues ? currentBuild.virtues.slice() : [],
+        traceries: currentBuild.traceries ? currentBuild.traceries.slice() : []
       },
       bubbles: true
     }));
@@ -1530,6 +1868,10 @@
     var virtuesEl = renderVirtues(build.virtues, cdnBase);
     if (virtuesEl) container.appendChild(virtuesEl);
 
+    /* Traceries */
+    var traceriesEl = renderTraceries(build.traceries, cdnBase);
+    if (traceriesEl) container.appendChild(traceriesEl);
+
     /* Sharing footer */
     var shareFooter = document.createElement('div');
     shareFooter.className = 'ltp-share-footer';
@@ -1654,6 +1996,19 @@
     setBuildName: function(name) {
       var input = document.querySelector('.ltp-build-name');
       if (input) input.value = name || '';
+    },
+    getTraceries: function() { return currentBuild ? (currentBuild.traceries || []).slice() : []; },
+    setTraceries: function(traceries) {
+      if (currentBuild) {
+        currentBuild.traceries = (traceries || []).slice(0, TOTAL_TRACERY_SLOTS);
+        // Re-render traceries section
+        var container = document.querySelector('.ltp-traceries');
+        if (container) {
+          var cdnBase = window.LOTRO_CDN ? window.LOTRO_CDN.replace(/\/$/, '') + '/' : '';
+          var newTraceries = renderTraceries(currentBuild.traceries, cdnBase);
+          if (newTraceries) container.replaceWith(newTraceries);
+        }
+      }
     }
   };
 })();

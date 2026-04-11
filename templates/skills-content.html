@@ -500,6 +500,12 @@ body.fixed-header {
   border-radius: 3px;
   border: 1px solid #555;
 }
+.build-card-traceries {
+  font-size: 11px;
+  color: #c9aa58;
+  margin-top: 4px;
+}
+.build-card-traceries .fa { margin-right: 3px; }
 
 /* Pagination */
 .builds-pagination {
@@ -570,8 +576,39 @@ var communityBuilds = {};    // { hunter: [build, ...], ... }
 var communityLoaded = {};    // tracks which classes have been fetched
 var BUILDS_API_URL = window.LOTRO_BUILDS_API || '/api/builds/save';
 
+// Editor detection — reuses google_session from the editor page
+var EDITOR_ALLOWED_EMAILS = '{{editorAllowedEmails}}';
+var GOOGLE_CLIENT_ID = '{{googleClientId}}';
+var editorIdToken = null;
+
+function isEditor() { return !!editorIdToken; }
+
+(function detectEditorSession() {
+  if (!EDITOR_ALLOWED_EMAILS) return;
+  try {
+    var raw = localStorage.getItem('google_session');
+    if (!raw) return;
+    var session = JSON.parse(raw);
+    if (Date.now() - session.savedAt > 30 * 24 * 60 * 60 * 1000) return;
+    var parts = session.credential.split('.');
+    var b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    var json = decodeURIComponent(atob(b64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    var payload = JSON.parse(json);
+    var email = (payload.email || '').toLowerCase();
+    var allowed = EDITOR_ALLOWED_EMAILS.split(',').map(function(e) { return e.trim().toLowerCase(); });
+    if (allowed.indexOf(email) !== -1) {
+      editorIdToken = session.credential;
+    }
+  } catch (e) { /* ignore */ }
+})();
+
 // Guide builds injected at build time from data/builds/*.json
 var GUIDE_BUILDS = {{guideBuilds}};
+
+// Traceries data for trait planner
+var TRACERIES_DATA = {{traceriesData}};
 
 // Class metadata
 var CLASS_META = {
@@ -750,6 +787,7 @@ function saveBuildToLibrary() {
     description: '',
     points: points,
     virtues: api.getVirtues ? api.getVirtues() : [],
+    traceries: api.getTraceries ? api.getTraceries() : [],
     level: currentLevel,
   };
 
@@ -770,6 +808,7 @@ function saveBuildToLibrary() {
         level: currentLevel,
         points: points,
         virtues: buildData.virtues,
+        traceries: buildData.traceries,
         likes: 0,
         createdAt: new Date().toISOString(),
       };
@@ -802,6 +841,7 @@ function saveBuildToLibrary() {
       level: currentLevel,
       points: points,
       virtues: buildData.virtues,
+      traceries: buildData.traceries,
       likes: 0,
       createdAt: Date.now(),
     };
@@ -906,22 +946,50 @@ function toggleLike(buildId) {
 
 // ── Delete a build ────────────────────────────────────────────────────────
 function deleteBuild(buildId) {
-  if (!confirm('Delete this saved build?')) return;
-  var builds = getSavedBuilds().filter(function(b) { return b.id !== buildId; });
-  saveBuildsList(builds);
+  var isLocalOnly = buildId && buildId.indexOf('b_') === 0;
 
-  // Clean up like
-  var liked = getLikedBuilds();
-  delete liked[buildId];
-  saveLikedBuilds(liked);
+  if (isLocalOnly) {
+    if (!confirm('Delete this saved build?')) return;
+    var builds = getSavedBuilds().filter(function(b) { return b.id !== buildId; });
+    saveBuildsList(builds);
 
-  // Adjust page if needed
-  var classBuilds = builds.filter(function(b) { return b.class === currentClass; });
-  var totalPages = Math.max(1, Math.ceil(classBuilds.length / BUILDS_PER_PAGE));
-  if (buildsCurrentPage > totalPages) buildsCurrentPage = totalPages;
+    // Clean up like
+    var liked = getLikedBuilds();
+    delete liked[buildId];
+    saveLikedBuilds(liked);
 
-  renderBuilds();
-  renderScorecard();
+    // Adjust page if needed
+    var classBuilds = builds.filter(function(b) { return b.class === currentClass; });
+    var totalPages = Math.max(1, Math.ceil(classBuilds.length / BUILDS_PER_PAGE));
+    if (buildsCurrentPage > totalPages) buildsCurrentPage = totalPages;
+
+    renderBuilds();
+    renderScorecard();
+    return;
+  }
+
+  // Community build — editor delete via API
+  if (!isEditor()) { alert('Editor access required to delete community builds.'); return; }
+  if (!confirm('Delete this community build? This cannot be undone.')) return;
+
+  fetch(BUILDS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'delete', id: buildId, idToken: editorIdToken })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) throw new Error(data.error);
+    // Remove from local cache
+    if (communityBuilds[currentClass]) {
+      communityBuilds[currentClass] = communityBuilds[currentClass].filter(function(b) { return b.id !== buildId; });
+    }
+    renderBuilds();
+    renderScorecard();
+  })
+  .catch(function(err) {
+    alert('Delete failed: ' + err.message);
+  });
 }
 
 // ── Load a saved build into the planner ───────────────────────────────────
@@ -990,6 +1058,9 @@ function applyBuildToPlanner(build) {
       if (api.setVirtues && build.virtues) {
         api.setVirtues(build.virtues);
       }
+      if (api.setTraceries && build.traceries) {
+        api.setTraceries(build.traceries);
+      }
     }
     syncVoteButton();
   }, 800);
@@ -1046,7 +1117,8 @@ function renderBuilds() {
     var isLocalOnly = build.id && build.id.indexOf('b_') === 0;
     var guideBadge = isGuide ? '<span class="guide-badge"><i class="fa fa-book"></i> Guide</span> ' : '';
     var descHtml = build.desc ? '<div class="build-card-desc">' + build.desc + '</div>' : '';
-    var deleteBtn = (isGuide || !isLocalOnly) ? '' :
+    var canDelete = isLocalOnly || (!isGuide && isEditor());
+    var deleteBtn = !canDelete ? '' :
         '<button class="delete-build-btn" onclick="deleteBuild(\'' + build.id + '\')" title="Delete this build">' +
           '<i class="fa fa-trash"></i>' +
         '</button>';
@@ -1061,6 +1133,15 @@ function renderBuilds() {
       '</div>';
     }
 
+    var traceryTags = '';
+    if (build.traceries && build.traceries.length) {
+      var filled = build.traceries.filter(Boolean);
+      if (filled.length) {
+        traceryTags = '<div class="build-card-traceries"><i class="fa fa-gem"></i> ' +
+          filled.length + ' traceri' + (filled.length === 1 ? 'y' : 'es') + ' equipped</div>';
+      }
+    }
+
     return '<div class="build-card' + (isGuide ? ' build-card-guide' : '') + '">' +
       '<div class="build-card-info">' +
         '<div class="build-card-name">' + guideBadge + build.name + '</div>' +
@@ -1072,6 +1153,7 @@ function renderBuilds() {
           (summary.yellow ? '<span class="tree-tag tree-tag-yellow">Yellow: ' + summary.yellow + '</span>' : '') +
         '</div>' +
         virtueIcons +
+        traceryTags +
       '</div>' +
       '<div class="build-card-actions">' +
         '<button class="like-btn' + isLiked + '" onclick="toggleLike(\'' + build.id + '\')" title="Like this build">' +
@@ -1201,7 +1283,7 @@ function processUrlParameters() {
       planner.setAttribute('data-level', newLevel.toString());
     }
 
-    return { urlParams: urlParams, pointsData: urlParams.get('points') };
+    return { urlParams: urlParams, pointsData: urlParams.get('points'), traceriesData: urlParams.get('traceries') };
   }
   return null;
 }
@@ -1286,6 +1368,14 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {
           console.warn('Failed to parse points data:', e);
         }
+        try {
+          if (urlProcessResult.traceriesData && window.LOTRO_TRAIT_PLANNER_API.setTraceries) {
+            var traceries = JSON.parse(decodeURIComponent(urlProcessResult.traceriesData));
+            window.LOTRO_TRAIT_PLANNER_API.setTraceries(traceries);
+          }
+        } catch (e) {
+          console.warn('Failed to parse traceries data:', e);
+        }
       }
     }, 1000);
   }
@@ -1307,6 +1397,12 @@ function generateShareableLink() {
   params.set('level', currentLevel);
   params.set('points', encodeURIComponent(JSON.stringify(points)));
 
+  var traceries = api && api.getTraceries ? api.getTraceries() : [];
+  var hasTraceries = traceries.some(function(t) { return !!t; });
+  if (hasTraceries) {
+    params.set('traceries', encodeURIComponent(JSON.stringify(traceries)));
+  }
+
   var shareUrl = baseUrl + '?' + params.toString();
   document.getElementById('shareableLink').value = shareUrl;
   document.getElementById('copyLinkBtn').disabled = false;
@@ -1324,6 +1420,11 @@ function generateEmbedCode() {
   var embedCode = '{{traitPlanner:class=' + currentClass + ',build=' + currentBuild;
   if (currentLevel !== 160) embedCode += ',level=' + currentLevel;
   embedCode += ',points=' + encodeURIComponent(JSON.stringify(points));
+  var traceries = api && api.getTraceries ? api.getTraceries() : [];
+  var hasTraceries = traceries.some(function(t) { return !!t; });
+  if (hasTraceries) {
+    embedCode += ',traceries=' + encodeURIComponent(JSON.stringify(traceries));
+  }
   embedCode += '}}';
 
   document.getElementById('embedCode').value = embedCode;
@@ -1393,6 +1494,7 @@ function loadBuildFromUrlParams(params) {
   currentBuild = params.get('build') || 'endgame';
   currentLevel = parseInt(params.get('level')) || 160;
   var pointsData = params.get('points');
+  var traceriesData = params.get('traceries');
 
   showPlanner();
 
@@ -1402,6 +1504,12 @@ function loadBuildFromUrlParams(params) {
         var points = JSON.parse(decodeURIComponent(pointsData));
         if (window.LOTRO_TRAIT_PLANNER_API) window.LOTRO_TRAIT_PLANNER_API.setPoints(points);
       } catch (e) { console.warn('Failed to parse points data:', e); }
+      try {
+        if (traceriesData && window.LOTRO_TRAIT_PLANNER_API && window.LOTRO_TRAIT_PLANNER_API.setTraceries) {
+          var traceries = JSON.parse(decodeURIComponent(traceriesData));
+          window.LOTRO_TRAIT_PLANNER_API.setTraceries(traceries);
+        }
+      } catch (e) { console.warn('Failed to parse traceries data:', e); }
     }, 1000);
   }
 }

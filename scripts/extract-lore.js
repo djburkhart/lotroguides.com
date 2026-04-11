@@ -638,9 +638,9 @@ function extractDeeds() {
     }
 
     // Landmark discovery
-    const landmarks = [...body.matchAll(/<landmarkDetection[^>]*landmarkName="([^"]*)"/g)];
+    const landmarks = [...body.matchAll(/<landmarkDetection[^>]*landmarkId="(\d+)"[^>]*landmarkName="([^"]*)"/g)];
     for (const lm of landmarks) {
-      objectives.push({ type: 'landmark', name: cleanGameText(lm[1]) });
+      objectives.push({ type: 'landmark', landmarkId: lm[1], name: cleanGameText(lm[2]) });
     }
 
     // Item collection

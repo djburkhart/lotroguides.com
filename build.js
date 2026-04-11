@@ -2106,16 +2106,22 @@ function buildItemsPage(navData) {
     const madeBy = {};   // item is a result
     for (const r of recipes) {
       const ref = { id: r.id, n: r.n, prof: r.prof };
+      const seenIng = new Set();
       for (const ing of (r.ing || [])) {
+        if (seenIng.has(ing.id)) continue;
+        seenIng.add(ing.id);
         if (!usedIn[ing.id]) usedIn[ing.id] = [];
         usedIn[ing.id].push(ref);
       }
+      const seenRes = new Set();
       for (const res of (r.res || [])) {
+        if (seenRes.has(res.id)) continue;
+        seenRes.add(res.id);
         if (!madeBy[res.id]) madeBy[res.id] = [];
         madeBy[res.id].push(ref);
       }
       // Scroll item is also a recipe cross-link
-      if (r.scroll) {
+      if (r.scroll && !seenRes.has(r.scroll.id)) {
         if (!madeBy[r.scroll.id]) madeBy[r.scroll.id] = [];
         madeBy[r.scroll.id].push(ref);
       }
@@ -2505,7 +2511,7 @@ function buildDeedsPage(navData) {
           return r;
         }
         if (o.type === 'questCount') return { t: 'qc', c: o.count };
-        if (o.type === 'landmark') return { t: 'lm', n: o.name };
+        if (o.type === 'landmark') { const r = { t: 'lm', n: o.name }; if (o.landmarkId) r.lid = o.landmarkId; return r; }
         if (o.type === 'item') return { t: 'item', n: o.name, i: o.itemId };
         if (o.type === 'useItem') return { t: 'use', n: o.name, i: o.itemId };
         if (o.type === 'npc') return { t: 'npc', n: o.name };
@@ -2552,7 +2558,9 @@ function buildDeedsPage(navData) {
         }
       } else if (o.t === 'kill') {
         loc = findMarkerLocation(markerIndex, o.mid, o.mn);
-      } else if (o.t === 'lm' || o.t === 'npc' || o.t === 'item' || o.t === 'use') {
+      } else if (o.t === 'lm') {
+        loc = findMarkerLocation(markerIndex, o.lid || '', o.n);
+      } else if (o.t === 'npc' || o.t === 'item' || o.t === 'use') {
         loc = findMarkerLocation(markerIndex, '', o.n);
       }
 
@@ -3507,6 +3515,44 @@ function buildEditorPage(allPosts, navData) {
 function buildSkillsPage(navData) {
   const template = readTemplate('skills-content.html');
 
+  // ── Build traceries lookup for trait planner ──────────────────────────
+  const traceriesPath = path.join(LORE_DIR, 'traceries.json');
+  let traceriesData = '{}';
+  if (fs.existsSync(traceriesPath)) {
+    const raw = JSON.parse(fs.readFileSync(traceriesPath, 'utf8'));
+    // Class mapping: socket code → class key(s)
+    const SC_TO_CLASS = {
+      6: ['beorning'], 7: ['brawler', 'champion'], 8: ['burglar'], 9: ['captain'],
+      10: ['champion', 'brawler'], 11: ['guardian'], 12: ['hunter'],
+      13: ['lore-master'], 14: ['minstrel'], 15: ['rune-keeper'],
+      16: ['warden'], 21: ['mariner'],
+    };
+
+    // Deduplicate: keep unique names per socket type, pick highest max level
+    const byKey = {};
+    for (const t of raw) {
+      const key = t.st + '|' + t.n;
+      if (!byKey[key] || t.max > byKey[key].max) {
+        byKey[key] = t;
+      }
+    }
+    const deduped = Object.values(byKey);
+
+    // Group by socket type for compact client delivery
+    const groups = {};
+    for (const t of deduped) {
+      if (!groups[t.st]) groups[t.st] = [];
+      groups[t.st].push({ n: t.n, sc: t.sc });
+    }
+    // Sort names within each group
+    for (const g of Object.values(groups)) {
+      g.sort((a, b) => a.n.localeCompare(b.n));
+    }
+
+    traceriesData = JSON.stringify({ groups, classMap: SC_TO_CLASS });
+    console.log(`   Traceries for trait planner: ${deduped.length} unique (from ${raw.length} total)`);
+  }
+
   // Extract guide builds from data/builds/*.json
   const buildsDir = path.join(__dirname, 'data', 'builds');
   const guideBuilds = [];
@@ -3541,6 +3587,9 @@ function buildSkillsPage(navData) {
   const body = render(template, {
     assets: '.',
     guideBuilds: JSON.stringify(guideBuilds),
+    traceriesData: traceriesData,
+    editorAllowedEmails: EDITOR_ALLOWED_EMAILS || '',
+    googleClientId: GOOGLE_OAUTH_CLIENT_ID || '',
   });
 
   let html = buildPage(body, {
