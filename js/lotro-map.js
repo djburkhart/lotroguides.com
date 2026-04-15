@@ -574,6 +574,9 @@
     }
     currentMapId = mapId;
 
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'select_content', content_type: 'map', content_id: mapId, item_name: mapDef.n || mapId });
+
     resetCategoryDefaults(mapId);
     syncCategoryPanel();
 
@@ -1060,6 +1063,9 @@
       var label = $btn.data('label');
       var url = window.location.origin + window.location.pathname +
         '?map=' + mapId + '&lng=' + lng + '&lat=' + lat;
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'share', content_type: 'map_location', item_id: mapId, item_name: label || mapId });
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(function () {

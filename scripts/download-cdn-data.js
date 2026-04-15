@@ -60,6 +60,65 @@ function download(url) {
   });
 }
 
+/**
+ * Overlay CDN-edited articles onto local git content.
+ *
+ * The editor uploads markdown files to CDN at content/{category}/{slug}.md.
+ * sync-cdn never touches content/, so any .md at that CDN path was explicitly
+ * uploaded via the editor and should take priority over the git version.
+ *
+ * Flow:
+ *   1. Fetch editor-manifest.json from CDN to get the list of known articles
+ *   2. For each article, try to fetch content/{category}/{slug}.md from CDN
+ *   3. If found (editor-modified), write it locally so the build uses it
+ *   4. If 404 (never editor-uploaded), skip — the git version is correct
+ */
+async function overlayCdnEditorContent(root) {
+  console.log('\nChecking CDN for editor-modified articles…');
+
+  let manifest;
+  try {
+    const buf = await download(`${CDN_URL}/data/editor-manifest.json`);
+    manifest = JSON.parse(buf.toString('utf8'));
+    if (!Array.isArray(manifest)) manifest = [];
+  } catch (err) {
+    console.log('  ⚠ Could not fetch editor manifest from CDN — skipping overlay.');
+    return;
+  }
+
+  if (!manifest.length) {
+    console.log('  (empty manifest)');
+    return;
+  }
+
+  let overlaid = 0;
+  let skipped = 0;
+
+  for (const entry of manifest) {
+    const { category, slug } = entry;
+    if (!category || !slug) continue;
+
+    // Only allow known content subdirectories
+    if (category !== 'guides' && category !== 'news') continue;
+
+    const cdnKey = `content/${category}/${slug}.md`;
+    const localPath = path.join(root, cdnKey);
+
+    try {
+      const buf = await download(`${CDN_URL}/${cdnKey}`);
+      fs.mkdirSync(path.dirname(localPath), { recursive: true });
+      fs.writeFileSync(localPath, buf);
+      console.log(`  ↓ ${cdnKey} (CDN → local)`);
+      overlaid++;
+    } catch (err) {
+      // 404 = article was never uploaded via editor; use git version
+      skipped++;
+    }
+  }
+
+  console.log(`  Editor overlay: ${overlaid} articles from CDN, ${skipped} using git version.`);
+}
+
 async function main() {
   if (!CDN_URL) {
     console.log('⚠ DO_CDN_URL not set — skipping CDN data download (using local files).');
@@ -97,6 +156,12 @@ async function main() {
   }
 
   console.log(`Done: ${downloaded} downloaded, ${skipped} already local.`);
+
+  // ── Overlay CDN-edited articles onto git content ────────────────────────
+  // Articles edited via the editor are uploaded to CDN at content/{category}/{slug}.md.
+  // Since sync-cdn doesn't sync content/, any .md at that CDN path was editor-uploaded
+  // and should take priority over the git version during builds.
+  await overlayCdnEditorContent(root);
 
   // ── Download and extract data/lore/ bundle ──────────────────────────────
   const loreDir = path.join(root, 'data', 'lore');

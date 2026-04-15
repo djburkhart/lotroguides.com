@@ -27,8 +27,43 @@ const CURVE_CALCSTAT_KEYS = {
   incomingHealing: 'inheal',
 };
 
-function calcStatCap(calcStatKey, level) {
-  var capRating = Math.max(0, Math.ceil(CalcStat(calcStatKey + 'PRatPCapR', level) - DblCalcDev));
+// Map CalcStat keys to penetration rating keys (mirrors statcaps.js PEN_RATINGS)
+const CALCSTAT_PEN_KEYS = {
+  MitLight: 'armourpenlow',
+  MitMedium: 'armourpen',
+  MitHeavy: 'armourpen',
+  resist: 'resistpen',
+};
+
+// Penetration presets (mirrors statcaps.js PENETRATION_PRESETS)
+const DPS_PEN_PRESETS = {
+  landscape: { scope: 'none' },
+  modern1:   { scope: 'none' },
+  modern2:   { scope: 'armour', tier: 2 },
+  modern3:   { scope: 'armour', tier: 3 },
+  trad1:     { scope: 'none' },
+  trad2:     { scope: 'all', tier: 2 },
+  trad3:     { scope: 'all', tier: 3 },
+};
+
+function getPenValues(presetKey, level) {
+  const preset = DPS_PEN_PRESETS[presetKey] || DPS_PEN_PRESETS.landscape;
+  const v = { armourpen: 0, armourpenlow: 0, bpepen: 0, resistpen: 0 };
+  if (preset.scope === 'none') return v;
+  if (preset.scope === 'armour' || preset.scope === 'all') {
+    v.armourpen = CalcStat('TPenArmour', level, preset.tier);
+    v.armourpenlow = v.armourpen;
+  }
+  if (preset.scope === 'all') {
+    v.bpepen = CalcStat('TPenBPE', level, preset.tier);
+    v.resistpen = CalcStat('TPenResist', level, preset.tier);
+  }
+  return v;
+}
+
+function calcStatCap(calcStatKey, level, penetration) {
+  const pen = penetration || 0;
+  var capRating = Math.max(0, Math.ceil(CalcStat(calcStatKey + 'PRatPCapR', level) - pen - DblCalcDev));
   var bonus = CalcStat(calcStatKey + 'PBonus', level);
   var capPercent = Math.ceil((CalcStat(calcStatKey + 'PRatPCap', level) + bonus) * 10 - DblCalcDev) / 10;
   return { capPercent: capPercent, capRating: capRating };
@@ -102,7 +137,12 @@ function loadDpsReferenceConfig() {
     levelCap: 160,
     title: 'Desired Stat Percentages (Raid Targets)',
     intro: 'Quick offensive targets for DPS-oriented builds.',
-    tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
+    autoCalc: true,
+    tiers: {
+      t1: { label: 'T1 Cap', penetration: 'landscape' },
+      t2: { label: 'T2 Cap', penetration: 'modern2' },
+      t3: { label: 'T3+ Cap', penetration: 'modern3' },
+    },
     curves: {
       mastery: {},
       criticalHit: {},
@@ -113,12 +153,12 @@ function loadDpsReferenceConfig() {
       heavyMitigation: {},
     },
     tableRows: [
-      { stat: 'Physical Mastery', curve: 'mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
-      { stat: 'Critical Rating', curve: 'criticalHit', t1: '**28%+**', t2: '**30%+**', t3: '**33%+**' },
-      { stat: 'Devastating Hits', curve: 'devastateHit', t1: '**8%+**', t2: '**9%+**', t3: '**10%+**' },
-      { stat: 'Finesse', curve: 'finesse', t1: '**35%-40%**', t2: '**40%-45%**', t3: '**45%-50%**' },
-      { stat: 'Tactical Mitigation', curve: 'lightMitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
-      { stat: 'Physical Mitigation', curve: 'mediumMitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**', note: 'Physical Mitigation cap varies by armor type: Light 40%, Medium 50%, Heavy 60%.' },
+      { stat: 'Physical Mastery', curve: 'mastery' },
+      { stat: 'Critical Rating', curve: 'criticalHit' },
+      { stat: 'Devastating Hits', curve: 'devastateHit' },
+      { stat: 'Finesse', curve: 'finesse' },
+      { stat: 'Tactical Mitigation', curve: 'lightMitigation' },
+      { stat: 'Physical Mitigation', curve: 'mediumMitigation', note: 'Physical Mitigation cap varies by armor type: Light 40%, Medium 50%, Heavy 60%.' },
     ],
   };
 
@@ -138,7 +178,8 @@ function loadDpsReferenceConfig() {
       levelCap: parsed.levelCap || fallback.levelCap,
       title: parsed.title || fallback.title,
       intro: parsed.intro || fallback.intro,
-
+      autoCalc: parsed.autoCalc !== undefined ? parsed.autoCalc : fallback.autoCalc,
+      tiers: (parsed.tiers && typeof parsed.tiers === 'object') ? parsed.tiers : fallback.tiers,
       tableColumns: Array.isArray(parsed.tableColumns) ? parsed.tableColumns : fallback.tableColumns,
       curves: (parsed.curves && typeof parsed.curves === 'object') ? parsed.curves : fallback.curves,
       tableRows: Array.isArray(parsed.tableRows) ? parsed.tableRows : fallback.tableRows,
@@ -158,20 +199,69 @@ function buildDpsReferenceMarkdownTable() {
 
 /**
  * Build an HTML table from DPS reference config, with optional overrides.
+ * When autoCalc is true, computes % cap and cap rating per penetration tier
+ * from Giseldah formulas, using the tiers config to determine penetration presets.
  */
 function buildDpsTableHtml(dpsRef, overrides) {
   const cfg = Object.assign({}, dpsRef, overrides || {});
   const rows = Array.isArray(cfg.tableRows) ? cfg.tableRows : [];
-  const curves = cfg.curves || {};
   const levelCap = cfg.levelCap || 150;
-  const hasCurves = Object.keys(curves).length > 0 && rows.some(r => r.curve);
+  const autoCalc = cfg.autoCalc && cfg.tiers;
   if (!rows.length) return '';
 
-  // Convert inline markdown bold/italic to HTML
   const mdInline = s => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
   const fmtNum = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  // Build columns: add Cap and Rating when curve data is available
+  if (autoCalc) {
+    // Auto-calculated mode: compute caps per tier using Giseldah + penetration
+    const tierKeys = Object.keys(cfg.tiers);
+    const tierConfigs = tierKeys.map(k => cfg.tiers[k]);
+
+    // Pre-compute penetration values for each tier
+    const tierPens = tierKeys.map(k => {
+      const preset = cfg.tiers[k].penetration || 'landscape';
+      return getPenValues(preset, levelCap);
+    });
+
+    const cols = ['Stat', '% Cap'].concat(tierKeys.map(k => {
+      const t = cfg.tiers[k];
+      return (t.label || k) + ` (L${levelCap})`;
+    }));
+    const headerCells = cols.map(c => `<th>${c}</th>`).join('');
+    const notes = [];
+
+    const bodyRows = rows.map(r => {
+      if (r.note) notes.push(r.note);
+      const calcKey = r.curve && CURVE_CALCSTAT_KEYS[r.curve];
+
+      if (calcKey) {
+        const penKey = CALCSTAT_PEN_KEYS[calcKey];
+        const baseCaps = calcStatCap(calcKey, levelCap, 0);
+        const tierCells = tierPens.map(pens => {
+          const pen = penKey ? pens[penKey] : 0;
+          const caps = calcStatCap(calcKey, levelCap, pen);
+          return `<td><strong>${fmtNum(caps.capRating)}</strong></td>`;
+        });
+        return `<tr><td>${String(r.stat || '')}</td><td>${baseCaps.capPercent}%</td>${tierCells.join('')}</tr>`;
+      } else {
+        // No curve — fall back to manual t1/t2/t3 values
+        const tierCells = tierKeys.map(k => `<td>${mdInline(String(r[k] || ''))}</td>`);
+        return `<tr><td>${String(r.stat || '')}</td><td></td>${tierCells.join('')}</tr>`;
+      }
+    }).join('\n');
+
+    const notesHtml = notes.length ? `\n<p class="text-muted small m-t-5"><em>${notes.join('<br>')}</em></p>` : '';
+    const levelNote = `<p><em>Level Cap: ${levelCap} — Ratings auto-calculated via Giseldah formulas</em></p>\n`;
+
+    return levelNote
+      + `<table class="table table-striped table-condensed m-b-10">\n<thead><tr>${headerCells}</tr></thead>\n<tbody>\n${bodyRows}\n</tbody>\n</table>`
+      + notesHtml;
+  }
+
+  // Legacy mode: use curves for a single cap column, or plain manual columns
+  const curves = cfg.curves || {};
+  const hasCurves = Object.keys(curves).length > 0 && rows.some(r => r.curve);
+
   const cols = hasCurves
     ? ['Stat', '% Cap', `Rating (L${levelCap})`, 'T1 Target', 'T2 Target', 'T3+ Target']
     : (Array.isArray(cfg.tableColumns) ? cfg.tableColumns : []);
@@ -189,7 +279,7 @@ function buildDpsTableHtml(dpsRef, overrides) {
       let capVal = '';
       let ratingVal = '';
       if (calcKey) {
-        const caps = calcStatCap(calcKey, levelCap);
+        const caps = calcStatCap(calcKey, levelCap, 0);
         capVal = caps.capPercent + '%';
         ratingVal = fmtNum(caps.capRating);
       }

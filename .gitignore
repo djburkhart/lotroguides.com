@@ -30,9 +30,7 @@ npm-debug.log*
 
 # Markdown-sourced article HTML (legacy news HTML in news/ must stay tracked)
 /guides/*.html
-/news/best-plugins-2026.html
-/news/spring-festival-2026.html
-/news/update-42-preview.html
+/news/*.html
 
 # Build output data — all data/ files come from CDN
 # Source data (lore/, instances-db, instance-loot) uploaded via sync:cdn

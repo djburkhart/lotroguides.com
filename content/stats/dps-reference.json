@@ -2,6 +2,12 @@
   "levelCap": 150,
   "title": "Desired Stat Percentages (Raid Targets)",
   "intro": "Quick offensive targets for DPS-oriented builds.",
+  "autoCalc": true,
+  "tiers": {
+    "t1": { "label": "T1 Cap", "penetration": "landscape" },
+    "t2": { "label": "T2 Cap", "penetration": "modern2" },
+    "t3": { "label": "T3+ Cap", "penetration": "modern3" }
+  },
   "curves": {
     "mastery": {},
     "criticalHit": {},
@@ -11,49 +17,30 @@
     "mediumMitigation": {},
     "heavyMitigation": {}
   },
-  "tableColumns": ["Stat", "T1 Target", "T2 Target", "T3+ Target"],
   "tableRows": [
     {
       "stat": "Physical Mastery",
-      "curve": "mastery",
-      "t1": "**200%+**",
-      "t2": "**210%+**",
-      "t3": "**220%+**"
+      "curve": "mastery"
     },
     {
       "stat": "Critical Rating",
-      "curve": "criticalHit",
-      "t1": "**28%+**",
-      "t2": "**30%+**",
-      "t3": "**33%+**"
+      "curve": "criticalHit"
     },
     {
       "stat": "Devastating Hits",
-      "curve": "devastateHit",
-      "t1": "**8%+**",
-      "t2": "**9%+**",
-      "t3": "**10%+**"
+      "curve": "devastateHit"
     },
     {
       "stat": "Finesse",
-      "curve": "finesse",
-      "t1": "**35%-40%**",
-      "t2": "**40%-45%**",
-      "t3": "**45%-50%**"
+      "curve": "finesse"
     },
     {
       "stat": "Tactical Mitigation",
-      "curve": "lightMitigation",
-      "t1": "**40%-45%**",
-      "t2": "**45%-50%**",
-      "t3": "**50%-55%**"
+      "curve": "lightMitigation"
     },
     {
       "stat": "Physical Mitigation",
       "curve": "mediumMitigation",
-      "t1": "**40%-45%**",
-      "t2": "**45%-50%**",
-      "t3": "**50%-55%**",
       "note": "Physical Mitigation cap varies by armor type: Light 40%, Medium 50%, Heavy 60%."
     }
   ]

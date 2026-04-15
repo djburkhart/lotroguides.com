@@ -87,7 +87,7 @@
     return data.slice(0, 3).map(function (r) {
       var value = escHtml(r && r.v !== undefined && r.v !== null ? String(r.v) : '');
       if (r.t === 'LP') return '<span class="deed-reward-badge deed-reward-lp"><img src="' + cdnUrl('img/icons/lp.png') + '"   class="deed-reward-icon" alt="LP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' LP</span>';
-      if (r.t === 'Title') return '<span class="deed-reward-badge deed-reward-title">' + value + '</span>';
+      if (r.t === 'Title') return '<span class="deed-reward-badge deed-reward-title"><a href="titles?q=' + encodeURIComponent(r.v) + '">' + value + '</a></span>';
       if (r.t === 'Virtue') return '<span class="deed-reward-badge deed-reward-virtue">' + virtueIcon(value) + value + '</span>';
       if (r.t === 'Reputation') return '<span class="deed-reward-badge deed-reward-rep"><a href="factions?q=' + encodeURIComponent(parseFactionName(r.v)) + '">' + value + '</a></span>';
       if (r.t === 'VirtueXP') return '<span class="deed-reward-badge deed-reward-virtue-xp"><img src="' + cdnUrl('img/icons/virtue-xp.png') + '" class="deed-reward-icon" alt="VXP" loading="lazy" onerror="this.style.display=\'none\'">' + value + ' VXP</span>';
@@ -420,6 +420,7 @@
 
   function formatRewardValue(r) {
     if (r.t === 'LP') return escHtml(String(r.v)) + ' LOTRO Points';
+    if (r.t === 'Title') return '<a href="titles?q=' + encodeURIComponent(r.v) + '">' + escHtml(String(r.v || '')) + '</a>';
     if (r.t === 'Reputation') {
       var fn = parseFactionName(r.v);
       if (fn) return '<a href="factions?q=' + encodeURIComponent(fn) + '">' + escHtml(String(r.v || '')) + '</a>';

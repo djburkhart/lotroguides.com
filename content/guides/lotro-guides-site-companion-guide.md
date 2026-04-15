@@ -1,6 +1,7 @@
 ---
 title: "LOTRO Guides: Your Ultimate Companion for Middle-earth"
 date: 2026-04-02
+category: guides
 author: "Amdor"
 tags: [general, site-guide, companion, tools, databases]
 image: "../lotro/img/guides/beginners-guide.jpg"
@@ -9,7 +10,7 @@ excerpt: "Discover everything LOTRO Guides has to offer — from searchable data
 
 # Your Ultimate Companion for Middle-earth
 
-LOTRO Guides is a free fansite built to help Lord of the Rings Online players at every stage of the game. Whether you're rolling your first character or optimizing endgame gear, this guide walks you through every tool and database the site has to offer.
+LOTRO Guides is a free fansite built to help Lord of the Rings Online players at every stage of the game. Whether you're rolling your first character or optimizing endgame gear, this guide walks you through every tool and database the site has to offer. 
 
 ---
 
@@ -21,10 +22,10 @@ The heart of the site is a collection of databases pulled from in-game data. Eve
 
 The [Items Database](/items) contains every item in LOTRO — equipment, consumables, quest rewards, and more.
 
-- **Filter by type** (Equipment, Consumables, Quest Rewards), **subtype** (Food, Battle Scroll, Token, etc.), and **quality** (Legendary, Incomparable, Rare)
-- **Click any item** to open a detail panel showing full stats, level requirements, and slot
-- **Set links** — equipment that belongs to a gear set links directly to the Sets Database
-- Items load progressively so the page stays responsive even with tens of thousands of rows
+* **Filter by type** (Equipment, Consumables, Quest Rewards), **subtype** (Food, Battle Scroll, Token, etc.), and **quality** (Legendary, Incomparable, Rare)
+* **Click any item** to open a detail panel showing full stats, level requirements, and slot
+* **Set links** — equipment that belongs to a gear set links directly to the Sets Database
+* Items load progressively so the page stays responsive even with tens of thousands of rows
 
 ### Instances Database — 130+ Raids & Dungeons
 
@@ -32,10 +33,10 @@ The [Instances Database](/instances) covers every group instance in the game. Th
 
 Click into any instance to see a **dedicated detail page** with:
 
-- **Boss-by-boss loot tables** — items listed by tier with drop rarity (Guaranteed, Uncommon, Rare)
-- **Full mob listing** — every enemy in the instance with expandable ability breakdowns (damage type, effect radius, mitigation type)
-- **Instance metadata** — group size, scaling info, number of tiers
-- **Related guides** — linked strategy guides when available
+* **Boss-by-boss loot tables** — items listed by tier with drop rarity (Guaranteed, Uncommon, Rare)
+* **Full mob listing** — every enemy in the instance with expandable ability breakdowns (damage type, effect radius, mitigation type)
+* **Instance metadata** — group size, scaling info, number of tiers
+* **Related guides** — linked strategy guides when available
 
 This is especially useful for raid leaders planning loot rules and groups checking what gear drops where.
 
@@ -43,35 +44,35 @@ This is especially useful for raid leaders planning loot rules and groups checki
 
 The [Deeds Database](/deeds) lets you look up any deed by type — Slayer, Exploration, Lore, Reputation, Class, or Event.
 
-- **Filter by reward type** — LOTRO Points, Titles, Virtues, Reputation
-- **Class-specific deeds** — filter by any of the 13 classes (including Mariner)
-- **Deed objectives** — see kill counts, location landmarks, and requirements at a glance
-- **Map overlay** — deeds with location-based objectives appear on the interactive map
+* **Filter by reward type** — LOTRO Points, Titles, Virtues, Reputation
+* **Class-specific deeds** — filter by any of the 13 classes (including Mariner)
+* **Deed objectives** — see kill counts, location landmarks, and requirements at a glance
+* **Map overlay** — deeds with location-based objectives appear on the interactive map
 
 ### Quests Database
 
 The [Quests Database](/quests) contains thousands of quests with level range, category, quest giver, objectives, and rewards.
 
-- **Level range filter** — set a min and max level to narrow results to your current progression
-- **Group size filter** — Solo, Small Fellowship, Fellowship, Raid
-- **Category filter** — find quests in a specific region
-- **Map integration** — quest objectives can be plotted on the interactive map for spatial orientation
+* **Level range filter** — set a min and max level to narrow results to your current progression
+* **Group size filter** — Solo, Small Fellowship, Fellowship, Raid
+* **Category filter** — find quests in a specific region
+* **Map integration** — quest objectives can be plotted on the interactive map for spatial orientation
 
 ### Sets Database
 
 The [Sets Database](/sets) lists every gear set in the game. Each entry shows:
 
-- All pieces in the set with icons
-- **Set bonuses by tier** — e.g., "3-piece: +125 Might, +50 Tactical Mastery"
-- Item level and max level requirements
-- **Filter by piece count** — find 2-piece through 8+ piece sets
+* All pieces in the set with icons
+* **Set bonuses by tier** — e.g., "3-piece: +125 Might, +50 Tactical Mastery"
+* Item level and max level requirements
+* **Filter by piece count** — find 2-piece through 8+ piece sets
 
 ### Mobs Database
 
 The [Mobs Database](/mobs) catalogs thousands of enemies with genus (Dragon-kind, Orc-kind, Troll-kind, etc.) and species (Goblin, Uruk, Warg, etc.).
 
-- Filter by genus and species
-- Mobs with known spawn locations are plotted on the interactive map
+* Filter by genus and species
+* Mobs with known spawn locations are plotted on the interactive map
 
 ### Virtues Database
 
@@ -83,13 +84,13 @@ The [Virtues Database](/virtues) shows every virtue with stats per tier, max ran
 
 The [Interactive Map](/map) is a full Leaflet.js-powered map with thousands of points of interest.
 
-- **Pan and zoom** across all of Middle-earth with multi-layer regional maps
-- **POI markers** — stables, vendors, landmarks, quest objectives, mob spawn locations, and deed objectives
-- **Marker clustering** — nearby POIs group together at lower zoom levels to keep the map clean
-- **Quest visualization** — plot quest objective waypoints directly on the map
-- **Deed objectives** — see exactly where to go for exploration and landmark deeds
-- **Shareable** — copy a link to your current map view to share with kinship members
-- **Embeddable** — external sites can embed the map using the `?embed=1` URL parameter
+* **Pan and zoom** across all of Middle-earth with multi-layer regional maps
+* **POI markers** — stables, vendors, landmarks, quest objectives, mob spawn locations, and deed objectives
+* **Marker clustering** — nearby POIs group together at lower zoom levels to keep the map clean
+* **Quest visualization** — plot quest objective waypoints directly on the map
+* **Deed objectives** — see exactly where to go for exploration and landmark deeds
+* **Shareable** — copy a link to your current map view to share with kinship members
+* **Embeddable** — external sites can embed the map using the `?embed=1` URL parameter
 
 The map is especially helpful when you're stuck on "find this landmark" deeds or trying to locate a quest objective in an unfamiliar region.
 
@@ -99,19 +100,7 @@ The map is especially helpful when you're stuck on "find this landmark" deeds or
 
 The [Guides](/guides) section has detailed write-ups covering raids, classes, and game systems:
 
-| Guide | What It Covers |
-|-------|---------------|
-| **Beginner's Guide** | Race selection, class overview, early progression tips |
-| **Starter Zones Leveling Guide (0–20)** | Optimal pathing through all starting areas |
-| **Crafting Guide** | Every vocation, leveling paths, and profit strategies |
-| **Legendary Items Guide** | Legendary weapon and relic systems explained |
-| **Raid Preparation Guide** | Consumable checklists, stat targets, essential buffs |
-| **Red Line Hunter Endgame Guide** | Build, rotation, and gear for DPS Hunters |
-| **Tower of Orthanc (Fire & Ice)** | Boss strategies for the Fire & Ice wing |
-| **Ost Dunhoth Disease Wing** | Mechanics and positioning for the Disease wing |
-| **Court of Seregost** | Full walkthrough with boss ability breakdowns |
-| **Abyss of Mordath** | Raid strategy for all bosses |
-| **Dungeons of Naerband** | Instance strategy and loot priorities |
+| Guide | What It Covers | |-------|---------------| | **Beginner's Guide** | Race selection, class overview, early progression tips | | **Starter Zones Leveling Guide (0–20)** | Optimal pathing through all starting areas | | **Crafting Guide** | Every vocation, leveling paths, and profit strategies | | **Legendary Items Guide** | Legendary weapon and relic systems explained | | **Raid Preparation Guide** | Consumable checklists, stat targets, essential buffs | | **Red Line Hunter Endgame Guide** | Build, rotation, and gear for DPS Hunters | | **Tower of Orthanc (Fire & Ice)** | Boss strategies for the Fire & Ice wing | | **Ost Dunhoth Disease Wing** | Mechanics and positioning for the Disease wing | | **Court of Seregost** | Full walkthrough with boss ability breakdowns | | **Abyss of Mordath** | Raid strategy for all bosses | | **Dungeons of Naerband** | Instance strategy and loot priorities |
 
 Each guide includes stat tables, consumable breakdowns, and links to the relevant instance detail pages and loot tables.
 
@@ -121,10 +110,10 @@ Each guide includes stat tables, consumable breakdowns, and links to the relevan
 
 The [News](/news) section covers:
 
-- **Bonus days and events** — XP weekends, festival schedules, anniversary events
-- **Store sales and promotions**
-- **Patch notes and game updates**
-- **Server maintenance notices**
+* **Bonus days and events** — XP weekends, festival schedules, anniversary events
+* **Store sales and promotions**
+* **Patch notes and game updates**
+* **Server maintenance notices**
 
 Articles include social sharing buttons for Facebook, Twitter, and Reddit so you can quickly pass along important updates to your kinship.
 

@@ -1283,6 +1283,9 @@
     if (!currentBuild.traceries) currentBuild.traceries = new Array(TOTAL_TRACERY_SLOTS).fill(null);
     currentBuild.traceries[slotIdx] = name;
 
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'select_content', content_type: 'tracery', content_id: name });
+
     closeTraceryPicker();
 
     // Re-render traceries section
@@ -1755,6 +1758,9 @@
         });
         if (buildName) shareUrl += '&n=' + encodeURIComponent(buildName);
         
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'share', content_type: 'build', item_id: data.class + '/' + currentSpecialization });
+
         // Show share dialog
         var permalink = prompt('Build saved! Share this URL:', shareUrl);
         if (permalink) {

@@ -63,18 +63,18 @@ function deedApiUrl(params) {
 var GUIDES = [
   { slug: 'beginners-guide', title: "Beginner's Guide to LOTRO", cat: 'New Player' },
   { slug: 'starter-zones-leveling-guide-0-20', title: 'Starter Zones Leveling Guide (0-20)', cat: 'Leveling' },
-  { slug: 'crafting-guide', title: 'Complete Crafting Guide', cat: 'Crafting' },
   { slug: 'legendary-items-guide', title: 'Legendary Items Reforged — Complete LI Guide', cat: 'Gear' },
-  { slug: 'raid-preparation-guide', title: 'Raid Preparation Guide — Consumables & Buffs', cat: 'Raiding' },
-  { slug: 'red-line-hunter-endgame-guide', title: 'Red Line Hunter End-Game Guide', cat: 'Class' },
-  { slug: 'light-of-earendil-shadow-of-mordor-guide', title: 'Light of Eärendil & Shadow of Mordor Guide', cat: 'Mechanics' },
-  { slug: 'abyss-of-mordath-raid-guide', title: 'The Abyss of Mordath — Full Raid Guide', cat: 'Raid' },
+  { slug: 'raid-preparation-guide', title: 'Raid Preparation Guide — Consumables & Store Buffs', cat: 'Raiding' },
+  { slug: 'red-line-hunter-endgame-guide', title: 'Red Line Hunter End-Game Guide (Post-Rework)', cat: 'Class' },
+  { slug: 'light-of-earendil-shadow-of-mordor-guide', title: 'Light of Eärendil & Shadow of Mordor — Complete Mechanic Guide', cat: 'Mechanics' },
+  { slug: 'abyss-of-mordath-raid-guide', title: 'The Abyss of Mordath — Full Raid Guide (T1 & T2)', cat: 'Raid' },
   { slug: 'hiddenhoard-of-abnankara-raid-guide', title: 'The Hiddenhoard of Abnankâra — Full Raid Guide', cat: 'Raid' },
-  { slug: 'tower-of-orthanc-fire-ice-guide', title: 'Tower of Orthanc Fire & Ice T2c Guide', cat: 'Raid' },
-  { slug: 'ost-dunhoth-disease-wing-guide', title: 'Ost Dunhoth Disease Wing T2c Guide', cat: 'Raid' },
-  { slug: 'court-of-seregost-guide', title: 'The Court of Seregost — Instance Guide', cat: 'Instance' },
+  { slug: 'tower-of-orthanc-fire-ice-guide', title: 'Tower of Orthanc Fire and Ice T2c — Raid Guide', cat: 'Raid' },
+  { slug: 'ost-dunhoth-disease-wing-guide', title: 'Ost Dunhoth Disease Wing T2c — Raid Guide', cat: 'Raid' },
+  { slug: 'sarch-vorn-the-black-grave-guide', title: 'Sarch Vorn, the Black Grave — Full Instance Guide', cat: 'Instance' },
+  { slug: 'court-of-seregost-guide', title: 'The Court of Seregost — Full Instance Guide', cat: 'Instance' },
   { slug: 'dungeons-of-naerband-guide', title: 'The Dungeons of Naerband — Instance Guide', cat: 'Instance' },
-  { slug: 'lotro-guides-site-companion-guide', title: 'LOTRO Guides Site Companion', cat: 'Meta' },
+  { slug: 'lotro-guides-site-companion-guide', title: 'LOTRO Guides: Your Ultimate Companion for Middle-earth', cat: 'Meta' },
 ];
 
 var guideNames = GUIDES.map(function (g) { return g.title.toLowerCase(); });

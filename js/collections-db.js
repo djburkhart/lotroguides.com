@@ -188,6 +188,9 @@
 
     $(document).on('show.bs.collapse', '.collection-card .collapse', function () {
       $(this).closest('.collection-card').find('.collection-toggle').addClass('fa-chevron-up').removeClass('fa-chevron-down');
+      var name = $(this).closest('.collection-card').data('name');
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'select_content', content_type: 'collection', content_id: name });
     });
     $(document).on('hide.bs.collapse', '.collection-card .collapse', function () {
       $(this).closest('.collection-card').find('.collection-toggle').addClass('fa-chevron-down').removeClass('fa-chevron-up');

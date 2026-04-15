@@ -1531,13 +1531,13 @@ function createEditor(markdown) {
       if (lintEnabled && tr.docChanged) updateLintCount();
     },
     nodeViews: {
-      dps_widget: function (node, view, getPos) { return new DpsWidgetView(node); },
-      map_widget: function (node, view, getPos) { return new MapWidgetView(node); },
-      consumable_widget: function (node, view, getPos) { return new ConsumableWidgetView(node); },
-      instance_loot_widget: function (node, view, getPos) { return new InstanceLootWidgetView(node); },
-      quest_widget: function (node, view, getPos) { return new QuestWidgetView(node); },
-      deed_widget: function (node, view, getPos) { return new DeedWidgetView(node); },
-      trait_planner_widget: function (node, view, getPos) { return new TraitPlannerWidgetView(node); },
+      dps_widget: function (node, view, getPos) { return new DpsWidgetView(node, view, getPos); },
+      map_widget: function (node, view, getPos) { return new MapWidgetView(node, view, getPos); },
+      consumable_widget: function (node, view, getPos) { return new ConsumableWidgetView(node, view, getPos); },
+      instance_loot_widget: function (node, view, getPos) { return new InstanceLootWidgetView(node, view, getPos); },
+      quest_widget: function (node, view, getPos) { return new QuestWidgetView(node, view, getPos); },
+      deed_widget: function (node, view, getPos) { return new DeedWidgetView(node, view, getPos); },
+      trait_planner_widget: function (node, view, getPos) { return new TraitPlannerWidgetView(node, view, getPos); },
     },
   });
 
@@ -2394,19 +2394,44 @@ function openDpsModal() {
   }
 }
 
+var DPS_CURVE_OPTIONS = [
+  { value: '', label: '(manual)' },
+  { value: 'mastery', label: 'Physical Mastery' },
+  { value: 'tacticalMastery', label: 'Tactical Mastery' },
+  { value: 'criticalHit', label: 'Critical Hit' },
+  { value: 'devastateHit', label: 'Devastate Hit' },
+  { value: 'finesse', label: 'Finesse' },
+  { value: 'lightMitigation', label: 'Light Mitigation' },
+  { value: 'mediumMitigation', label: 'Medium Mitigation' },
+  { value: 'heavyMitigation', label: 'Heavy Mitigation' },
+  { value: 'resistance', label: 'Resistance' },
+  { value: 'criticalDefence', label: 'Critical Defence' },
+  { value: 'criticalMagnitude', label: 'Critical Magnitude' },
+  { value: 'outgoingHealing', label: 'Outgoing Healing' },
+  { value: 'incomingHealing', label: 'Incoming Healing' },
+];
+
 function getDefaultDpsConfig() {
   return {
     levelCap: 150,
     sectionHeading: 'Desired Stat Percentages (Raid Targets)',
-    appliesTo: ['class', 'raid'],
-    tableColumns: ['Stat', 'T1 Target', 'T2 Target', 'T3+ Target'],
+    autoCalc: true,
+    tiers: {
+      t1: { label: 'T1 Cap', penetration: 'landscape' },
+      t2: { label: 'T2 Cap', penetration: 'modern2' },
+      t3: { label: 'T3+ Cap', penetration: 'modern3' },
+    },
+    curves: {
+      mastery: {}, criticalHit: {}, devastateHit: {}, finesse: {},
+      lightMitigation: {}, mediumMitigation: {}, heavyMitigation: {},
+    },
     tableRows: [
-      { stat: 'Physical Mastery', t1: '**200%+**', t2: '**210%+**', t3: '**220%+**' },
-      { stat: 'Critical Rating', t1: '**28%+**', t2: '**30%+**', t3: '**33%+**' },
-      { stat: 'Devastating Hits', t1: '**8%+**', t2: '**9%+**', t3: '**10%+**' },
-      { stat: 'Finesse', t1: '**35%-40%**', t2: '**40%-45%**', t3: '**45%-50%**' },
-      { stat: 'Tactical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' },
-      { stat: 'Physical Mitigation', t1: '**40%-45%**', t2: '**45%-50%**', t3: '**50%-55%**' }
+      { stat: 'Physical Mastery', curve: 'mastery' },
+      { stat: 'Critical Rating', curve: 'criticalHit' },
+      { stat: 'Devastating Hits', curve: 'devastateHit' },
+      { stat: 'Finesse', curve: 'finesse' },
+      { stat: 'Tactical Mitigation', curve: 'lightMitigation' },
+      { stat: 'Physical Mitigation', curve: 'mediumMitigation' },
     ]
   };
 }
@@ -2414,38 +2439,68 @@ function getDefaultDpsConfig() {
 function populateDpsModal() {
   document.getElementById('dps-level-cap').value = dpsConfig.levelCap || '';
   document.getElementById('dps-section-heading').value = dpsConfig.sectionHeading || '';
-  document.getElementById('dps-applies-to').value = Array.isArray(dpsConfig.appliesTo) ? dpsConfig.appliesTo.join(', ') : (dpsConfig.appliesTo || '');
 
-  var cols = dpsConfig.tableColumns || [];
-  for (var i = 0; i < 4; i++) {
-    var el = document.getElementById('dps-col-' + i);
-    if (el) el.value = cols[i] || '';
-  }
+  var autoCalcEl = document.getElementById('dps-auto-calc');
+  if (autoCalcEl) autoCalcEl.checked = !!dpsConfig.autoCalc;
 
+  var tiers = dpsConfig.tiers || {};
+  var tierT1 = document.getElementById('dps-tier-t1');
+  var tierT2 = document.getElementById('dps-tier-t2');
+  var tierT3 = document.getElementById('dps-tier-t3');
+  if (tierT1) tierT1.value = (tiers.t1 && tiers.t1.penetration) || 'landscape';
+  if (tierT2) tierT2.value = (tiers.t2 && tiers.t2.penetration) || 'modern2';
+  if (tierT3) tierT3.value = (tiers.t3 && tiers.t3.penetration) || 'modern3';
+
+  toggleDpsTiersVisibility();
   renderDpsRows();
   updateDpsPreview();
+}
+
+function toggleDpsTiersVisibility() {
+  var autoCalcEl = document.getElementById('dps-auto-calc');
+  var tiersSection = document.getElementById('dps-tiers-section');
+  if (tiersSection) tiersSection.style.display = (autoCalcEl && autoCalcEl.checked) ? '' : 'none';
 }
 
 function renderDpsRows() {
   var container = document.getElementById('dps-rows-container');
   container.innerHTML = '';
   var rows = dpsConfig.tableRows || [];
+  var isAutoCalc = dpsConfig.autoCalc;
+
   rows.forEach(function (row, idx) {
     var div = document.createElement('div');
     div.className = 'dps-row-editor row';
     div.setAttribute('data-idx', idx);
-    div.innerHTML =
-      '<div class="col-md-3"><input type="text" class="form-control input-sm dps-row-stat" value="' + esc(row.stat) + '" placeholder="Stat name"></div>' +
-      '<div class="col-md-3"><input type="text" class="form-control input-sm dps-row-t1" value="' + esc(row.t1) + '" placeholder="T1 value"></div>' +
-      '<div class="col-md-2"><input type="text" class="form-control input-sm dps-row-t2" value="' + esc(row.t2) + '" placeholder="T2 value"></div>' +
-      '<div class="col-md-2"><input type="text" class="form-control input-sm dps-row-t3" value="' + esc(row.t3) + '" placeholder="T3+ value"></div>' +
-      '<div class="col-md-2"><button class="btn btn-xs btn-danger dps-row-remove" data-idx="' + idx + '"><i class="fa fa-trash"></i></button></div>';
+    div.style.marginBottom = '4px';
+
+    if (isAutoCalc) {
+      // Auto-calc mode: stat name + curve dropdown
+      var curveOpts = DPS_CURVE_OPTIONS.map(function (o) {
+        var sel = (row.curve || '') === o.value ? ' selected' : '';
+        return '<option value="' + o.value + '"' + sel + '>' + esc(o.label) + '</option>';
+      }).join('');
+      div.innerHTML =
+        '<div class="col-md-4"><input type="text" class="form-control input-sm dps-row-stat" value="' + esc(row.stat) + '" placeholder="Stat name"></div>' +
+        '<div class="col-md-4"><select class="form-control input-sm dps-row-curve">' + curveOpts + '</select></div>' +
+        '<div class="col-md-2"><input type="text" class="form-control input-sm dps-row-note" value="' + esc(row.note || '') + '" placeholder="Note"></div>' +
+        '<div class="col-md-2"><button class="btn btn-xs btn-danger dps-row-remove" data-idx="' + idx + '"><i class="fa fa-trash"></i></button></div>';
+    } else {
+      // Manual mode: stat + T1/T2/T3 values
+      div.innerHTML =
+        '<div class="col-md-3"><input type="text" class="form-control input-sm dps-row-stat" value="' + esc(row.stat) + '" placeholder="Stat name"></div>' +
+        '<div class="col-md-3"><input type="text" class="form-control input-sm dps-row-t1" value="' + esc(row.t1 || '') + '" placeholder="T1 value"></div>' +
+        '<div class="col-md-2"><input type="text" class="form-control input-sm dps-row-t2" value="' + esc(row.t2 || '') + '" placeholder="T2 value"></div>' +
+        '<div class="col-md-2"><input type="text" class="form-control input-sm dps-row-t3" value="' + esc(row.t3 || '') + '" placeholder="T3+ value"></div>' +
+        '<div class="col-md-2"><button class="btn btn-xs btn-danger dps-row-remove" data-idx="' + idx + '"><i class="fa fa-trash"></i></button></div>';
+    }
     container.appendChild(div);
   });
 
   // Wire row inputs for live preview
-  container.querySelectorAll('input').forEach(function (inp) {
+  container.querySelectorAll('input, select').forEach(function (inp) {
     inp.addEventListener('input', function () { syncDpsFromForm(); updateDpsPreview(); });
+    inp.addEventListener('change', function () { syncDpsFromForm(); updateDpsPreview(); });
   });
   container.querySelectorAll('.dps-row-remove').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -2460,55 +2515,94 @@ function renderDpsRows() {
 function syncDpsFromForm() {
   dpsConfig.levelCap = parseInt(document.getElementById('dps-level-cap').value, 10) || null;
   dpsConfig.sectionHeading = document.getElementById('dps-section-heading').value;
-  var at = document.getElementById('dps-applies-to').value;
-  dpsConfig.appliesTo = at ? at.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
 
-  var cols = [];
-  for (var i = 0; i < 4; i++) {
-    var el = document.getElementById('dps-col-' + i);
-    cols.push(el ? el.value : '');
+  var autoCalcEl = document.getElementById('dps-auto-calc');
+  dpsConfig.autoCalc = autoCalcEl ? autoCalcEl.checked : false;
+
+  if (dpsConfig.autoCalc) {
+    var tierT1 = document.getElementById('dps-tier-t1');
+    var tierT2 = document.getElementById('dps-tier-t2');
+    var tierT3 = document.getElementById('dps-tier-t3');
+    dpsConfig.tiers = {
+      t1: { label: 'T1 Cap', penetration: tierT1 ? tierT1.value : 'landscape' },
+      t2: { label: 'T2 Cap', penetration: tierT2 ? tierT2.value : 'modern2' },
+      t3: { label: 'T3+ Cap', penetration: tierT3 ? tierT3.value : 'modern3' },
+    };
   }
-  dpsConfig.tableColumns = cols;
 
   var rowEls = document.querySelectorAll('.dps-row-editor');
   var newRows = [];
   rowEls.forEach(function (el) {
-    newRows.push({
-      stat: el.querySelector('.dps-row-stat').value,
-      t1: el.querySelector('.dps-row-t1').value,
-      t2: el.querySelector('.dps-row-t2').value,
-      t3: el.querySelector('.dps-row-t3').value
-    });
+    var row = { stat: el.querySelector('.dps-row-stat').value };
+    if (dpsConfig.autoCalc) {
+      var curveEl = el.querySelector('.dps-row-curve');
+      if (curveEl && curveEl.value) row.curve = curveEl.value;
+      var noteEl = el.querySelector('.dps-row-note');
+      if (noteEl && noteEl.value) row.note = noteEl.value;
+    } else {
+      var t1El = el.querySelector('.dps-row-t1');
+      var t2El = el.querySelector('.dps-row-t2');
+      var t3El = el.querySelector('.dps-row-t3');
+      row.t1 = t1El ? t1El.value : '';
+      row.t2 = t2El ? t2El.value : '';
+      row.t3 = t3El ? t3El.value : '';
+    }
+    newRows.push(row);
   });
   dpsConfig.tableRows = newRows;
 }
 
 function updateDpsPreview() {
-  var cols = dpsConfig.tableColumns || [];
   var rows = dpsConfig.tableRows || [];
-  if (!cols.length || !rows.length) {
+  if (!rows.length) {
     document.getElementById('dps-table-preview').innerHTML = '<p class="text-muted">No data to preview.</p>';
     return;
   }
-  var levelCapNote = dpsConfig.levelCap ? '<small class="text-muted">Level Cap: ' + esc(String(dpsConfig.levelCap)) + '</small><br>' : '';
-  var html = levelCapNote + '<table class="table table-bordered table-sm"><thead><tr>';
-  cols.forEach(function (c) { html += '<th>' + esc(c) + '</th>'; });
-  html += '</tr></thead><tbody>';
-  rows.forEach(function (r) {
-    html += '<tr>';
-    html += '<td>' + esc(r.stat) + '</td>';
-    html += '<td>' + esc(r.t1) + '</td>';
-    html += '<td>' + esc(r.t2) + '</td>';
-    html += '<td>' + esc(r.t3) + '</td>';
-    html += '</tr>';
-  });
-  html += '</tbody></table>';
-  document.getElementById('dps-table-preview').innerHTML = html;
+  var levelCap = dpsConfig.levelCap || 150;
+  var levelCapNote = '<small class="text-muted">Level Cap: ' + esc(String(levelCap)) + '</small><br>';
+
+  if (dpsConfig.autoCalc) {
+    // Auto-calc preview — show structure; exact values computed at build time
+    var tiers = dpsConfig.tiers || {};
+    var tierKeys = Object.keys(tiers);
+    var html = levelCapNote + '<small class="text-muted"><em>Exact ratings auto-calculated at build time via Giseldah formulas</em></small><br>';
+    html += '<table class="table table-bordered table-sm"><thead><tr><th>Stat</th><th>Curve</th>';
+    tierKeys.forEach(function (k) {
+      var t = tiers[k];
+      html += '<th>' + esc((t.label || k) + ' (' + (t.penetration || '?') + ')') + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr><td>' + esc(r.stat || '') + '</td>';
+      html += '<td><code>' + esc(r.curve || '—') + '</code></td>';
+      tierKeys.forEach(function () {
+        html += '<td class="text-muted"><em>' + (r.curve ? 'auto' : '—') + '</em></td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('dps-table-preview').innerHTML = html;
+  } else {
+    // Manual preview
+    var html = levelCapNote + '<table class="table table-bordered table-sm"><thead><tr>';
+    html += '<th>Stat</th><th>T1</th><th>T2</th><th>T3+</th>';
+    html += '</tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr>';
+      html += '<td>' + esc(r.stat || '') + '</td>';
+      html += '<td>' + esc(r.t1 || '') + '</td>';
+      html += '<td>' + esc(r.t2 || '') + '</td>';
+      html += '<td>' + esc(r.t3 || '') + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('dps-table-preview').innerHTML = html;
+  }
 }
 
 function addDpsRow() {
   syncDpsFromForm();
-  dpsConfig.tableRows.push({ stat: '', t1: '', t2: '', t3: '' });
+  dpsConfig.tableRows.push(dpsConfig.autoCalc ? { stat: '', curve: '' } : { stat: '', t1: '', t2: '', t3: '' });
   renderDpsRows();
   updateDpsPreview();
 }
@@ -2520,6 +2614,14 @@ function closeDpsModal() {
 
 function saveDpsConfig() {
   syncDpsFromForm();
+  // Build curves map from tableRows
+  if (dpsConfig.autoCalc) {
+    var curves = {};
+    (dpsConfig.tableRows || []).forEach(function (r) {
+      if (r.curve) curves[r.curve] = {};
+    });
+    dpsConfig.curves = curves;
+  }
   var json = JSON.stringify(dpsConfig, null, 2);
 
   if (isGitHubConnected()) {
@@ -3280,9 +3382,24 @@ document.addEventListener('DOMContentLoaded', function () {
   if (btnDpsAddRow) btnDpsAddRow.addEventListener('click', addDpsRow);
 
   // DPS modal live preview on top-level field changes
-  ['dps-level-cap', 'dps-section-heading', 'dps-applies-to', 'dps-col-0', 'dps-col-1', 'dps-col-2', 'dps-col-3'].forEach(function (id) {
+  ['dps-level-cap', 'dps-section-heading'].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', function () { syncDpsFromForm(); updateDpsPreview(); });
+  });
+
+  // Tier selects live preview
+  ['dps-tier-t1', 'dps-tier-t2', 'dps-tier-t3'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function () { syncDpsFromForm(); updateDpsPreview(); });
+  });
+
+  // Auto-calc toggle
+  var autoCalcEl = document.getElementById('dps-auto-calc');
+  if (autoCalcEl) autoCalcEl.addEventListener('change', function () {
+    syncDpsFromForm();
+    toggleDpsTiersVisibility();
+    renderDpsRows();
+    updateDpsPreview();
   });
 
   // Close modal on overlay click

@@ -26,7 +26,7 @@
     "update:videos": "node scripts/fetch-youtube-videos.js && node scripts/fetch-instance-videos.js",
     "update:maps": "node scripts/sync-maps.js",
     "import:lotro-data": "node scripts/import-lotro-data.js",
-    "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:maps && npm run update:lore && npm run update:icons && npm run update:videos",
+    "update": "npm run update:news && npm run update:loot && npm run update:skills && npm run update:maps && npm run update:lore && npm run update:icons && npm run update:videos && npm run import:lotro-data",
     "sync": "node scripts/sync-cdn.js",
     "deploy:functions": "node scripts/vendor-giseldah-calcstat.js && node scripts/deploy-functions.js && node scripts/register-discord-commands.js && node scripts/deploy-functions.js discord && node scripts/deploy-functions.js collections"
   },

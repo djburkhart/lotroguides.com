@@ -230,13 +230,13 @@
           <p class="text-muted">Configure the DPS stat reference table. Changes here update the global <code>dps-reference.json</code> config used across all guides.</p>
 
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <div class="form-group">
                 <label for="dps-level-cap">Level Cap</label>
                 <input type="number" id="dps-level-cap" class="form-control" min="1" max="999" placeholder="e.g. 150">
               </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
               <div class="form-group">
                 <label for="dps-section-heading">Table Heading</label>
                 <input type="text" id="dps-section-heading" class="form-control" placeholder="Section heading text">
@@ -244,18 +244,48 @@
             </div>
             <div class="col-md-4">
               <div class="form-group">
-                <label for="dps-applies-to">Applies To</label>
-                <input type="text" id="dps-applies-to" class="form-control" placeholder="class, raid">
+                <label for="dps-auto-calc">
+                  <input type="checkbox" id="dps-auto-calc"> Auto-calculate from Giseldah
+                </label>
+                <p class="help-block small" style="margin:4px 0 0">Cap ratings computed at build time per penetration tier</p>
               </div>
             </div>
           </div>
 
-          <h5>Table Columns</h5>
-          <div class="row">
-            <div class="col-md-3"><input type="text" id="dps-col-0" class="form-control input-sm" placeholder="Column 1"></div>
-            <div class="col-md-3"><input type="text" id="dps-col-1" class="form-control input-sm" placeholder="Column 2"></div>
-            <div class="col-md-3"><input type="text" id="dps-col-2" class="form-control input-sm" placeholder="Column 3"></div>
-            <div class="col-md-3"><input type="text" id="dps-col-3" class="form-control input-sm" placeholder="Column 4"></div>
+          <div id="dps-tiers-section">
+            <h5>Penetration Tiers</h5>
+            <div class="row">
+              <div class="col-md-4">
+                <label class="small">T1 Penetration</label>
+                <select id="dps-tier-t1" class="form-control input-sm">
+                  <option value="landscape">Landscape / T1 (none)</option>
+                  <option value="modern2">Modern T2 (armour)</option>
+                  <option value="modern3">Modern T3-5 (armour)</option>
+                  <option value="trad2">Traditional T2 (all)</option>
+                  <option value="trad3">Traditional T3 (all)</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="small">T2 Penetration</label>
+                <select id="dps-tier-t2" class="form-control input-sm">
+                  <option value="landscape">Landscape / T1 (none)</option>
+                  <option value="modern2">Modern T2 (armour)</option>
+                  <option value="modern3">Modern T3-5 (armour)</option>
+                  <option value="trad2">Traditional T2 (all)</option>
+                  <option value="trad3">Traditional T3 (all)</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="small">T3+ Penetration</label>
+                <select id="dps-tier-t3" class="form-control input-sm">
+                  <option value="landscape">Landscape / T1 (none)</option>
+                  <option value="modern2">Modern T2 (armour)</option>
+                  <option value="modern3">Modern T3-5 (armour)</option>
+                  <option value="trad2">Traditional T2 (all)</option>
+                  <option value="trad3">Traditional T3 (all)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <h5 style="margin-top:16px">Stat Rows</h5>
