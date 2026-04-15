@@ -63,6 +63,12 @@
       '<i class="fa fa-map-marker"></i> Spawn</a>';
   }
 
+  function renderArea(data, type) {
+    if (type !== 'display') return data || '';
+    if (!data) return '<span class="text-muted">—</span>';
+    return '<span class="mob-area-badge">' + data + '</span>';
+  }
+
   // ── Load data ───────────────────────────────────────────────────────────
   function loadData() {
     if (initialized) return;
@@ -70,6 +76,7 @@
     initialized = true;
     allData = window.LOTRO_MOBS_DB;
     buildLookup();
+    populateAreaFilter();
     initTable();
     bindFilters();
     checkUrlParams();
@@ -78,6 +85,18 @@
   function buildLookup() {
     for (var i = 0; i < allData.length; i++) {
       mobById[allData[i].id] = allData[i];
+    }
+  }
+
+  function populateAreaFilter() {
+    var areas = {};
+    for (var i = 0; i < allData.length; i++) {
+      if (allData[i].ar) areas[allData[i].ar] = true;
+    }
+    var sorted = Object.keys(areas).sort();
+    var $sel = $('#filter-area');
+    for (var j = 0; j < sorted.length; j++) {
+      $sel.append('<option value="' + sorted[j] + '">' + sorted[j] + '</option>');
     }
   }
 
@@ -93,6 +112,7 @@
         { data: 'n', render: renderName },
         { data: 'g', render: renderGenus, width: '160px' },
         { data: 'sp', render: renderSpecies, width: '140px' },
+        { data: 'ar', render: renderArea, width: '140px' },
         { data: null, render: renderSpawnMap, width: '110px', orderable: false, searchable: false }
       ],
       language: {
@@ -107,9 +127,9 @@
 
   // ── Filters ─────────────────────────────────────────────────────────────
   function bindFilters() {
-    $('#filter-genus, #filter-species').on('change', applyFilters);
+    $('#filter-genus, #filter-species, #filter-area').on('change', applyFilters);
     $('#filter-reset').on('click', function () {
-      $('#filter-genus, #filter-species').val('');
+      $('#filter-genus, #filter-species, #filter-area').val('');
       applyFilters();
     });
   }
@@ -117,11 +137,13 @@
   function applyFilters() {
     var genusVal = $('#filter-genus').val();
     var speciesVal = $('#filter-species').val();
+    var areaVal = $('#filter-area').val();
 
     $.fn.dataTable.ext.search = [];
     $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
       if (genusVal && rowData.g !== genusVal) return false;
       if (speciesVal && rowData.sp !== speciesVal) return false;
+      if (areaVal && rowData.ar !== areaVal) return false;
       return true;
     });
     table.draw();
@@ -135,9 +157,15 @@
     $('#mob-modal-title').html('<span class="lotro-mob-name">' + mob.n + '</span>');
 
     var html = '<div class="item-modal-meta">';
+    if (mob.al) {
+      var alColor = mob.al === 'enemy' ? '#c0392b' : '#27ae60';
+      var alLabel = mob.al === 'enemy' ? 'Enemy' : 'Friendly';
+      html += '<p><strong>Alignment:</strong> <span style="color:' + alColor + ';font-weight:600">' + alLabel + '</span></p>';
+    }
     if (mob.g) html += '<p><strong>Genus:</strong> ' + genusBadge(mob.g) + '</p>';
     if (mob.sp) html += '<p><strong>Species:</strong> ' + speciesBadge(mob.sp) + '</p>';
     if (mob.ss) html += '<p><strong>Sub-species:</strong> ' + mob.ss + '</p>';
+    if (mob.ar) html += '<p><strong>Area:</strong> ' + mob.ar + '</p>';
 
     var overlay = window.LOTRO_MOB_OVERLAY && window.LOTRO_MOB_OVERLAY[id];
     if (overlay && overlay.map) {
@@ -146,6 +174,15 @@
     }
 
     html += '</div>';
+
+    if (mob.lt && mob.lt.length) {
+      html += '<div class="mob-loot-section"><h6><i class="fa fa-gift"></i> Loot Table</h6><ul class="mob-loot-list">';
+      for (var i = 0; i < mob.lt.length; i++) {
+        var item = mob.lt[i];
+        html += '<li><a href="items?q=' + encodeURIComponent(item.n) + '">' + item.n + '</a></li>';
+      }
+      html += '</ul></div>';
+    }
 
     $('#mob-modal-body').html(html);
 

@@ -99,6 +99,12 @@ app.get('/api/collections/lookup', async (request, reply) => {
   return invokeDOFunction('./packages/collections/lookup/index.js', getArgs(request), reply);
 });
 
+// Map overlay lookup (GET) — quest/deed/mob overlays
+app.get('/api/mapdata/lookup', async (request, reply) => {
+  process.env.DO_CDN_URL = `http://localhost:${PORT}`;
+  return invokeDOFunction('./packages/mapdata/lookup/index.js', getArgs(request), reply);
+});
+
 // Builds — save / like / unlike / get / list / stats (POST)
 app.post('/api/builds/save', async (request, reply) => {
   return invokeDOFunction('./packages/builds/save/index.js', postArgs(request), reply);

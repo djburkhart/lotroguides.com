@@ -1135,6 +1135,39 @@ h1, h2, h3 {
   background: #333;
   border: 1px solid #555;
 }
+.mob-area-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #e8d5b7;
+  background: #2e5339;
+  border: 1px solid #3d6b4a;
+}
+.mob-loot-section {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+.mob-loot-section h6 {
+  color: var(--lotro-gold);
+  margin-bottom: 8px;
+}
+.mob-loot-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.mob-loot-list li {
+  padding: 3px 0;
+  font-size: 13px;
+}
+.mob-loot-list li a {
+  color: #7ec8e3;
+}
 
 #mobs-table {
   font-size: 14px;

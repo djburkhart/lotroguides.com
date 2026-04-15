@@ -240,13 +240,79 @@ function enrichMobs() {
   const genusLabels = resolveEnumLabels('Genus.xml', 'enum-Genus.xml');
   const speciesLabels = resolveEnumLabels('Species.xml', 'enum-Species.xml');
   const subSpeciesLabels = resolveEnumLabels('SubSpecies.xml', 'enum-SubSpecies.xml');
-  const divisionLabels = resolveEnumLabels('MobDivision.xml', 'enum-MobDivision.xml');
 
   console.log(`    Genus labels: ${Object.keys(genusLabels).length}`);
   console.log(`    Species labels: ${Object.keys(speciesLabels).length}`);
   console.log(`    SubSpecies labels: ${Object.keys(subSpeciesLabels).length}`);
 
-  // Parse all mobs from XML
+  // ── MobDivision → territory name mapping ──────────────────────────────
+  const divEnumPath = path.join(ENUMS, 'MobDivision.xml');
+  const divCodeToName = {};
+  if (fs.existsSync(divEnumPath)) {
+    const divXml = fs.readFileSync(divEnumPath, 'utf8');
+    const dr = /<entry code="(\d+)" name="([^"]+)"/g;
+    let dm;
+    while ((dm = dr.exec(divXml)) !== null) divCodeToName[dm[1]] = dm[2];
+  }
+
+  const divPrefixToTerritory = {
+    Shire: 'The Shire', Breeland: 'Bree-land', EredLuin: 'Ered Luin',
+    Lonelands: 'The Lone-lands', NorthDowns: 'The North Downs',
+    Trollshaws: 'The Trollshaws', MistyMountains: 'The Misty Mountains',
+    Angmar: 'Angmar', EastAngmar: 'Angmar', WestAngmar: 'Angmar',
+    Ettenmoors: 'The Ettenmoors', Evendim: 'Evendim', Forochel: 'Forochel',
+    Eregion: 'Eregion', Moria: 'Moria', Lothlorien: 'Lothlórien',
+    Mirkwood: 'Mirkwood', Enedwaith: 'Enedwaith', Dunland: 'Dunland',
+    GreatRiver: 'Great River', Rohan: 'Rohan', RohanEast: 'Rohan',
+    RohanWest: 'Rohan', HelmsDeep: "Helm's Deep", Wildermore: 'Wildermore',
+    Erebor: 'Erebor', WesternGondor: 'Western Gondor',
+    CentralGondor: 'Central Gondor', EasternGondor: 'Eastern Gondor',
+    OldAnorien: 'Old Anórien', FarAnorien: 'Far Anórien',
+    Osgiliath: 'Osgiliath', Mordor: 'Mordor', Ithilien: 'Ithilien',
+    ErynLasgalen: 'Eryn Lasgalen', IronHills: 'Iron Hills',
+    LonelyMountain: 'Erebor', MinasMorgul: 'Minas Morgul',
+    Gundabad: 'Gundabad', Yondershire: 'Yondershire', Swanfleet: 'Swanfleet',
+    Cardolan: 'Cardolan', Wastes: 'The Wastes', Annuminas: 'Evendim',
+    Isengard: 'Dunland', Wildwood: 'Bree-land', Umbar: 'Umbar',
+    Elderslade: 'Elderslade', Dwarfholds: 'Dwarfholds',
+    Hithaeglir: 'Gundabad', Hitheaglir: 'Gundabad',
+    Vales: 'Vales of Anduin', Wells: 'Wells of Langflood',
+    Gondor: 'Gondor', Ikorban: 'Umbar', Mountains: 'Gundabad',
+    Lorien: 'Lothlórien', Minas: 'Minas Morgul', Azanulbizar: 'Moria',
+  };
+
+  // Case-insensitive lookup
+  const divLcMap = {};
+  for (const [k, v] of Object.entries(divPrefixToTerritory)) divLcMap[k.toLowerCase()] = v;
+
+  function divisionToArea(divCode) {
+    const divName = divCodeToName[divCode];
+    if (!divName) return null;
+    const prefix = divName.split('_')[0];
+    return divPrefixToTerritory[prefix] || divLcMap[prefix.toLowerCase()] || null;
+  }
+
+  // ── Loot table resolution ─────────────────────────────────────────────
+  console.log('  📦 Loading loot tables...');
+  const lootsXml = readXml('loots.xml');
+  const lootTables = {};
+  if (lootsXml) {
+    // Parse trophyList entries — these contain direct item drops
+    const trophyRe = /<trophyList id="(\d+)">([\s\S]*?)<\/trophyList>/g;
+    let tm;
+    while ((tm = trophyRe.exec(lootsXml)) !== null) {
+      const items = [];
+      const entryRe = /itemId="(\d+)" name="([^"]*)"/g;
+      let em;
+      while ((em = entryRe.exec(tm[2])) !== null) {
+        items.push({ id: em[1], n: cleanGameText(em[2]) });
+      }
+      if (items.length) lootTables[tm[1]] = items;
+    }
+    console.log(`    Loaded ${Object.keys(lootTables).length} trophy loot tables`);
+  }
+
+  // ── Parse all mobs from XML ───────────────────────────────────────────
   const re = /<mob id="(\d+)" name="([^"]*)"([^>]*)>/g;
   const mobMap = {};
   let m, total = 0;
@@ -262,19 +328,37 @@ function enrichMobs() {
     const speciesMatch = attrs.match(/species="(\d+)"/);
     const subSpeciesMatch = attrs.match(/subSpecies="(\d+)"/);
     const divisionMatch = attrs.match(/division="(\d+)"/);
+    const treasureMatch = attrs.match(/treasureListId="(\d+)"/);
+    const trophyMatch = attrs.match(/trophyListId="(\d+)"/);
+    const repTrophyMatch = attrs.match(/reputationTrophyListId="(\d+)"/);
+    const barterTrophyMatch = attrs.match(/barterTrophyListId="(\d+)"/);
 
     const mob = { id, name };
     if (alignMatch) mob.alignment = alignMatch[1] === '3' ? 'enemy' : 'friendly';
     if (genusMatch && genusLabels[genusMatch[1]]) mob.genus = genusLabels[genusMatch[1]];
     if (speciesMatch && speciesLabels[speciesMatch[1]]) mob.species = speciesLabels[speciesMatch[1]];
     if (subSpeciesMatch && subSpeciesLabels[subSpeciesMatch[1]]) mob.subSpecies = subSpeciesLabels[subSpeciesMatch[1]];
+    if (divisionMatch) mob.area = divisionToArea(divisionMatch[1]);
+
+    // Collect loot from all table references
+    const loot = [];
+    const seen = new Set();
+    for (const tid of [treasureMatch, trophyMatch, repTrophyMatch, barterTrophyMatch]) {
+      if (!tid) continue;
+      const items = lootTables[tid[1]];
+      if (!items) continue;
+      for (const it of items) {
+        if (!seen.has(it.id)) { seen.add(it.id); loot.push(it); }
+      }
+    }
+    if (loot.length) mob.loot = loot;
 
     mobMap[id] = mob;
   }
 
   console.log(`    Parsed ${total} mobs from XML`);
 
-  // Update item-index.json — patch mob entries with genus/species
+  // Update item-index.json — patch mob entries with genus/species/alignment/area/loot
   const indexPath = path.join(OUT, 'item-index.json');
   if (fs.existsSync(indexPath)) {
     const index = readJson(indexPath);
@@ -286,14 +370,19 @@ function enrichMobs() {
       if (mob.genus && !entry.genus) { entry.genus = mob.genus; patched++; }
       if (mob.species) entry.species = mob.species;
       if (mob.subSpecies) entry.subSpecies = mob.subSpecies;
+      if (mob.alignment) entry.alignment = mob.alignment;
+      if (mob.area) entry.area = mob.area;
+      if (mob.loot) entry.loot = mob.loot;
     }
     writeJson(indexPath, index);
-    console.log(`    ✓ Patched ${patched} mob entries in item-index.json with genus/species`);
+    console.log(`    ✓ Patched ${patched} mob entries in item-index.json`);
   }
 
-  // Also write a full mobs lookup for potential future use
   const enemies = Object.values(mobMap).filter(m => m.alignment === 'enemy');
+  const withArea = Object.values(mobMap).filter(m => m.area);
+  const withLoot = Object.values(mobMap).filter(m => m.loot && m.loot.length);
   console.log(`    ${enemies.length} enemy mobs, ${total - enemies.length} friendly`);
+  console.log(`    ${withArea.length} mobs with area, ${withLoot.length} mobs with loot`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

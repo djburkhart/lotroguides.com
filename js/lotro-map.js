@@ -11,7 +11,10 @@
   function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
 
   // DO Function API for map overlays (quests, deeds, mobs)
-  var MAP_API = 'https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-7c951b22-9074-45af-a2a3-ec1fba6309d7/mapdata/lookup';
+  // Use local proxy on localhost to avoid CORS issues with the DO API
+  var MAP_API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? '/api/mapdata/lookup'
+    : 'https://faas-nyc1-2ef2e6cc.doserverless.co/api/v1/web/fn-7c951b22-9074-45af-a2a3-ec1fba6309d7/mapdata/lookup';
 
   // ─── State ──────────────────────────────────────────────────────────────
   var map;

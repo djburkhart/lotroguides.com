@@ -2310,7 +2310,7 @@ function buildItemsPage(navData) {
 function buildMobsPage(navData) {
   if (!Object.keys(itemIndex).length) return;
 
-  // Build compact client-side JSON: array of {id, n, g, sp, ss}
+  // Build compact client-side JSON: array of {id, n, g, sp, ss, al, ar, lt}
   const clientMobs = Object.entries(itemIndex)
     .filter(([, v]) => v.type === 'mob')
     .map(([name, v]) => {
@@ -2318,6 +2318,9 @@ function buildMobsPage(navData) {
       if (v.genus) row.g = v.genus;
       if (v.species) row.sp = v.species;
       if (v.subSpecies) row.ss = v.subSpecies;
+      if (v.alignment) row.al = v.alignment;
+      if (v.area) row.ar = v.area;
+      if (v.loot && v.loot.length) row.lt = v.loot.map(l => ({ i: l.id, n: l.n }));
       return row;
     });
 
@@ -2622,6 +2625,28 @@ function buildDeedsPage(navData) {
   const questOverlay = fs.existsSync(questOverlayPath)
     ? JSON.parse(fs.readFileSync(questOverlayPath, 'utf8'))
     : {};
+
+  // Load maps-index for coordinate-to-map resolution when quest overlay has empty maps
+  const mapsIndexPath = path.join(LORE_DIR, 'maps-index.json');
+  const mapsIndex = fs.existsSync(mapsIndexPath)
+    ? JSON.parse(fs.readFileSync(mapsIndexPath, 'utf8'))
+    : [];
+
+  function findMapForCoords(lng, lat) {
+    let best = null;
+    let bestArea = Infinity;
+    for (const m of mapsIndex) {
+      if (!m.min || !m.max) continue;
+      // Skip interior/instance maps (1879xxx IDs) — they share coords with outdoor maps
+      if (m.id.startsWith('1879')) continue;
+      if (lng >= m.min.lng && lng <= m.max.lng && lat >= m.min.lat && lat <= m.max.lat) {
+        const area = (m.max.lng - m.min.lng) * (m.max.lat - m.min.lat);
+        if (area < bestArea) { bestArea = area; best = m.id; }
+      }
+    }
+    return best;
+  }
+
   const deedOverlay = {};
 
   for (const deed of clientDeeds) {
@@ -2637,14 +2662,17 @@ function buildDeedsPage(navData) {
 
       if (o.t === 'complete' && o.aq && o.aid && questOverlay[o.aid]) {
         const q = questOverlay[o.aid];
-        if (q.maps && q.maps.length && q.steps && q.steps.length && q.steps[0].pts && q.steps[0].pts.length) {
+        if (q.steps && q.steps.length && q.steps[0].pts && q.steps[0].pts.length) {
           const pt = q.steps[0].pts[0];
-          loc = {
-            map: q.maps[0],
-            lng: pt[0],
-            lat: pt[1],
-            l: o.an || q.n || deed.n,
-          };
+          const mapId = (q.maps && q.maps.length) ? q.maps[0] : findMapForCoords(pt[0], pt[1]);
+          if (mapId) {
+            loc = {
+              map: mapId,
+              lng: pt[0],
+              lat: pt[1],
+              l: o.an || q.n || deed.n,
+            };
+          }
         }
       } else if (o.t === 'kill') {
         loc = findMarkerLocation(markerIndex, o.mid, o.mn);
