@@ -14,8 +14,8 @@
   // ── Quality / type helpers ──────────────────────────────────────────────
   var qualityColors = {
     legendary:    '#ff9800',
-    incomparable: '#e040fb',
-    rare:         '#3ea8e6',
+    incomparable: '#3ea8e6',
+    rare:         '#e040fb',
     uncommon:     '#f5e642',
     common:       '#f0f0f0'
   };

@@ -28,6 +28,7 @@ const VALID_CLASSES = [
   'guardian', 'hunter', 'lore-master', 'mariner', 'minstrel',
   'rune-keeper', 'warden',
 ];
+const VALID_SPECS = ['blue', 'red', 'yellow'];
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -122,6 +123,7 @@ function toManifestEntry(record) {
     class: build.class,
     name: build.name,
     desc: build.description || '',
+    specialization: build.specialization || null,
     level: build.level || 160,
     likes: record.likes || 0,
     ps: ps,
@@ -163,12 +165,16 @@ function validateBuild(raw) {
   if (isNaN(level) || level < 1 || level > 200) return { error: 'Invalid level' };
 
   const description = String(raw.description || '').trim().substring(0, 500);
+  const specialization = VALID_SPECS.includes(String(raw.specialization || '').toLowerCase())
+    ? String(raw.specialization).toLowerCase()
+    : null;
 
   return {
     build: {
       class: cls,
       name: name,
       description: description,
+      specialization: specialization,
       points: points,
       virtues: virtues,
       level: level,

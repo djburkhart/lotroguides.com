@@ -577,10 +577,10 @@ h1, h2, h3 {
 .lotro-item.lotro-common { color: #f0f0f0; border-color: #999; }
 .lotro-item.lotro-uncommon { color: #f5e642; border-color: #c8b400; }
 .lotro-item.lotro-uncommon:hover { color: #fff176; }
-.lotro-item.lotro-rare { color: #3ea8e6; border-color: #2980b9; }
-.lotro-item.lotro-rare:hover { color: #64b5f6; }
-.lotro-item.lotro-incomparable { color: #e040fb; border-color: #ab47bc; }
-.lotro-item.lotro-incomparable:hover { color: #ea80fc; }
+.lotro-item.lotro-rare { color: #e040fb; border-color: #ab47bc; }
+.lotro-item.lotro-rare:hover { color: #ea80fc; }
+.lotro-item.lotro-incomparable { color: #3ea8e6; border-color: #2980b9; }
+.lotro-item.lotro-incomparable:hover { color: #64b5f6; }
 .lotro-item.lotro-legendary { color: #ff9800; border-color: #e65100; }
 .lotro-item.lotro-legendary:hover { color: #ffb74d; }
 
@@ -666,10 +666,10 @@ h1, h2, h3 {
 }
 .lotro-item-link.lotro-legendary { color: #ff9800; }
 .lotro-item-link.lotro-legendary:hover { color: #ffb74d; }
-.lotro-item-link.lotro-incomparable { color: #e040fb; }
-.lotro-item-link.lotro-incomparable:hover { color: #ea80fc; }
-.lotro-item-link.lotro-rare { color: #3ea8e6; }
-.lotro-item-link.lotro-rare:hover { color: #64b5f6; }
+.lotro-item-link.lotro-incomparable { color: #3ea8e6; }
+.lotro-item-link.lotro-incomparable:hover { color: #64b5f6; }
+.lotro-item-link.lotro-rare { color: #e040fb; }
+.lotro-item-link.lotro-rare:hover { color: #ea80fc; }
 
 .item-quality-badge {
   display: inline-block;
@@ -712,8 +712,8 @@ h1, h2, h3 {
 }
 /* Quality accent border at top */
 #item-modal[data-quality="legendary"] .item-modal-content { border-top: 3px solid #ff9800; }
-#item-modal[data-quality="incomparable"] .item-modal-content { border-top: 3px solid #e040fb; }
-#item-modal[data-quality="rare"] .item-modal-content { border-top: 3px solid #3ea8e6; }
+#item-modal[data-quality="incomparable"] .item-modal-content { border-top: 3px solid #3ea8e6; }
+#item-modal[data-quality="rare"] .item-modal-content { border-top: 3px solid #e040fb; }
 #item-modal[data-quality="uncommon"] .item-modal-content { border-top: 3px solid #f5e642; }
 #item-modal[data-quality="common"] .item-modal-content { border-top: 3px solid #999; }
 

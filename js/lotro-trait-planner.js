@@ -110,6 +110,8 @@
   var currentBuildKey = null;
   var currentLevel = DEFAULT_LEVEL;  // Character level for trait point calculation
   var currentSpecialization = null;  // Tree id (blue/red/yellow) chosen as specialization
+  var currentContainer = null;
+  var currentCdnBase = '';
   var classDataCache = {};  // Cache loaded class JSON to avoid re-fetching
 
   /* ── Compact build URL encoding ──────────────────────────────────────── */
@@ -552,6 +554,31 @@
     if (!currentBuild) return;
     currentBuild.points = {};
     updatePlannerDisplay();
+  }
+
+  /**
+   * Set specialization programmatically.
+   * preservePoints=true keeps allocated points (used when restoring saved builds).
+   */
+  function setSpecialization(specId, preservePoints) {
+    if (!currentData || !currentBuild || !specId) return false;
+    if (isAuxiliaryTree(specId)) return false;
+    var treeExists = currentData.trees && currentData.trees.some(function (t) { return t.id === specId; });
+    if (!treeExists) return false;
+
+    currentBuild.specialization = specId;
+    currentSpecialization = specId;
+
+    if (!preservePoints) {
+      currentBuild.points = {};
+    }
+
+    if (currentContainer) {
+      renderPlanner(currentContainer, currentData, currentBuildKey, currentCdnBase);
+    } else {
+      updatePlannerDisplay();
+    }
+    return true;
   }
 
   /* ── Render a single trait tree panel ─────────────────────────────────── */
@@ -1631,6 +1658,8 @@
     currentLevel = build.level || DEFAULT_LEVEL;
     
     // Set global state FIRST before rendering
+    currentContainer = container;
+    currentCdnBase = cdnBase;
     currentData = data;
     currentBuild = build;
     currentBuildKey = buildKey;
@@ -1995,6 +2024,9 @@
     getCurrentClass: function() { return currentData ? currentData.class : null; },
     getCurrentLevel: function() { return currentLevel; },
     getSpecialization: function() { return currentSpecialization; },
+    setSpecialization: function(specId, preservePoints) {
+      return setSpecialization(specId, !!preservePoints);
+    },
     getBuildName: function() {
       var input = document.querySelector('.ltp-build-name');
       return input ? input.value.trim() : '';
