@@ -763,8 +763,8 @@ h1, h2, h3 {
 /* Quality colors on the name */
 .tt-name.lotro-common { color: #f0f0f0; }
 .tt-name.lotro-uncommon { color: #f5e642; }
-.tt-name.lotro-rare { color: #3ea8e6; }
-.tt-name.lotro-incomparable { color: #e040fb; }
+.tt-name.lotro-rare { color: #e040fb; }
+.tt-name.lotro-incomparable { color: #3ea8e6; }
 .tt-name.lotro-legendary { color: #ff9800; }
 
 /* Meta lines: binding, item level, slot */
