@@ -16,7 +16,7 @@
     "dev": "node scripts/dev-stack.js",
     "prebuild": "node scripts/vendor-giseldah-calcstat.js && node scripts/download-cdn-data.js && node scripts/link-public-assets.js",
     "build": "npm run build --prefix cms && npm run build --prefix web",
-    "heroku-postbuild": "node scripts/scrape-news.js || true && npm run build",
+    "heroku-postbuild": "npm ci --prefix cms && npm ci --prefix web",
     "update:news": "node scripts/scrape-news.js",
     "update:loot": "node scripts/import-lotro-companion-loot.js && node scripts/import-loot.js",
     "update:skills": "node scripts/enrich-instance-skills.js",

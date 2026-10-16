@@ -16,7 +16,9 @@ for (const name of ["css", "js", "plugins", "img", "data"]) {
     const stat = fs.lstatSync(link);
     if (stat.isSymbolicLink()) continue;
   } catch {
-    fs.symlinkSync(path.resolve(target), link, "junction");
+    const type = process.platform === "win32" ? "junction" : undefined;
+    const dest = process.platform === "win32" ? path.resolve(target) : path.relative(path.dirname(link), target);
+    fs.symlinkSync(dest, link, type);
     console.log(`linked web/public/${name}`);
   }
 }
