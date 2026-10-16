@@ -25,7 +25,7 @@ export function DatabasePage({ id }: { id: DatabaseId }) {
   const page = DATABASES[id];
   const file = path.join(repoRoot(), "templates", page.template);
   const raw = fs.readFileSync(file, "utf8");
-  const vars = id === "skills" ? { ...page.vars, ...skillsTemplateVars() } : { ...page.vars };
+  const vars: Record<string, string> = id === "skills" ? { ...page.vars, ...skillsTemplateVars() } : { ...page.vars };
   if (id === "items") {
     try {
       const manifest = JSON.parse(
