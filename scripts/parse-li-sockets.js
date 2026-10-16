@@ -1,5 +1,9 @@
-const fs = require('fs');
-const data = fs.readFileSync('C:/Users/me/Downloads/lotro-data-master/lotro-data-master/lore/legendaryAttributes.xml', 'utf8');
+const fs   = require('fs');
+const path = require('path');
+const LORE_DIR = process.env.LOTRO_DATA_PATH
+  ? path.join(process.env.LOTRO_DATA_PATH, 'lore')
+  : path.join(__dirname, '..', '.tmp', 'lotro-data', 'lore');
+const data = fs.readFileSync(path.join(LORE_DIR, 'legendaryAttributes.xml'), 'utf8');
 const items = data.match(/<socketsSetup[^>]*>[\s\S]*?<\/socketsSetup>/g);
 console.log('Total LI socket setups:', items.length);
 

@@ -13,13 +13,22 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
-const COMPANION_ROOT = process.env.LOTRO_COMPANION_PATH ||
-  'C:/Users/me/OneDrive/Documents/The Lord of the Rings Online/LotRO Companion/app';
+// LOTRO_DATA_PATH: root of a LotroCompanion/lotro-data clone (lore XML files).
+//   Run `node scripts/download-lotro-data.js` to populate .tmp/lotro-data.
+// LOTRO_MAPS_PATH: root of a LotroCompanion/lotro-maps-db clone (markers, links.xml).
+//   Run `node scripts/sync-maps.js` to clone/update lotro-maps-db.
+const LOTRO_DATA_ROOT = process.env.LOTRO_DATA_PATH ||
+  path.join(__dirname, '..', '.tmp', 'lotro-data');
+const LOTRO_MAPS_ROOT = process.env.LOTRO_MAPS_PATH ||
+  path.resolve(__dirname, '..', '..', 'lotro-maps-db');
 const BASEMAPS_DIR = process.env.LOTRO_BASEMAPS_PATH ||
-  path.resolve(__dirname, '..', '..', 'lotro-maps-db', 'maps');
-const MAPS_DIR = path.join(COMPANION_ROOT, 'data', 'lore', 'maps');
-const LORE_DIR = path.join(COMPANION_ROOT, 'data', 'lore');
-const LIB_DIR = path.join(COMPANION_ROOT, 'lib');
+  path.join(LOTRO_MAPS_ROOT, 'maps');
+// MAPS_DIR: root of lotro-maps-db (contains links.xml, markers/, categories/).
+// maps.xml and categories.xml are only in the LotRO Companion app, not on GitHub;
+// the script will warn gracefully if they are absent.
+const MAPS_DIR = LOTRO_MAPS_ROOT;
+const LORE_DIR = path.join(LOTRO_DATA_ROOT, 'lore');
+const LIB_DIR  = path.join(LOTRO_DATA_ROOT, 'lib');
 const OUT_DIR = path.join(__dirname, '..', 'data', 'lore');
 const IMG_OUT = path.join(__dirname, '..', 'img', 'maps', 'categories');
 const AREA_ICONS_OUT = path.join(__dirname, '..', 'img', 'maps', 'areas');
@@ -495,8 +504,9 @@ Write-Output $count
 
 // ─── Main ───────────────────────────────────────────────────────────────────
 function main() {
-  console.log('🗺  Extracting LotRO Companion map data...');
-  console.log(`   Source: ${MAPS_DIR}`);
+  console.log('🗺  Extracting LotRO map data...');
+  console.log(`   Lore:   ${LORE_DIR}`);
+  console.log(`   Maps:   ${MAPS_DIR}`);
   ensureDir(OUT_DIR);
 
   const maps = extractMaps();

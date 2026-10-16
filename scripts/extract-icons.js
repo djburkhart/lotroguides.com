@@ -17,14 +17,12 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
-const COMPANION_BASE = process.env.LOTRO_COMPANION_PATH ||
-  path.join(
-    process.env.USERPROFILE || process.env.HOME,
-    'OneDrive', 'Documents', 'The Lord of the Rings Online',
-    'LotRO Companion', 'app'
-  );
-const LIB_DIR = path.join(COMPANION_BASE, 'lib');
-const LORE_DIR = path.join(COMPANION_BASE, 'data', 'lore');
+// LOTRO_DATA_PATH: root of a LotroCompanion/lotro-data clone.
+// Run `node scripts/download-lotro-data.js` to populate .tmp/lotro-data.
+const COMPANION_BASE = process.env.LOTRO_DATA_PATH ||
+  path.join(__dirname, '..', '.tmp', 'lotro-data');
+const LIB_DIR  = path.join(COMPANION_BASE, 'lib');
+const LORE_DIR = path.join(COMPANION_BASE, 'lore');
 const ICONS_OUT = path.join(__dirname, '..', 'img', 'icons');
 const DATA_OUT = path.join(__dirname, '..', 'data', 'lore');
 
@@ -234,7 +232,7 @@ function main() {
     console.log(`    Extracted ${emoteExtracted} new emote icons`);
   }
 
-  // 9. Write the icon map (itemId → iconId) for use by build.js
+  // 9. Write the icon map (itemId → iconId) used by the databases
   ensureDir(DATA_OUT);
   fs.writeFileSync(
     path.join(DATA_OUT, 'icon-map.json'),

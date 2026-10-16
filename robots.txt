@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /editor
-
-Sitemap: https://lotroguides.com/sitemap.xml

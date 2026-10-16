@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  // CDN base URL injected by build.js as window.LOTRO_CDN (empty when running locally)
+  // CDN base URL from window.LOTRO_CDN (empty when running locally)
   var _CDN = (window.LOTRO_CDN || '').replace(/\/$/, '');
   function cdnUrl(p) { return _CDN ? _CDN + '/' + p : './' + p; }
 

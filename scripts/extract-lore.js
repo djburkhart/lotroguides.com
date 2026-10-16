@@ -11,10 +11,11 @@ const fs = require('fs');
 const path = require('path');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
+// LOTRO_DATA_PATH should point to the root of a LotroCompanion/lotro-data clone.
+// Run `node scripts/download-lotro-data.js` to populate .tmp/lotro-data automatically.
 const LORE_DIR = path.join(
-  process.env.LOTRO_COMPANION_PATH ||
-  'C:/Users/me/OneDrive/Documents/The Lord of the Rings Online/LotRO Companion/app',
-  'data', 'lore'
+  process.env.LOTRO_DATA_PATH || path.join(__dirname, '..', '.tmp', 'lotro-data'),
+  'lore'
 );
 const OUT_DIR = path.join(__dirname, '..', 'data', 'lore');
 
@@ -788,7 +789,7 @@ function main() {
   fs.writeFileSync(path.join(OUT_DIR, 'sets.json'), JSON.stringify(sets, null, 2));
   fs.writeFileSync(path.join(OUT_DIR, 'deeds.json'), JSON.stringify(deeds, null, 2));
 
-  // Write the unified item index (used by build.js for auto-linking)
+  // Write the unified item index (patched later by import-lotro-data.js)
   fs.writeFileSync(path.join(OUT_DIR, 'item-index.json'), JSON.stringify(itemIndex));
 
   const indexSize = (Buffer.byteLength(JSON.stringify(itemIndex)) / 1024).toFixed(0);

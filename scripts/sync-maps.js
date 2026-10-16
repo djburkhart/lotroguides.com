@@ -168,18 +168,10 @@ function verifyMapData(repoDir) {
     }
   }
 
-  // Check links.xml matches between repo and Companion
+  // Check links.xml exists in the repo
   const repoLinksPath = path.join(repoDir, 'links.xml');
-  const companionRoot = process.env.LOTRO_COMPANION_PATH ||
-    'C:/Users/me/OneDrive/Documents/The Lord of the Rings Online/LotRO Companion/app';
-  const companionLinksPath = path.join(companionRoot, 'data', 'lore', 'maps', 'links.xml');
-
-  if (fs.existsSync(repoLinksPath) && fs.existsSync(companionLinksPath)) {
-    const repoLinks = fs.readFileSync(repoLinksPath, 'utf8');
-    const companionLinks = fs.readFileSync(companionLinksPath, 'utf8');
-    if (repoLinks !== companionLinks) {
-      issues.push('links.xml differs between repo and Companion — Companion may need updating');
-    }
+  if (!fs.existsSync(repoLinksPath)) {
+    issues.push('links.xml not found in lotro-maps-db repo');
   }
 
   return issues;

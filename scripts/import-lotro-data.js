@@ -2,9 +2,9 @@
 /**
  * import-lotro-data.js
  *
- * Imports lotro-data-master XML files and enriches the site's intermediate
- * JSON databases in data/lore/.  Run this after extract-lore.js / extract-quests.js
- * to patch in additional data those scripts miss.
+ * Imports LotroCompanion/lotro-data XML files and enriches the site's
+ * intermediate JSON databases in data/lore/.  Run this after extract-lore.js /
+ * extract-quests.js to patch in additional data those scripts miss.
  *
  * Enrichments (patch existing data):
  *   1. Mobs   — genus, species, subSpecies labels (fixes enum resolution bug)
@@ -25,8 +25,9 @@
  *  14. Barterers — NPC barter vendors, profiles, item-barterer index
  *  15. Landmarks — id-to-name lookup for deed/quest map enrichment
  *
- * Usage:  node scripts/import-lotro-data.js [path-to-lotro-data-master]
- * Env:    LOTRO_DATA_PATH  (alternative to CLI arg)
+ * Usage:  node scripts/import-lotro-data.js [path-to-lotro-data-root]
+ * Env:    LOTRO_DATA_PATH  root of a LotroCompanion/lotro-data clone
+ *         Run `node scripts/download-lotro-data.js` to auto-populate .tmp/lotro-data
  */
 'use strict';
 
@@ -34,9 +35,11 @@ const fs = require('fs');
 const path = require('path');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
+// SRC should be the root of a LotroCompanion/lotro-data clone.
+// Run `node scripts/download-lotro-data.js` to populate .tmp/lotro-data automatically.
 const SRC = process.argv[2]
   || process.env.LOTRO_DATA_PATH
-  || path.join('C:', 'Users', 'me', 'Downloads', 'lotro-data-master', 'lotro-data-master');
+  || path.join(__dirname, '..', '.tmp', 'lotro-data');
 
 const LORE = path.join(SRC, 'lore');
 const LABELS_EN = path.join(LORE, 'labels', 'en');
@@ -1324,7 +1327,7 @@ function importLandmarks() {
 // MAIN
 // ═════════════════════════════════════════════════════════════════════════════
 function main() {
-  console.log('📥 Importing lotro-data-master...');
+  console.log('📥 Importing lotro-data...');
   console.log(`   Source: ${SRC}`);
 
   if (!fs.existsSync(LORE)) {
@@ -1351,7 +1354,7 @@ function main() {
   importBarterers();
   importLandmarks();
 
-  console.log('\n✅ Import complete. Run `node build.js` to rebuild the site.');
+  console.log('\n✅ Import complete.');
 }
 
 main();

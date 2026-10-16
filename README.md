@@ -1,6 +1,6 @@
 # LOTRO Guides
 
-A fansite for **Lord of the Rings Online** — guides, news, databases, an interactive map, and a full-featured content editor, built with a Markdown-powered static site generator.
+A fansite for **Lord of the Rings Online** — guides, news, databases, and an interactive map. Editorial content is managed in **Strapi** and rendered by a **Next.js** app. Game databases stay as generated JSON and the existing browser tools.
 
 🌐 **Live site:** [lotroguides.com](https://lotroguides.com)
 
@@ -21,7 +21,7 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 
 ### Tools & Interactivity
 - **Skills & Trait Builder** — Interactive trait planner for all LOTRO classes with save, share, and embed functionality
-- **Content Editor** — ProseMirror-based Markdown editor with custom widget nodes (DPS, map, consumable tables, instance loot, quest/deed cards, trait planner), image upload, dirty tracking, and auto-draft
+- **Content Editor** — Strapi admin for guides, news, pages, videos, and homepage settings. Article Markdown keeps map and trait-planner shortcodes
 - **Discord Bot** — Slash commands (`/quest`, `/deed`, `/item`, `/map`, `/build`, `/statcaps`) with live autocomplete powered by DO Function APIs
 - **Comments** — Cusdis-powered comment widget on article and instance pages, gated behind reCAPTCHA Enterprise
 
@@ -34,7 +34,7 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v22 or later)
+- [Node.js](https://nodejs.org/) (v20 or later)
 
 ### Installation
 
@@ -42,35 +42,31 @@ A fansite for **Lord of the Rings Online** — guides, news, databases, an inter
 git clone https://github.com/your-username/lotroguides.com.git
 cd lotroguides.com
 npm install
+npm install --prefix cms
+npm install --prefix web
 ```
 
 ### Usage
 
-**Build the site:**
-
-```bash
-npm run build
-```
-
-**Build and start the dev server:**
+**Start Strapi and Next.js together:**
 
 ```bash
 npm run dev
 ```
 
-**Watch for changes and rebuild automatically:**
+- Site: http://localhost:3000
+- Strapi admin: http://localhost:1337/admin
+
+The first launch asks you to create a Strapi admin user, then imports guides, news, pages, videos, and site settings from `content/`. Set `STRAPI_RESEED=true` to import again.
+
+**Production:**
 
 ```bash
-npm run watch
-```
-
-**Start the static server:**
-
-```bash
+npm run build
 npm start
 ```
 
-The server starts on port `8080` by default (override with the `PORT` environment variable).
+`npm start` runs Strapi on port 1337 and Next.js on `PORT` (default 3000). Use Postgres in production by setting `DATABASE_CLIENT=postgres` and `DATABASE_URL` in `cms/.env`.
 
 **Update content from external sources:**
 
@@ -100,75 +96,28 @@ npm run deploy:functions cdn github   # deploy specific packages
 
 ## Deployment
 
-This site is configured for [DigitalOcean App Platform](https://docs.digitalocean.com/products/app-platform/) using the Node.js buildpack.
+`npm run build` builds the Strapi admin and the Next.js app. `npm start` runs both processes. Point the public HTTP port at Next.js. Strapi listens on 127.0.0.1:1337 for the Next.js server.
 
-1. Push the repo to GitHub.
-2. Create a new App on DigitalOcean App Platform and connect the repository.
-3. App Platform auto-detects Node.js, runs `npm run build`, then `npm start` to serve the site.
-
-The server supports clean URLs — requests for `/guides/crafting-guide` serve `guides/crafting-guide.html` automatically.
+Game-data JSON is still produced by the import scripts and downloaded during `prebuild`.
 
 ## Project Structure
 
 ```
-build.js              Static site generator and esbuild bundler
-serve.js              Static file server with clean URL routing and image upload API
-src/
-  editor.js           ProseMirror editor source (bundled to js/editor.bundle.js)
-templates/            HTML templates and partials (includes skills-content.html)
-content/
-  guides/             Guide articles (Markdown or JSON)
-  instances/          Instance articles and loot reference data
-  news/               News articles (Markdown or JSON)
-  media/              Media page content
-  navigation.json     Site navigation structure
-data/                 Pre-built JSON databases (items, instances, deeds, mobs, quests, sets, virtues)
-scripts/
-  scrape-news.js      LOTRO.com news scraper
-  sync-cdn.js         CDN sync to DigitalOcean Spaces
-  import-*.js         Data import scripts (loot, instances)
-  enrich-*.js         Data enrichment scripts
-  extract-*.js        Data extraction scripts (lore, icons, maps, quests)
-  fetch-*.js          External data fetchers (YouTube)
-css/                  Site stylesheets
-js/                   Client-side database scripts and editor bundle
-img/                  Images for guides, news, icons, and maps
-guides/               Built guide pages (HTML output)
-instances/            Built instance detail pages (HTML output)
-news/                 Built news pages (HTML output)
-packages/
-  cdn/                Serverless CDN upload function with versioning
-  cusdis/             Serverless Cusdis webhook function
-  deeds/              Serverless deed search/lookup function
-  discord/            Serverless Discord interactions endpoint (slash commands + autocomplete)
-  github/             Serverless GitHub OAuth + Device Flow function
-  quests/             Serverless quest search/lookup function (SSP + detail)
-  recaptcha/          Serverless reCAPTCHA Enterprise assessment function
-extension/            Chrome browser extension for LOTRO data export
-plugins/              Third-party libraries (Bootstrap, Font Awesome, etc.)
+cms/                  Strapi 5 content API (articles, pages, videos, site settings)
+web/                  Next.js App Router frontend
+content/              Markdown source imported into Strapi on first boot
+templates/            Database, map, bot, and trait-builder markup
+data/                 Generated game databases (items, quests, maps, instances)
+js/ css/ plugins/ img/  Client assets linked into web/public
+scripts/              Data imports, asset linking, and the Strapi + Next process runner
+packages/             Discord, quest, deed, and other serverless functions
 ```
 
 ## Writing Content
 
-Add Markdown files or JSON articles to `content/guides/`, `content/instances/`, or `content/news/`, then run `npm run build`. The build system converts them to HTML using the templates in `templates/`.
+Create and edit guides, news, pages, videos, and homepage settings in the Strapi admin at http://localhost:1337/admin. Article bodies stay in Markdown and can include the existing shortcodes (`{{map:...}}`, `{{traitPlanner:...}}`).
 
-JSON article format:
-
-```json
-{
-  "slug": "my-article",
-  "category": "guides",
-  "title": "My Article Title",
-  "date": "2026-04-02",
-  "author": "Author Name",
-  "tags": ["tag1", "tag2"],
-  "image": "https://cdn.example.com/image.jpg",
-  "excerpt": "A short description.",
-  "markdown": "# Article content in Markdown..."
-}
-```
-
-You can also use the built-in editor at `/editor` to create and edit articles with a live preview.
+The first boot copies `content/guides/` and `content/news/` into Strapi. After that, Strapi is the source the site reads. If Strapi is not running, Next.js renders those Markdown files directly.
 
 ## Changelog
 

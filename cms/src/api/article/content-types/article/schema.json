@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "articles",
+  "info": {
+    "singularName": "article",
+    "pluralName": "articles",
+    "displayName": "Article",
+    "description": "Guides and news posts. Body is Markdown and may include site shortcodes."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["guide", "news"],
+      "required": true
+    },
+    "excerpt": {
+      "type": "text"
+    },
+    "author": {
+      "type": "string"
+    },
+    "publishedOn": {
+      "type": "date"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "body": {
+      "type": "text"
+    },
+    "coverUrl": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    }
+  }
+}

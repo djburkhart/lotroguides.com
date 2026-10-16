@@ -82,7 +82,17 @@
     {
       "label": "Skills",
       "url": "skills.html",
-      "activeOn": ["skills"]
+      "activeOn": ["skills", "characters"],
+      "children": [
+        {
+          "label": "Trait Builder",
+          "url": "skills.html"
+        },
+        {
+          "label": "Character Log",
+          "url": "characters.html"
+        }
+      ]
     },
     {
       "label": "Discord Bot",
@@ -145,6 +155,10 @@
       {
         "label": "Discord Bot",
         "url": "bot.html"
+      },
+      {
+        "label": "Character Log",
+        "url": "characters.html"
       }
     ],
     "secondary": [

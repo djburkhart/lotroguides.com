@@ -13,10 +13,11 @@ const fs = require('fs');
 const path = require('path');
 
 // ─── Configuration ──────────────────────────────────────────────────────────
+// LOTRO_DATA_PATH should point to the root of a LotroCompanion/lotro-data clone.
+// Run `node scripts/download-lotro-data.js` to populate .tmp/lotro-data automatically.
 const LORE_DIR = path.join(
-  process.env.LOTRO_COMPANION_PATH ||
-  'C:/Users/me/OneDrive/Documents/The Lord of the Rings Online/LotRO Companion/app',
-  'data', 'lore'
+  process.env.LOTRO_DATA_PATH || path.join(__dirname, '..', '.tmp', 'lotro-data'),
+  'lore'
 );
 const OUT_DIR = path.join(__dirname, '..', 'data', 'lore');
 const LABELS_DIR = path.join(LORE_DIR, 'labels', 'en');

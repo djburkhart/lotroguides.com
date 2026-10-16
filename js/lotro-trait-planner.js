@@ -1718,6 +1718,10 @@
     if (levelSelect) {
       // Add common level options
       var levels = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145, 150, 155, 160];
+      if (currentLevel > 0 && levels.indexOf(currentLevel) === -1) {
+        levels.push(currentLevel);
+        levels.sort(function (a, b) { return a - b; });
+      }
       levels.forEach(function(level) {
         var option = document.createElement('option');
         option.value = level;

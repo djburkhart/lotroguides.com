@@ -1,0 +1,37 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_settings",
+  "info": {
+    "singularName": "site-setting",
+    "pluralName": "site-settings",
+    "displayName": "Site Settings",
+    "description": "Homepage hero, footer copy, feature cards, and navigation."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "siteName": {
+      "type": "string",
+      "default": "LOTRO Guides"
+    },
+    "description": {
+      "type": "text"
+    },
+    "heroTitle": {
+      "type": "string"
+    },
+    "heroSubtitle": {
+      "type": "text"
+    },
+    "footerAbout": {
+      "type": "text"
+    },
+    "flowCards": {
+      "type": "json"
+    },
+    "navigation": {
+      "type": "json"
+    }
+  }
+}

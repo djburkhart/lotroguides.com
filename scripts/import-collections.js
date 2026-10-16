@@ -14,8 +14,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const LORE = path.resolve(__dirname, '..', '..', '..', 'Users', 'me', 'Downloads',
-  'lotro-data-master', 'lotro-data-master', 'lore');
+const LORE = process.env.LOTRO_DATA_PATH
+  ? path.join(process.env.LOTRO_DATA_PATH, 'lore')
+  : path.join(__dirname, '..', '.tmp', 'lotro-data', 'lore');
 const OUT_COLLECTIONS = path.resolve(__dirname, '..', 'data', 'collections-db.json');
 const OUT_ITEMS       = path.resolve(__dirname, '..', 'data', 'collections-items-db.json');
 

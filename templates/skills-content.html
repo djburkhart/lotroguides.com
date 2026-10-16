@@ -15,6 +15,26 @@
   <div class="row">
     <div class="col-lg-12">
 
+      <div class="community-scorecard" id="playlogPanel">
+        <h3><i class="fa fa-user"></i> Your characters</h3>
+        <p class="scorecard-desc">Import a PlayLog snapshot to open the trait builder at that character's class and level, and to list the skills they have trained. The same characters appear in the <a href="/characters">Character Log</a>.</p>
+        <div id="playlogCharacterList" class="playlog-characters"></div>
+        <div class="playlog-actions">
+          <button type="button" class="quick-action-btn" onclick="openPlayLogImport()">
+            <i class="fa fa-upload"></i> Import PlayLog file
+          </button>
+        </div>
+        <p class="playlog-note" id="playlogNote" style="display:none;"></p>
+        <div id="playlogSkills" style="display:none;">
+          <div class="playlog-skill-head">
+            <h4 id="playlogSkillsTitle">Trained skills</h4>
+            <label class="playlog-untrained"><input type="checkbox" id="playlogUntrained" onchange="renderPlayLogSkills()"> Include untrained</label>
+          </div>
+          <input type="search" id="playlogSkillSearch" class="form-control" placeholder="Search skills" oninput="renderPlayLogSkills()">
+          <div id="playlogSkillList" class="playlog-skill-list"></div>
+        </div>
+      </div>
+
       <!-- Class Selector -->
       <div class="community-scorecard" id="communityScorecard">
         <h3><i class="fa fa-shield"></i> Choose Your Class</h3>
@@ -110,15 +130,48 @@
   </div>
 </div>
 
+<div class="modal fade" id="playlogImportModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h4 class="modal-title">Import PlayLog character</h4>
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>In LOTRO, type <strong>/playlog</strong> and click Snapshot. Choose <strong>PlayLogSnapshot.plugindata</strong> from Documents\The Lord of the Rings Online\PluginData\account\server\character, or paste the JSON from the plugin window. Check Skills before you snapshot. The server is that server folder name.</p>
+        <div class="form-group">
+          <label for="playlogServer">Server</label>
+          <input type="text" id="playlogServer" class="form-control" maxlength="40" placeholder="Server folder name">
+        </div>
+        <div class="form-group">
+          <label for="playlogFile">PlayLog file</label>
+          <input type="file" id="playlogFile" class="form-control" accept=".plugindata,.json,.txt,application/json" onchange="importPlayLogFile(this)">
+        </div>
+        <div class="form-group">
+          <label for="playlogJson">Snapshot</label>
+          <textarea id="playlogJson" class="form-control" rows="8" placeholder="Or paste PlayLogSnapshot.plugindata or the plugin JSON"></textarea>
+        </div>
+        <p id="playlogImportError" class="text-danger" style="display:none;"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="importPlayLogJson()">Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
 /* Skills Page Specific Styles */
-body.fixed-header {
-  background: url('{{assets}}/img/site-bg.webp') no-repeat center top fixed;
+body {
+  background: #111 url("https://www.lotro.com/images/global/site-bg.jpg?v=4284437080") no-repeat center top fixed;
   background-size: cover;
 }
 
 .skills-header {
-  background: linear-gradient(135deg, rgba(26,26,46,0.85) 0%, rgba(22,33,62,0.85) 100%), url('{{assets}}/img/site-bg.webp') center/cover no-repeat;
+  background: linear-gradient(135deg, rgba(26,26,46,0.55) 0%, rgba(22,33,62,0.4) 100%);
   color: var(--lotro-gold);
   padding: 2rem 0;
   margin-bottom: 2rem;
@@ -545,6 +598,63 @@ body.fixed-header {
   cursor: not-allowed;
 }
 
+.playlog-characters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.playlog-character {
+  background: rgba(26,26,46,0.6);
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: var(--lotro-parchment);
+  padding: 8px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.playlog-character strong { display: block; color: var(--lotro-gold); }
+.playlog-character.active { border-color: var(--lotro-gold); }
+.playlog-actions { margin-bottom: 8px; }
+.playlog-note { color: #d9d0bc; font-size: 13px; }
+.playlog-skill-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+}
+.playlog-skill-head h4 { color: var(--lotro-gold); margin: 0; }
+.playlog-untrained {
+  color: #f5f0e1;
+  font-weight: 400;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.playlog-skill-list {
+  max-height: 320px;
+  overflow: auto;
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.playlog-skill {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid #3a3a4a;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #f5f0e1;
+}
+.playlog-skill img { width: 28px; height: 28px; border-radius: 3px; }
+.playlog-skill small { display: block; color: #aaa; }
+
 @media (max-width: 767px) {
   .class-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -559,6 +669,7 @@ body.fixed-header {
 </style>
 
 <script src="{{assets}}/js/lotro-trait-planner.js"></script>
+<script src="{{assets}}/js/playlog.js"></script>
 <script>
 // Skills Page JavaScript
 var currentBuildData = null;
@@ -1219,22 +1330,26 @@ function renderScorecard() {
 }
 
 // ── Class selection ───────────────────────────────────────────────────────
-function selectClass(classKey) {
+function selectClass(classKey, level, scroll) {
+  if (scroll !== false) playlogAppliedId = null;
   currentClass = classKey;
   currentBuild = 'endgame';
-  currentLevel = 160;
+  currentLevel = typeof level === 'number' && level > 0 ? Math.floor(level) : 160;
   currentBuildData = null;
   currentLoadedBuildId = null;
   buildsCurrentPage = 1;
-  showPlanner();
+  showPlanner(scroll);
 
   // Fetch community builds if not already loaded
   if (!communityLoaded[classKey]) {
     fetchCommunityBuilds(classKey, function() { renderBuilds(); });
   }
+  renderPlayLogCharacters();
+  renderPlayLogSkills();
+  renderPlayLogNote();
 }
 
-function showPlanner() {
+function showPlanner(scroll) {
   document.getElementById('communityScorecard').style.display = 'none';
   document.getElementById('shareControls').style.display = '';
   document.getElementById('skillBuilderContainer').style.display = '';
@@ -1252,7 +1367,9 @@ function showPlanner() {
 
   renderBuilds();
   updateShareControls();
-  document.getElementById('shareControls').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (scroll !== false) {
+    document.getElementById('shareControls').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function showScorecard() {
@@ -1261,6 +1378,7 @@ function showScorecard() {
   document.getElementById('skillBuilderContainer').style.display = 'none';
   document.getElementById('sharedBuildsSection').style.display = 'none';
   renderScorecard();
+  renderPlayLogNote();
   document.getElementById('communityScorecard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1326,12 +1444,189 @@ function syncVoteButton() {
   });
 }
 
+// ── PlayLog characters ────────────────────────────────────────────────────
+var playlogAppliedId = null;
+
+function playlogById(id) {
+  if (!id || !window.LotroPlayLog) return null;
+  var store = window.LotroPlayLog.load();
+  for (var i = 0; i < store.characters.length; i++) {
+    if (store.characters[i].id === id) return store.characters[i];
+  }
+  return null;
+}
+
+function renderPlayLogCharacters() {
+  var list = document.getElementById('playlogCharacterList');
+  if (!list || !window.LotroPlayLog) return;
+  var store = window.LotroPlayLog.load();
+  if (!store.characters.length) {
+    list.innerHTML = '<p class="scorecard-desc" style="margin:0;">No imported characters yet.</p>';
+    return;
+  }
+  list.innerHTML = store.characters.map(function (entry) {
+    var character = entry.snapshot.character;
+    var bits = [];
+    if (character.level) bits.push('Lv ' + character.level);
+    var className = window.LotroPlayLog.label(character.class);
+    if (className) bits.push(className);
+    if (entry.server) bits.push(entry.server);
+    var active = entry.id === playlogAppliedId ? ' active' : '';
+    return '<button type="button" class="playlog-character' + active + '" data-id="' + window.LotroPlayLog.escapeHtml(entry.id) + '">' +
+      '<strong>' + window.LotroPlayLog.escapeHtml(character.name) + '</strong>' +
+      '<span>' + window.LotroPlayLog.escapeHtml(bits.join(' · ')) + '</span></button>';
+  }).join('');
+}
+
+function renderPlayLogSkills() {
+  var box = document.getElementById('playlogSkills');
+  var list = document.getElementById('playlogSkillList');
+  var entry = playlogById(playlogAppliedId);
+  if (!box || !list) return;
+  if (!entry) {
+    box.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+  box.style.display = '';
+  var title = document.getElementById('playlogSkillsTitle');
+  if (!entry.snapshot.skills) {
+    title.textContent = 'Skills';
+    list.innerHTML = '<p class="scorecard-desc">Skills were not included. Check Skills in PlayLog and snapshot again.</p>';
+    return;
+  }
+  var includeUntrained = document.getElementById('playlogUntrained').checked;
+  var skills = (entry.snapshot.skills.trained || []).slice();
+  if (includeUntrained) skills = skills.concat(entry.snapshot.skills.untrained || []);
+  var query = (document.getElementById('playlogSkillSearch').value || '').toLowerCase();
+  var matched = skills.filter(function (skill) {
+    return !query || String(skill.name || '').toLowerCase().indexOf(query) !== -1;
+  });
+  title.textContent = matched.length + (includeUntrained ? ' skills' : ' trained skills');
+  var shown = matched.slice(0, 300);
+  list.innerHTML = shown.map(function (skill) {
+    var icon = '';
+    if (typeof skill.iconImageId === 'number') {
+      var src = window.LotroPlayLog.iconSources(skill.iconImageId, 'skill')[0];
+      icon = '<img src="' + window.LotroPlayLog.escapeHtml(src) + '" alt="" onerror="this.style.display=\'none\'">';
+    }
+    var meta = skill.trained === false ? 'Untrained' : (skill.type || 'Trained');
+    return '<div class="playlog-skill">' + icon + '<span><strong>' + window.LotroPlayLog.escapeHtml(skill.name) +
+      '</strong><small>' + window.LotroPlayLog.escapeHtml(meta) + '</small></span></div>';
+  }).join('') || '<p class="scorecard-desc">No skills match.</p>';
+  if (matched.length > shown.length) {
+    list.innerHTML += '<p class="scorecard-desc">Showing 300 of ' + matched.length + '. Search to narrow the list.</p>';
+  }
+}
+
+function renderPlayLogNote() {
+  var note = document.getElementById('playlogNote');
+  var entry = playlogById(playlogAppliedId);
+  if (!note) return;
+  if (!entry) {
+    note.style.display = 'none';
+    note.textContent = '';
+    return;
+  }
+  var key = window.LotroPlayLog.classKey(entry.snapshot.character);
+  var builderOpen = document.getElementById('skillBuilderContainer').style.display !== 'none';
+  if (!key || !CLASS_META[key]) {
+    note.style.display = '';
+    note.textContent = entry.snapshot.character.name + ' is a ' +
+      (window.LotroPlayLog.label(entry.snapshot.character.class) || 'class') +
+      ' and has no trait builder on this page. Trained skills are listed below.';
+    return;
+  }
+  if (!builderOpen) {
+    note.style.display = 'none';
+    return;
+  }
+  note.style.display = '';
+  note.textContent = 'Trait builder is set to ' + entry.snapshot.character.name + ', level ' +
+    (entry.snapshot.character.level || '?') +
+    '. PlayLog does not include trait points, so choose those in the builder.';
+}
+
+function selectPlayLogCharacter(id) {
+  var entry = playlogById(id);
+  if (!entry) return false;
+  playlogAppliedId = id;
+  var key = window.LotroPlayLog.classKey(entry.snapshot.character);
+  if (key && CLASS_META[key]) {
+    selectClass(key, entry.snapshot.character.level || 160, false);
+  } else {
+    renderPlayLogCharacters();
+    renderPlayLogSkills();
+    renderPlayLogNote();
+  }
+  var url = new URL(window.location.href);
+  url.searchParams.set('character', id);
+  window.history.replaceState(null, '', url);
+  return true;
+}
+
+function openPlayLogImport() {
+  var error = document.getElementById('playlogImportError');
+  error.style.display = 'none';
+  error.textContent = '';
+  $('#playlogImportModal').modal('show');
+}
+
+function importPlayLogFile(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  input.value = '';
+  file.text().then(function (contents) {
+    document.getElementById('playlogJson').value = contents;
+    importPlayLogJson();
+  }).catch(function () {
+    var error = document.getElementById('playlogImportError');
+    error.style.display = '';
+    error.textContent = 'Could not read that file.';
+  });
+}
+
+function importPlayLogJson() {
+  var error = document.getElementById('playlogImportError');
+  try {
+    if (!window.LotroPlayLog) throw new Error('Character import is still loading. Refresh the page and try again.');
+    var snapshot = window.LotroPlayLog.parse(document.getElementById('playlogJson').value);
+    var result = window.LotroPlayLog.upsert(snapshot, document.getElementById('playlogServer').value);
+    document.getElementById('playlogJson').value = '';
+    $('#playlogImportModal').modal('hide');
+    selectPlayLogCharacter(result.character.id);
+  } catch (err) {
+    error.style.display = '';
+    error.textContent = err && err.message ? err.message : 'Import failed.';
+  }
+}
+
+function bindPlayLogList() {
+  var list = document.getElementById('playlogCharacterList');
+  if (!list || list.getAttribute('data-bound')) return;
+  list.setAttribute('data-bound', '1');
+  list.addEventListener('click', function (event) {
+    var button = event.target.closest ? event.target.closest('.playlog-character') : null;
+    if (!button) return;
+    selectPlayLogCharacter(button.getAttribute('data-id'));
+  });
+}
+
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
   // Fetch community stats from CDN on page load
   fetchCommunityStats();
+  bindPlayLogList();
+  if (!window.LotroPlayLog) {
+    document.getElementById('playlogCharacterList').innerHTML = '<p class="scorecard-desc" style="margin:0;">Character import did not load. Refresh the page and try again.</p>';
+  } else {
+    renderPlayLogCharacters();
+  }
 
-  if (urlProcessResult) {
+  var importedCharacter = new URLSearchParams(window.location.search).get('character');
+  if (importedCharacter && selectPlayLogCharacter(importedCharacter)) {
+    /* The character import opens the matching class builder. */
+  } else if (urlProcessResult) {
     showPlanner();
     // Fetch community builds for the current class
     fetchCommunityBuilds(currentClass, function() { renderBuilds(); });

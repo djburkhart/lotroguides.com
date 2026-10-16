@@ -7,7 +7,8 @@
  * Usage:
  *   node scripts/import-trait-trees.js [path-to-lotro-data-lore]
  *
- * Default path: C:\Users\me\Downloads\lotro-data-master\lotro-data-master\lore
+ * Default: .tmp/lotro-data/lore  (populated by download-lotro-data.js)
+ * Env:     LOTRO_DATA_PATH  root of a LotroCompanion/lotro-data clone
  */
 
 'use strict';
@@ -15,7 +16,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const LORE_DIR = process.argv[2] || 'C:\\Users\\me\\Downloads\\lotro-data-master\\lotro-data-master\\lore';
+const LORE_DIR = process.argv[2] || (
+  process.env.LOTRO_DATA_PATH
+    ? path.join(process.env.LOTRO_DATA_PATH, 'lore')
+    : path.join(__dirname, '..', '.tmp', 'lotro-data', 'lore')
+);
 const BUILDS_DIR = path.join(__dirname, '..', 'data', 'builds');
 
 /* ── XML helpers (minimal, no deps) ──────────────────────────────────── */

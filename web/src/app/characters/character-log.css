@@ -1,0 +1,452 @@
+.clog {
+  background: #1a1a2e;
+  color: #f5f0e1;
+  border: 1px solid #3d3424;
+  border-radius: 10px;
+  padding: 28px 24px 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.clog h1,
+.clog h2,
+.clog h3 {
+  font-family: "Cinzel", serif;
+  color: var(--lotro-gold, #c9a84c);
+  margin-top: 0;
+}
+
+.clog h1 {
+  font-size: 32px;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.clog-lead {
+  color: #d9d0bc;
+  max-width: 70ch;
+  margin-bottom: 18px;
+}
+
+.clog a {
+  color: #e5d49a;
+}
+
+.clog-steps {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  color: #d9d0bc;
+}
+
+.clog-steps li + li {
+  margin-top: 4px;
+}
+
+.clog-import,
+.clog-sheet,
+.clog-list button,
+.clog-panel {
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid #444;
+  border-radius: 8px;
+}
+
+.clog-import,
+.clog-panel {
+  padding: 16px;
+}
+
+.clog-import {
+  margin-bottom: 18px;
+}
+
+.clog-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.clog label {
+  display: block;
+  font-family: "Cinzel", serif;
+  font-size: 13px;
+  color: var(--lotro-gold, #c9a84c);
+  margin-bottom: 4px;
+}
+
+.clog input[type="text"],
+.clog input[type="search"],
+.clog input[type="file"],
+.clog select,
+.clog textarea {
+  width: 100%;
+  background: #12121f;
+  color: #f5f0e1;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.clog textarea {
+  min-height: 140px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.clog input:focus,
+.clog select:focus,
+.clog textarea:focus {
+  outline: none;
+  border-color: var(--lotro-gold, #c9a84c);
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+
+.clog-field {
+  flex: 1 1 180px;
+}
+
+.clog-field-grow {
+  flex: 2 1 280px;
+}
+
+.clog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.clog-btn,
+.clog-btn-quiet {
+  border-radius: 20px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clog-btn {
+  background: var(--lotro-gold, #c9a84c);
+  color: #1a1a2e;
+  border: 1px solid #a8873a;
+  font-weight: 600;
+}
+
+.clog-btn:hover {
+  background: #e5d49a;
+}
+
+.clog-btn-quiet {
+  background: transparent;
+  color: #f5f0e1;
+  border: 1px solid #666;
+}
+
+.clog-btn-quiet:hover,
+.clog-tab[aria-selected="true"],
+.clog-list button[aria-current="true"] {
+  border-color: var(--lotro-gold, #c9a84c);
+  color: var(--lotro-gold, #c9a84c);
+}
+
+.clog-status {
+  margin: 12px 0 0;
+}
+
+.clog-status-error {
+  color: #ffb4a8;
+}
+
+.clog-status-ok {
+  color: #b7e4c7;
+}
+
+.clog-layout {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.clog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.clog-list button {
+  text-align: left;
+  padding: 10px 12px;
+  color: #f5f0e1;
+  cursor: pointer;
+}
+
+.clog-list button strong {
+  display: block;
+  font-family: "Cinzel", serif;
+}
+
+.clog-list button span,
+.clog-muted {
+  color: #b7ad98;
+  font-size: 13px;
+}
+
+.clog-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.clog-header h2 {
+  margin-bottom: 4px;
+}
+
+.clog-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.clog-tab {
+  background: transparent;
+  color: #f5f0e1;
+  border: 1px solid #555;
+  border-radius: 16px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.clog-stats,
+.clog-equip,
+.clog-items,
+.clog-skills,
+.clog-wallet {
+  display: grid;
+  gap: 10px;
+}
+
+.clog-stats {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.clog-stat-card,
+.clog-item,
+.clog-skill,
+.clog-wallet article,
+.clog-profession {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #3a3a4a;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.clog-stat-card h3,
+.clog-profession h3 {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.clog-stat-card dl,
+.clog-kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.clog-stat-card dt,
+.clog-kv dt {
+  color: #b7ad98;
+  font-weight: 400;
+}
+
+.clog-stat-card dd,
+.clog-kv dd {
+  margin: 0;
+  text-align: right;
+}
+
+.clog-bars {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.clog-bar {
+  background: #12121f;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 22px;
+  position: relative;
+  border: 1px solid #444;
+}
+
+.clog-bar > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6b2d2d, #c44536);
+}
+
+.clog-bar-power > span {
+  background: linear-gradient(90deg, #1d4e89, #4ea8de);
+}
+
+.clog-bar b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.clog-money {
+  display: inline-flex;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.clog-gold { color: #f5e642; }
+.clog-silver { color: #d7d7d7; }
+.clog-copper { color: #e0a060; }
+
+.clog-q-legendary { color: #ff9800; }
+.clog-q-rare { color: #e040fb; }
+.clog-q-incomparable { color: #3ea8e6; }
+.clog-q-uncommon { color: #f5e642; }
+.clog-q-common { color: #f0f0f0; }
+
+.clog-equip {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.clog-items,
+.clog-skills,
+.clog-wallet {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.clog-item,
+.clog-skill {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px;
+  text-align: left;
+  color: inherit;
+  width: 100%;
+  cursor: pointer;
+}
+
+.clog-skill {
+  cursor: default;
+}
+
+.clog-item strong,
+.clog-skill strong {
+  display: block;
+}
+
+.clog-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 3px;
+  background: #2a2418;
+  border: 1px solid #6a5a32;
+  object-fit: cover;
+}
+
+.clog-icon-empty {
+  display: block;
+}
+
+.clog-qty {
+  float: right;
+  color: #f5f0e1;
+  font-variant-numeric: tabular-nums;
+}
+
+.clog-desc {
+  grid-column: 1 / -1;
+  color: #d9d0bc;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.clog-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.clog-filters .clog-field {
+  flex: 1 1 140px;
+}
+
+.clog-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #d9d0bc;
+  font-family: inherit;
+  font-size: 14px;
+  margin: 22px 0 0;
+}
+
+.clog-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.clog-profession + .clog-profession {
+  margin-top: 10px;
+}
+
+.clog-meter {
+  height: 8px;
+  background: #12121f;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 4px 0 8px;
+}
+
+.clog-meter span {
+  display: block;
+  height: 100%;
+  background: var(--lotro-gold, #c9a84c);
+}
+
+.clog-notes {
+  margin-top: 14px;
+  color: #b7ad98;
+  font-size: 13px;
+}
+
+.clog-empty {
+  padding: 28px 8px;
+  text-align: center;
+  color: #d9d0bc;
+}
+
+@media (max-width: 800px) {
+  .clog {
+    padding: 18px 14px 22px;
+  }
+
+  .clog h1 {
+    font-size: 26px;
+  }
+
+  .clog-layout {
+    grid-template-columns: 1fr;
+  }
+}
