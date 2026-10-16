@@ -27,6 +27,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const guides = articles.filter((article) => article.category === "guide").map(summary);
   const news = articles.filter((article) => article.category === "news").slice(0, 8).map(summary);
   const analyticsId = process.env.GOOGLE_ANALYTICS_ID || "";
+  const cdnUrl = (process.env.DO_CDN_URL || "").trim().replace(/\/$/, "");
+  const cdnScript = /^https:\/\/[A-Za-z0-9.-]+$/.test(cdnUrl)
+    ? `window.LOTRO_CDN=${JSON.stringify(cdnUrl)};`
+    : "";
 
   return (
     <html lang="en">
@@ -45,6 +49,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
         <link href="/css/theme.min.css" rel="stylesheet" />
         <link href="/css/lotro.css" rel="stylesheet" />
+        {cdnScript ? <script dangerouslySetInnerHTML={{ __html: cdnScript }} /> : null}
         <script
           dangerouslySetInnerHTML={{
             __html:

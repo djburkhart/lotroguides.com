@@ -38,6 +38,29 @@ const FILES = [
   // Collections (mounts & pets)
   'data/collections-db.json',
   'data/collections-items-db.json',
+  // Searchable databases. Item shards are added from the manifest below.
+  'data/items-db-manifest.json',
+  'data/mobs-db.json',
+  'data/mob-overlay.json',
+  'data/sets-db.json',
+  'data/virtues-db.json',
+  'data/deeds-db.json',
+  'data/deed-overlay-index.json',
+  'data/deed-index.json',
+  'data/icon-map.json',
+  'data/quest-overlay-index.json',
+  'data/quests-db.json',
+  'data/instances-db-listing.json',
+  'data/titles-db.json',
+  'data/factions-db.json',
+  'data/recipes-db.json',
+  'data/quest-poi.json',
+  'data/quest-overlay.json',
+  'data/quest-index.json',
+  'data/deed-overlay.json',
+  'data/map-quests.json',
+  'data/instance-videos.json',
+  'data/npcs.json',
 ];
 
 function download(url) {
@@ -130,7 +153,7 @@ async function main() {
   let downloaded = 0;
   let skipped = 0;
 
-  for (const file of FILES) {
+  async function downloadFile(file) {
     const localPath = path.join(root, file);
     const url = `${CDN_URL}/${file}`;
 
@@ -138,7 +161,7 @@ async function main() {
     if (fs.existsSync(localPath)) {
       console.log(`  ✓ ${file} (exists locally)`);
       skipped++;
-      continue;
+      return;
     }
 
     try {
@@ -150,7 +173,24 @@ async function main() {
       downloaded++;
     } catch (err) {
       console.error(`FAILED: ${err.message}`);
-      console.error(`  Build will continue without ${file} — instance pages may be skipped.`);
+      console.error(`  Build will continue without ${file}.`);
+    }
+  }
+
+  for (const file of FILES) {
+    await downloadFile(file);
+  }
+
+  const manifestPath = path.join(root, 'data', 'items-db-manifest.json');
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      const totalChunks = Number(manifest.totalChunks) || 0;
+      for (let i = 0; i < totalChunks; i++) {
+        await downloadFile(`data/items-db-${i}.json`);
+      }
+    } catch (err) {
+      console.error(`  ⚠ Could not read the items manifest: ${err.message}`);
     }
   }
 
