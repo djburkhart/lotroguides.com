@@ -333,6 +333,35 @@ h1, h2, h3 {
   background: var(--lotro-parchment-dark);
 }
 
+.instance-loot-chest {
+  margin: 0 0 16px;
+  border: 1px solid var(--lotro-parchment-dark);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.instance-loot-chest summary {
+  cursor: pointer;
+  padding: 12px 15px;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  color: var(--lotro-dark);
+}
+
+.instance-loot-chest summary span {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: #666;
+}
+
+.instance-loot-scroll {
+  overflow-x: auto;
+}
+
+.instance-loot-scroll table {
+  margin: 0;
+}
+
 /* Lists */
 .lotro-article ul,
 .lotro-article ol {

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 type Ability = { name?: string };
 type Mob = { name?: string; abilities?: Ability[] };
-type Chest = { name?: string; tier?: string | number; items?: { name?: string; n?: string }[] };
+type Chest = { name?: string; label?: string; tier?: string | number; items?: { name?: string; n?: string }[] };
 type Boss = { name?: string; chests?: Chest[] };
 type Instance = {
   slug: string;
@@ -135,7 +135,7 @@ export default async function InstancePage({ params }: { params: Promise<{ slug:
                   {(boss.chests || []).map((chest, index) => (
                     <div key={`${chest.name}-${index}`}>
                       <strong>
-                        {chest.name || "Chest"}
+                        {chest.label || chest.name || "Chest"}
                         {chest.tier ? ` — Tier ${chest.tier}` : ""}
                       </strong>
                       <ul>

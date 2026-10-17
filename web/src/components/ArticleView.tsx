@@ -8,7 +8,7 @@ export function ArticleView({ article, related }: { article: Article; related: A
   const sectionLabel = article.category === "guide" ? "Guides" : "News";
   const url = `${siteUrl()}/${section}/${article.slug}`;
   const encoded = encodeURIComponent(article.title);
-  const html = renderBody(article.body, "markdown");
+  const html = renderBody(article.body, "markdown", article.slug);
 
   return (
     <>

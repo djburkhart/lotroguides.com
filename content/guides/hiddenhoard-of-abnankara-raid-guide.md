@@ -14,7 +14,13 @@ A complete walkthrough of the 12-player Hiddenhoard of Abnankâra raid instance,
 
 ## Instance Overview
 
-| Detail | Value | |--------|-------| | **Group Size** | 12-Player Raid | | **Tiers** | 5 | | **Level** | 140 (Non-scaling) | | **Zones** | 3 (Ice Giants → Thrall-lord → Dragon) | | **Bosses** | 3 encounters (4 named bosses) |
+| Detail | Value|
+|--------|-------|
+| **Group Size** | 12-Player Raid|
+|**Tiers** | 5|
+|**Level** | 140 (Non-scaling)|
+|**Zones** | 3 (Ice Giants → Thrall-lord → Dragon)|
+|**Bosses** | 3 encounters (4 named bosses) |
 
 > **Instance Database:** Full mob and ability data is available on the [Hiddenhoard of Abnankâra instance page](../instances/the-hiddenhoard-of-abnank-ra).
 
@@ -73,7 +79,11 @@ Three Ice-giant bosses fought simultaneously. This is a coordination-heavy fight
 
 #### The Bosses
 
-| Boss | Role | Key Mechanic | |------|------|-------------| | **[Kvethár](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Ranged | Impaling Spear (80m range), applies bleeds | | **[Threkvegg](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Melee (heavy) | Fury (Distributed) — 90° arc AoE, Frost Heave — 20×5m box knockback, applies **Armour of Thyrstáth** | | **[Armód](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Melee | Sweeping Slash — 90° arc AoE, applies Rime via Frost Clap |
+| Boss | Role | Key Mechanic|
+|------|------|-------------|
+| **[Kvethár](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Ranged | Impaling Spear (80m range), applies bleeds|
+|**[Threkvegg](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Melee (heavy) | Fury (Distributed) — 90° arc AoE, Frost Heave — 20×5m box knockback, applies **Armour of Thyrstáth**|
+|**[Armód](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Melee | Sweeping Slash — 90° arc AoE, applies Rime via Frost Clap |
 
 #### Core Mechanics
 
@@ -97,7 +107,13 @@ Three Ice-giant bosses fought simultaneously. This is a coordination-heavy fight
 
 During the fight, add waves spawn periodically. These must be handled while maintaining the boss strategy:
 
-| Wave | Add Type | Notes | |------|----------|-------| | 1 | **[Cold-worm](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Low priority, kill when convenient | | 2 | **[Cold-drake](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | More dangerous, AoE breath attacks | | 3 | **[Ice-giant Warrior](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Off-tank picks up, kill quickly | | 4 | **[Ice-giant Seer](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Buff nearby mobs — prioritize | | 5 | **[Cold-whelpling](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | **Danger!** On death, drops a puddle dealing **5% max morale damage** and applies a **50% morale reduction debuff**. Kill them away from the group |
+| Wave | Add Type | Notes|
+|------|----------|-------|
+| 1 | **[Cold-worm](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Low priority, kill when convenient|
+|2 | **[Cold-drake](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | More dangerous, AoE breath attacks|
+|3 | **[Ice-giant Warrior](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Off-tank picks up, kill quickly|
+|4 | **[Ice-giant Seer](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | Buff nearby mobs — prioritize|
+|5 | **[Cold-whelpling](../mobs?instance=the-hiddenhoard-of-abnank-ra)** | **Danger!** On death, drops a puddle dealing **5% max morale damage** and applies a **50% morale reduction debuff**. Kill them away from the group |
 
 > **Warning:** Cold-whelplings are the most dangerous add wave. Position the group so whelplings die far from your tanks and healers. The puddle plus morale reduction will chain-kill players who are stacked.
 
@@ -169,7 +185,15 @@ A single-boss encounter with **morale-phase transitions** and devastating AoE me
 
 **Morale-Based Add Waves:** Dushtalbúk summons adds at specific morale thresholds. You must clear each wave before continuing DPS on the boss.
 
-| Morale % | Event | |----------|-------| | **90%** | **Wave 1** spawns | | **75%** | **"Flee your doom!"** — massive AoE | | **60%** | **Wave 2** spawns | | **50%** | **"Flee your doom!"** — massive AoE | | **30%** | **Wave 3** spawns | | **25%** | **"Flee your doom!"** — massive AoE | | **20%** | **Frozen Wrath** — boss gains +25% damage |
+| Morale % | Event|
+|----------|-------|
+| **90%** | **Wave 1** spawns|
+|**75%** | **"Flee your doom!"** — massive AoE|
+|**60%** | **Wave 2** spawns|
+|**50%** | **"Flee your doom!"** — massive AoE|
+|**30%** | **Wave 3** spawns|
+|**25%** | **"Flee your doom!"** — massive AoE|
+|**20%** | **Frozen Wrath** — boss gains +25% damage |
 
 **"Flee Your Doom!"** At 75%, 50%, and 25% morale, Dushtalbúk calls out **"Flee your doom!"** and charges a massive AoE attack. You must **hide behind the stone pillars on the stairs** of the arena. These pillars are the only safe cover — anyone caught in the open will be killed outright.
 
@@ -210,7 +234,13 @@ Each wave consists of mixed adds. The same kill-order principles from trash appl
 
 #### Phase Overview
 
-| Phase | Trigger | Location | |-------|---------|----------| | **Intro Phase** | Fight start (100%–86%) | Dragon's Lair | | **Dream Phase 1: Abyss** | 86% morale | Dream Realm | | **Dream Phase 2: Abyss → Ice** | After clearing Abyss | Dream Realm | | **Dream Phase 3: Ice** | After clearing Abyss → Ice | Dream Realm | | **Final Boss Phase** | Return from dreams | Dragon's Lair |
+| Phase | Trigger | Location|
+|-------|---------|----------|
+| **Intro Phase** | Fight start (100%–86%) | Dragon's Lair|
+|**Dream Phase 1: Abyss** | 86% morale | Dream Realm|
+|**Dream Phase 2: Abyss → Ice** | After clearing Abyss | Dream Realm|
+|**Dream Phase 3: Ice** | After clearing Abyss → Ice | Dream Realm|
+|**Final Boss Phase** | Return from dreams | Dragon's Lair |
 
 ---
 
@@ -296,7 +326,16 @@ You return to the Dragon's Lair. Hrímil is now at her most dangerous, with all 
 
 **Controlled DPS:** This phase requires **very controlled DPS**. Adds spawn at specific morale thresholds, and you must clear each wave before pushing the next threshold.
 
-| Hrímil Morale % | Event | |-----------------|-------| | **90%** | Add Wave 1 | | **80%** | Add Wave 2 | | **70%** | Add Wave 3 | | **60%** | Add Wave 4 | | **50%** | Add Wave 5 | | **40%** | Add Wave 6 | | **20%** | RP / Transition — stop DPS | | **5%** | Final phase — relocate to first room |
+| Hrímil Morale % | Event|
+|-----------------|-------|
+| **90%** | Add Wave 1|
+|**80%** | Add Wave 2|
+|**70%** | Add Wave 3|
+|**60%** | Add Wave 4|
+|**50%** | Add Wave 5|
+|**40%** | Add Wave 6|
+|**20%** | RP / Transition — stop DPS|
+|**5%** | Final phase — relocate to first room |
 
 **Add Waves:** Each wave spawns a mix of frost mobs (Cold-worms, Cold-drakes, Cold-whelplings, [Tamed Frost-bear](../mobs?instance=the-hiddenhoard-of-abnank-ra), [Echo of Winter](../mobs?instance=the-hiddenhoard-of-abnank-ra), and [Raven](../mobs?instance=the-hiddenhoard-of-abnank-ra)). Apply the same principles:
 
@@ -325,7 +364,14 @@ You return to the Dragon's Lair. Hrímil is now at her most dangerous, with all 
 
 ## Recommended Group Composition
 
-| Role | Classes | Notes | |------|---------|-------| | **Main Tank** | Guardian, Captain, Warden | Must hold Hrímil's aggro; Guardian excels at corruption removal on Boss 1 | | **Off-Tank** | Guardian, Captain, Beorning | Manages adds and Boss 1 secondary targets; kites adds during Boss 2 | | **Main Healer** | Minstrel, Beorning | Sustained group healing; critical during dream phases | | **Off-Healer** | Captain, Minstrel, Beorning | Backup healing + buffs; Captain rallying cry helps with add waves | | **DPS (×6–7)** | Hunter, Champion, Runekeeper, Burglar, Lore-master | Mix of ranged and melee; at least 2 ranged for Boss 1 (Kvethár) | | **Support** | Lore-master, Burglar | CC for trash, power management, debuffs on bosses |
+| Role | Classes | Notes|
+|------|---------|-------|
+| **Main Tank** | Guardian, Captain, Warden | Must hold Hrímil's aggro; Guardian excels at corruption removal on Boss 1|
+|**Off-Tank** | Guardian, Captain, Beorning | Manages adds and Boss 1 secondary targets; kites adds during Boss 2|
+|**Main Healer** | Minstrel, Beorning | Sustained group healing; critical during dream phases|
+|**Off-Healer** | Captain, Minstrel, Beorning | Backup healing + buffs; Captain rallying cry helps with add waves|
+|**DPS (×6–7)** | Hunter, Champion, Runekeeper, Burglar, Lore-master | Mix of ranged and melee; at least 2 ranged for Boss 1 (Kvethár)|
+|**Support** | Lore-master, Burglar | CC for trash, power management, debuffs on bosses |
 
 > **Note:** A Lore-master is highly recommended for CC duties during the dream phases and for managing add waves on all three bosses. A Burglar provides essential debuffs and can interrupt key inductions.
 
@@ -333,7 +379,17 @@ You return to the Dragon's Lair. Hrímil is now at her most dangerous, with all 
 
 The Hiddenhoard is level 140 content — use **Gundabad-tier** consumables for full effectiveness.
 
-| Consumable | Example | Purpose | |-----------|---------|---------| | Cooked Food (crit) | Luxurious Beetroot Sticks (Might) / Luxurious Bacon-wrapped Sprouts (Agility) / Luxurious Nut and Berry Bread (Will) | Primary stat food for your class | | Trail Food | Pot of Gundabad Honey and Oats | Frost and shadow mitigation — critical for Hrímil's frost attacks | | Battle Scroll | Scroll of Gundabad Battle Lore | Offensive mastery buff | | Warding Scroll | Scroll of Gundabad Warding Lore | Defensive mitigation buff | | Hope Token | Gundabad Edhelharn Token | Hope buff — counters dread in dream phases | | Athelas Essence | Gundabad Athelas Essence | Emergency morale recovery after whelpling puddles or Flee your doom | | Celebrant Essence | Gundabad Celebrant Essence | Power sustain during extended add-clearing phases | | Enhancement Rune | Enhancement Rune +4, Lvl 131 | Extra LI item levels for DPS checks on timed burn phases | | Shield-spikes | Gundabad Westernesse Shield-spike Kit | Tank reflective damage — frost damage type recommended |
+| Consumable | Example | Purpose|
+|-----------|---------|---------|
+| Cooked Food (crit) | Luxurious Beetroot Sticks (Might) / Luxurious Bacon-wrapped Sprouts (Agility) / Luxurious Nut and Berry Bread (Will) | Primary stat food for your class|
+|Trail Food | Pot of Gundabad Honey and Oats | Frost and shadow mitigation — critical for Hrímil's frost attacks|
+|Battle Scroll | Scroll of Gundabad Battle Lore | Offensive mastery buff|
+|Warding Scroll | Scroll of Gundabad Warding Lore | Defensive mitigation buff|
+|Hope Token | Gundabad Edhelharn Token | Hope buff — counters dread in dream phases|
+|Athelas Essence | Gundabad Athelas Essence | Emergency morale recovery after whelpling puddles or Flee your doom|
+|Celebrant Essence | Gundabad Celebrant Essence | Power sustain during extended add-clearing phases|
+|Enhancement Rune | Enhancement Rune +4, Lvl 131 | Extra LI item levels for DPS checks on timed burn phases|
+|Shield-spikes | Gundabad Westernesse Shield-spike Kit | Tank reflective damage — frost damage type recommended |
 
 > **Tip:** This is a long raid with three distinct zones. Bring at least 3 stacks of each consumable — wipes mean rebuffing. Coordinate a group feast before each boss pull.
 
