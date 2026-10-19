@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import fs from "fs";
 import path from "path";
 import { notFound } from "next/navigation";
+import { lookupLootItem, lootIconUrl, visibleChests, type LootBoss, type LootItem } from "@/lib/instance-loot";
 import { repoRoot } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 
 type Ability = { name?: string };
 type Mob = { name?: string; abilities?: Ability[] };
-type Chest = { name?: string; label?: string; tier?: string | number; items?: { name?: string; n?: string }[] };
-type Boss = { name?: string; chests?: Chest[] };
 type Instance = {
   slug: string;
   name: string;
@@ -21,7 +20,48 @@ type Instance = {
   mobCount?: number;
   mobs?: Mob[];
 };
-type LootFile = Record<string, { bosses?: Boss[] }>;
+type LootFile = Record<string, { bosses?: LootBoss[] }>;
+
+function itemName(item: LootItem) {
+  return item.name || item.n || "Item";
+}
+
+function LootIcon({ item }: { item: LootItem }) {
+  const name = itemName(item);
+  const known = lookupLootItem(name);
+  const quality = (known?.quality || "").toLowerCase();
+  const stats = (item.stats || []).filter((stat) => stat.stat && stat.value);
+  return (
+    <a className="loot-icon-wrap" href={`/items?q=${encodeURIComponent(name)}`} aria-label={name}>
+      {known?.icon ? (
+        <img src={lootIconUrl(known.icon)} alt="" width={40} height={40} loading="lazy" />
+      ) : (
+        <span className="loot-icon-fallback" aria-hidden="true">
+          <i className="fa fa-cube" />
+        </span>
+      )}
+      <span className={`loot-tip${quality ? ` loot-tip-${quality}` : ""}`}>
+        <span className={`tt-name${quality ? ` lotro-${quality}` : ""}`}>{name}</span>
+        {quality ? <span className="tt-line tt-binding">{quality}</span> : null}
+        {item.drop ? <span className="tt-line">Drop: {item.drop}</span> : null}
+        {item.slot ? (
+          <span className="tt-line tt-slot">{item.slot.charAt(0).toUpperCase() + item.slot.slice(1)}</span>
+        ) : null}
+        {item.level ? <span className="tt-line tt-ilvl">Item Level: {item.level}</span> : null}
+        {stats.length > 0 ? (
+          <span className="tt-stats">
+            {stats.map((stat) => (
+              <span className="tt-stat-row" key={`${stat.stat}-${stat.value}`}>
+                {Number(stat.value) > 0 ? "+" : ""}
+                {Number(stat.value).toLocaleString()} {stat.stat}
+              </span>
+            ))}
+          </span>
+        ) : null}
+      </span>
+    </a>
+  );
+}
 
 function loadInstances() {
   const file = path.join(repoRoot(), "data", "instances-db.json");
@@ -40,7 +80,7 @@ export default async function InstancePage({ params }: { params: Promise<{ slug:
   const instance = loadInstances().find((entry) => entry.slug === slug);
   if (!instance) notFound();
 
-  let bosses: Boss[] = [];
+  let bosses: LootBoss[] = [];
   const lootFile = path.join(repoRoot(), "data", "instance-loot.json");
   if (fs.existsSync(lootFile)) {
     try {
@@ -126,27 +166,28 @@ export default async function InstancePage({ params }: { params: Promise<{ slug:
             ))}
           </div>
 
-          {bosses.length > 0 && (
+          {bosses.some((boss) => visibleChests(boss).length > 0) && (
             <div id="loot">
               <h3>Loot</h3>
-              {bosses.map((boss) => (
-                <div key={boss.name} className="m-b-20">
-                  <h4>{boss.name}</h4>
-                  {(boss.chests || []).map((chest, index) => (
-                    <div key={`${chest.name}-${index}`}>
-                      <strong>
-                        {chest.label || chest.name || "Chest"}
-                        {chest.tier ? ` — Tier ${chest.tier}` : ""}
-                      </strong>
-                      <ul>
-                        {(chest.items || []).map((item, itemIndex) => (
-                          <li key={`${item.name || item.n}-${itemIndex}`}>{item.name || item.n}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              ))}
+              {bosses.map((boss) => {
+                const chests = visibleChests(boss);
+                if (!chests.length) return null;
+                return (
+                  <div key={boss.name} className="m-b-20">
+                    <h4>{boss.name}</h4>
+                    {chests.map((chest, index) => (
+                      <div key={`${chest.label || chest.name}-${index}`} className="instance-loot-chest-block">
+                        <strong>{chest.label || chest.name || "Chest"}</strong>
+                        <div className="instance-loot-grid">
+                          {(chest.items || []).map((item, itemIndex) => (
+                            <LootIcon item={item} key={`${itemName(item)}-${itemIndex}`} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
