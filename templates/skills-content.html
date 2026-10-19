@@ -17,7 +17,7 @@
 
       <div class="community-scorecard" id="playlogPanel">
         <h3><i class="fa fa-user"></i> Your characters</h3>
-        <p class="scorecard-desc">Import a PlayLog snapshot to open the trait builder at that character's class and level, and to list the skills they have trained. The same characters appear in the <a href="/characters">Character Log</a>.</p>
+        <p class="scorecard-desc">In LOTRO, <strong>/build save</strong> exports the character's traits and opens this builder with those cells filled. You can also import a PlayLog snapshot or paste a build code from lotro-cli. The same characters appear in the <a href="/characters">Character Log</a>.</p>
         <div id="playlogCharacterList" class="playlog-characters"></div>
         <div class="playlog-actions">
           <button type="button" class="quick-action-btn" onclick="openPlayLogImport()">
@@ -118,8 +118,8 @@
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label for="buildUrl">Build URL or Embed Code:</label>
-          <textarea id="buildUrl" class="form-control" rows="3" placeholder="Paste a shareable link or {{traitPlanner:...}} code here"></textarea>
+          <label for="buildUrl">Build URL, share code, or CLI output:</label>
+          <textarea id="buildUrl" class="form-control" rows="3" placeholder="Paste a skills link, a code such as hu.r.r115, or the text lotro-cli printed"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -140,7 +140,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>In LOTRO, type <strong>/playlog</strong> and click Snapshot. Choose <strong>PlayLogSnapshot.plugindata</strong> from Documents\The Lord of the Rings Online\PluginData\account\server\character, or paste the JSON from the plugin window. Check Skills before you snapshot. The server is that server folder name.</p>
+        <p>In LOTRO, type <strong>/build save</strong>. That writes <strong>PlayLogBuild.plugindata</strong> and opens this page with the trait cells the client reported. You can also import that file, or a <strong>PlayLogSnapshot.plugindata</strong> from <strong>/playlog</strong>. Trained skills that belong to the trait tree are filled in. The server is that server folder name.</p>
         <div class="form-group">
           <label for="playlogServer">Server</label>
           <input type="text" id="playlogServer" class="form-control" maxlength="40" placeholder="Server folder name">
@@ -668,6 +668,7 @@ body {
 }
 </style>
 
+<script src="{{assets}}/js/trait-signals.js"></script>
 <script src="{{assets}}/js/lotro-trait-planner.js"></script>
 <script src="{{assets}}/js/playlog.js"></script>
 <script>
@@ -1383,10 +1384,20 @@ function showScorecard() {
 }
 
 // Process URL parameters immediately before trait planner initializes
+function decodeShareCode(code) {
+  if (!code || !window.LOTRO_BUILD_CODEC) return null;
+  try {
+    return window.LOTRO_BUILD_CODEC.decode(code);
+  } catch (e) {
+    return null;
+  }
+}
+
 function processUrlParameters() {
   var urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('class') || urlParams.has('build') || urlParams.has('level') || urlParams.has('points')) {
-    var newClass = urlParams.get('class') || 'hunter';
+  var decoded = decodeShareCode(urlParams.get('b'));
+  if (urlParams.has('class') || urlParams.has('build') || urlParams.has('level') || urlParams.has('points') || decoded) {
+    var newClass = urlParams.get('class') || (decoded && decoded.class) || 'hunter';
     var newBuild = urlParams.get('build') || 'endgame';
     var newLevel = parseInt(urlParams.get('level')) || 160;
 
@@ -1401,7 +1412,13 @@ function processUrlParameters() {
       planner.setAttribute('data-level', newLevel.toString());
     }
 
-    return { urlParams: urlParams, pointsData: urlParams.get('points'), traceriesData: urlParams.get('traceries') };
+    return {
+      urlParams: urlParams,
+      pointsData: urlParams.get('points'),
+      traceriesData: urlParams.get('traceries'),
+      share: decoded,
+      name: urlParams.get('n') || ''
+    };
   }
   return null;
 }
@@ -1446,6 +1463,74 @@ function syncVoteButton() {
 
 // ── PlayLog characters ────────────────────────────────────────────────────
 var playlogAppliedId = null;
+var playlogTraitSummary = '';
+
+function whenPlannerReady(classKey, done) {
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries += 1;
+    var api = window.LOTRO_TRAIT_PLANNER_API;
+    if (api && api.getCurrentClass && api.getCurrentClass() === classKey) {
+      clearInterval(timer);
+      done(api);
+      return;
+    }
+    if (tries > 40) clearInterval(timer);
+  }, 200);
+}
+
+function fillPlanner(build) {
+  if (!build || !build.class) return;
+  whenPlannerReady(build.class, function (api) {
+    if (build.points) api.setPoints(build.points);
+    if (build.virtues && api.setVirtues) api.setVirtues(build.virtues);
+    if (build.traceries && api.setTraceries) api.setTraceries(build.traceries);
+    if (build.specialization && api.setSpecialization) api.setSpecialization(build.specialization, true);
+    if (build.name && api.setBuildName) api.setBuildName(build.name);
+  });
+}
+
+function applyPlannerBuild(build) {
+  if (!build || !build.class) return;
+  currentClass = build.class;
+  if (build.level) currentLevel = build.level;
+  showPlanner(false);
+  fillPlanner(build);
+}
+
+function traitsFromSnapshot(snapshot) {
+  if (!snapshot) return null;
+  if (snapshot.build && snapshot.build.points && window.LotroPlayLog) {
+    return {
+      class: window.LotroPlayLog.classKey(snapshot.character),
+      level: snapshot.character && snapshot.character.level,
+      name: snapshot.character && snapshot.character.name,
+      points: snapshot.build.points,
+      specialization: snapshot.build.spec || snapshot.build.specialization || null,
+      count: Object.keys(snapshot.build.points).length,
+      unranked: 0
+    };
+  }
+  if (!window.LOTRO_TRAIT_SIGNALS || !window.LotroPlayLog) return null;
+  var key = window.LotroPlayLog.classKey(snapshot.character);
+  var skills = (snapshot.skills && snapshot.skills.trained) || [];
+  var matched = window.LOTRO_TRAIT_SIGNALS.match(key, skills);
+  if (!matched || !matched.count) return null;
+  matched.level = snapshot.character && snapshot.character.level;
+  matched.name = snapshot.character && snapshot.character.name;
+  return matched;
+}
+
+function traitSummary(matched, name) {
+  var text = 'Filled ' + matched.count + ' trait' + (matched.count === 1 ? '' : 's');
+  if (name) text += ' from ' + name;
+  text += '.';
+  if (matched.unranked) {
+    text += ' ' + matched.unranked + ' had no rank from the client, so they are set to 1.';
+  }
+  text += ' Passive traits are not reported by the game, so those cells stay empty.';
+  return text;
+}
 
 function playlogById(id) {
   if (!id || !window.LotroPlayLog) return null;
@@ -1542,17 +1627,27 @@ function renderPlayLogNote() {
     return;
   }
   note.style.display = '';
+  if (playlogTraitSummary) {
+    note.textContent = playlogTraitSummary;
+    return;
+  }
   note.textContent = 'Trait builder is set to ' + entry.snapshot.character.name + ', level ' +
     (entry.snapshot.character.level || '?') +
-    '. PlayLog does not include trait points, so choose those in the builder.';
+    '. No trait skills were matched. Use /build save in game, or allocate the tree here.';
 }
 
 function selectPlayLogCharacter(id) {
   var entry = playlogById(id);
   if (!entry) return false;
   playlogAppliedId = id;
+  playlogTraitSummary = '';
   var key = window.LotroPlayLog.classKey(entry.snapshot.character);
-  if (key && CLASS_META[key]) {
+  var matched = key && traitsFromSnapshot(entry.snapshot);
+  if (matched && matched.class) {
+    playlogTraitSummary = traitSummary(matched, entry.snapshot.character.name);
+    selectClass(matched.class, entry.snapshot.character.level || matched.level || 160, false);
+    fillPlanner(matched);
+  } else if (key && CLASS_META[key]) {
     selectClass(key, entry.snapshot.character.level || 160, false);
   } else {
     renderPlayLogCharacters();
@@ -1586,11 +1681,46 @@ function importPlayLogFile(input) {
   });
 }
 
+function buildFromExport(exported) {
+  var build = {
+    class: exported.class,
+    level: exported.level,
+    specialization: exported.specialization,
+    points: exported.points,
+    virtues: exported.virtues,
+    traceries: exported.traceries,
+    name: exported.name
+  };
+  if ((!build.points || !Object.keys(build.points).length) && exported.code) {
+    var decoded = decodeShareCode(exported.code);
+    if (decoded) {
+      build.class = build.class || decoded.class;
+      build.points = decoded.points;
+      build.specialization = build.specialization || decoded.specialization;
+      build.virtues = build.virtues || decoded.virtues;
+      build.traceries = build.traceries || decoded.traceries;
+    }
+  }
+  return build;
+}
+
 function importPlayLogJson() {
   var error = document.getElementById('playlogImportError');
   try {
     if (!window.LotroPlayLog) throw new Error('Character import is still loading. Refresh the page and try again.');
-    var snapshot = window.LotroPlayLog.parse(document.getElementById('playlogJson').value);
+    var raw = document.getElementById('playlogJson').value;
+    var exported = window.LotroPlayLog.parseBuild(raw);
+    if (exported) {
+      var shared = buildFromExport(exported);
+      if (!shared.class || !shared.points) throw new Error('That build export has no trait points.');
+      document.getElementById('playlogJson').value = '';
+      $('#playlogImportModal').modal('hide');
+      playlogTraitSummary = traitSummary({ count: Object.keys(shared.points).length, unranked: 0 }, shared.name);
+      applyPlannerBuild(shared);
+      renderPlayLogNote();
+      return;
+    }
+    var snapshot = window.LotroPlayLog.parse(raw);
     var result = window.LotroPlayLog.upsert(snapshot, document.getElementById('playlogServer').value);
     document.getElementById('playlogJson').value = '';
     $('#playlogImportModal').modal('hide');
@@ -1653,26 +1783,27 @@ document.addEventListener('DOMContentLoaded', function() {
     updateShareControls();
   });
 
-  // Apply points if URL had point data
-  if (urlProcessResult && urlProcessResult.pointsData) {
-    setTimeout(function() {
-      if (window.LOTRO_TRAIT_PLANNER_API) {
-        try {
-          var points = JSON.parse(decodeURIComponent(urlProcessResult.pointsData));
-          window.LOTRO_TRAIT_PLANNER_API.setPoints(points);
-        } catch (e) {
-          console.warn('Failed to parse points data:', e);
-        }
-        try {
-          if (urlProcessResult.traceriesData && window.LOTRO_TRAIT_PLANNER_API.setTraceries) {
-            var traceries = JSON.parse(decodeURIComponent(urlProcessResult.traceriesData));
-            window.LOTRO_TRAIT_PLANNER_API.setTraceries(traceries);
-          }
-        } catch (e) {
-          console.warn('Failed to parse traceries data:', e);
-        }
-      }
-    }, 1000);
+  if (urlProcessResult && (urlProcessResult.pointsData || (urlProcessResult.share && urlProcessResult.share.points))) {
+    var sharedPoints = null;
+    if (urlProcessResult.pointsData) {
+      try { sharedPoints = JSON.parse(decodeURIComponent(urlProcessResult.pointsData)); }
+      catch (e) { sharedPoints = null; }
+    }
+    if (!sharedPoints && urlProcessResult.share) sharedPoints = urlProcessResult.share.points;
+    var sharedTraceries = null;
+    if (urlProcessResult.traceriesData) {
+      try { sharedTraceries = JSON.parse(decodeURIComponent(urlProcessResult.traceriesData)); }
+      catch (e) { sharedTraceries = null; }
+    }
+    if (!sharedTraceries && urlProcessResult.share) sharedTraceries = urlProcessResult.share.traceries;
+    fillPlanner({
+      class: currentClass,
+      points: sharedPoints,
+      specialization: urlProcessResult.share && urlProcessResult.share.specialization,
+      virtues: urlProcessResult.share && urlProcessResult.share.virtues,
+      traceries: sharedTraceries,
+      name: urlProcessResult.name || ''
+    });
   }
 });
 
@@ -1696,6 +1827,16 @@ function generateShareableLink() {
   var hasTraceries = traceries.some(function(t) { return !!t; });
   if (hasTraceries) {
     params.set('traceries', encodeURIComponent(JSON.stringify(traceries)));
+  }
+  if (window.LOTRO_BUILD_CODEC && api && api.getSpecialization) {
+    var shareCode = window.LOTRO_BUILD_CODEC.encode({
+      class: currentClass,
+      specialization: api.getSpecialization(),
+      points: points,
+      virtues: api.getVirtues ? api.getVirtues() : [],
+      traceries: traceries
+    });
+    if (shareCode) params.set('b', shareCode);
   }
 
   var shareUrl = baseUrl + '?' + params.toString();
@@ -1750,21 +1891,45 @@ function loadBuildFromUrl() {
   $('#loadBuildModal').modal('show');
 }
 
+function findShareCode(input) {
+  var tokens = String(input).split(/\s+/);
+  for (var i = 0; i < tokens.length; i++) {
+    var token = tokens[i].replace(/[),.;]+$/, "");
+    if (/^[a-z]{2}\.[rby_]\./i.test(token)) return token;
+  }
+  return "";
+}
+
 function loadBuildFromInput() {
   var input = document.getElementById('buildUrl').value.trim();
   if (!input) return;
 
   try {
+    var urlMatch = input.match(/https:\/\/lotroguides\.com\/skills\?[^\s]+/i);
     if (input.indexOf('{{traitPlanner:') === 0 && input.indexOf('}}') === input.length - 2) {
       var params = parseEmbedCode(input);
       applyBuildParams(params);
-    } else if (input.indexOf('?') >= 0) {
-      var url = new URL(input);
-      var urlParams = new URLSearchParams(url.search);
-      loadBuildFromUrlParams(urlParams);
+    } else if (urlMatch) {
+      var url = new URL(urlMatch[0]);
+      loadBuildFromUrlParams(new URLSearchParams(url.search));
+    } else if (input.indexOf('?') >= 0 && input.indexOf('://') >= 0) {
+      var pasted = new URL(input.split(/\s+/)[0]);
+      loadBuildFromUrlParams(new URLSearchParams(pasted.search));
     } else {
-      alert('Invalid URL or embed code format.');
-      return;
+      var code = findShareCode(input);
+      var decoded = decodeShareCode(code);
+      if (!decoded || !decoded.class) {
+        alert('Paste a skills link, a build code such as hu.r.r115, or the text lotro-cli printed.');
+        return;
+      }
+      playlogTraitSummary = '';
+      applyPlannerBuild({
+        class: decoded.class,
+        points: decoded.points,
+        specialization: decoded.specialization,
+        virtues: decoded.virtues,
+        traceries: decoded.traceries
+      });
     }
     $('#loadBuildModal').modal('hide');
     document.getElementById('buildUrl').value = '';
@@ -1785,28 +1950,31 @@ function parseEmbedCode(embedCode) {
 }
 
 function loadBuildFromUrlParams(params) {
-  currentClass = params.get('class') || 'hunter';
+  var decoded = decodeShareCode(params.get('b'));
+  currentClass = params.get('class') || (decoded && decoded.class) || 'hunter';
   currentBuild = params.get('build') || 'endgame';
   currentLevel = parseInt(params.get('level')) || 160;
-  var pointsData = params.get('points');
-  var traceriesData = params.get('traceries');
-
-  showPlanner();
-
-  if (pointsData) {
-    setTimeout(function() {
-      try {
-        var points = JSON.parse(decodeURIComponent(pointsData));
-        if (window.LOTRO_TRAIT_PLANNER_API) window.LOTRO_TRAIT_PLANNER_API.setPoints(points);
-      } catch (e) { console.warn('Failed to parse points data:', e); }
-      try {
-        if (traceriesData && window.LOTRO_TRAIT_PLANNER_API && window.LOTRO_TRAIT_PLANNER_API.setTraceries) {
-          var traceries = JSON.parse(decodeURIComponent(traceriesData));
-          window.LOTRO_TRAIT_PLANNER_API.setTraceries(traceries);
-        }
-      } catch (e) { console.warn('Failed to parse traceries data:', e); }
-    }, 1000);
+  var points = null;
+  if (params.get('points')) {
+    try { points = JSON.parse(decodeURIComponent(params.get('points'))); }
+    catch (e) { points = null; }
   }
+  if (!points && decoded) points = decoded.points;
+  var traceries = null;
+  if (params.get('traceries')) {
+    try { traceries = JSON.parse(decodeURIComponent(params.get('traceries'))); }
+    catch (e) { traceries = null; }
+  }
+  if (!traceries && decoded) traceries = decoded.traceries;
+  showPlanner(false);
+  fillPlanner({
+    class: currentClass,
+    points: points,
+    specialization: decoded && decoded.specialization,
+    virtues: decoded && decoded.virtues,
+    traceries: traceries,
+    name: params.get('n') || ''
+  });
 }
 
 function applyBuildParams(params) {

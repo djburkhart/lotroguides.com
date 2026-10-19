@@ -365,7 +365,7 @@
     return normalizeLua(data, null);
   }
 
-  function parse(text) {
+  function loadSource(text) {
     if (typeof text !== "string") throw new Error("Choose a PlayLogSnapshot.plugindata file, or paste the snapshot.");
     var source = text.replace(/^\uFEFF/, "").trim();
     if (!source) throw new Error("Choose a PlayLogSnapshot.plugindata file, or paste the snapshot.");
@@ -397,7 +397,11 @@
       }
     }
     if (!data) throw new Error("That file is not a PlayLog snapshot. Choose PlayLogSnapshot.plugindata from Documents\\The Lord of the Rings Online\\PluginData, or paste the JSON from /playlog.");
+    return data;
+  }
 
+  function parse(text) {
+    var data = loadSource(text);
     if (!data || typeof data !== "object" || Array.isArray(data)) {
       throw new Error("That text is not a PlayLog character snapshot.");
     }
@@ -413,6 +417,34 @@
     }
     data.character.name = data.character.name.trim();
     return data;
+  }
+
+  function parseBuild(text) {
+    var data = null;
+    try {
+      data = loadSource(text);
+    } catch (error) {
+      return null;
+    }
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    var points = data.points && typeof data.points === "object" && !Array.isArray(data.points) ? data.points : null;
+    var classSlug = typeof data.classSlug === "string" ? data.classSlug : "";
+    var code = typeof data.code === "string" ? data.code : "";
+    if (data.format !== "playlog-build" && !(classSlug && (code || points))) return null;
+    var name = "";
+    if (typeof data.character === "string") name = data.character;
+    else if (data.character && typeof data.character.name === "string") name = data.character.name;
+    else if (typeof data.name === "string") name = data.name;
+    return {
+      class: classSlug || null,
+      level: typeof data.level === "number" ? data.level : null,
+      specialization: typeof data.spec === "string" ? data.spec : null,
+      points: points,
+      code: code,
+      name: name.trim(),
+      virtues: Array.isArray(data.virtues) ? data.virtues : null,
+      traceries: Array.isArray(data.traceries) ? data.traceries : null,
+    };
   }
 
   function validEntry(entry) {
@@ -558,6 +590,7 @@
     STORAGE_KEY: STORAGE_KEY,
     SLOT_ORDER: SLOT_ORDER,
     parse: parse,
+    parseBuild: parseBuild,
     load: load,
     upsert: upsert,
     select: select,
